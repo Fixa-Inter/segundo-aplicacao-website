@@ -1,0 +1,11 @@
+name: Executar Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    uses: Fixa-Inter/.github/.github/workflows/criar-release.yml@main
+    secrets: inherit
