@@ -1,0 +1,172 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(190px, 280px) minmax(0, 1fr);
+  min-height: calc(100dvh - 80px);
+  gap: 20px;
+}
+.history {
+  padding: 36px 22px 22px;
+  margin-top: -80px;
+  min-height: 100dvh;
+  background: #fff;
+  box-shadow: 2px 0 8px #8a93a226;
+}
+.history h1 {
+  margin: 0 0 20px;
+  color: #153d7d;
+  font-size: 28px;
+}
+.history h2 {
+  margin: 28px 0 12px;
+  font-size: 16px;
+}
+.history > button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 14px;
+}
+.conversation {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #130943;
+  padding: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.conversation:hover,
+.conversation[aria-current='page'] {
+  background: #dceafa;
+}
+.chat {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: stretch;
+  padding: 16px 24px;
+}
+.chat > .demo {
+  align-self: flex-start;
+}
+.welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.welcome img {
+  object-fit: contain;
+  width: 220px;
+  height: 220px;
+}
+.welcome h2 {
+  font-size: clamp(22px, 2.4vw, 32px);
+  max-width: 500px;
+  font-weight: 500;
+}
+.welcome p {
+  color: #4c5461;
+}
+.messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 250px;
+}
+.bubble {
+  max-width: min(80%, 540px);
+  padding: 14px 18px;
+  border-radius: 16px;
+}
+.bubble p {
+  margin: 5px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.assistant {
+  background: #f0f5fd;
+  align-self: flex-start;
+}
+.user {
+  background: #153d7d;
+  color: #fff;
+  align-self: flex-end;
+}
+.composer {
+  max-width: 700px;
+  width: 100%;
+  align-self: center;
+  margin-top: auto;
+}
+.composer label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.composer > div {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  padding: 12px;
+  background: #f3f8ff;
+  border-radius: 16px;
+}
+.composer textarea {
+  flex: 1;
+  min-width: 0;
+  min-height: 70px;
+  max-height: 180px;
+  resize: vertical;
+  border: 0;
+  background: transparent;
+  font: inherit;
+}
+.composer button {
+  display: grid;
+  place-items: center;
+  padding: 9px;
+}
+.composer small {
+  display: block;
+  text-align: right;
+  color: #4c5461;
+}
+@media (max-width: 760px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+  .history {
+    padding: 16px;
+    margin-top: 0;
+    min-height: 0;
+    box-shadow: none;
+    background: #f5f7fa;
+  }
+  .history nav {
+    display: flex;
+    overflow-x: auto;
+  }
+  .conversation {
+    width: 150px;
+    flex: none;
+  }
+  .chat {
+    padding: 0 20px;
+    min-height: 500px;
+  }
+  .welcome img {
+    width: 140px;
+    height: 140px;
+  }
+}

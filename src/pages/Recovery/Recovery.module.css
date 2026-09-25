@@ -1,0 +1,190 @@
+.page {
+  min-height: 100dvh;
+  padding: clamp(20px, 4dvh, 48px) 24px;
+  background: #fefefe;
+  position: relative;
+  display: grid;
+  align-items: center;
+}
+.back {
+  position: absolute;
+  top: clamp(20px, 5.76dvh, 59px);
+  left: clamp(20px, 4.375vw, 63px);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #130943;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.back:hover {
+  background: #edf2f9;
+}
+.back svg {
+  width: 30px;
+  height: 30px;
+}
+.content {
+  width: min(820px, 100%, 84dvh);
+  margin-inline: auto;
+  text-align: center;
+  --field-height: clamp(48px, 7.32dvh, 75px);
+  --label-size: clamp(17px, 2.44dvh, 25px);
+  --input-size: clamp(16px, 1.95dvh, 20px);
+  --label-gap: clamp(6px, 1.1dvh, 12px);
+}
+.manu {
+  display: block;
+  width: clamp(160px, 35dvh, 380px);
+  height: clamp(160px, 35dvh, 380px);
+  margin: 0 auto;
+  object-fit: contain;
+}
+.content h1 {
+  color: #153d7d;
+  font-size: clamp(28px, 4.88dvh, 50px);
+  font-weight: 500;
+  margin: 0 0 clamp(6px, 1dvh, 12px);
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+.content h1:focus {
+  outline: none;
+}
+.description {
+  margin: 0 auto clamp(16px, 2.1dvh, 24px);
+  font-size: clamp(16px, 2.54dvh, 26px);
+  font-weight: 300;
+  color: #130943;
+  line-height: 1.5;
+}
+.form {
+  text-align: left;
+}
+.primary {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  min-height: clamp(48px, 7.32dvh, 75px);
+  padding: 10px 16px;
+  margin-top: clamp(16px, 2.15dvh, 22px);
+  border: 0;
+  border-radius: 35px;
+  background: #153d7d;
+  color: #fff;
+  font-size: clamp(18px, 2.44dvh, 25px);
+  font-weight: 500;
+  cursor: pointer;
+}
+.primary:hover {
+  background: #102f63;
+}
+.primary:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+.secondary {
+  display: inline-block;
+  font-size: clamp(17px, 2.44dvh, 25px);
+  color: #130943;
+  font-weight: 500;
+  text-decoration: none;
+  margin-top: clamp(16px, 3.3dvh, 34px);
+}
+.secondary:hover {
+  text-decoration: underline;
+}
+.codeLabel {
+  display: block;
+  margin: 0 0 12px 6px;
+  color: #153d7d;
+  font-size: var(--label-size);
+  font-weight: 500;
+}
+.pinRoot {
+  justify-content: space-between;
+  gap: clamp(8px, 2vw, 30px);
+}
+.pinInput {
+  width: clamp(36px, 8.8dvh, 90px);
+  height: clamp(52px, 10.25dvh, 105px);
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: clamp(12px, 2.9dvh, 30px);
+  background: rgba(219, 224, 235, 0.3);
+  font-size: clamp(22px, 3.12dvh, 32px);
+}
+.pinInput:focus {
+  border-color: #153d7d;
+}
+.resend {
+  font-size: clamp(15px, 2.15dvh, 22px);
+  margin: clamp(15px, 2.4dvh, 26px) 0 0;
+}
+.resend button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #153d7d;
+  cursor: pointer;
+  font-weight: 600;
+}
+.demoNote {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #4c5461;
+  margin: 12px 0 0;
+}
+.passwordFields {
+  display: grid;
+  gap: 16px;
+}
+.passwordPage .manu {
+  width: clamp(120px, 22dvh, 240px);
+  height: clamp(120px, 22dvh, 240px);
+}
+.error {
+  color: #96031a;
+  font-size: 13px;
+  margin: 8px 6px 0;
+}
+@media (max-width: 600px) {
+  .page {
+    padding-top: 72px;
+    padding-bottom: 32px;
+  }
+  .content {
+    width: min(440px, 100%);
+  }
+  .manu {
+    width: 190px;
+    height: 190px;
+  }
+  .content h1 {
+    font-size: 28px;
+  }
+  .description {
+    font-size: 16px;
+  }
+  .pinRoot {
+    gap: 7px;
+  }
+  .pinInput {
+    width: 100%;
+    height: 56px;
+    border-radius: 14px;
+  }
+  .pinRoot > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .passwordPage .manu {
+    width: 135px;
+    height: 135px;
+  }
+}

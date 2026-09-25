@@ -1,0 +1,96 @@
+.search {
+  flex: 1 1 350px;
+}
+.search input {
+  border-radius: 999px;
+  box-shadow: 0 2px 8px #8a93a226;
+}
+.tabs {
+  display: flex;
+  gap: 22px;
+  border-bottom: 1px solid #e2e7ef;
+}
+.tabs button {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: #667085;
+  padding: 8px 2px;
+  cursor: pointer;
+}
+.tabs button[aria-selected='true'] {
+  color: #153d7d;
+  border-bottom-color: #153d7d;
+  font-weight: 600;
+}
+.tablePanel {
+  padding: 0 0 20px;
+  overflow: hidden;
+}
+.tablePanel table th {
+  background: #9ab6df;
+  color: white;
+  font-size: 14px;
+}
+.tablePanel table th:first-child {
+  padding-left: 22px;
+}
+.tablePanel table td:first-child {
+  padding-left: 22px;
+}
+.tablePanel table tbody tr:nth-child(even) {
+  background: #e0ebff;
+}
+.tablePanel table tbody tr:nth-child(odd) {
+  background: #fff;
+}
+.tablePanel table td {
+  border: 0;
+}
+.tablePanel > div:last-child {
+  padding-right: 20px;
+}
+.nameButton {
+  border: 0;
+  background: none;
+  color: #130943;
+  cursor: pointer;
+  text-align: left;
+  padding: 5px;
+}
+.nameButton:hover {
+  text-decoration: underline;
+}
+.iconButton {
+  border: 0;
+  background: transparent;
+  color: #153d7d;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.iconButton:hover {
+  background: #dceafa;
+}
+.delete {
+  color: #96031a;
+}
+@media (max-width: 600px) {
+  .tablePanel {
+    padding: 16px;
+  }
+  .tablePanel table td:first-child {
+    padding-left: 0;
+  }
+  .tablePanel table tbody tr:nth-child(even) {
+    background: #e0ebff;
+  }
+  .tablePanel table tr {
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .tablePanel > div:last-child {
+    padding-right: 0;
+  }
+}

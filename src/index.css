@@ -1,0 +1,67 @@
+@import '@fontsource/poppins/300.css';
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+:root {
+  font-family: Poppins, system-ui, sans-serif;
+  color: #130943;
+  background: #fcfdfd;
+  font-synthesis: none;
+  --fixa-primary: #153d7d;
+  --fixa-ink: #130943;
+  --fixa-muted: #4c5461;
+  --fixa-bg: #fcfdfd;
+  --fixa-card: #f3f8ff;
+  --fixa-focus: #578bd6;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  min-width: 320px;
+}
+body,
+button,
+input {
+  font-family: Poppins, system-ui, sans-serif;
+}
+button,
+input {
+  font-size: inherit;
+}
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 3px solid #578bd6;
+  outline-offset: 3px;
+}
+#root {
+  min-height: 100dvh;
+}
+a {
+  color: var(--fixa-primary);
+}
+button {
+  touch-action: manipulation;
+}
+.page-loading {
+  padding: 2rem;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}

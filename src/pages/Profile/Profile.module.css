@@ -1,0 +1,70 @@
+.page {
+  max-width: 1050px;
+}
+.identity {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.identity img {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.identity h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+}
+.identity p {
+  margin: 0;
+}
+.identity button {
+  margin-left: auto;
+  min-width: 180px;
+  background: #578bd6;
+  border-color: #578bd6;
+}
+.information {
+  margin-top: 18px;
+}
+.information h3 {
+  font-size: 18px;
+  font-weight: 500;
+}
+.information > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 26px;
+}
+.information p {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  color: #4c5461;
+}
+.information p svg {
+  flex: none;
+}
+.information button {
+  margin-top: 18px;
+}
+.form {
+  margin-top: 18px;
+}
+.passwordFields {
+  display: grid;
+  gap: 16px;
+}
+@media (max-width: 600px) {
+  .identity button {
+    margin-left: 0;
+    width: 100%;
+  }
+  .information > div {
+    grid-template-columns: 1fr;
+  }
+}

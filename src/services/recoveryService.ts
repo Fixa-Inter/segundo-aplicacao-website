@@ -1,0 +1,24 @@
+import type { RecoveryChallenge } from '../types/recovery'
+import { validateEmail } from '../utils/validation'
+const delay = () => new Promise<void>((resolve) => setTimeout(resolve, 350))
+export const DEMO_RECOVERY_CODE = '123456'
+export async function requestRecovery(email: string): Promise<RecoveryChallenge> {
+  const error = validateEmail(email)
+  if (error) throw new Error(error)
+  await delay()
+  return { id: 'demo-recovery', email: email.trim() }
+}
+export async function verifyRecoveryCode(
+  challenge: RecoveryChallenge,
+  code: string,
+): Promise<void> {
+  await delay()
+  if (!challenge.email || code !== DEMO_RECOVERY_CODE)
+    throw new Error('Código inválido. Confira os seis dígitos e tente novamente.')
+}
+export async function resetPassword(challenge: RecoveryChallenge, password: string): Promise<void> {
+  await delay()
+  if (!challenge.email || password.length < 8)
+    throw new Error('A senha precisa ter pelo menos 8 caracteres.')
+  // Mock: nenhum e-mail é enviado e nenhuma credencial real é alterada.
+}
