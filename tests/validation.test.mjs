@@ -32,13 +32,20 @@ test('valida evento e perfil antes de salvar', () => {
     title: 'Inspeção',
     date: '2026-03-11',
     time: '09:30',
+    endTime: '10:30',
+    location: '',
     description: '',
+    observation: '',
     technicianId: '',
   }
   assert.deepEqual(validateEvent(event), {})
   assert.equal(validateEvent({ ...event, title: '' }).title, 'Informe o título do evento.')
   assert.equal(validateEvent({ ...event, date: '2026-02-31' }).date, 'Selecione uma data válida.')
   assert.equal(validateEvent({ ...event, time: '25:30' }).time, 'Selecione um horário.')
+  assert.equal(
+    validateEvent({ ...event, endTime: '09:00' }).endTime,
+    'O término deve ser após o início.',
+  )
   const profile = {
     name: 'Rapha',
     email: 'demo@fixa.test',

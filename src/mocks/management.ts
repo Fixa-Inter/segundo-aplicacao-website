@@ -68,7 +68,10 @@ export const initialEvents: CalendarEvent[] = [
     title: 'Reunião de equipe',
     date: '2026-03-11',
     time: '09:00',
+    endTime: '10:00',
+    location: 'Sala de reuniões',
     description: 'Alinhamento das solicitações abertas.',
+    observation: '',
     technicianId: 't-1',
   },
   {
@@ -76,7 +79,10 @@ export const initialEvents: CalendarEvent[] = [
     title: 'Inspeção elétrica',
     date: '2026-03-12',
     time: '14:00',
+    endTime: '15:00',
+    location: 'Bloco A',
     description: 'Verificação preventiva.',
+    observation: '',
     technicianId: 't-5',
   },
   {
@@ -84,7 +90,10 @@ export const initialEvents: CalendarEvent[] = [
     title: 'Manutenção hidráulica',
     date: '2026-03-18',
     time: '10:30',
+    endTime: '11:30',
+    location: 'Bloco B',
     description: 'Revisão do sistema hidráulico.',
+    observation: '',
     technicianId: 't-2',
   },
 ]

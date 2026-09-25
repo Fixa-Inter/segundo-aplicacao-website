@@ -32,8 +32,13 @@ export function validateEvent(
   )
     errors.date = 'Selecione uma data válida.'
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.time)) errors.time = 'Selecione um horário.'
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.endTime) || input.endTime <= input.time)
+    errors.endTime = 'O término deve ser após o início.'
+  if (input.location.length > 100) errors.location = 'O local deve ter no máximo 100 caracteres.'
   if (input.description.length > 300)
     errors.description = 'A descrição deve ter no máximo 300 caracteres.'
+  if (input.observation.length > 300)
+    errors.observation = 'A observação deve ter no máximo 300 caracteres.'
   return errors
 }
 

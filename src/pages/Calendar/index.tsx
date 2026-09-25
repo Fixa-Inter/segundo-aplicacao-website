@@ -24,7 +24,10 @@ const emptyEvent: CalendarEventInput = {
   title: '',
   date: '2026-03-11',
   time: '09:00',
+  endTime: '10:00',
+  location: '',
   description: '',
+  observation: '',
   technicianId: '',
 }
 
@@ -80,7 +83,10 @@ export default function Calendar() {
             title: item.title,
             date: item.date,
             time: item.time,
+            endTime: item.endTime,
+            location: item.location,
             description: item.description,
+            observation: item.observation,
             technicianId: item.technicianId,
           }
         : { ...emptyEvent, date: selectedDay },
@@ -102,7 +108,13 @@ export default function Calendar() {
     setError('')
     try {
       await saveEvent(
-        { ...form, title: form.title.trim(), description: form.description.trim() },
+        {
+          ...form,
+          title: form.title.trim(),
+          location: form.location.trim(),
+          description: form.description.trim(),
+          observation: form.observation.trim(),
+        },
         editing?.id,
       )
       setEvents(await listEvents())
@@ -215,9 +227,13 @@ export default function Calendar() {
                 {selectedEvents.map((item) => (
                   <article className={styles.event} key={item.id}>
                     <div>
-                      <time dateTime={`${item.date}T${item.time}`}>{item.time}</time>
+                      <time dateTime={`${item.date}T${item.time}`}>
+                        {item.time}–{item.endTime}
+                      </time>
                       <h3>{item.title}</h3>
+                      {item.location && <p>Local: {item.location}</p>}
                       <p>{item.description || 'Sem descrição.'}</p>
+                      {item.observation && <p>Observação: {item.observation}</p>}
                       <p className={common.muted}>
                         Técnico:{' '}
                         {technicians.find((tech) => tech.id === item.technicianId)?.name ??
@@ -289,7 +305,7 @@ export default function Calendar() {
               )}
             </label>
             <label className={common.field}>
-              Horário
+              Início
               <input
                 type="time"
                 value={form.time}
@@ -299,6 +315,34 @@ export default function Calendar() {
               {fieldErrors.time && (
                 <span role="alert" className={common.error}>
                   {fieldErrors.time}
+                </span>
+              )}
+            </label>
+            <label className={common.field}>
+              Término
+              <input
+                type="time"
+                value={form.endTime}
+                aria-invalid={Boolean(fieldErrors.endTime)}
+                onChange={(event) => update('endTime', event.target.value)}
+              />
+              {fieldErrors.endTime && (
+                <span role="alert" className={common.error}>
+                  {fieldErrors.endTime}
+                </span>
+              )}
+            </label>
+            <label className={common.field}>
+              Local
+              <input
+                value={form.location}
+                maxLength={101}
+                aria-invalid={Boolean(fieldErrors.location)}
+                onChange={(event) => update('location', event.target.value)}
+              />
+              {fieldErrors.location && (
+                <span role="alert" className={common.error}>
+                  {fieldErrors.location}
                 </span>
               )}
             </label>
@@ -329,6 +373,20 @@ export default function Calendar() {
               {fieldErrors.description && (
                 <span role="alert" className={common.error}>
                   {fieldErrors.description}
+                </span>
+              )}
+            </label>
+            <label className={`${common.field} ${common.full}`}>
+              Observação
+              <textarea
+                value={form.observation}
+                maxLength={301}
+                aria-invalid={Boolean(fieldErrors.observation)}
+                onChange={(event) => update('observation', event.target.value)}
+              />
+              {fieldErrors.observation && (
+                <span role="alert" className={common.error}>
+                  {fieldErrors.observation}
                 </span>
               )}
             </label>
