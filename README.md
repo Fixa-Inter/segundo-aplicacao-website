@@ -12,6 +12,7 @@ npm run dev
 npm run build
 npm run lint
 npm test
+npm run format:check
 ```
 
 O Vite informa a URL local. `npm run preview` serve o build de `dist/`.
@@ -22,11 +23,12 @@ Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não v
 
 | Rota | Fluxo disponível nesta versão |
 | --- | --- |
+| `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
 | `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
 | `/` | Home com banner original, indicadores, gráfico e calendário semanal |
 | `/dashboard` | KPIs, filtros de período/métrica, barras, linha, histograma e boxplot com dados demonstrativos |
 | `/equipe` | Busca, filtro, paginação, consulta, cadastro, edição e exclusão **em memória** de técnicos |
-| `/calendario` | Grade mensal, seleção de dia e criação, edição e exclusão **em memória** de eventos |
+| `/calendario` | Grade mensal, seleção de dia e criação, edição e exclusão **em memória** de eventos com local, descrição, observação e horários |
 | `/perfil` | Dados do gestor editáveis **em memória** e validação demonstrativa de troca de senha |
 | `/manu` | Conversas guiadas **sem IA conectada** e sem gravação persistente |
 
@@ -48,7 +50,8 @@ Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege
 ## Qualidade e evidências
 
 - Build TypeScript/Vite, lint e testes Node podem ser executados pelos comandos acima.
-- Login → Home e validação/cadastro de técnico foram percorridos no navegador local.
+- O código usa Prettier com indentação de dois espaços, configurado em `.prettierrc.json`. Execute `npm run format` para aplicar o estilo.
+- Login → Home, cadastro de técnico, CRUD de eventos, edição de perfil, Manu, navegação móvel, página pública e 404 foram percorridos no navegador local. Veja a [evidência de QA](docs/QA_NAVEGADOR.md) e seus limites.
 - Foram comparados os frames Home, Dashboard, Equipe, Calendário, Perfil e Manu da cópia do Figma. A Home recebeu o banner e o avatar originais; a Manu recebeu sua arte original.
 - A [matriz de requisitos](docs/MATRIZ_REQUISITOS.md) registra critério, estado, arquivo, teste e demonstração. O [roteiro DAD](docs/ROTEIRO_DAD.md) contém os passos de apresentação e o que ainda precisa ser validado.
 - `docs/REVISAO_INICIAL.md` descreve a revisão anterior e permanece como registro histórico, **não como estado atual**.

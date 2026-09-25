@@ -16,11 +16,11 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 | `useEffect` com dependências corretas | Implementado, QA pendente | páginas de Dashboard, Equipe, Calendário e Perfil | Efeitos de carga inicial com cancelamento local; revisão dinâmica ao vivo pendente |
 | Listas com `key` de ID estável | Implementado, QA pendente | tabelas, eventos, conversas | Revisão de código; cadastro em Equipe verificado no navegador |
 | `useParams` com verificação de parâmetro | Não aplicável | Nenhuma rota usa parâmetro dinâmico | Se forem criadas rotas de detalhe, implementar com guarda para `undefined` |
-| 3+ rotas, `Link`/`useNavigate`, rota curinga e retorno | Validado parcialmente | [`App.tsx`](../src/App.tsx), [`NotFound`](../src/pages/NotFound/index.tsx) | Login → Home e Home → Equipe/Dashboard verificados no navegador; rota 404 ainda requer teste direto |
+| 3+ rotas, `Link`/`useNavigate`, rota curinga e retorno | Validado | [`App.tsx`](../src/App.tsx), [`NotFound`](../src/pages/NotFound/index.tsx) | Login → Home e navegação entre telas; URL inexistente levou à 404 com link de retorno no navegador |
 | WCAG 2.1 AA mínima, contraste, labels, alt, teclado, foco, erros `role=alert` | Parcial | [`index.css`](../src/index.css), [`AuthField`](../src/components/AuthField/index.tsx), páginas e modais Mantine | Labels/erros do cadastro vistos na árvore acessível; auditoria de contraste, Tab completo e leitor de tela pendentes |
 | Carregando/sucesso/erro no DOM, sem `alert()`/`console.log` como tratamento | Parcial | páginas e services | Estados de login, Dashboard e Equipe vistos no navegador; falhas de rede reais não podem ser simuladas sem API |
 | Publicação em Vercel ou GitHub Pages e link no README | Pendente externo | [`README.md`](../README.md) | Não há URL de deploy; validar site ao vivo depois de publicar |
-| 20 commits Conventional Commits em quatro semanas reais | Pendente externo | Histórico Git local iniciado nesta entrega | Não é permitido criar datas ou commits retroativos; verificar `git log` e duração real antes da avaliação |
+| 20 commits Conventional Commits em quatro semanas reais | Pendente externo | Histórico Git local iniciado nesta entrega | Commits reais em português; não é permitido criar datas ou commits retroativos. Verificar `git log` e duração real antes da avaliação |
 | Extra: Context API, Provider e hook | Validado em código | [`AuthContext.tsx`](../src/contexts/AuthContext.tsx), [`useAuth.ts`](../src/contexts/useAuth.ts) | Build; login demonstrativo no navegador |
 | Extra: `useReducer` com `State` e `Action` union | Validado em código | [`auth.ts`](../src/types/auth.ts), [`AuthContext.tsx`](../src/contexts/AuthContext.tsx) | Build; login/logout ainda precisam de roteiro integral de teclado |
 | Extra: hook com loading/erro/AbortController | Pendente | Não implementado | Exige fonte cancelável para evitar abstração artificial no mock |
@@ -36,11 +36,11 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 
 | Critério | Estado | Implementação / arquivo | Teste e demonstração |
 | --- | --- | --- | --- |
-| Landing page sobre o projeto | Pendente | Não há página pública sobre o FIXA | Requer definição de conteúdo e rota pública |
+| Landing page sobre o projeto | Validado | [`About`](../src/pages/About/index.tsx), rota `/sobre` | Aberta no navegador em 1340 × 800, 800 × 1340 e 390 × 844; links de acesso na árvore acessível |
 | CRUD das tabelas administrativas definidas em POO | Parcial | CRUD de técnicos e eventos em [`managementService.ts`](../src/services/managementService.ts) e páginas | Cadastro de técnico e validação verificados no navegador; **não há Postgres/Servlet nem terceira tabela definida** |
 | GitHub + hospedagem estática + links | Pendente externo | Build Vite disponível | Repositório remoto e deploy não foram fornecidos; testar URL pública |
-| Responsividade e fidelidade ao protótipo UX | Parcial | CSS Modules e assets originais em [`src/assets/figma`](../src/assets/figma) | Comparação inicial com frames Home, Dashboard, Equipe, Calendário, Perfil e Manu; validação em resoluções alvo em andamento |
-| Documento detalhado de entregas com links | Parcial | Esta matriz + [`ROTEIRO_DAD.md`](./ROTEIRO_DAD.md) | Preencher URLs do repositório e site após publicação |
+| Responsividade e fidelidade ao protótipo UX | Parcial | CSS Modules e assets originais em [`src/assets/figma`](../src/assets/figma) | [QA no navegador](./QA_NAVEGADOR.md): sem rolagem horizontal no documento ou imagens quebradas nas três resoluções; captura visual falhou, comparação final pendente |
+| Documento detalhado de entregas com links | Parcial | Esta matriz, [`ROTEIRO_DAD.md`](./ROTEIRO_DAD.md) e [`QA_NAVEGADOR.md`](./QA_NAVEGADOR.md) | Documentos criados; preencher URLs do repositório e site após publicação |
 
 ## Business Intelligence — páginas 10–11
 
@@ -81,4 +81,4 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 2. Tabelas administrativas e regras de cadastro acordadas com POO/Backend; o formulário do Figma contém campos cuja persistência e política de senha ainda não foram definidas.
 3. Fonte analítica, métricas e relatório da equipe de BI.
 4. Repositório remoto, hospedagem e URL pública. A pasta recebida não continha `.git`; qualquer histórico iniciado agora tem datas reais e não comprova quatro semanas passadas.
-5. Testes de leitor de tela, tablet físico e comparação final de todos os estados com Figma, além dos testes de viewport em navegador.
+5. Testes de leitor de tela, tablet físico e comparação visual final de todos os estados com Figma. Os viewports foram medidos no navegador, mas a captura visual falhou nesta sessão.

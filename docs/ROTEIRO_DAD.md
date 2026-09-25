@@ -13,13 +13,14 @@ Este roteiro apresenta o **protótipo local do gestor**. Use a [matriz de requis
 
 | Etapa | Ação na interface | O que conferir e dizer |
 | --- | --- | --- |
+| Apresentação pública | Abra `/sobre` e use “Explorar o protótipo”. | Objetivo do FIXA, funções da demonstração e limites explícitos da integração. |
 | Acesso privado | Abra `/equipe` sem sessão. | A rota pede login. O backend ainda terá de impor autenticação e autorização reais. |
 | Login | Entre com `demo@fixa.test` e `demo1234`. | Carregamento e redirecionamento para Home. O mock aceita quaisquer campos não vazios; não use senha real. |
 | Recuperação | Saia, abra “Esqueci minha senha”, use um e-mail válido e o código `123456`. | Validação, erros e etapas. Nenhum e-mail é enviado e nenhuma senha é alterada. Entre novamente. |
 | Home e navegação | Percorra cards, gráfico, calendário semanal, menu e avatar. | Arte exportada do Figma, links funcionais, modo responsivo e aviso de dados demonstrativos. |
 | Dashboard | Altere período e métrica. | KPIs, barras, linha, histograma, boxplot, filtros e rótulos acessíveis. A fonte é fixture, sem Data Mart conectado. |
 | Equipe | Pesquise, filtre, abra um técnico, tente salvar cadastro vazio, depois cadastre, edite e exclua um técnico de teste. | Tabela, paginação, erros por campo, confirmação de exclusão e avisos de operação nesta sessão. Um técnico vinculado a evento não pode ser excluído. |
-| Calendário | Mude o mês, selecione um dia, crie, edite e exclua um evento. | Grade mensal, eventos do dia, validação de data e horário e aviso de dados em memória. |
+| Calendário | Mude o mês, selecione um dia, crie, edite e exclua um evento. | Grade mensal, eventos do dia, início, término, local, observação, validação de data e horário e aviso de dados em memória. |
 | Perfil | Abra o perfil, edite o nome e salve. Abra a troca de senha. | Nome atualizado na interface; troca de senha apenas valida campos e informa que a credencial não mudou. |
 | Manu | Envie uma pergunta, abra “Novo chat” e pesquise uma conversa. | Histórico só da sessão e resposta guiada explicitamente identificada, sem IA conectada. |
 | Rota desconhecida | Abra uma URL inexistente, como `/nao-existe`. | Página 404 e retorno para a aplicação. |
