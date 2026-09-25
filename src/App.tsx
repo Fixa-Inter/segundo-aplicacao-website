@@ -5,6 +5,7 @@ import { AppLayout } from './components/AppLayout'
 import { PrivateRoute } from './routes/PrivateRoute'
 
 const Login = lazy(() => import('./pages/Login'))
+const About = lazy(() => import('./pages/About'))
 const Recovery = lazy(() => import('./pages/Recovery'))
 const Home = lazy(() => import('./pages/Home'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -26,6 +27,7 @@ function App() {
           }
         >
           <Routes>
+            <Route path="/sobre" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/recuperar-senha" element={<Recovery />} />
             <Route element={<PrivateRoute />}>

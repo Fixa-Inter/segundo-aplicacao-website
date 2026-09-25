@@ -82,6 +82,13 @@
   font-size: 12px;
   line-height: 1.5;
 }
+.aboutLink {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--fixa-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
 .manu {
   display: block;
   width: 100%;

@@ -86,6 +86,9 @@ export default function Login() {
             <p className={styles.demo}>
               Acesso demonstrativo. Qualquer identificação e senha não vazias abrem a sessão.
             </p>
+            <Link className={styles.aboutLink} to="/sobre">
+              Conheça o projeto
+            </Link>
           </form>
         </section>
         <img
