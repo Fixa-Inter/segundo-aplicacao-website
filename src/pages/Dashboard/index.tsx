@@ -31,6 +31,8 @@ export default function Dashboard() {
   const visible = records.slice(-Number(months))
   const opened = visible.reduce((sum, item) => sum + item.opened, 0)
   const completed = visible.reduce((sum, item) => sum + item.completed, 0)
+  const completionRate = opened ? Math.min(100, Math.round((completed / opened) * 100)) : 0
+  const pending = Math.max(0, opened - completed)
   const hours = visible.flatMap((item) => item.hours).sort((a, b) => a - b)
   const average = hours.length
     ? (hours.reduce((sum, hour) => sum + hour, 0) / hours.length).toFixed(1)
@@ -86,25 +88,55 @@ export default function Dashboard() {
         !error &&
         (visible.length ? (
           <>
-            <section className={common.kpis} aria-label="Indicadores principais">
-              <div className={common.kpi}>
-                <span>Solicitações abertas</span>
-                <strong>{opened}</strong>
-              </div>
-              <div className={common.kpi}>
-                <span>Concluídas</span>
-                <strong>{completed}</strong>
-              </div>
-              <div className={common.kpi}>
-                <span>Taxa de conclusão</span>
-                <strong>{Math.round((completed / opened) * 100)}%</strong>
-              </div>
-              <div className={common.kpi}>
-                <span>Tempo médio</span>
-                <strong>{average} h</strong>
-              </div>
-            </section>
-            <div className={common.twoColumns}>
+            <div className={styles.overview}>
+              <section className={styles.summaryGrid} aria-label="Indicadores principais">
+                <div className={styles.summaryCard}>
+                  <span>Solicitações abertas</span>
+                  <strong>{opened}</strong>
+                </div>
+                <div className={styles.summaryCard}>
+                  <span>Concluídas</span>
+                  <strong>{completed}</strong>
+                </div>
+                <div className={styles.summaryCard}>
+                  <span>Pendentes</span>
+                  <strong>{pending}</strong>
+                </div>
+                <div className={styles.summaryCard}>
+                  <span>Tempo médio</span>
+                  <strong>{average} h</strong>
+                </div>
+              </section>
+              <section className={styles.rings} aria-label="Distribuição das solicitações">
+                <div className={styles.ringCard}>
+                  <h2>Taxa de conclusão</h2>
+                  <div
+                    className={styles.ring}
+                    role="img"
+                    aria-label={`${completionRate}% das solicitações abertas foram concluídas`}
+                    style={{ background: `conic-gradient(#153d7d ${completionRate}%, #dbe7f6 0)` }}
+                  >
+                    <span>{completionRate}%</span>
+                  </div>
+                  <p>Concluídas / abertas</p>
+                </div>
+                <div className={styles.ringCard}>
+                  <h2>Em andamento</h2>
+                  <div
+                    className={styles.ring}
+                    role="img"
+                    aria-label={`${100 - completionRate}% das solicitações abertas estão pendentes`}
+                    style={{
+                      background: `conic-gradient(#578bd6 ${100 - completionRate}%, #dbe7f6 0)`,
+                    }}
+                  >
+                    <span>{pending}</span>
+                  </div>
+                  <p>Solicitações pendentes</p>
+                </div>
+              </section>
+            </div>
+            <div className={styles.charts}>
               <section className={common.panel} aria-labelledby="bar-title">
                 <h2 id="bar-title">Solicitações por mês</h2>
                 <div
