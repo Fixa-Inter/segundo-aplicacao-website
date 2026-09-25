@@ -1,8 +1,14 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Modal } from '@mantine/core'
 import { Pencil, Trash2 } from 'lucide-react'
-import { listTechnicians, removeTechnician, saveTechnician } from '../../services/managementService'
-import type { Technician, TechnicianInput } from '../../types/management'
+import { Link } from 'react-router-dom'
+import {
+  getProfile,
+  listTechnicians,
+  removeTechnician,
+  saveTechnician,
+} from '../../services/managementService'
+import type { ManagerProfile, Technician, TechnicianInput } from '../../types/management'
 import { validateTechnician } from '../../utils/managementValidation'
 import common from '../management.module.css'
 import styles from './Team.module.css'
@@ -19,6 +25,7 @@ const pageSize = 5
 
 export default function Team() {
   const [items, setItems] = useState<Technician[]>([])
+  const [manager, setManager] = useState<ManagerProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -36,9 +43,12 @@ export default function Team() {
 
   useEffect(() => {
     let active = true
-    listTechnicians()
-      .then((data) => {
-        if (active) setItems(data)
+    Promise.all([listTechnicians(), getProfile()])
+      .then(([technicians, profile]) => {
+        if (active) {
+          setItems(technicians)
+          setManager(profile)
+        }
       })
       .catch(() => {
         if (active) setError('Não foi possível carregar a equipe.')
@@ -135,40 +145,44 @@ export default function Team() {
     <div className={common.page}>
       <div className={common.heading}>
         <h1>Minha equipe</h1>
-        <button className={common.primary} type="button" onClick={() => openForm()}>
-          + Adicionar
-        </button>
+        {tab === 'Técnicos' && (
+          <button className={common.primary} type="button" onClick={() => openForm()}>
+            + Adicionar
+          </button>
+        )}
       </div>
       <span className={common.demo}>Dados demonstrativos · alterações até recarregar</span>
-      <div className={common.toolbar}>
-        <label className={`${common.field} ${styles.search}`}>
-          Pesquisar
-          <input
-            type="search"
-            value={query}
-            maxLength={120}
-            placeholder="Pesquisar..."
-            onChange={(event) => {
-              setQuery(event.target.value)
-              setPage(1)
-            }}
-          />
-        </label>
-        <label className={common.field}>
-          Situação
-          <select
-            value={filter}
-            onChange={(event) => {
-              setFilter(event.target.value)
-              setPage(1)
-            }}
-          >
-            <option>Todos</option>
-            <option>Ativo</option>
-            <option>Inativo</option>
-          </select>
-        </label>
-      </div>
+      {tab === 'Técnicos' && (
+        <div className={common.toolbar}>
+          <label className={`${common.field} ${styles.search}`}>
+            Pesquisar
+            <input
+              type="search"
+              value={query}
+              maxLength={120}
+              placeholder="Pesquisar..."
+              onChange={(event) => {
+                setQuery(event.target.value)
+                setPage(1)
+              }}
+            />
+          </label>
+          <label className={common.field}>
+            Situação
+            <select
+              value={filter}
+              onChange={(event) => {
+                setFilter(event.target.value)
+                setPage(1)
+              }}
+            >
+              <option>Todos</option>
+              <option>Ativo</option>
+              <option>Inativo</option>
+            </select>
+          </label>
+        </div>
+      )}
       <div className={styles.tabs} role="tablist" aria-label="Tipo de integrante">
         <button
           type="button"
@@ -197,15 +211,44 @@ export default function Team() {
           {error}
         </p>
       )}
-      {tab === 'Gestores' ? (
-        <section className={common.panel} role="tabpanel" aria-label="Gestores">
-          <p>Raphaely Sales · Gestora da conta demonstrativa</p>
+      {loading ? (
+        <p role="status">Carregando equipe…</p>
+      ) : tab === 'Gestores' ? (
+        <section
+          className={`${common.panel} ${styles.tablePanel}`}
+          role="tabpanel"
+          aria-label="Gestores"
+        >
+          {manager ? (
+            <div className={common.tableWrap}>
+              <table className={common.table}>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Empresa</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-label="Nome">{manager.name}</td>
+                    <td data-label="E-mail">{manager.email}</td>
+                    <td data-label="Empresa">{manager.company}</td>
+                    <td data-label="Ação">
+                      <Link to="/perfil">Ver perfil</Link>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className={common.empty}>Nenhum gestor disponível nesta conta demonstrativa.</p>
+          )}
           <p className={common.muted}>
-            O cadastro e a gestão de outros gestores dependem das regras de acesso da API.
+            A gestão de outras contas exige regras de autorização e contrato da API.
           </p>
         </section>
-      ) : loading ? (
-        <p role="status">Carregando equipe…</p>
       ) : (
         <section
           className={`${common.panel} ${styles.tablePanel}`}
