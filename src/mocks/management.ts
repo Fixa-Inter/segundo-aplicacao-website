@@ -1,13 +1,27 @@
 import type {
+  Address,
   CalendarEvent,
   DashboardRecord,
   ManagerProfile,
   Technician,
 } from '../types/management'
 
+const demoAddress: Address = {
+  postalCode: '01310-100',
+  address: 'Avenida Exemplo',
+  district: 'Centro',
+  city: 'São Paulo',
+  state: 'SP',
+  number: '100',
+  complement: '',
+}
+
 export const initialTechnicians: Technician[] = [
   {
     id: 't-1',
+    ...demoAddress,
+    birthDate: '1995-04-18',
+    accessType: 'TÉCNICO',
     name: 'Ana Costa',
     email: 'ana@fixa.test',
     phone: '(11) 99999-0001',
@@ -17,6 +31,9 @@ export const initialTechnicians: Technician[] = [
   },
   {
     id: 't-2',
+    ...demoAddress,
+    birthDate: '1993-08-22',
+    accessType: 'TÉCNICO',
     name: 'Bruno Lima',
     email: 'bruno@fixa.test',
     phone: '(11) 99999-0002',
@@ -26,6 +43,9 @@ export const initialTechnicians: Technician[] = [
   },
   {
     id: 't-3',
+    ...demoAddress,
+    birthDate: '1998-02-10',
+    accessType: 'TÉCNICO',
     name: 'Carla Mendes',
     email: 'carla@fixa.test',
     phone: '(11) 99999-0003',
@@ -35,6 +55,9 @@ export const initialTechnicians: Technician[] = [
   },
   {
     id: 't-4',
+    ...demoAddress,
+    birthDate: '1991-06-06',
+    accessType: 'TÉCNICO',
     name: 'Diego Rocha',
     email: 'diego@fixa.test',
     phone: '(11) 99999-0004',
@@ -44,6 +67,9 @@ export const initialTechnicians: Technician[] = [
   },
   {
     id: 't-5',
+    ...demoAddress,
+    birthDate: '1996-10-02',
+    accessType: 'TÉCNICO',
     name: 'Elisa Alves',
     email: 'elisa@fixa.test',
     phone: '(11) 99999-0005',
@@ -53,6 +79,9 @@ export const initialTechnicians: Technician[] = [
   },
   {
     id: 't-6',
+    ...demoAddress,
+    birthDate: '1994-12-15',
+    accessType: 'TÉCNICO',
     name: 'Fábio Santos',
     email: 'fabio@fixa.test',
     phone: '(11) 99999-0006',
@@ -99,18 +128,12 @@ export const initialEvents: CalendarEvent[] = [
 ]
 
 export const initialProfile: ManagerProfile = {
+  ...demoAddress,
   name: 'Raphaely Sales',
   email: 'demo@fixa.test',
   company: 'FIXA',
   phone: '(11) 99999-0100',
   birthDate: '2000-03-11',
-  postalCode: '01310-100',
-  address: 'Avenida Exemplo',
-  district: 'Centro',
-  city: 'São Paulo',
-  state: 'SP',
-  number: '100',
-  complement: '',
 }
 
 export const dashboardRecords: DashboardRecord[] = [

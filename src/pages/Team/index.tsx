@@ -1,28 +1,16 @@
-import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Modal } from '@mantine/core'
 import { Pencil, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
-import {
-  getProfile,
-  listTechnicians,
-  removeTechnician,
-  saveTechnician,
-} from '../../services/managementService'
-import type { ManagerProfile, Technician, TechnicianInput } from '../../types/management'
-import { validateTechnician } from '../../utils/managementValidation'
+import { TechnicianForm } from '../../components/TechnicianForm'
+import { getProfile, listTechnicians, removeTechnician } from '../../services/managementService'
+import type { ManagerProfile, Technician } from '../../types/management'
+import { formatDate } from '../../utils/calendar'
 import common from '../management.module.css'
 import styles from './Team.module.css'
 
-const blank: TechnicianInput = {
-  name: '',
-  email: '',
-  phone: '',
-  specialty: '',
-  shift: '08:00 - 16:00',
-  status: 'Ativo',
-}
 const pageSize = 5
 
 export default function Team() {
@@ -38,10 +26,15 @@ export default function Team() {
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState<Technician | null>(null)
   const [formOpen, setFormOpen] = useState(false)
-  const [form, setForm] = useState<TechnicianInput>(blank)
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof TechnicianInput, string>>>({})
   const [details, setDetails] = useState<Technician | null>(null)
   const [deleting, setDeleting] = useState<Technician | null>(null)
+  const addButtonRef = useRef<HTMLButtonElement>(null)
+  const wasFormOpen = useRef(false)
+
+  useEffect(() => {
+    if (wasFormOpen.current && !formOpen) addButtonRef.current?.focus()
+    wasFormOpen.current = formOpen
+  }, [formOpen])
 
   useEffect(() => {
     let active = true
@@ -92,56 +85,8 @@ export default function Team() {
   }
   function openForm(item?: Technician) {
     setEditing(item ?? null)
-    setForm(
-      item
-        ? {
-            name: item.name,
-            email: item.email,
-            phone: item.phone,
-            specialty: item.specialty,
-            shift: item.shift,
-            status: item.status,
-          }
-        : blank,
-    )
-    setFieldErrors({})
     setError('')
     setFormOpen(true)
-  }
-  function update<K extends keyof TechnicianInput>(key: K, value: TechnicianInput[K]) {
-    setForm((current) => ({ ...current, [key]: value }))
-    setFieldErrors((current) => ({ ...current, [key]: undefined }))
-  }
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const errors = validateTechnician(form)
-    setFieldErrors(errors)
-    if (Object.keys(errors).length) return
-    setBusy(true)
-    setError('')
-    try {
-      await saveTechnician(
-        {
-          ...form,
-          name: form.name.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-          specialty: form.specialty.trim(),
-        },
-        editing?.id,
-      )
-      setItems(await listTechnicians())
-      setNotice(
-        editing
-          ? 'Técnico atualizado nesta sessão de demonstração.'
-          : 'Técnico cadastrado nesta sessão de demonstração.',
-      )
-      setFormOpen(false)
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o técnico.')
-    } finally {
-      setBusy(false)
-    }
   }
   async function confirmDelete() {
     if (!deleting) return
@@ -161,13 +106,43 @@ export default function Team() {
     }
   }
 
+  if (formOpen && manager) {
+    return (
+      <TechnicianForm
+        technician={editing}
+        manager={manager}
+        onCancel={() => setFormOpen(false)}
+        onSaved={(saved) => {
+          setItems((current) =>
+            editing
+              ? current.map((item) => (item.id === saved.id ? saved : item))
+              : [...current, saved],
+          )
+          setNotice(
+            editing
+              ? 'Técnico atualizado nesta sessão de demonstração.'
+              : 'Técnico cadastrado nesta sessão de demonstração. Nenhuma conta real foi criada.',
+          )
+          setPage(1)
+          setFormOpen(false)
+        }}
+      />
+    )
+  }
+
   return (
     <div className={common.page}>
       <PageHeader
         title="Minha equipe"
         action={
           tab === 'Técnicos' && (
-            <button className={common.primary} type="button" onClick={() => openForm()}>
+            <button
+              ref={addButtonRef}
+              className={common.primary}
+              type="button"
+              onClick={() => openForm()}
+              disabled={loading || !manager}
+            >
               + Adicionar
             </button>
           )
@@ -373,122 +348,6 @@ export default function Team() {
         </section>
       )}
       <Modal
-        opened={formOpen}
-        onClose={() => {
-          if (!busy) setFormOpen(false)
-        }}
-        title={editing ? 'Editar técnico' : 'Cadastrar técnico'}
-        centered
-        size="lg"
-      >
-        <form onSubmit={submit} noValidate aria-busy={busy}>
-          <div className={common.formGrid}>
-            <label className={common.field}>
-              Nome
-              <input
-                value={form.name}
-                maxLength={81}
-                aria-invalid={Boolean(fieldErrors.name)}
-                onChange={(event) => update('name', event.target.value)}
-              />
-              {fieldErrors.name && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.name}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              E-mail
-              <input
-                type="email"
-                value={form.email}
-                maxLength={121}
-                aria-invalid={Boolean(fieldErrors.email)}
-                onChange={(event) => update('email', event.target.value)}
-              />
-              {fieldErrors.email && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.email}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              Telefone
-              <input
-                type="tel"
-                value={form.phone}
-                maxLength={20}
-                aria-invalid={Boolean(fieldErrors.phone)}
-                onChange={(event) => update('phone', event.target.value)}
-              />
-              {fieldErrors.phone && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.phone}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              Especialidade
-              <input
-                value={form.specialty}
-                maxLength={61}
-                aria-invalid={Boolean(fieldErrors.specialty)}
-                onChange={(event) => update('specialty', event.target.value)}
-              />
-              {fieldErrors.specialty && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.specialty}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              Turno
-              <input
-                value={form.shift}
-                placeholder="08:00 - 16:00"
-                aria-invalid={Boolean(fieldErrors.shift)}
-                onChange={(event) => update('shift', event.target.value)}
-              />
-              {fieldErrors.shift && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.shift}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              Situação
-              <select
-                value={form.status}
-                onChange={(event) =>
-                  update('status', event.target.value as TechnicianInput['status'])
-                }
-              >
-                <option>Ativo</option>
-                <option>Inativo</option>
-              </select>
-            </label>
-          </div>
-          {error && (
-            <p role="alert" className={common.error}>
-              {error}
-            </p>
-          )}
-          <div className={common.formActions}>
-            <button
-              className={common.secondary}
-              type="button"
-              onClick={() => setFormOpen(false)}
-              disabled={busy}
-            >
-              Cancelar
-            </button>
-            <button className={common.primary} type="submit" disabled={busy}>
-              {busy ? 'Salvando…' : 'Salvar'}
-            </button>
-          </div>
-        </form>
-      </Modal>
-      <Modal
         opened={Boolean(details)}
         onClose={() => setDetails(null)}
         title="Detalhes do técnico"
@@ -502,6 +361,17 @@ export default function Team() {
             <dd>{details.email}</dd>
             <dt>Telefone</dt>
             <dd>{details.phone}</dd>
+            <dt>Data de nascimento</dt>
+            <dd>{formatDate(details.birthDate, { dateStyle: 'long' })}</dd>
+            <dt>Tipo de acesso</dt>
+            <dd>{details.accessType}</dd>
+            <dt>Endereço herdado do gestor</dt>
+            <dd>
+              {details.address}, {details.number}, {details.district}, {details.city} –{' '}
+              {details.state}
+              {' · '}CEP {details.postalCode}
+              {details.complement && ` · ${details.complement}`}
+            </dd>
             <dt>Turno</dt>
             <dd>{details.shift}</dd>
             <dt>Especialidade</dt>

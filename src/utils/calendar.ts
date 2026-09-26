@@ -8,3 +8,7 @@ export function formatDate(isoDate: string, options: Intl.DateTimeFormatOptions)
     new Date(`${isoDate}T12:00:00Z`),
   )
 }
+export function parseDateInput(value: string): string {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim())
+  return match ? `${match[3]}-${match[2]}-${match[1]}` : ''
+}

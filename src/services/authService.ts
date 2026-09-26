@@ -10,6 +10,6 @@ export async function loginMock(credentials: LoginCredentials): Promise<User> {
     id: 'demo-manager',
     name: 'Rapha',
     identifier: credentials.identifier.trim(),
-    role: 'manager',
+    role: 'GESTOR',
   }
 }

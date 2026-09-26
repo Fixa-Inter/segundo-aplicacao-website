@@ -3,7 +3,8 @@ import {
   initialEvents,
   initialProfile,
   initialTechnicians,
-} from '../mocks/management'
+} from '../mocks/management.ts'
+import { validateTechnician } from '../utils/managementValidation.ts'
 import type {
   CalendarEvent,
   CalendarEventInput,
@@ -27,14 +28,34 @@ export async function listTechnicians(): Promise<Technician[]> {
 
 export async function saveTechnician(input: TechnicianInput, id?: string): Promise<Technician> {
   await pause()
+  const validationErrors = Object.values(validateTechnician(input))
+  if (validationErrors.length) throw new Error(validationErrors[0])
   if (
     technicians.some(
-      (item) => item.email.toLowerCase() === input.email.toLowerCase() && item.id !== id,
+      (item) => item.email.toLowerCase() === input.email.trim().toLowerCase() && item.id !== id,
     )
   )
     throw new Error('Já existe um técnico com este e-mail.')
   if (id && !technicians.some((item) => item.id === id)) throw new Error('Técnico não encontrado.')
-  const result = { ...input, id: id ?? crypto.randomUUID() }
+  // Tipo e endereço são definidos pelo serviço, nunca por campos editáveis do cadastro.
+  const result: Technician = {
+    id: id ?? crypto.randomUUID(),
+    name: input.name.trim(),
+    email: input.email.trim(),
+    phone: input.phone.trim(),
+    birthDate: input.birthDate,
+    specialty: input.specialty.trim(),
+    shift: input.shift,
+    status: input.status,
+    accessType: 'TÉCNICO',
+    postalCode: profile.postalCode,
+    address: profile.address,
+    district: profile.district,
+    city: profile.city,
+    state: profile.state,
+    number: profile.number,
+    complement: profile.complement,
+  }
   technicians = id
     ? technicians.map((item) => (item.id === id ? result : item))
     : [...technicians, result]

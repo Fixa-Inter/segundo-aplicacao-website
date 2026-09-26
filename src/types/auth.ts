@@ -1,8 +1,10 @@
+export type AccessType = 'GESTOR' | 'TÉCNICO' | 'SOLICITANTE' | 'ADMINISTRADOR'
+
 export interface User {
   id: string
   name: string
   identifier: string
-  role: 'manager'
+  role: AccessType
 }
 export interface LoginCredentials {
   identifier: string

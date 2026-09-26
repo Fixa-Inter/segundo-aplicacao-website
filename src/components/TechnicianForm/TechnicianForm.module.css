@@ -1,0 +1,212 @@
+.page {
+  max-width: 1120px;
+}
+.back {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 20px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--fixa-primary);
+  cursor: pointer;
+}
+.title {
+  margin: 0 0 20px;
+  color: #130943;
+  font-size: clamp(28px, 3.05vw, 44px);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.title span {
+  color: var(--fixa-primary);
+}
+.form {
+  margin-top: 24px;
+}
+.form fieldset {
+  min-width: 0;
+  padding: 0;
+  margin: 24px 0 0;
+  border: 0;
+}
+.form legend {
+  margin-bottom: 16px;
+  color: var(--fixa-primary);
+  font-size: 18px;
+  font-weight: 600;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  gap: 26px 20px;
+}
+.name,
+.address {
+  grid-column: span 8;
+}
+.birthDate,
+.phone,
+.access,
+.postalCode,
+.district,
+.city {
+  grid-column: span 4;
+}
+.email {
+  grid-column: span 7;
+}
+.password,
+.complement {
+  grid-column: span 5;
+}
+.state {
+  grid-column: span 1;
+}
+.number {
+  grid-column: span 2;
+}
+.edit .email {
+  grid-column: span 12;
+}
+.operational {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 20px;
+}
+.field {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.field label {
+  color: var(--fixa-primary);
+  font-size: clamp(15px, 1.39vw, 20px);
+  font-weight: 500;
+}
+.field input,
+.field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 60px;
+  padding: 14px 20px;
+  border: 1px solid transparent;
+  border-radius: 25px;
+  background: #f3f4f9;
+  color: var(--fixa-ink);
+  font: inherit;
+  font-size: 16px;
+}
+.field input[readonly] {
+  color: #435169;
+}
+.field input[aria-invalid='true'] {
+  border-color: #96031a;
+}
+.passwordField {
+  position: relative;
+}
+.passwordField input {
+  padding-right: 52px;
+}
+.passwordField button {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--fixa-primary);
+  background: transparent;
+  cursor: pointer;
+}
+.rules {
+  margin-top: 24px;
+}
+.note {
+  margin: 0 0 8px;
+  color: #435169;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.error {
+  margin: 0;
+  color: #96031a;
+  font-size: 13px;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+.actions button {
+  min-width: 150px;
+  min-height: 60px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 25px;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.save {
+  background: #130943;
+  color: white;
+}
+.cancel {
+  background: transparent;
+  color: #a3122e;
+}
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 900px) {
+  .grid,
+  .operational {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .grid .field {
+    grid-column: auto;
+  }
+}
+@media (max-width: 600px) {
+  .grid,
+  .operational {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .back {
+    margin-bottom: 12px;
+  }
+  .field input,
+  .field select {
+    min-height: 52px;
+    padding-inline: 16px;
+    border-radius: 20px;
+  }
+  .passwordField button {
+    top: 4px;
+  }
+  .actions button {
+    min-width: 120px;
+  }
+}

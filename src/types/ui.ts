@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from 'react'
+import type { ManagerProfile, Technician } from './management'
 export interface BrandProps {
   compact?: boolean
   className?: string
@@ -26,4 +27,11 @@ export interface PageHeaderProps {
 
 export interface DemoBadgeProps {
   children: string
+}
+
+export interface TechnicianFormProps {
+  technician: Technician | null
+  manager: ManagerProfile
+  onSaved: (technician: Technician) => void
+  onCancel: () => void
 }
