@@ -36,7 +36,7 @@ export default function Login() {
               <AuthField
                 id="identifier"
                 label="Email/CNPJ"
-                autoComplete="username"
+                autoComplete="off"
                 placeholder="Coloque seu Email/CNPJ"
                 maxLength={120}
                 disabled={loading}
@@ -51,7 +51,7 @@ export default function Login() {
                 id="password"
                 label="Senha"
                 type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
+                autoComplete="off"
                 placeholder="Coloque sua senha"
                 disabled={loading}
                 value={form.password}

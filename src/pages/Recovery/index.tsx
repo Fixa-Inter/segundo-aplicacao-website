@@ -153,7 +153,7 @@ export default function Recovery() {
                     label="Email"
                     placeholder="Digite o seu e-mail"
                     type="email"
-                    autoComplete="email"
+                    autoComplete="off"
                     maxLength={120}
                     disabled={busy}
                     value={form.email}
@@ -195,7 +195,7 @@ export default function Recovery() {
                     id="new-password"
                     label="Nova senha"
                     type={visible ? 'text' : 'password'}
-                    autoComplete="new-password"
+                    autoComplete="off"
                     placeholder="Digite sua nova senha"
                     disabled={busy}
                     value={form.password}
@@ -217,7 +217,7 @@ export default function Recovery() {
                     id="confirm-password"
                     label="Confirme a nova senha"
                     type={visible ? 'text' : 'password'}
-                    autoComplete="new-password"
+                    autoComplete="off"
                     placeholder="Repita sua nova senha"
                     disabled={busy}
                     value={form.confirmation}
