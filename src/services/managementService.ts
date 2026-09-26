@@ -4,7 +4,11 @@ import {
   initialProfile,
   initialTechnicians,
 } from '../mocks/management.ts'
-import { validateTechnician } from '../utils/managementValidation.ts'
+import {
+  validateEvent,
+  validateProfile,
+  validateTechnician,
+} from '../utils/managementValidation.ts'
 import type {
   CalendarEvent,
   CalendarEventInput,
@@ -78,10 +82,22 @@ export async function listEvents(): Promise<CalendarEvent[]> {
 
 export async function saveEvent(input: CalendarEventInput, id?: string): Promise<CalendarEvent> {
   await pause()
+  const validationErrors = Object.values(validateEvent(input))
+  if (validationErrors.length) throw new Error(validationErrors[0])
   if (input.technicianId && !technicians.some((item) => item.id === input.technicianId))
     throw new Error('Selecione um técnico válido.')
   if (id && !events.some((item) => item.id === id)) throw new Error('Evento não encontrado.')
-  const result = { ...input, id: id ?? crypto.randomUUID() }
+  const result: CalendarEvent = {
+    id: id ?? crypto.randomUUID(),
+    title: input.title.trim(),
+    date: input.date,
+    time: input.time,
+    endTime: input.endTime,
+    location: input.location.trim(),
+    description: input.description.trim(),
+    observation: input.observation.trim(),
+    technicianId: input.technicianId,
+  }
   events = id ? events.map((item) => (item.id === id ? result : item)) : [...events, result]
   return { ...result }
 }
@@ -98,7 +114,22 @@ export async function getProfile(): Promise<ManagerProfile> {
 
 export async function saveProfile(input: ManagerProfile): Promise<ManagerProfile> {
   await pause()
-  profile = { ...input }
+  const validationErrors = Object.values(validateProfile(input))
+  if (validationErrors.length) throw new Error(validationErrors[0])
+  profile = {
+    name: input.name.trim(),
+    email: input.email.trim(),
+    phone: input.phone.trim(),
+    company: input.company.trim(),
+    birthDate: input.birthDate,
+    postalCode: input.postalCode.trim(),
+    address: input.address.trim(),
+    district: input.district.trim(),
+    city: input.city.trim(),
+    state: input.state,
+    number: input.number.trim(),
+    complement: input.complement.trim(),
+  }
   return { ...profile }
 }
 

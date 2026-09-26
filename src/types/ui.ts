@@ -1,5 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from 'react'
-import type { ManagerProfile, Technician } from './management'
+import type { CalendarEvent, ManagerProfile, Technician } from './management'
 export interface BrandProps {
   compact?: boolean
   className?: string
@@ -34,4 +34,16 @@ export interface TechnicianFormProps {
   manager: ManagerProfile
   onSaved: (technician: Technician) => void
   onCancel: () => void
+}
+
+export interface EventFormProps {
+  event: CalendarEvent | null
+  selectedDay: string
+  technicians: Technician[]
+  onSaved: (event: CalendarEvent) => void
+  onCancel: () => void
+}
+
+export interface AuthProviderProps {
+  children: ReactNode
 }

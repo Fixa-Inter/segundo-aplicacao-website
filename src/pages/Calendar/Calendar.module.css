@@ -1,5 +1,5 @@
 .calendarLayout {
-  max-width: 1050px;
+  max-width: 1120px;
   display: grid;
   gap: 26px;
 }
@@ -41,7 +41,7 @@
 }
 .weekday {
   text-align: center;
-  font-size: 14px;
+  font-size: clamp(14px, 1.8vw, 26px);
   font-weight: 600;
   color: #fff;
 }
@@ -52,7 +52,10 @@
   justify-content: center;
   gap: 3px;
   min-width: 0;
-  height: 45px;
+  height: 64px;
+  width: 64px;
+  justify-self: center;
+  font-size: clamp(16px, 1.65vw, 24px);
   border: 0;
   border-radius: 50%;
   background: transparent;
@@ -62,14 +65,13 @@
 .day:hover {
   background: #365a94;
 }
-.day[aria-pressed='true'] {
+.day[aria-pressed='true'] .dayNumber {
   background: #6bd4ff;
   color: #130943;
   font-weight: 600;
 }
 .outside {
-  color: #b5c2d8;
-  opacity: 0.6;
+  color: #c4d0e6;
 }
 .day i {
   display: block;
@@ -116,5 +118,83 @@
   }
   .calendarGrid {
     gap: 2px;
+  }
+}
+
+.dayNumber {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+}
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #153d7d;
+  cursor: pointer;
+}
+.iconButton:hover {
+  background: #dceafa;
+}
+.delete {
+  color: #96031a;
+}
+.eventDate {
+  display: grid;
+  justify-items: center;
+  min-width: 38px;
+}
+.eventDate strong {
+  font-size: 24px;
+  line-height: 1.2;
+}
+.eventDate span {
+  font-size: 13px;
+  text-transform: capitalize;
+}
+.details {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.details summary {
+  color: #153d7d;
+  cursor: pointer;
+}
+.event {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  background: #f5f7fa;
+}
+.event h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 500;
+}
+.event time {
+  font-size: 13px;
+  font-weight: 400;
+}
+@media (max-width: 600px) {
+  .dayNumber {
+    width: 36px;
+    height: 36px;
+  }
+  .day {
+    height: 44px;
+    width: 44px;
+  }
+  .event {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .event > :last-child {
+    grid-column: 2;
   }
 }

@@ -1,37 +1,14 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Modal } from '@mantine/core'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
+import { EventForm } from '../../components/EventForm'
 import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
-import {
-  listEvents,
-  listTechnicians,
-  removeEvent,
-  saveEvent,
-} from '../../services/managementService'
-import type { CalendarEvent, CalendarEventInput, Technician } from '../../types/management'
-import { formatDate, shiftDate } from '../../utils/calendar'
-import { validateEvent } from '../../utils/managementValidation'
+import { listEvents, listTechnicians, removeEvent } from '../../services/managementService'
+import type { CalendarEvent, Technician } from '../../types/management'
+import { formatDate, monthDays, shiftDate } from '../../utils/calendar'
 import common from '../management.module.css'
 import styles from './Calendar.module.css'
-
-function monthDays(isoMonth: string): string[] {
-  const first = new Date(`${isoMonth}-01T12:00:00Z`)
-  const offset = first.getUTCDay()
-  const start = shiftDate(`${isoMonth}-01`, -offset)
-  return Array.from({ length: 42 }, (_, index) => shiftDate(start, index))
-}
-
-const emptyEvent: CalendarEventInput = {
-  title: '',
-  date: '2026-03-11',
-  time: '09:00',
-  endTime: '10:00',
-  location: '',
-  description: '',
-  observation: '',
-  technicianId: '',
-}
 
 export default function Calendar() {
   const [month, setMonth] = useState('2026-03')
@@ -45,10 +22,14 @@ export default function Calendar() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<CalendarEvent | null>(null)
   const [deleting, setDeleting] = useState<CalendarEvent | null>(null)
-  const [form, setForm] = useState<CalendarEventInput>(emptyEvent)
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof CalendarEventInput, string>>>(
-    {},
-  )
+  const addButtonRef = useRef<HTMLButtonElement>(null)
+  const calendarRef = useRef<HTMLDivElement>(null)
+  const wasFormOpen = useRef(false)
+
+  useEffect(() => {
+    if (wasFormOpen.current && !formOpen) addButtonRef.current?.focus()
+    wasFormOpen.current = formOpen
+  }, [formOpen])
 
   useEffect(() => {
     let active = true
@@ -79,60 +60,27 @@ export default function Calendar() {
   }
   function openForm(item?: CalendarEvent) {
     setEditing(item ?? null)
-    setForm(
-      item
-        ? {
-            title: item.title,
-            date: item.date,
-            time: item.time,
-            endTime: item.endTime,
-            location: item.location,
-            description: item.description,
-            observation: item.observation,
-            technicianId: item.technicianId,
-          }
-        : { ...emptyEvent, date: selectedDay },
-    )
-    setFieldErrors({})
     setError('')
     setFormOpen(true)
   }
-  function update<K extends keyof CalendarEventInput>(key: K, value: CalendarEventInput[K]) {
-    setForm((current) => ({ ...current, [key]: value }))
-    setFieldErrors((current) => ({ ...current, [key]: undefined }))
-  }
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const errors = validateEvent(form)
-    setFieldErrors(errors)
-    if (Object.keys(errors).length) return
-    setBusy(true)
-    setError('')
-    try {
-      await saveEvent(
-        {
-          ...form,
-          title: form.title.trim(),
-          location: form.location.trim(),
-          description: form.description.trim(),
-          observation: form.observation.trim(),
-        },
-        editing?.id,
-      )
-      setEvents(await listEvents())
-      setSelectedDay(form.date)
-      setMonth(form.date.slice(0, 7))
-      setNotice(
-        editing
-          ? 'Evento atualizado nesta sessão de demonstração.'
-          : 'Evento criado nesta sessão de demonstração.',
-      )
-      setFormOpen(false)
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o evento.')
-    } finally {
-      setBusy(false)
+  function moveDay(event: KeyboardEvent<HTMLButtonElement>, date: string) {
+    const weekday = new Date(`${date}T12:00:00Z`).getUTCDay()
+    const offsets: Record<string, number> = {
+      ArrowLeft: -1,
+      ArrowRight: 1,
+      ArrowUp: -7,
+      ArrowDown: 7,
+      Home: -weekday,
+      End: 6 - weekday,
     }
+    if (!(event.key in offsets)) return
+    event.preventDefault()
+    const next = shiftDate(date, offsets[event.key])
+    setSelectedDay(next)
+    setMonth(next.slice(0, 7))
+    requestAnimationFrame(() =>
+      calendarRef.current?.querySelector<HTMLButtonElement>(`[data-date="${next}"]`)?.focus(),
+    )
   }
   async function confirmDelete() {
     if (!deleting) return
@@ -143,6 +91,7 @@ export default function Calendar() {
       setEvents(await listEvents())
       setDeleting(null)
       setNotice('Evento excluído nesta sessão de demonstração.')
+      requestAnimationFrame(() => calendarRef.current?.querySelector<HTMLButtonElement>(`[data-date="${selectedDay}"]`)?.focus())
     } catch {
       setError('Não foi possível excluir o evento.')
       setDeleting(null)
@@ -155,13 +104,44 @@ export default function Calendar() {
     .sort((a, b) => a.time.localeCompare(b.time))
   const dates = monthDays(month)
 
+  if (formOpen) {
+    return (
+      <EventForm
+        event={editing}
+        selectedDay={selectedDay}
+        technicians={technicians}
+        onCancel={() => setFormOpen(false)}
+        onSaved={(saved) => {
+          setEvents((current) =>
+            editing
+              ? current.map((item) => (item.id === saved.id ? saved : item))
+              : [...current, saved],
+          )
+          setSelectedDay(saved.date)
+          setMonth(saved.date.slice(0, 7))
+          setNotice(
+            editing
+              ? 'Evento atualizado nesta sessão de demonstração.'
+              : 'Evento criado nesta sessão de demonstração.',
+          )
+          setFormOpen(false)
+        }}
+      />
+    )
+  }
+
   return (
     <div className={common.page}>
       <PageHeader
         title="Calendário"
-        description="Planeje os eventos da equipe."
         action={
-          <button className={common.primary} type="button" onClick={() => openForm()}>
+          <button
+            ref={addButtonRef}
+            className={common.primary}
+            type="button"
+            onClick={() => openForm()}
+            disabled={loading}
+          >
             Adicionar evento
           </button>
         }
@@ -196,7 +176,7 @@ export default function Calendar() {
                 <ChevronRight size={19} />
               </button>
             </div>
-            <div className={styles.calendarGrid}>
+            <div ref={calendarRef} className={styles.calendarGrid} aria-label="Dias do mês">
               {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
                 <span className={styles.weekday} key={day}>
                   {day}
@@ -206,6 +186,9 @@ export default function Calendar() {
                 <button
                   type="button"
                   key={date}
+                  data-date={date}
+                  tabIndex={date === selectedDay ? 0 : -1}
+                  onKeyDown={(event) => moveDay(event, date)}
                   className={`${styles.day} ${date.slice(0, 7) !== month ? styles.outside : ''}`}
                   aria-label={`${formatDate(date, { dateStyle: 'full' })}${events.some((item) => item.date === date) ? ', com evento' : ''}`}
                   aria-pressed={date === selectedDay}
@@ -214,7 +197,7 @@ export default function Calendar() {
                     if (date.slice(0, 7) !== month) setMonth(date.slice(0, 7))
                   }}
                 >
-                  <span>{Number(date.slice(-2))}</span>
+                  <span className={styles.dayNumber}>{Number(date.slice(-2))}</span>
                   {events.some((item) => item.date === date) && <i aria-hidden="true" />}
                 </button>
               ))}
@@ -228,34 +211,43 @@ export default function Calendar() {
               <div className={styles.eventList}>
                 {selectedEvents.map((item) => (
                   <article className={styles.event} key={item.id}>
+                    <div className={styles.eventDate} aria-hidden="true">
+                      <strong>{Number(item.date.slice(-2))}</strong>
+                      <span>{formatDate(item.date, { weekday: 'short' }).replace('.', '')}</span>
+                    </div>
                     <div>
+                      <h3>{item.title}</h3>
                       <time dateTime={`${item.date}T${item.time}`}>
                         {item.time}–{item.endTime}
                       </time>
-                      <h3>{item.title}</h3>
-                      {item.location && <p>Local: {item.location}</p>}
-                      <p>{item.description || 'Sem descrição.'}</p>
-                      {item.observation && <p>Observação: {item.observation}</p>}
-                      <p className={common.muted}>
-                        Técnico:{' '}
-                        {technicians.find((tech) => tech.id === item.technicianId)?.name ??
-                          'Não atribuído'}
-                      </p>
+                      <details className={styles.details}>
+                        <summary>Ver detalhes</summary>
+                        {item.location && <p>Local: {item.location}</p>}
+                        <p>{item.description || 'Sem descrição.'}</p>
+                        {item.observation && <p>Observação: {item.observation}</p>}
+                        <p className={common.muted}>
+                          Técnico:{' '}
+                          {technicians.find((tech) => tech.id === item.technicianId)?.name ??
+                            'Não atribuído'}
+                        </p>
+                      </details>
                     </div>
                     <div className={common.actions}>
                       <button
-                        className={common.secondary}
+                        className={styles.iconButton}
+                        aria-label={`Editar evento ${item.title}`}
                         type="button"
                         onClick={() => openForm(item)}
                       >
-                        Editar
+                        <Pencil size={24} aria-hidden="true" />
                       </button>
                       <button
-                        className={common.danger}
+                        className={`${styles.iconButton} ${styles.delete}`}
+                        aria-label={`Excluir evento ${item.title}`}
                         type="button"
                         onClick={() => setDeleting(item)}
                       >
-                        Excluir
+                        <Trash2 size={24} aria-hidden="true" />
                       </button>
                     </div>
                   </article>
@@ -268,155 +260,10 @@ export default function Calendar() {
         </div>
       )}
       <Modal
-        opened={formOpen}
-        onClose={() => {
-          if (!busy) setFormOpen(false)
-        }}
-        title={editing ? 'Editar evento' : 'Adicionar evento'}
-        centered
-        size="lg"
-      >
-        <form onSubmit={submit} noValidate aria-busy={busy}>
-          <div className={common.formGrid}>
-            <label className={`${common.field} ${common.full}`}>
-              Título
-              <input
-                value={form.title}
-                maxLength={101}
-                aria-invalid={Boolean(fieldErrors.title)}
-                onChange={(event) => update('title', event.target.value)}
-              />
-              {fieldErrors.title && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.title}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              Data
-              <input
-                type="date"
-                value={form.date}
-                aria-invalid={Boolean(fieldErrors.date)}
-                onChange={(event) => update('date', event.target.value)}
-              />
-              {fieldErrors.date && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.date}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              Início
-              <input
-                type="time"
-                value={form.time}
-                aria-invalid={Boolean(fieldErrors.time)}
-                onChange={(event) => update('time', event.target.value)}
-              />
-              {fieldErrors.time && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.time}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              Término
-              <input
-                type="time"
-                value={form.endTime}
-                aria-invalid={Boolean(fieldErrors.endTime)}
-                onChange={(event) => update('endTime', event.target.value)}
-              />
-              {fieldErrors.endTime && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.endTime}
-                </span>
-              )}
-            </label>
-            <label className={common.field}>
-              Local
-              <input
-                value={form.location}
-                maxLength={101}
-                aria-invalid={Boolean(fieldErrors.location)}
-                onChange={(event) => update('location', event.target.value)}
-              />
-              {fieldErrors.location && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.location}
-                </span>
-              )}
-            </label>
-            <label className={`${common.field} ${common.full}`}>
-              Técnico
-              <select
-                value={form.technicianId}
-                onChange={(event) => update('technicianId', event.target.value)}
-              >
-                <option value="">Não atribuído</option>
-                {technicians
-                  .filter((item) => item.status === 'Ativo' || item.id === form.technicianId)
-                  .map((item) => (
-                    <option value={item.id} key={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-            </label>
-            <label className={`${common.field} ${common.full}`}>
-              Descrição
-              <textarea
-                value={form.description}
-                maxLength={301}
-                aria-invalid={Boolean(fieldErrors.description)}
-                onChange={(event) => update('description', event.target.value)}
-              />
-              {fieldErrors.description && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.description}
-                </span>
-              )}
-            </label>
-            <label className={`${common.field} ${common.full}`}>
-              Observação
-              <textarea
-                value={form.observation}
-                maxLength={301}
-                aria-invalid={Boolean(fieldErrors.observation)}
-                onChange={(event) => update('observation', event.target.value)}
-              />
-              {fieldErrors.observation && (
-                <span role="alert" className={common.error}>
-                  {fieldErrors.observation}
-                </span>
-              )}
-            </label>
-          </div>
-          {error && (
-            <p role="alert" className={common.error}>
-              {error}
-            </p>
-          )}
-          <div className={common.formActions}>
-            <button
-              className={common.secondary}
-              type="button"
-              onClick={() => setFormOpen(false)}
-              disabled={busy}
-            >
-              Cancelar
-            </button>
-            <button className={common.primary} type="submit" disabled={busy}>
-              {busy ? 'Salvando…' : 'Salvar'}
-            </button>
-          </div>
-        </form>
-      </Modal>
-      <Modal
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
         title="Excluir evento?"
+        closeButtonProps={{ 'aria-label': 'Fechar confirmação de exclusão do evento' }}
         centered
       >
         <p>Excluir {deleting?.title} desta sessão de demonstração?</p>

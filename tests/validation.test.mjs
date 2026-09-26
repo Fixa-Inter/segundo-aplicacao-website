@@ -6,7 +6,7 @@ import {
   validateProfile,
   validateTechnician,
 } from '../src/utils/managementValidation.ts'
-import { parseDateInput, shiftDate } from '../src/utils/calendar.ts'
+import { monthDays, parseDateInput, shiftDate } from '../src/utils/calendar.ts'
 
 test('valida técnico antes do cadastro demonstrativo', () => {
   const valid = {
@@ -83,4 +83,7 @@ test('calendário atravessa mês e ano sem deslocamento local', () => {
   assert.equal(parseDateInput('15/06/98'), '')
   assert.equal(shiftDate('2026-03-01', -1), '2026-02-28')
   assert.equal(shiftDate('2026-12-31', 1), '2027-01-01')
+  assert.equal(monthDays('2026-02').length, 28)
+  assert.ok(monthDays('2024-02').includes('2024-02-29'))
+  assert.equal(monthDays('2026-03').length, 35)
 })
