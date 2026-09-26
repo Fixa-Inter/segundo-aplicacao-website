@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Modal } from '@mantine/core'
 import { CalendarDays, Mail, MapPin, Phone } from 'lucide-react'
+import { DemoBadge } from '../../components/DemoBadge'
+import { PageHeader } from '../../components/PageHeader'
 import { getProfile, saveProfile } from '../../services/managementService'
 import { useAuth } from '../../contexts/useAuth'
 import type { ManagerProfile } from '../../types/management'
@@ -123,10 +125,10 @@ export default function Profile() {
 
   return (
     <div className={`${common.page} ${styles.page}`}>
-      <div className={common.heading}>
-        <h1>{editing ? 'Editar Perfil' : 'Perfil'}</h1>
-        <span className={common.demo}>Conta demonstrativa</span>
-      </div>
+      <PageHeader
+        title={editing ? 'Editar Perfil' : 'Perfil'}
+        action={<DemoBadge>Conta demonstrativa</DemoBadge>}
+      />
       {notice && (
         <p role="status" className={common.status}>
           {notice}

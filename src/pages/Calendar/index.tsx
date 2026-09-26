@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Modal } from '@mantine/core'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { DemoBadge } from '../../components/DemoBadge'
+import { PageHeader } from '../../components/PageHeader'
 import {
   listEvents,
   listTechnicians,
@@ -155,16 +157,16 @@ export default function Calendar() {
 
   return (
     <div className={common.page}>
-      <div className={common.heading}>
-        <div>
-          <h1>Calendário</h1>
-          <p>Planeje os eventos da equipe.</p>
-        </div>
-        <button className={common.primary} type="button" onClick={() => openForm()}>
-          Adicionar evento
-        </button>
-      </div>
-      <span className={common.demo}>Dados demonstrativos · alterações até recarregar</span>
+      <PageHeader
+        title="Calendário"
+        description="Planeje os eventos da equipe."
+        action={
+          <button className={common.primary} type="button" onClick={() => openForm()}>
+            Adicionar evento
+          </button>
+        }
+      />
+      <DemoBadge>Dados demonstrativos · alterações até recarregar</DemoBadge>
       {notice && (
         <p role="status" className={common.status}>
           {notice}

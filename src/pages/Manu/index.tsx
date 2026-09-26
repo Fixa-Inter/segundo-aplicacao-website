@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Plus, Send } from 'lucide-react'
+import { DemoBadge } from '../../components/DemoBadge'
 import { useAuth } from '../../contexts/useAuth'
 import { getDemoReply } from '../../services/manuService'
 import type { ChatConversation, ChatMessage } from '../../types/manu'
@@ -103,9 +104,7 @@ export default function Manu() {
         )}
       </aside>
       <section className={styles.chat} aria-label="Conversa com Manu">
-        <span className={common.demo}>
-          Respostas guiadas · sem IA conectada · conversas não salvas
-        </span>
+        <DemoBadge>Respostas guiadas · sem IA conectada · conversas não salvas</DemoBadge>
         {active?.messages.length ? (
           <div
             className={styles.messages}

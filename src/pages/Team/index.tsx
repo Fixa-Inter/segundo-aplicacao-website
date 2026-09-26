@@ -1,7 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Modal } from '@mantine/core'
 import { Pencil, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { DemoBadge } from '../../components/DemoBadge'
+import { PageHeader } from '../../components/PageHeader'
 import {
   getProfile,
   listTechnicians,
@@ -70,6 +72,24 @@ export default function Team() {
   )
   const lastPage = Math.max(1, Math.ceil(filtered.length / pageSize))
   const shown = filtered.slice((page - 1) * pageSize, page * pageSize)
+  function moveTab(event: KeyboardEvent<HTMLDivElement>) {
+    const next =
+      event.key === 'ArrowRight' || event.key === 'ArrowLeft'
+        ? tab === 'Técnicos'
+          ? 'Gestores'
+          : 'Técnicos'
+        : event.key === 'End'
+          ? 'Gestores'
+          : event.key === 'Home'
+            ? 'Técnicos'
+            : null
+    if (!next) return
+    event.preventDefault()
+    setTab(next)
+    event.currentTarget
+      .querySelector<HTMLButtonElement>(`[role="tab"][data-tab="${next}"]`)
+      ?.focus()
+  }
   function openForm(item?: Technician) {
     setEditing(item ?? null)
     setForm(
@@ -143,15 +163,17 @@ export default function Team() {
 
   return (
     <div className={common.page}>
-      <div className={common.heading}>
-        <h1>Minha equipe</h1>
-        {tab === 'Técnicos' && (
-          <button className={common.primary} type="button" onClick={() => openForm()}>
-            + Adicionar
-          </button>
-        )}
-      </div>
-      <span className={common.demo}>Dados demonstrativos · alterações até recarregar</span>
+      <PageHeader
+        title="Minha equipe"
+        action={
+          tab === 'Técnicos' && (
+            <button className={common.primary} type="button" onClick={() => openForm()}>
+              + Adicionar
+            </button>
+          )
+        }
+      />
+      <DemoBadge>Dados demonstrativos · alterações até recarregar</DemoBadge>
       {tab === 'Técnicos' && (
         <div className={common.toolbar}>
           <label className={`${common.field} ${styles.search}`}>
@@ -183,19 +205,32 @@ export default function Team() {
           </label>
         </div>
       )}
-      <div className={styles.tabs} role="tablist" aria-label="Tipo de integrante">
+      <div
+        className={styles.tabs}
+        role="tablist"
+        aria-label="Tipo de integrante"
+        onKeyDown={moveTab}
+      >
         <button
+          id="team-tab-tech"
+          data-tab="Técnicos"
           type="button"
           role="tab"
           aria-selected={tab === 'Técnicos'}
+          aria-controls="team-panel-tech"
+          tabIndex={tab === 'Técnicos' ? 0 : -1}
           onClick={() => setTab('Técnicos')}
         >
           Técnicos
         </button>
         <button
+          id="team-tab-managers"
+          data-tab="Gestores"
           type="button"
           role="tab"
           aria-selected={tab === 'Gestores'}
+          aria-controls="team-panel-managers"
+          tabIndex={tab === 'Gestores' ? 0 : -1}
           onClick={() => setTab('Gestores')}
         >
           Gestores
@@ -215,9 +250,10 @@ export default function Team() {
         <p role="status">Carregando equipe…</p>
       ) : tab === 'Gestores' ? (
         <section
+          id="team-panel-managers"
           className={`${common.panel} ${styles.tablePanel}`}
           role="tabpanel"
-          aria-label="Gestores"
+          aria-labelledby="team-tab-managers"
         >
           {manager ? (
             <div className={common.tableWrap}>
@@ -251,9 +287,10 @@ export default function Team() {
         </section>
       ) : (
         <section
+          id="team-panel-tech"
           className={`${common.panel} ${styles.tablePanel}`}
           role="tabpanel"
-          aria-label="Lista de técnicos"
+          aria-labelledby="team-tab-tech"
         >
           {filtered.length ? (
             <>

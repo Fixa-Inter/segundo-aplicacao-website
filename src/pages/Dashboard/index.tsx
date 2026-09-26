@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { DemoBadge } from '../../components/DemoBadge'
+import { PageHeader } from '../../components/PageHeader'
 import { getDashboard } from '../../services/managementService'
 import type { DashboardRecord } from '../../types/management'
 import common from '../management.module.css'
@@ -52,13 +54,11 @@ export default function Dashboard() {
 
   return (
     <div className={common.page}>
-      <div className={common.heading}>
-        <div>
-          <h1>Dashboard</h1>
-          <p>Indicadores de manutenção e tempo de atendimento.</p>
-        </div>
-        <span className={common.demo}>Dados demonstrativos</span>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Indicadores de manutenção e tempo de atendimento."
+        action={<DemoBadge>Dados demonstrativos</DemoBadge>}
+      />
       <div className={common.toolbar}>
         <label className={common.field}>
           Período

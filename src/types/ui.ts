@@ -17,3 +17,13 @@ export interface NavigationProps {
   onNavigate: () => void
   onLogout: () => void
 }
+
+export interface PageHeaderProps {
+  title: string
+  description?: string
+  action?: ReactNode
+}
+
+export interface DemoBadgeProps {
+  children: string
+}
