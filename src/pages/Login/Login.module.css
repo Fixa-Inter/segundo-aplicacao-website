@@ -4,7 +4,7 @@
   position: relative;
   display: grid;
   align-items: center;
-  padding: 76px 0 clamp(60px, 15.6dvh, 160px);
+  padding: 76px 0 clamp(60px, 8.4dvh, 86px);
 }
 .header {
   position: absolute;
@@ -14,7 +14,7 @@
 .layout {
   width: min(100%, 1440px);
   margin-inline: auto;
-  padding-inline: 6.94% 1.1%;
+  padding-inline: 6.94% 0;
   display: grid;
   grid-template-columns: minmax(0, 680fr) minmax(0, 658fr);
   align-items: center;
@@ -29,12 +29,11 @@
   padding-right: 0;
 }
 .formArea h1 {
-  margin: 0 0 clamp(26px, 4.8dvh, 60px);
+  margin: 0 0 clamp(26px, 4dvh, 41px);
   font-size: clamp(44px, 7.81dvh, 80px);
   color: var(--fixa-primary);
   font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: -0.035em;
+  line-height: 1.5;
 }
 .fields {
   display: grid;
@@ -95,7 +94,8 @@
   height: auto;
   max-height: min(620px, 70dvh);
   object-fit: contain;
-  align-self: center;
+  align-self: start;
+  transform: translateX(-14px);
 }
 @media (min-width: 1600px) {
   .layout {
