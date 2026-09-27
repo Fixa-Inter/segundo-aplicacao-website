@@ -3,6 +3,7 @@ import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
 import { getDashboard } from '../../services/managementService'
 import type { DashboardRecord } from '../../types/management'
+import { buildHistogram, summarizeHours } from '../../utils/analytics'
 import common from '../management.module.css'
 import styles from './Dashboard.module.css'
 
@@ -35,10 +36,12 @@ export default function Dashboard() {
   const completed = visible.reduce((sum, item) => sum + item.completed, 0)
   const completionRate = opened ? Math.min(100, Math.round((completed / opened) * 100)) : 0
   const pending = Math.max(0, opened - completed)
-  const hours = visible.flatMap((item) => item.hours).sort((a, b) => a - b)
-  const average = hours.length
-    ? (hours.reduce((sum, hour) => sum + hour, 0) / hours.length).toFixed(1)
-    : '0'
+  const hours = visible.flatMap((item) => item.hours)
+  const summary = summarizeHours(hours)
+  const average = summary ? summary.mean.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '—'
+  const hourAxisMax = Math.max(1, summary?.max ?? 0)
+  const position = (value: number) => (value / hourAxisMax) * 100
+  const formatHour = (value: number) => value.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
   const max = Math.max(1, ...visible.map((item) => Math.max(item.opened, item.completed)))
   const points = visible
     .map(
@@ -46,11 +49,7 @@ export default function Dashboard() {
         `${visible.length === 1 ? 50 : (index * 100) / (visible.length - 1)},${100 - (item.completed / max) * 100}`,
     )
     .join(' ')
-  const quartile = (part: number) => hours[Math.floor((hours.length - 1) * part)] ?? 0
-  const histogram = [0, 0, 0, 0, 0]
-  hours.forEach((hour) => {
-    histogram[Math.min(4, Math.floor((hour - 1) / 2))] += 1
-  })
+  const histogram = buildHistogram(hours)
 
   return (
     <div className={common.page}>
@@ -60,16 +59,21 @@ export default function Dashboard() {
         action={<DemoBadge>Dados demonstrativos</DemoBadge>}
       />
       <div className={common.toolbar}>
-        <label className={common.field}>
+        <label htmlFor="dashboard-period" className={common.field}>
           Período
-          <select value={months} onChange={(event) => setMonths(event.target.value)}>
+          <select
+            id="dashboard-period"
+            value={months}
+            onChange={(event) => setMonths(event.target.value)}
+          >
             <option value="3">Últimos 3 meses</option>
             <option value="7">Últimos 7 meses</option>
           </select>
         </label>
-        <label className={common.field}>
+        <label htmlFor="dashboard-metric" className={common.field}>
           Comparar
           <select
+            id="dashboard-metric"
             value={metric}
             onChange={(event) => setMetric(event.target.value as 'opened' | 'completed')}
           >
@@ -191,50 +195,67 @@ export default function Dashboard() {
                   role="img"
                   aria-label={histogram
                     .map(
-                      (count, index) =>
-                        `${index * 2 + 1} a ${index * 2 + 2} horas: ${count} atendimentos`,
+                      (bin, index) =>
+                        `De ${bin.from} horas inclusive a ${bin.to} horas ${index === 4 ? 'inclusive' : 'exclusive'}: ${bin.count} atendimentos`,
                     )
                     .join('; ')}
                 >
-                  {histogram.map((count, index) => (
-                    <div className={styles.barItem} key={index}>
-                      <span className={styles.value}>{count}</span>
+                  {histogram.map((bin) => (
+                    <div className={styles.barItem} key={bin.from}>
+                      <span className={styles.value}>{bin.count}</span>
                       <div
                         className={styles.bar}
-                        style={{ height: `${(count / Math.max(1, ...histogram)) * 100}%` }}
+                        style={{
+                          height: `${(bin.count / Math.max(1, ...histogram.map((item) => item.count))) * 100}%`,
+                        }}
                       />
                       <span>
-                        {index * 2 + 1}–{index * 2 + 2}h
+                        {bin.from}–{bin.to}h
                       </span>
                     </div>
                   ))}
                 </div>
+                <p className={common.muted}>
+                  Intervalos incluem o início e excluem o fim; o último inclui ambos.
+                </p>
               </section>
               <section className={common.panel} aria-labelledby="box-title">
                 <h2 id="box-title">Variação do tempo</h2>
-                <div
-                  className={styles.box}
-                  role="img"
-                  aria-label={`Mínimo ${hours[0]} horas, primeiro quartil ${quartile(0.25)} horas, mediana ${quartile(0.5)} horas, terceiro quartil ${quartile(0.75)} horas e máximo ${hours.at(-1)} horas.`}
-                >
-                  <div className={styles.whisker} />
-                  <div
-                    className={styles.boxBody}
-                    style={{
-                      left: `${(quartile(0.25) / 10) * 100}%`,
-                      width: `${((quartile(0.75) - quartile(0.25)) / 10) * 100}%`,
-                    }}
-                  >
-                    <i
-                      style={{
-                        left: `${((quartile(0.5) - quartile(0.25)) / Math.max(1, quartile(0.75) - quartile(0.25))) * 100}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-                <p className={common.muted}>
-                  Mediana: {quartile(0.5)} h · Mínimo: {hours[0]} h · Máximo: {hours.at(-1)} h
-                </p>
+                {summary ? (
+                  <>
+                    <div
+                      className={styles.box}
+                      role="img"
+                      aria-label={`Mínimo ${formatHour(summary.min)} horas, primeiro quartil ${formatHour(summary.q1)} horas, mediana ${formatHour(summary.median)} horas, terceiro quartil ${formatHour(summary.q3)} horas e máximo ${formatHour(summary.max)} horas.`}
+                    >
+                      <div
+                        className={styles.whisker}
+                        style={{
+                          left: `${position(summary.min)}%`,
+                          width: `${position(summary.max - summary.min)}%`,
+                        }}
+                      />
+                      <div
+                        className={styles.boxBody}
+                        style={{
+                          left: `${position(summary.q1)}%`,
+                          width: `${position(summary.q3 - summary.q1)}%`,
+                        }}
+                      />
+                      <i
+                        className={styles.median}
+                        style={{ left: `${position(summary.median)}%` }}
+                      />
+                    </div>
+                    <p className={common.muted}>
+                      Mediana: {formatHour(summary.median)} h · Mínimo: {formatHour(summary.min)} h
+                      · Máximo: {formatHour(summary.max)} h. Quartis interpolados; hastes nos
+                      extremos da amostra.
+                    </p>
+                  </>
+                ) : (
+                  <p>Não há tempos de atendimento neste período.</p>
+                )}
               </section>
             </div>
           </>
