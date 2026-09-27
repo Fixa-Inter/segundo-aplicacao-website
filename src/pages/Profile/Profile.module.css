@@ -1,21 +1,21 @@
 .page {
-  max-width: 1050px;
+  max-width: 1120px;
 }
 .identity {
   display: flex;
-  gap: 24px;
+  gap: 36px;
   align-items: center;
   flex-wrap: wrap;
 }
 .identity img {
-  width: 88px;
-  height: 88px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
 }
 .identity h2 {
   margin: 0;
-  font-size: 26px;
+  font-size: clamp(24px, 2.36vw, 34px);
   font-weight: 600;
 }
 .identity p {
@@ -23,15 +23,22 @@
 }
 .identity button {
   margin-left: auto;
-  min-width: 180px;
+  min-width: 260px;
+  min-height: 50px;
+  border-radius: 20px;
   background: #578bd6;
   border-color: #578bd6;
+  color: #130943;
 }
 .information {
-  margin-top: 18px;
+  margin-top: 30px;
+}
+.identity button:hover {
+  background: #74a0de;
+  color: #130943;
 }
 .information h3 {
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 500;
 }
 .information > div {
@@ -43,17 +50,17 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  font-size: 14px;
+  font-size: 16px;
   color: #4c5461;
 }
 .information p svg {
   flex: none;
 }
 .information button {
-  margin-top: 18px;
+  margin-top: 30px;
 }
 .form {
-  margin-top: 18px;
+  margin-top: 30px;
 }
 .passwordFields {
   display: grid;
@@ -66,5 +73,84 @@
   }
   .information > div {
     grid-template-columns: 1fr;
+  }
+}
+
+.identity p {
+  font-size: 20px;
+}
+.information p {
+  overflow-wrap: anywhere;
+}
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px 20px;
+}
+.name,
+.company {
+  grid-column: span 6;
+}
+.email {
+  grid-column: span 7;
+}
+.phone,
+.complement {
+  grid-column: span 5;
+}
+.birthDate,
+.district,
+.city {
+  grid-column: span 4;
+}
+.postalCode,
+.address {
+  grid-column: span 8;
+}
+.state {
+  grid-column: span 1;
+}
+.number {
+  grid-column: span 2;
+}
+.form label {
+  color: #153d7d;
+  font-size: 20px;
+}
+.form input {
+  min-height: 60px;
+  padding: 14px 20px;
+  border: 1px solid transparent;
+  border-radius: 25px;
+  background: #f3f4f9;
+  font-size: 16px;
+}
+.form input[aria-invalid='true'] {
+  border-color: #96031a;
+}
+@media (max-width: 900px) {
+  .profileGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .profileGrid > div {
+    grid-column: auto;
+  }
+}
+@media (max-width: 600px) {
+  .profileGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .identity img {
+    width: 88px;
+    height: 88px;
+  }
+  .identity {
+    gap: 16px;
+  }
+  .identity button {
+    min-width: 0;
+  }
+  .form label {
+    font-size: 16px;
   }
 }

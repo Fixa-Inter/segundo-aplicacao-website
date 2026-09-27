@@ -20,7 +20,13 @@ export default function Login() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitted(true)
-    if (!form.identifier.trim() || !form.password || loading) return
+    if (loading) return
+    if (!form.identifier.trim() || !form.password) {
+      event.currentTarget
+        .querySelector<HTMLInputElement>(form.identifier.trim() ? '#password' : '#identifier')
+        ?.focus()
+      return
+    }
     if (await login(form)) navigate('/', { replace: true })
   }
   return (
@@ -53,6 +59,7 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="off"
                 placeholder="Coloque sua senha"
+                maxLength={128}
                 disabled={loading}
                 value={form.password}
                 error={passwordError}

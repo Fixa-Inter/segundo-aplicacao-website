@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Modal } from '@mantine/core'
 import { CalendarDays, Mail, MapPin, Phone } from 'lucide-react'
 import { DemoBadge } from '../../components/DemoBadge'
@@ -6,8 +6,8 @@ import { PageHeader } from '../../components/PageHeader'
 import { getProfile, saveProfile } from '../../services/managementService'
 import { useAuth } from '../../contexts/useAuth'
 import type { ManagerProfile } from '../../types/management'
-import { validateProfile } from '../../utils/managementValidation'
-import { formatDate } from '../../utils/calendar'
+import { validateDemoPassword, validateProfile } from '../../utils/managementValidation'
+import { formatDate, parseDateInput } from '../../utils/calendar'
 import avatar from '../../assets/figma/avatar.png'
 import common from '../management.module.css'
 import styles from './Profile.module.css'
@@ -31,7 +31,7 @@ const fields: { key: keyof ManagerProfile; label: string; type?: string; maxLeng
   { key: 'company', label: 'Empresa', maxLength: 100 },
   { key: 'email', label: 'E-mail', type: 'email', maxLength: 120 },
   { key: 'phone', label: 'Telefone', type: 'tel', maxLength: 20 },
-  { key: 'birthDate', label: 'Data de nascimento', type: 'date' },
+  { key: 'birthDate', label: 'Data de nascimento', maxLength: 10 },
   { key: 'postalCode', label: 'CEP', maxLength: 9 },
   { key: 'address', label: 'Logradouro', maxLength: 100 },
   { key: 'district', label: 'Bairro', maxLength: 60 },
@@ -52,12 +52,32 @@ export default function Profile() {
   const [notice, setNotice] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof ManagerProfile, string>>>({})
   const [password, setPassword] = useState({ current: '', next: '', confirmation: '' })
+  const [birthDateText, setBirthDateText] = useState('')
+  const savedProfileRef = useRef<ManagerProfile>(empty)
+  const editButtonRef = useRef<HTMLButtonElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const wasEditing = useRef(false)
+
+  useEffect(() => {
+    if (editing) formRef.current?.querySelector<HTMLInputElement>('input')?.focus()
+    else if (wasEditing.current) editButtonRef.current?.focus()
+    wasEditing.current = editing
+  }, [editing])
+
+  function closePassword() {
+    setPasswordOpen(false)
+    setPassword({ current: '', next: '', confirmation: '' })
+    setError('')
+  }
 
   useEffect(() => {
     let active = true
     getProfile()
       .then((data) => {
-        if (active) setProfile(data)
+        if (active) {
+          setProfile(data)
+          savedProfileRef.current = data
+        }
       })
       .catch(() => {
         if (active) setError('Não foi possível carregar o perfil.')
@@ -72,14 +92,23 @@ export default function Profile() {
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const errors = validateProfile(profile)
+    if (busy) return
+    const input = { ...profile, birthDate: parseDateInput(birthDateText) }
+    const errors = validateProfile(input)
+    if (birthDateText && !input.birthDate)
+      errors.birthDate = 'Informe a data no formato DD/MM/AAAA.'
     setFieldErrors(errors)
-    if (Object.keys(errors).length) return
+    if (Object.keys(errors).length) {
+      requestAnimationFrame(() =>
+        formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus(),
+      )
+      return
+    }
     setBusy(true)
     setError('')
     try {
       const saved = await saveProfile({
-        ...profile,
+        ...input,
         name: profile.name.trim(),
         email: profile.email.trim(),
         company: profile.company.trim(),
@@ -88,6 +117,7 @@ export default function Profile() {
         city: profile.city.trim(),
       })
       setProfile(saved)
+      savedProfileRef.current = saved
       updateName(saved.name)
       setEditing(false)
       setNotice('Perfil atualizado nesta sessão de demonstração.')
@@ -103,14 +133,18 @@ export default function Profile() {
     setNotice('')
     if (!password.current) {
       setError('Informe a senha atual.')
+      event.currentTarget.querySelector<HTMLInputElement>('#profile-password-current')?.focus()
       return
     }
-    if (password.next.length < 8) {
-      setError('A nova senha precisa ter pelo menos 8 caracteres.')
+    const passwordError = validateDemoPassword(password.next)
+    if (passwordError) {
+      setError(passwordError)
+      event.currentTarget.querySelector<HTMLInputElement>('#profile-password-next')?.focus()
       return
     }
     if (password.next !== password.confirmation) {
       setError('As senhas não coincidem.')
+      event.currentTarget.querySelector<HTMLInputElement>('#profile-password-confirmation')?.focus()
       return
     }
     setPassword({ current: '', next: '', confirmation: '' })
@@ -147,7 +181,7 @@ export default function Profile() {
             <img src={avatar} width="88" height="88" alt="Avatar ilustrativo do perfil" />
             <div>
               <h2>{profile.name}</h2>
-              <p>Administrador · {profile.company}</p>
+              <p>Gestor · {profile.company}</p>
             </div>
             {!editing && (
               <button
@@ -163,39 +197,47 @@ export default function Profile() {
             )}
           </div>
           {editing ? (
-            <form className={styles.form} onSubmit={save} noValidate aria-busy={busy}>
-              <div className={common.formGrid}>
+            <form ref={formRef} className={styles.form} onSubmit={save} noValidate aria-busy={busy}>
+              <div className={styles.profileGrid}>
                 {fields.map((field) => (
-                  <label className={common.field} key={field.key}>
-                    {field.label}
+                  <div className={`${common.field} ${styles[field.key]}`} key={field.key}>
+                    <label htmlFor={`profile-${field.key}`}>{field.label}</label>
                     <input
+                      id={`profile-${field.key}`}
+                      disabled={busy}
                       type={field.type ?? 'text'}
                       maxLength={field.maxLength}
-                      value={profile[field.key]}
+                      value={field.key === 'birthDate' ? birthDateText : profile[field.key]}
+                      placeholder={field.key === 'birthDate' ? 'DD/MM/AAAA' : undefined}
+                      inputMode={field.key === 'birthDate' ? 'numeric' : undefined}
                       aria-invalid={Boolean(fieldErrors[field.key])}
+                      aria-describedby={
+                        fieldErrors[field.key] ? `profile-${field.key}-error` : undefined
+                      }
                       onChange={(event) => {
                         const value =
                           field.key === 'state'
                             ? event.target.value.toUpperCase()
                             : event.target.value
-                        setProfile((current) => ({ ...current, [field.key]: value }))
+                        if (field.key === 'birthDate') setBirthDateText(value)
+                        else setProfile((current) => ({ ...current, [field.key]: value }))
                         setFieldErrors((current) => ({ ...current, [field.key]: undefined }))
                       }}
                     />
                     {fieldErrors[field.key] && (
-                      <span role="alert" className={common.error}>
+                      <span id={`profile-${field.key}-error`} role="alert" className={common.error}>
                         {fieldErrors[field.key]}
                       </span>
                     )}
-                  </label>
+                  </div>
                 ))}
               </div>
               <div className={common.formActions}>
                 <button
                   className={common.secondary}
                   type="button"
-                  onClick={async () => {
-                    setProfile(await getProfile())
+                  onClick={() => {
+                    setProfile({ ...savedProfileRef.current })
                     setEditing(false)
                     setFieldErrors({})
                   }}
@@ -232,10 +274,14 @@ export default function Profile() {
                 </p>
               </div>
               <button
+                ref={editButtonRef}
                 className={common.secondary}
                 type="button"
                 onClick={() => {
                   setError('')
+                  setBirthDateText(
+                    profile.birthDate ? formatDate(profile.birthDate, { dateStyle: 'short' }) : '',
+                  )
                   setEditing(true)
                 }}
               >
@@ -247,40 +293,50 @@ export default function Profile() {
       )}
       <Modal
         opened={passwordOpen}
-        onClose={() => setPasswordOpen(false)}
+        onClose={closePassword}
         title="Trocar senha"
+        closeButtonProps={{ 'aria-label': 'Fechar demonstração de troca de senha' }}
         centered
       >
         <p className={common.muted}>Demonstração de validação. Nenhuma senha real será alterada.</p>
+        <p className={common.muted}>
+          Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial.
+        </p>
         <form onSubmit={validatePassword} noValidate>
           <div className={styles.passwordFields}>
-            <label className={common.field}>
+            <label htmlFor="profile-password-current" className={common.field}>
               Senha atual
               <input
+                id="profile-password-current"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="off"
+                maxLength={128}
                 value={password.current}
                 onChange={(event) =>
                   setPassword((current) => ({ ...current, current: event.target.value }))
                 }
               />
             </label>
-            <label className={common.field}>
+            <label htmlFor="profile-password-next" className={common.field}>
               Nova senha
               <input
+                id="profile-password-next"
                 type="password"
-                autoComplete="new-password"
+                autoComplete="off"
+                maxLength={128}
                 value={password.next}
                 onChange={(event) =>
                   setPassword((current) => ({ ...current, next: event.target.value }))
                 }
               />
             </label>
-            <label className={common.field}>
+            <label htmlFor="profile-password-confirmation" className={common.field}>
               Confirmar nova senha
               <input
+                id="profile-password-confirmation"
                 type="password"
-                autoComplete="new-password"
+                autoComplete="off"
+                maxLength={128}
                 value={password.confirmation}
                 onChange={(event) =>
                   setPassword((current) => ({ ...current, confirmation: event.target.value }))
@@ -294,11 +350,7 @@ export default function Profile() {
             </p>
           )}
           <div className={common.formActions}>
-            <button
-              className={common.secondary}
-              type="button"
-              onClick={() => setPasswordOpen(false)}
-            >
+            <button className={common.secondary} type="button" onClick={closePassword}>
               Cancelar
             </button>
             <button className={common.primary} type="submit">

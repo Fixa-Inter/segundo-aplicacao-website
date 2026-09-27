@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button, Drawer, Modal, Popover } from '@mantine/core'
 import {
   Bell,
@@ -74,7 +74,13 @@ export function AppLayout() {
   const [logoutOpen, setLogoutOpen] = useState(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const compact = useLocation().pathname === '/manu'
+  const { pathname } = useLocation()
+  const compact = pathname === '/manu'
+  const mainRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    mainRef.current?.focus({ preventScroll: true })
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [pathname])
   const closeMenu = () => setMenuOpen(false)
   const openLogout = () => {
     setMenuOpen(false)
@@ -123,11 +129,12 @@ export function AppLayout() {
             <img src={avatar} width="50" height="50" alt="" />
           </NavLink>
         </header>
-        <main id="conteudo" tabIndex={-1} className={styles.main}>
+        <main ref={mainRef} id="conteudo" tabIndex={-1} className={styles.main}>
           <Outlet />
         </main>
       </div>
       <Drawer
+        closeButtonProps={{ 'aria-label': 'Fechar menu' }}
         opened={menuOpen}
         onClose={closeMenu}
         title={<Brand />}
@@ -137,6 +144,7 @@ export function AppLayout() {
         <Navigation onNavigate={closeMenu} onLogout={openLogout} />
       </Drawer>
       <Modal
+        closeButtonProps={{ 'aria-label': 'Fechar confirmação de saída' }}
         opened={logoutOpen}
         onClose={() => setLogoutOpen(false)}
         title="Sair da conta?"

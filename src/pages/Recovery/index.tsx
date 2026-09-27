@@ -11,6 +11,7 @@ import {
   verifyRecoveryCode,
 } from '../../services/recoveryService'
 import { validateEmail } from '../../utils/validation'
+import { validateDemoPassword } from '../../utils/managementValidation'
 import type { RecoveryChallenge, RecoveryStep } from '../../types/recovery'
 import styles from './Recovery.module.css'
 
@@ -18,7 +19,7 @@ const titles: Record<RecoveryStep, string> = {
   email: 'Esqueceu sua senha?',
   code: 'Verifique seu e-mail',
   password: 'Defina sua nova senha',
-  success: 'Senha alterada!',
+  success: 'Demonstração concluída',
 }
 export default function Recovery() {
   const [step, setStep] = useState<RecoveryStep>('email')
@@ -29,6 +30,15 @@ export default function Recovery() {
   const [busy, setBusy] = useState(false)
   const [visible, setVisible] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  useEffect(() => {
+    if (!error || busy) return
+    const input =
+      error === 'As senhas não coincidem.'
+        ? formRef.current?.querySelector<HTMLInputElement>('#confirm-password')
+        : formRef.current?.querySelector<HTMLInputElement>('input')
+    input?.focus()
+  }, [error, busy])
   useEffect(() => {
     if (step !== 'email') headingRef.current?.focus()
   }, [step])
@@ -53,8 +63,9 @@ export default function Recovery() {
       return
     }
     if (step === 'password') {
-      if (form.password.length < 8) {
-        setError('A nova senha precisa ter pelo menos 8 caracteres.')
+      const passwordError = validateDemoPassword(form.password)
+      if (passwordError) {
+        setError(passwordError)
         return
       }
       if (form.password !== form.confirmation) {
@@ -102,8 +113,8 @@ export default function Recovery() {
       : step === 'code'
         ? 'Digite o código de 6 dígitos para continuar'
         : step === 'password'
-          ? 'Crie uma nova senha para acessar sua conta'
-          : 'Sua senha foi alterada com sucesso!'
+          ? 'Use uma senha fictícia para validar esta demonstração'
+          : 'Fluxo validado. Nenhuma senha real foi alterada.'
   return (
     <main className={`${styles.page} ${step === 'password' ? styles.passwordPage : ''}`}>
       {step !== 'success' &&
@@ -145,7 +156,13 @@ export default function Recovery() {
           </>
         ) : (
           <>
-            <form className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
+            <form
+              ref={formRef}
+              className={styles.form}
+              onSubmit={submit}
+              noValidate
+              aria-busy={busy}
+            >
               {step === 'email' && (
                 <>
                   <AuthField
@@ -170,6 +187,15 @@ export default function Recovery() {
               {step === 'code' && (
                 <div className={styles.codeGroup}>
                   <p className={styles.codeLabel}>Código</p>
+                  {Array.from({ length: 6 }, (_, index) => (
+                    <label
+                      className={styles.srOnly}
+                      htmlFor={`recovery-code-${index + 1}`}
+                      key={`code-${index + 1}`}
+                    >
+                      Dígito {index + 1} do código
+                    </label>
+                  ))}
                   <PinInput
                     type="number"
                     length={6}
@@ -184,7 +210,10 @@ export default function Recovery() {
                     ariaLabel="Dígito do código de recuperação"
                     error={Boolean(error)}
                     classNames={{ root: styles.pinRoot, input: styles.pinInput }}
-                    getInputProps={(index) => ({ 'aria-label': `Dígito ${index + 1} do código` })}
+                    getInputProps={(index) => ({
+                      id: `recovery-code-${index + 1}`,
+                      'aria-label': `Dígito ${index + 1} do código`,
+                    })}
                   />
                   <p className={styles.demoNote}>Código de demonstração: {DEMO_RECOVERY_CODE}</p>
                 </div>
@@ -197,6 +226,7 @@ export default function Recovery() {
                     type={visible ? 'text' : 'password'}
                     autoComplete="off"
                     placeholder="Digite sua nova senha"
+                    maxLength={128}
                     disabled={busy}
                     value={form.password}
                     onChange={(event) => {
@@ -219,6 +249,7 @@ export default function Recovery() {
                     type={visible ? 'text' : 'password'}
                     autoComplete="off"
                     placeholder="Repita sua nova senha"
+                    maxLength={128}
                     disabled={busy}
                     value={form.confirmation}
                     onChange={(event) => {
@@ -227,6 +258,12 @@ export default function Recovery() {
                     }}
                   />
                 </div>
+              )}
+              {step === 'password' && (
+                <p className={styles.demoNote}>
+                  Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial.
+                  A senha não é armazenada.
+                </p>
               )}
               {step !== 'email' && error && (
                 <p className={styles.error} role="alert">

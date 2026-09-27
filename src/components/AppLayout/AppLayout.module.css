@@ -179,6 +179,14 @@
 .compact .sidebar .logo {
   margin-bottom: clamp(28px, 5.4dvh, 55px);
 }
+.compact .sidebar .logo > span {
+  width: 75px;
+  height: 86px;
+}
+.compact .sidebar .logo img {
+  width: 228px;
+  height: 86px;
+}
 .compact .main {
   padding-left: 0;
   padding-right: 0;
@@ -210,4 +218,7 @@
     width: 42px;
     height: 42px;
   }
+}
+.compact .main {
+  padding-bottom: 0;
 }
