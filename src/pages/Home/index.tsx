@@ -1,18 +1,56 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { StatCard } from '../../components/StatCard'
 import { useAuth } from '../../contexts/useAuth'
 import banner from '../../assets/figma/home-banner.png'
-import { calendarEvents, monthlyTasks, previewWeekStart, taskSummary } from '../../mocks/home'
+import { getHomeData } from '../../services/homeService'
+import type { HomeData } from '../../types/home'
 import { formatDate, shiftDate } from '../../utils/calendar'
 import styles from './Home.module.css'
 
 export default function Home() {
   const { user } = useAuth()
-  const [weekStart, setWeekStart] = useState(previewWeekStart)
-  const [selectedDay, setSelectedDay] = useState('2026-03-11')
+  const [data, setData] = useState<HomeData | null>(null)
+  const [error, setError] = useState('')
+  const [attempt, setAttempt] = useState(0)
+  const [weekStart, setWeekStart] = useState('')
+  const [selectedDay, setSelectedDay] = useState('')
+  useEffect(() => {
+    let active = true
+    getHomeData()
+      .then((result) => {
+        if (!active) return
+        setData(result)
+        setWeekStart(result.weekStart)
+        setSelectedDay(result.selectedDay)
+      })
+      .catch(() => {
+        if (active) setError('Não foi possível carregar o resumo da Home.')
+      })
+    return () => {
+      active = false
+    }
+  }, [attempt])
+  if (error) {
+    return (
+      <div role="alert">
+        <p>{error}</p>
+        <button
+          type="button"
+          onClick={() => {
+            setError('')
+            setAttempt((value) => value + 1)
+          }}
+        >
+          Tentar novamente
+        </button>
+      </div>
+    )
+  }
+  if (!data) return <p role="status">Carregando resumo…</p>
+  const { taskSummary, monthlyTasks } = data
   const days = Array.from({ length: 5 }, (_, offset) => shiftDate(weekStart, offset))
-  const events = calendarEvents.filter((event) => event.date === selectedDay)
+  const events = data.events.filter((event) => event.date === selectedDay)
   function changeWeek(offset: number) {
     setWeekStart((current) => shiftDate(current, offset))
     setSelectedDay((current) => shiftDate(current, offset))

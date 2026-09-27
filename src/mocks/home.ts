@@ -1,4 +1,4 @@
-import type { CalendarPreviewEvent, MonthlyTaskCount } from '../types/home'
+import type { MonthlyTaskCount } from '../types/home'
 import type { StatCardProps } from '../types/ui'
 
 // Dados do protótipo: substituir pelo service da API quando houver contrato.
@@ -16,8 +16,5 @@ export const monthlyTasks: MonthlyTaskCount[] = [
   { month: 'Mai', value: 12 },
   { month: 'Jun', value: 24 },
   { month: 'Jul', value: 18 },
-]
-export const calendarEvents: CalendarPreviewEvent[] = [
-  { id: 'demo-meeting', date: '2026-03-11', title: 'Reunião de pais', time: '19:30–20:30h' },
 ]
 export const previewWeekStart = '2026-03-09'

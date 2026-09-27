@@ -52,7 +52,7 @@
 .chartPanel,
 .eventPanel {
   min-width: 0;
-  height: clamp(240px, 34.18dvh, 350px);
+  height: clamp(285px, 34.18dvh, 350px);
   padding: clamp(18px, 2.35dvh, 24px);
   background: rgba(243, 248, 255, 0.6);
   border-radius: 20px;
@@ -192,6 +192,10 @@
 }
 .events {
   min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  gap: 10px;
+  align-content: start;
 }
 .event {
   padding: clamp(10px, 1.46dvh, 15px);
