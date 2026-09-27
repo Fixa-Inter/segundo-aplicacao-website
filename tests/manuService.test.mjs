@@ -6,6 +6,7 @@ import {
   completeDemoMessage,
   getDemoReply,
   listDemoConversations,
+  subscribeDemoConversations,
 } from '../src/services/manuService.ts'
 
 test('histórico em memória preserva cópias e somente metadados de anexos', async () => {
@@ -34,4 +35,26 @@ test('limpar sessão impede resposta pendente de recriar conversa', async () => 
   clearDemoConversations()
   await pending
   assert.deepEqual(listDemoConversations(), [])
+})
+
+test('novo observador recebe resposta pendente e pode encerrar a assinatura', async () => {
+  clearDemoConversations()
+  let previousUpdates = 0
+  const unsubscribe = subscribeDemoConversations(() => previousUpdates++)
+  beginDemoMessage('navegacao', 'Como agendar um evento?', [])
+  const pending = completeDemoMessage('navegacao', 'Como agendar um evento?', false)
+  unsubscribe()
+  let latestHistory = listDemoConversations()
+  const stop = subscribeDemoConversations(() => {
+    latestHistory = listDemoConversations()
+  })
+  await pending
+  assert.equal(previousUpdates, 1)
+  assert.equal(latestHistory[0].messages.length, 2)
+  clearDemoConversations()
+  assert.deepEqual(latestHistory, [])
+  stop()
+  beginDemoMessage('outra', 'Olá', [])
+  assert.deepEqual(latestHistory, [])
+  clearDemoConversations()
 })

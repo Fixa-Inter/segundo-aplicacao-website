@@ -6,6 +6,7 @@ import {
   beginDemoMessage,
   completeDemoMessage,
   listDemoConversations,
+  subscribeDemoConversations,
 } from '../../services/manuService'
 import type { ChatAttachment } from '../../types/manu'
 import manu from '../../assets/figma/manu-chat.png'
@@ -29,6 +30,7 @@ export default function Manu() {
   const messageRef = useRef<HTMLTextAreaElement>(null)
   const logRef = useRef<HTMLDivElement>(null)
   const active = conversations.find((item) => item.id === activeId)
+  useEffect(() => subscribeDemoConversations(() => setConversations(listDemoConversations())), [])
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'instant' })
   }, [active?.messages.length, activeId, busy])

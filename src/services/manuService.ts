@@ -1,6 +1,18 @@
 import type { ChatAttachment, ChatConversation, ChatMessage } from '../types/manu'
 
 let conversations: ChatConversation[] = []
+const listeners = new Set<() => void>()
+
+export function subscribeDemoConversations(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
+function notifyConversations(): void {
+  listeners.forEach((listener) => listener())
+}
 
 export function listDemoConversations(): ChatConversation[] {
   return conversations.map((conversation) => ({
@@ -14,6 +26,7 @@ export function listDemoConversations(): ChatConversation[] {
 
 export function clearDemoConversations(): void {
   conversations = []
+  notifyConversations()
 }
 
 export function beginDemoMessage(
@@ -45,6 +58,7 @@ export function beginDemoMessage(
           : conversation,
       )
     : [{ id, title: text.slice(0, 38), messages: [message] }, ...conversations]
+  notifyConversations()
   return listDemoConversations()
 }
 
@@ -67,6 +81,7 @@ export async function completeDemoMessage(
       ? { ...conversation, messages: [...conversation.messages, response] }
       : conversation,
   )
+  notifyConversations()
   return listDemoConversations()
 }
 
