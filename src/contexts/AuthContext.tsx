@@ -1,5 +1,7 @@
-import { useReducer, type ReactNode } from 'react'
+import { useReducer } from 'react'
+import type { AuthProviderProps } from '../types/ui'
 import { loginMock } from '../services/authService'
+import { clearDemoConversations } from '../services/manuService'
 import type { AuthAction, AuthState, LoginCredentials } from '../types/auth'
 
 import { AuthContext } from './authContextValue'
@@ -19,12 +21,13 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return { ...state, user: state.user ? { ...state.user, name: action.name } : null }
   }
 }
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [state, dispatch] = useReducer(authReducer, initialState)
   async function login(credentials: LoginCredentials): Promise<boolean> {
     dispatch({ type: 'LOGIN_START' })
     try {
       const user = await loginMock(credentials)
+      clearDemoConversations()
       dispatch({ type: 'LOGIN_SUCCESS', user })
       return true
     } catch (error) {
@@ -36,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
   function logout() {
+    clearDemoConversations()
     dispatch({ type: 'LOGOUT' })
   }
   function updateName(name: string) {
