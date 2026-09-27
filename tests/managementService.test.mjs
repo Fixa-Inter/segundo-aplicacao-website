@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   getProfile,
+  getTechnicianPerformance,
   listTechnicians,
   listEvents,
   removeEvent,
@@ -35,12 +36,23 @@ test('cadastro impõe tipo técnico, herda endereço e descarta campos indevidos
   assert.equal(saved.number, '42')
   assert.equal(saved.city, manager.city)
   assert.equal('password' in saved, false)
+  assert.deepEqual(await getTechnicianPerformance(saved.id, 'week'), [])
 
   saved.address = 'Alteração na cópia retornada'
   const stored = (await listTechnicians()).find((item) => item.id === saved.id)
   assert.equal(stored.address, 'Rua do gestor de teste')
   assert.equal('password' in stored, false)
   await removeTechnician(saved.id)
+})
+
+test('desempenho demonstrativo permite filtrar período sem modificar a fixture', async () => {
+  const week = await getTechnicianPerformance('t-1', 'week')
+  const month = await getTechnicianPerformance('t-1', 'month')
+  assert.equal(week.length, 7)
+  assert.equal(month.length, 4)
+  week[0].completed = 9999
+  assert.notEqual((await getTechnicianPerformance('t-1', 'week'))[0].completed, 9999)
+  await assert.rejects(getTechnicianPerformance('inexistente', 'week'), /não encontrado/)
 })
 
 test('eventos validam horários no service e preservam cópias independentes', async () => {

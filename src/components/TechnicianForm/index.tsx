@@ -1,6 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
-import { saveTechnician } from '../../services/managementService'
 import type { Address, TechnicianInput } from '../../types/management'
 import type { TechnicianFormProps } from '../../types/ui'
 import { validateDemoPassword, validateTechnician } from '../../utils/managementValidation'
@@ -32,7 +31,13 @@ const addressFields: { key: keyof Address; label: string }[] = [
   { key: 'complement', label: 'Complemento' },
 ]
 
-export function TechnicianForm({ technician, manager, onSaved, onCancel }: TechnicianFormProps) {
+export function TechnicianForm({
+  technician,
+  manager,
+  onSubmit,
+  onSaved,
+  onCancel,
+}: TechnicianFormProps) {
   const [form, setForm] = useState<TechnicianInput>({
     name: technician?.name ?? '',
     birthDate: technician?.birthDate ?? '',
@@ -110,7 +115,7 @@ export function TechnicianForm({ technician, manager, onSaved, onCancel }: Techn
     setBusy(true)
     try {
       // A senha apenas valida o formulário demonstrativo e nunca é enviada ao repositório em memória.
-      const saved = await saveTechnician(input, technician?.id)
+      const saved = await onSubmit(input)
       setPassword('')
       onSaved(saved)
     } catch (reason) {

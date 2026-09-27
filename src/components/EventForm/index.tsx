@@ -2,14 +2,20 @@ import { useRef, useState, type FormEvent } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { AuthField } from '../AuthField'
 import { DemoBadge } from '../DemoBadge'
-import { saveEvent } from '../../services/managementService'
 import type { CalendarEventInput } from '../../types/management'
 import type { EventFormProps } from '../../types/ui'
 import { formatDate, parseDateInput } from '../../utils/calendar'
 import { validateEvent } from '../../utils/managementValidation'
 import styles from './EventForm.module.css'
 
-export function EventForm({ event, selectedDay, technicians, onSaved, onCancel }: EventFormProps) {
+export function EventForm({
+  event,
+  selectedDay,
+  technicians,
+  onSubmit,
+  onSaved,
+  onCancel,
+}: EventFormProps) {
   const [form, setForm] = useState<CalendarEventInput>({
     title: event?.title ?? '',
     location: event?.location ?? '',
@@ -46,7 +52,7 @@ export function EventForm({ event, selectedDay, technicians, onSaved, onCancel }
     }
     setBusy(true)
     try {
-      onSaved(await saveEvent(input, event?.id))
+      onSaved(await onSubmit(input))
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o evento.')
     } finally {

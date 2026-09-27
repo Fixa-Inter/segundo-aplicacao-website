@@ -50,3 +50,11 @@ export interface DashboardRecord {
   completed: number
   hours: number[]
 }
+
+export type PerformancePeriod = 'week' | 'month'
+export interface PerformancePoint {
+  label: string
+  completed: number
+  active: number
+  late: number
+}

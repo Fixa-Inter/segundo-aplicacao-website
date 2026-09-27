@@ -4,7 +4,12 @@ import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
 import { EventForm } from '../../components/EventForm'
 import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
-import { listEvents, listTechnicians, removeEvent } from '../../services/managementService'
+import {
+  listEvents,
+  listTechnicians,
+  removeEvent,
+  saveEvent,
+} from '../../services/managementService'
 import type { CalendarEvent, Technician } from '../../types/management'
 import { formatDate, monthDays, shiftDate } from '../../utils/calendar'
 import common from '../management.module.css'
@@ -91,7 +96,11 @@ export default function Calendar() {
       setEvents(await listEvents())
       setDeleting(null)
       setNotice('Evento excluído nesta sessão de demonstração.')
-      requestAnimationFrame(() => calendarRef.current?.querySelector<HTMLButtonElement>(`[data-date="${selectedDay}"]`)?.focus())
+      requestAnimationFrame(() =>
+        calendarRef.current
+          ?.querySelector<HTMLButtonElement>(`[data-date="${selectedDay}"]`)
+          ?.focus(),
+      )
     } catch {
       setError('Não foi possível excluir o evento.')
       setDeleting(null)
@@ -110,6 +119,7 @@ export default function Calendar() {
         event={editing}
         selectedDay={selectedDay}
         technicians={technicians}
+        onSubmit={(input) => saveEvent(input, editing?.id)}
         onCancel={() => setFormOpen(false)}
         onSaved={(saved) => {
           setEvents((current) =>

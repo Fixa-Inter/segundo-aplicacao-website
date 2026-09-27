@@ -1,17 +1,28 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Modal } from '@mantine/core'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Search, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
+import { TechnicianDetails } from '../../components/TechnicianDetails'
 import { TechnicianForm } from '../../components/TechnicianForm'
-import { getProfile, listTechnicians, removeTechnician } from '../../services/managementService'
-import type { ManagerProfile, Technician } from '../../types/management'
-import { formatDate } from '../../utils/calendar'
+import {
+  getProfile,
+  getTechnicianPerformance,
+  listTechnicians,
+  removeTechnician,
+  saveTechnician,
+} from '../../services/managementService'
+import type {
+  ManagerProfile,
+  PerformancePeriod,
+  PerformancePoint,
+  Technician,
+} from '../../types/management'
 import common from '../management.module.css'
 import styles from './Team.module.css'
 
-const pageSize = 5
+const pageSize = 4
 
 export default function Team() {
   const [items, setItems] = useState<Technician[]>([])
@@ -27,6 +38,40 @@ export default function Team() {
   const [editing, setEditing] = useState<Technician | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [details, setDetails] = useState<Technician | null>(null)
+  const [period, setPeriod] = useState<PerformancePeriod>('week')
+  const [performance, setPerformance] = useState<PerformancePoint[]>([])
+  const [performanceLoading, setPerformanceLoading] = useState(false)
+  const [performanceError, setPerformanceError] = useState('')
+  const detailsId = details?.id
+  useEffect(() => {
+    if (!detailsId) return
+    let active = true
+    getTechnicianPerformance(detailsId, period)
+      .then((points) => {
+        if (active) setPerformance(points)
+      })
+      .catch(() => {
+        if (active) setPerformanceError('Não foi possível carregar o desempenho.')
+      })
+      .finally(() => {
+        if (active) setPerformanceLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [detailsId, period])
+  function changePeriod(next: PerformancePeriod) {
+    if (next === period) return
+    setPeriod(next)
+    setPerformanceLoading(true)
+    setPerformanceError('')
+  }
+  function showDetails(item: Technician) {
+    setPeriod('week')
+    setPerformanceLoading(true)
+    setPerformanceError('')
+    setDetails(item)
+  }
   const [deleting, setDeleting] = useState<Technician | null>(null)
   const addButtonRef = useRef<HTMLButtonElement>(null)
   const wasFormOpen = useRef(false)
@@ -98,6 +143,7 @@ export default function Team() {
       setPage(1)
       setNotice('Técnico excluído nesta sessão de demonstração.')
       setDeleting(null)
+      requestAnimationFrame(() => addButtonRef.current?.focus())
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Não foi possível excluir o técnico.')
       setDeleting(null)
@@ -111,6 +157,7 @@ export default function Team() {
       <TechnicianForm
         technician={editing}
         manager={manager}
+        onSubmit={(input) => saveTechnician(input, editing?.id)}
         onCancel={() => setFormOpen(false)}
         onSaved={(saved) => {
           setItems((current) =>
@@ -130,6 +177,28 @@ export default function Team() {
     )
   }
 
+  if (details) {
+    return (
+      <TechnicianDetails
+        technician={details}
+        period={period}
+        points={performance}
+        loading={performanceLoading}
+        error={performanceError}
+        onPeriodChange={changePeriod}
+        onBack={() => {
+          const id = details.id
+          setDetails(null)
+          requestAnimationFrame(() => document.getElementById(`tech-details-${id}`)?.focus())
+        }}
+        onEdit={() => {
+          openForm(details)
+          setDetails(null)
+        }}
+      />
+    )
+  }
+
   return (
     <div className={common.page}>
       <PageHeader
@@ -138,7 +207,7 @@ export default function Team() {
           tab === 'Técnicos' && (
             <button
               ref={addButtonRef}
-              className={common.primary}
+              className={`${common.primary} ${styles.addButton}`}
               type="button"
               onClick={() => openForm()}
               disabled={loading || !manager}
@@ -151,9 +220,13 @@ export default function Team() {
       <DemoBadge>Dados demonstrativos · alterações até recarregar</DemoBadge>
       {tab === 'Técnicos' && (
         <div className={common.toolbar}>
-          <label className={`${common.field} ${styles.search}`}>
-            Pesquisar
+          <label htmlFor="team-search" className={`${common.field} ${styles.search}`}>
+            <span className={styles.srOnly}>Pesquisar</span>
+            <span className={styles.searchIcon} aria-hidden="true">
+              <Search size={25} />
+            </span>
             <input
+              id="team-search"
               type="search"
               value={query}
               maxLength={120}
@@ -164,9 +237,10 @@ export default function Team() {
               }}
             />
           </label>
-          <label className={common.field}>
+          <label htmlFor="team-status" className={common.field}>
             Situação
             <select
+              id="team-status"
               value={filter}
               onChange={(event) => {
                 setFilter(event.target.value)
@@ -276,7 +350,6 @@ export default function Team() {
                       <th>Nome</th>
                       <th>Turno</th>
                       <th>Especialidade</th>
-                      <th>Situação</th>
                       <th>Ações</th>
                     </tr>
                   </thead>
@@ -287,14 +360,25 @@ export default function Team() {
                           <button
                             type="button"
                             className={styles.nameButton}
-                            onClick={() => setDetails(item)}
+                            id={`tech-details-${item.id}`}
+                            aria-label={`Ver detalhes de ${item.name}`}
+                            onClick={() => showDetails(item)}
                           >
-                            {item.name}
+                            <span className={styles.initials} aria-hidden="true">
+                              {item.name
+                                .split(' ')
+                                .map((part) => part[0])
+                                .slice(0, 2)
+                                .join('')}
+                            </span>
+                            <span>
+                              {item.name}
+                              <small>{item.status}</small>
+                            </span>
                           </button>
                         </td>
                         <td data-label="Turno">{item.shift}</td>
                         <td data-label="Especialidade">{item.specialty}</td>
-                        <td data-label="Situação">{item.status}</td>
                         <td data-label="Ações">
                           <div className={common.actions}>
                             <button
@@ -348,43 +432,10 @@ export default function Team() {
         </section>
       )}
       <Modal
-        opened={Boolean(details)}
-        onClose={() => setDetails(null)}
-        title="Detalhes do técnico"
-        centered
-      >
-        {details && (
-          <dl>
-            <dt>Nome</dt>
-            <dd>{details.name}</dd>
-            <dt>E-mail</dt>
-            <dd>{details.email}</dd>
-            <dt>Telefone</dt>
-            <dd>{details.phone}</dd>
-            <dt>Data de nascimento</dt>
-            <dd>{formatDate(details.birthDate, { dateStyle: 'long' })}</dd>
-            <dt>Tipo de acesso</dt>
-            <dd>{details.accessType}</dd>
-            <dt>Endereço herdado do gestor</dt>
-            <dd>
-              {details.address}, {details.number}, {details.district}, {details.city} –{' '}
-              {details.state}
-              {' · '}CEP {details.postalCode}
-              {details.complement && ` · ${details.complement}`}
-            </dd>
-            <dt>Turno</dt>
-            <dd>{details.shift}</dd>
-            <dt>Especialidade</dt>
-            <dd>{details.specialty}</dd>
-            <dt>Situação</dt>
-            <dd>{details.status}</dd>
-          </dl>
-        )}
-      </Modal>
-      <Modal
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
         title="Excluir técnico?"
+        closeButtonProps={{ 'aria-label': 'Fechar confirmação de exclusão do técnico' }}
         centered
       >
         <p>Excluir {deleting?.name} desta sessão de demonstração?</p>

@@ -9,6 +9,7 @@ import {
   validateProfile,
   validateTechnician,
 } from '../utils/managementValidation.ts'
+import { performanceByTechnician } from '../mocks/performance.ts'
 import type {
   CalendarEvent,
   CalendarEventInput,
@@ -16,6 +17,8 @@ import type {
   ManagerProfile,
   Technician,
   TechnicianInput,
+  PerformancePeriod,
+  PerformancePoint,
 } from '../types/management'
 
 // Repositório em memória da demonstração. Um recarregamento restaura os exemplos.
@@ -136,4 +139,13 @@ export async function saveProfile(input: ManagerProfile): Promise<ManagerProfile
 export async function getDashboard(): Promise<DashboardRecord[]> {
   await pause()
   return dashboardRecords.map((item) => ({ ...item, hours: [...item.hours] }))
+}
+
+export async function getTechnicianPerformance(
+  id: string,
+  period: PerformancePeriod,
+): Promise<PerformancePoint[]> {
+  await pause()
+  if (!technicians.some((item) => item.id === id)) throw new Error('Técnico não encontrado.')
+  return (performanceByTechnician[id]?.[period] ?? []).map((point) => ({ ...point }))
 }

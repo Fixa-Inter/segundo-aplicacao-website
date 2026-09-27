@@ -1,7 +1,12 @@
 .search {
+  position: relative;
   flex: 1 1 350px;
 }
 .search input {
+  height: 60px;
+  padding-left: 80px;
+  border-color: #dfe4ed;
+  font-size: 18px;
   border-radius: 999px;
   box-shadow: 0 2px 8px #8a93a226;
 }
@@ -29,7 +34,7 @@
 }
 .tablePanel table th {
   background: #9ab6df;
-  color: white;
+  color: #153d7d;
   font-size: 14px;
 }
 .tablePanel table th:first-child {
@@ -42,7 +47,7 @@
   background: #e0ebff;
 }
 .tablePanel table tbody tr:nth-child(odd) {
-  background: #fff;
+  background: #f5f7fa;
 }
 .tablePanel table td {
   border: 0;
@@ -56,6 +61,9 @@
   color: #130943;
   cursor: pointer;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 20px;
   padding: 5px;
 }
 .nameButton:hover {
@@ -65,7 +73,9 @@
   border: 0;
   background: transparent;
   color: #153d7d;
-  padding: 6px;
+  padding: 10px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 6px;
   cursor: pointer;
 }
@@ -92,5 +102,62 @@
   }
   .tablePanel > div:last-child {
     padding-right: 0;
+  }
+}
+
+.addButton {
+  min-width: 170px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+.searchIcon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  color: white;
+  background: #153d7d;
+  pointer-events: none;
+}
+.initials {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  color: #153d7d;
+  background: #d6e3ff;
+  font-weight: 600;
+}
+.nameButton small {
+  display: block;
+  color: #435169;
+  font-size: 12px;
+}
+.tablePanel table td {
+  padding-block: 16px;
+  font-size: 16px;
+}
+.tabs button {
+  font-size: 20px;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .tablePanel table td {
+    padding-block: 4px;
+    font-size: 14px;
   }
 }
