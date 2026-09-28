@@ -82,3 +82,9 @@ Não foram executados leitor de tela (NVDA/VoiceOver), tablet físico, API real,
 O frame `5631:6232` da cópia do Figma foi comparado com uma captura do build em 1440 × 1024. Após o ajuste, Adicionar ficou em x=1048/y=45, a busca em x=306/y=200 e a tabela em x=306/y=383. As posições aproximadas do frame são x=1048/y=45, x=308/y=205 e x=314/y=388, respectivamente. A barra superior mantém 20 px de separação entre Adicionar e o botão de notificações. O filtro de situação, o aviso de demonstração e os avatares de iniciais continuam diferentes da referência pelas razões registradas em [FIDELIDADE_VISUAL.md](FIDELIDADE_VISUAL.md).
 
 Na Equipe, `scrollWidth` não excedeu `innerWidth` em 1340 × 800, 800 × 1340 e 390 × 844. O botão Adicionar permaneceu visível, e em 800 px a tabela ocupou a largura disponível sem rolagem horizontal. Em 1340 × 800, a paginação fica abaixo da dobra e exige rolagem vertical. As capturas após mudanças rápidas de viewport exibiram artefatos de área preta ou escala; a inspeção visual válida foi a de 1440 × 1024 e 1340 × 800, complementada por medições de DOM nas demais larguras.
+
+### Comparação direta do Dashboard — 28/09
+
+O frame `5631:5998` foi comparado com o build em 1440 × 1024. Os controles foram compactados em uma faixa, com rótulos preservados para tecnologia assistiva e aviso visível sobre a distribuição sintética. Título x=306/y=97, filtros y=183, cartões y=251 e gráficos y=579; no Figma, as posições aproximadas são 320/85, 183, 249 e 590. Há diferenças de conteúdo e controles porque o Dashboard demonstra métricas e filtros funcionais em vez dos valores ilustrativos do frame.
+
+Em 1340 × 800, 800 × 1340 e 390 × 844, os três seletores permaneceram visíveis e `scrollWidth` não excedeu `innerWidth`. A altura do conteúdo requer rolagem vertical. A inspeção foi no navegador emulado; leitor de tela e tablet físico continuam pendentes.
