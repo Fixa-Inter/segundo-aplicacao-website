@@ -1,11 +1,11 @@
 .welcome {
-  height: clamp(160px, 24.32dvh, 249px);
+  height: clamp(205px, 16vw, 250px);
   border-radius: 25px;
   background: #eef4fc;
   display: flex;
   align-items: center;
   padding-left: clamp(24px, 3.6vw, 52px);
-  margin-bottom: clamp(18px, 2.64dvh, 27px);
+  margin-bottom: 24px;
   overflow: hidden;
   position: relative;
 }
@@ -42,7 +42,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(14px, 1.875vw, 27px);
-  margin-bottom: clamp(24px, 4.59dvh, 47px);
+  margin-bottom: 30px;
 }
 .grid {
   display: grid;
@@ -52,8 +52,8 @@
 .chartPanel,
 .eventPanel {
   min-width: 0;
-  height: clamp(285px, 34.18dvh, 350px);
-  padding: clamp(18px, 2.35dvh, 24px);
+  height: 350px;
+  padding: 24px;
   background: rgba(243, 248, 255, 0.6);
   border-radius: 20px;
 }
@@ -72,7 +72,7 @@
   flex: 1;
   min-height: 0;
   gap: 20px;
-  padding-top: clamp(18px, 2.45dvh, 25px);
+  padding-top: 24px;
 }
 .axis {
   display: flex;
@@ -157,7 +157,7 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 4px;
-  margin-top: clamp(12px, 2.1dvh, 22px);
+  margin-top: 18px;
 }
 .days button {
   display: flex;
@@ -165,7 +165,7 @@
   gap: 6px;
   align-items: center;
   justify-content: center;
-  height: clamp(62px, 9.76dvh, 100px);
+  height: clamp(72px, 5vw, 92px);
   border: 0;
   border-radius: 35px;
   background: transparent;
@@ -186,7 +186,7 @@
   font-size: clamp(18px, 1.74vw, 25px);
 }
 .eventPanel h3 {
-  margin: clamp(10px, 1.5dvh, 16px) 0 8px;
+  margin: 14px 0 8px;
   font-size: clamp(16px, 1.39vw, 20px);
   font-weight: 500;
 }
@@ -233,7 +233,7 @@
   font-size: 13px;
   color: #4c5461;
 }
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;
     gap: 20px;

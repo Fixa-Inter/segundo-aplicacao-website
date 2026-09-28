@@ -224,8 +224,10 @@ export default function Calendar() {
                     if (date.slice(0, 7) !== month) setMonth(date.slice(0, 7))
                   }}
                 >
-                  <span className={styles.dayNumber}>{Number(date.slice(-2))}</span>
-                  {events.some((item) => item.date === date) && <i aria-hidden="true" />}
+                  <span className={styles.dayNumber}>
+                    {Number(date.slice(-2))}
+                    {events.some((item) => item.date === date) && <i aria-hidden="true" />}
+                  </span>
                 </button>
               ))}
             </div>

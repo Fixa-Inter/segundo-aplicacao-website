@@ -8,6 +8,8 @@ import {
   LogOut,
   Menu,
   MessageCircle,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings,
   UserRound,
   UsersRound,
@@ -75,7 +77,8 @@ export function AppLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const compact = pathname === '/manu'
+  const [sidebarPreference, setSidebarPreference] = useState<boolean | null>(null)
+  const compact = sidebarPreference ?? pathname === '/manu'
   const mainRef = useRef<HTMLElement>(null)
   useEffect(() => {
     mainRef.current?.focus({ preventScroll: true })
@@ -88,7 +91,9 @@ export function AppLayout() {
   }
 
   return (
-    <div className={`${styles.shell} ${compact ? styles.compact : ''}`}>
+    <div
+      className={`${styles.shell} ${compact ? styles.compact : ''} ${pathname === '/manu' ? styles.manu : ''}`}
+    >
       <a className={styles.skipLink} href="#conteudo">
         Pular para o conteúdo
       </a>
@@ -96,6 +101,15 @@ export function AppLayout() {
         <NavLink to="/" className={styles.logo} aria-label="FIXA, início">
           <Brand compact />
         </NavLink>
+        <button
+          className={styles.collapseButton}
+          type="button"
+          aria-label={compact ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+          aria-expanded={!compact}
+          onClick={() => setSidebarPreference(!compact)}
+        >
+          {compact ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}
+        </button>
         <Navigation onNavigate={closeMenu} onLogout={openLogout} />
       </aside>
       <div className={styles.content}>

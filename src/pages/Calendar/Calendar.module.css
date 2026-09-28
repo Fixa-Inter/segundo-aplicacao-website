@@ -46,11 +46,8 @@
   color: #fff;
 }
 .day {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
+  display: grid;
+  place-items: center;
   min-width: 0;
   height: 64px;
   width: 64px;
@@ -62,7 +59,7 @@
   color: #fff;
   cursor: pointer;
 }
-.day:hover {
+.day:hover:not([aria-pressed='true']) .dayNumber {
   background: #365a94;
 }
 .day[aria-pressed='true'] .dayNumber {
@@ -73,15 +70,18 @@
 .outside {
   color: #c4d0e6;
 }
-.day i {
-  display: block;
+.dayNumber i {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: #6bd4ff;
 }
-.day[aria-pressed='true'] i {
-  background: #130943;
+.day[aria-pressed='true'] .dayNumber i {
+  background: #1768b3;
 }
 .eventsPanel h2 {
   margin: 0 0 16px;
@@ -122,6 +122,7 @@
 }
 
 .dayNumber {
+  position: relative;
   display: grid;
   place-items: center;
   width: 56px;
@@ -186,6 +187,9 @@
   .dayNumber {
     width: 36px;
     height: 36px;
+  }
+  .dayNumber i {
+    bottom: 5px;
   }
   .day {
     height: 44px;
