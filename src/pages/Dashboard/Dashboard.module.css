@@ -41,6 +41,15 @@
   font-size: 12px;
   color: #33465f;
 }
+.scatter {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 260px;
+  color: #33465f;
+  font-size: 11px;
+  fill: currentColor;
+}
 .box {
   height: 125px;
   position: relative;

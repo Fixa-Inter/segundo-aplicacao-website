@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
-import { getDashboard } from '../../services/managementService'
-import type { DashboardRecord } from '../../types/management'
+import { getDashboard, listTechnicians } from '../../services/managementService'
+import type { DashboardRecord, Technician } from '../../types/management'
 import { buildHistogram, summarizeHours } from '../../utils/analytics'
 import common from '../management.module.css'
 import styles from './Dashboard.module.css'
@@ -13,12 +13,18 @@ export default function Dashboard() {
   const [error, setError] = useState('')
   const [months, setMonths] = useState('7')
   const [metric, setMetric] = useState<'opened' | 'completed'>('completed')
+  const [technicians, setTechnicians] = useState<Technician[]>([])
+  const [technicianId, setTechnicianId] = useState('')
+  const [retry, setRetry] = useState(0)
 
   useEffect(() => {
     let active = true
-    getDashboard()
-      .then((data) => {
-        if (active) setRecords(data)
+    Promise.all([getDashboard(technicianId), listTechnicians()])
+      .then(([data, team]) => {
+        if (active) {
+          setRecords(data)
+          setTechnicians(team)
+        }
       })
       .catch(() => {
         if (active) setError('Não foi possível carregar o dashboard.')
@@ -29,7 +35,7 @@ export default function Dashboard() {
     return () => {
       active = false
     }
-  }, [])
+  }, [technicianId, retry])
 
   const visible = records.slice(-Number(months))
   const opened = visible.reduce((sum, item) => sum + item.opened, 0)
@@ -50,6 +56,12 @@ export default function Dashboard() {
     )
     .join(' ')
   const histogram = buildHistogram(hours)
+  const scatter = visible.flatMap((item) => {
+    const monthlySummary = summarizeHours(item.hours)
+    return monthlySummary ? [{ ...item, mean: monthlySummary.mean }] : []
+  })
+  const scatterMaxX = Math.max(1, ...scatter.map((item) => item.opened))
+  const scatterMaxY = Math.max(1, ...scatter.map((item) => item.mean))
 
   return (
     <div className={common.page}>
@@ -59,6 +71,25 @@ export default function Dashboard() {
         action={<DemoBadge>Dados demonstrativos</DemoBadge>}
       />
       <div className={common.toolbar}>
+        <label htmlFor="dashboard-technician" className={common.field}>
+          Técnico
+          <select
+            id="dashboard-technician"
+            value={technicianId}
+            onChange={(event) => {
+              setLoading(true)
+              setError('')
+              setTechnicianId(event.target.value)
+            }}
+          >
+            <option value="">Todos os técnicos</option>
+            {technicians.map((technician) => (
+              <option key={technician.id} value={technician.id}>
+                {technician.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <label htmlFor="dashboard-period" className={common.field}>
           Período
           <select
@@ -82,11 +113,26 @@ export default function Dashboard() {
           </select>
         </label>
       </div>
+      <p className={common.muted}>
+        Distribuição sintética por técnico, independente do calendário. Técnicos novos não têm
+        indicadores históricos nesta demonstração.
+      </p>
       {loading && <p role="status">Carregando indicadores…</p>}
       {error && (
-        <p role="alert" className={common.error}>
-          {error}
-        </p>
+        <div role="alert" className={common.error}>
+          <p>{error}</p>
+          <button
+            type="button"
+            className={common.secondaryButton}
+            onClick={() => {
+              setLoading(true)
+              setError('')
+              setRetry((current) => current + 1)
+            }}
+          >
+            Tentar novamente
+          </button>
+        </div>
       )}
       {!loading &&
         !error &&
@@ -257,10 +303,63 @@ export default function Dashboard() {
                   <p>Não há tempos de atendimento neste período.</p>
                 )}
               </section>
+              <section className={common.panel} aria-labelledby="scatter-title">
+                <h2 id="scatter-title">Solicitações abertas × tempo médio</h2>
+                {scatter.length ? (
+                  <>
+                    <svg
+                      className={styles.scatter}
+                      viewBox="0 0 320 200"
+                      role="img"
+                      aria-label={scatter
+                        .map(
+                          (item) =>
+                            `${item.month}: ${item.opened} abertas e média de ${formatHour(item.mean)} horas`,
+                        )
+                        .join('; ')}
+                    >
+                      <path d="M 40 15 V 160 H 300" fill="none" stroke="#33465f" />
+                      <text x="35" y="178">
+                        0
+                      </text>
+                      <text x="300" y="178" textAnchor="end">
+                        {scatterMaxX}
+                      </text>
+                      <text x="33" y="25" textAnchor="end">
+                        {formatHour(scatterMaxY)}
+                      </text>
+                      <text x="170" y="196" textAnchor="middle">
+                        Abertas (quantidade)
+                      </text>
+                      <text x="14" y="90" textAnchor="middle" transform="rotate(-90 14 90)">
+                        Tempo médio (h)
+                      </text>
+                      {scatter.map((item) => (
+                        <g key={item.month}>
+                          <circle
+                            cx={40 + (item.opened / scatterMaxX) * 260}
+                            cy={160 - (item.mean / scatterMaxY) * 140}
+                            r="5"
+                            fill="#153d7d"
+                          />
+                          <title>
+                            {item.month}: {item.opened} abertas · {formatHour(item.mean)} h
+                          </title>
+                        </g>
+                      ))}
+                    </svg>
+                    <p className={common.muted}>
+                      Cada ponto representa um mês; a relação não estabelece causa e efeito.
+                    </p>
+                  </>
+                ) : (
+                  <p>Não há tempos de atendimento para comparar.</p>
+                )}
+              </section>
             </div>
           </>
         ) : (
-          <p className={common.empty}>Não há dados para o período selecionado.</p>
+          <p className={common.empty}>Não há dados para o técnico e período selecionados.</p>
         ))}
     </div>
   )

@@ -1,5 +1,6 @@
 import {
   dashboardRecords,
+  dashboardByTechnician,
   initialEvents,
   initialProfile,
   initialTechnicians,
@@ -136,9 +137,12 @@ export async function saveProfile(input: ManagerProfile): Promise<ManagerProfile
   return { ...profile }
 }
 
-export async function getDashboard(): Promise<DashboardRecord[]> {
+export async function getDashboard(technicianId = ''): Promise<DashboardRecord[]> {
   await pause()
-  return dashboardRecords.map((item) => ({ ...item, hours: [...item.hours] }))
+  if (technicianId && !technicians.some((item) => item.id === technicianId))
+    throw new Error('Técnico não encontrado.')
+  const records = technicianId ? (dashboardByTechnician[technicianId] ?? []) : dashboardRecords
+  return records.map((item) => ({ ...item, hours: [...item.hours] }))
 }
 
 export async function getTechnicianPerformance(
