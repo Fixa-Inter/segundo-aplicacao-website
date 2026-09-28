@@ -45,6 +45,8 @@ export default function Profile() {
   const { updateName } = useAuth()
   const [profile, setProfile] = useState<ManagerProfile>(empty)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const [busy, setBusy] = useState(false)
   const [editing, setEditing] = useState(false)
   const [passwordOpen, setPasswordOpen] = useState(false)
@@ -80,7 +82,7 @@ export default function Profile() {
         }
       })
       .catch(() => {
-        if (active) setError('Não foi possível carregar o perfil.')
+        if (active) setLoadError('Não foi possível carregar o perfil.')
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -88,7 +90,7 @@ export default function Profile() {
     return () => {
       active = false
     }
-  }, [])
+  }, [loadAttempt])
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -179,6 +181,21 @@ export default function Profile() {
       )}
       {loading ? (
         <p role="status">Carregando perfil…</p>
+      ) : loadError ? (
+        <div role="alert" className={common.error}>
+          <p>{loadError}</p>
+          <button
+            className={common.secondary}
+            type="button"
+            onClick={() => {
+              setLoadError('')
+              setLoading(true)
+              setLoadAttempt((current) => current + 1)
+            }}
+          >
+            Tentar novamente
+          </button>
+        </div>
       ) : (
         <>
           <div className={styles.identity}>

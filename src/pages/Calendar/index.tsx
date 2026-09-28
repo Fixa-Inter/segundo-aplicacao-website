@@ -21,6 +21,8 @@ export default function Calendar() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [technicians, setTechnicians] = useState<Technician[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -46,7 +48,7 @@ export default function Calendar() {
         }
       })
       .catch(() => {
-        if (active) setError('Não foi possível carregar o calendário.')
+        if (active) setLoadError('Não foi possível carregar o calendário.')
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -54,7 +56,7 @@ export default function Calendar() {
     return () => {
       active = false
     }
-  }, [])
+  }, [loadAttempt])
 
   function changeMonth(offset: number) {
     const date = new Date(`${month}-01T12:00:00Z`)
@@ -150,7 +152,7 @@ export default function Calendar() {
             className={common.primary}
             type="button"
             onClick={() => openForm()}
-            disabled={loading}
+            disabled={loading || Boolean(loadError)}
           >
             Adicionar evento
           </button>
@@ -169,6 +171,21 @@ export default function Calendar() {
       )}
       {loading ? (
         <p role="status">Carregando calendário…</p>
+      ) : loadError ? (
+        <div role="alert" className={common.error}>
+          <p>{loadError}</p>
+          <button
+            className={common.secondary}
+            type="button"
+            onClick={() => {
+              setLoadError('')
+              setLoading(true)
+              setLoadAttempt((current) => current + 1)
+            }}
+          >
+            Tentar novamente
+          </button>
+        </div>
       ) : (
         <div className={styles.calendarLayout}>
           <section

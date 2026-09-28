@@ -28,6 +28,8 @@ export default function Team() {
   const [items, setItems] = useState<Technician[]>([])
   const [manager, setManager] = useState<ManagerProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -91,7 +93,7 @@ export default function Team() {
         }
       })
       .catch(() => {
-        if (active) setError('Não foi possível carregar a equipe.')
+        if (active) setLoadError('Não foi possível carregar a equipe.')
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -99,7 +101,7 @@ export default function Team() {
     return () => {
       active = false
     }
-  }, [])
+  }, [loadAttempt])
 
   const filtered = items.filter(
     (item) =>
@@ -210,7 +212,7 @@ export default function Team() {
               className={`${common.primary} ${styles.addButton}`}
               type="button"
               onClick={() => openForm()}
-              disabled={loading || !manager}
+              disabled={loading || Boolean(loadError) || !manager}
             >
               + Adicionar
             </button>
@@ -299,6 +301,27 @@ export default function Team() {
       )}
       {loading ? (
         <p role="status">Carregando equipe…</p>
+      ) : loadError ? (
+        <section
+          id={tab === 'Técnicos' ? 'team-panel-tech' : 'team-panel-managers'}
+          role="tabpanel"
+          aria-labelledby={tab === 'Técnicos' ? 'team-tab-tech' : 'team-tab-managers'}
+        >
+          <div role="alert" className={common.error}>
+            <p>{loadError}</p>
+            <button
+              className={common.secondary}
+              type="button"
+              onClick={() => {
+                setLoadError('')
+                setLoading(true)
+                setLoadAttempt((current) => current + 1)
+              }}
+            >
+              Tentar novamente
+            </button>
+          </div>
+        </section>
       ) : tab === 'Gestores' ? (
         <section
           id="team-panel-managers"

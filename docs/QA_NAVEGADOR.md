@@ -120,3 +120,7 @@ No navegador, o nome do perfil foi alterado para “Gestora da sessão A”. Ap�
 ### Checagem dirigida de nomes e teclado — 28/09
 
 Após o ajuste de sessão, o DOM carregado de Perfil, Dashboard, Equipe, Calendário, Manu, Home, Login e primeira etapa da Recuperação foi inspecionado para IDs duplicados, imagens sem atributo `alt` e botões/campos sem texto ou rótulo. Nenhum caso apareceu nesse recorte. No login, seis pressões consecutivas de Tab focaram Email/CNPJ, Senha, Mostrar senha, Esqueci minha senha, Entrar e Conheça o projeto, nessa ordem. Em rota autenticada, Enter no link “Pular para o conteúdo” focou o elemento principal; o modal de saída abriu com Enter, fechou com Escape e devolveu o foco ao botão Sair. A inspeção não cobre estados de erro, nomes acessíveis calculados por leitor de tela, contraste de todas as combinações nem navegação integral por Tab nas demais telas.
+
+### Estados de falha de carga — 28/09
+
+Equipe, Calendário e Perfil passaram a exibir erro de carga separado de lista/perfil vazio, com botão “Tentar novamente”. Build, lint, formatação e os 20 testes Node passaram. Os testes existentes não exercitam a interface desses novos estados. Nesta sessão, a ferramenta de navegador recusou abrir a URL local `http://127.0.0.1:5174/login` por política de URL; portanto, **não houve validação visual ou interativa dessa mudança**. Repetir o fluxo de falha e recuperação no navegador quando o acesso estiver disponível.
