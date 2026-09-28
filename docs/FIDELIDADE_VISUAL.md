@@ -2,6 +2,8 @@
 
 Referência somente para leitura: [cópia do Figma](https://www.figma.com/design/zgDd0qejEdOT2E16qQOsJs/Fixa--Copy-?node-id=5631-5628), seção `5631:5628`. Os IDs abaixo pertencem à cópia, não ao arquivo anterior. Revisão incremental de 26–28/09/2026; resultados de interação em [QA_NAVEGADOR.md](QA_NAVEGADOR.md).
 
+As coordenadas abaixo registram as comparações feitas antes do ajuste de ergonomia solicitado em 28/09. A largura da navegação, as alturas da Home e a composição da Manu mudaram depois dessa medição para atender melhor o notebook mostrado nas capturas do usuário. Esses números permanecem como histórico e **não aprovam a posição atual** dessas telas no Figma.
+
 ## Comparações e diferenças conhecidas
 
 | Tela / nó | Implementação | Conferência e diferença |
@@ -27,3 +29,9 @@ Referência somente para leitura: [cópia do Figma](https://www.figma.com/design
 4. Conferir com a equipe as diferenças condicionadas ao contrato: métricas do BI e vínculo com técnicos, catálogo de locais, fotos, campos obrigatórios e política definitiva de senha.
 
 Esta revisão registra comparações feitas e diferenças rastreáveis. **Não é aprovação visual integral de todos os frames e estados**, nem certificação WCAG. Avisos de demonstração permanecem enquanto não houver integração real.
+
+## Ajuste de ergonomia solicitado pelo usuário — 28/09
+
+A navegação desktop passou a ter largura menor e controle de recolher/expandir em todas as rotas. O cabeçalho fica no topo durante a rolagem, com notificações, configurações e avatar alinhados à direita. A Home usa alturas mínimas mais estáveis para banner e indicadores; em largura de tablet, os cartões e painéis passam a uma composição mais folgada. A Manu amplia o compositor, mantém imagem e saudação após o primeiro envio, distingue visualmente o estado disponível de “Novo chat” e aplica o foco ao contêiner arredondado dos campos. No Calendário, o marcador de evento fica dentro do círculo da data e o hover não acrescenta outra superfície ao dia selecionado.
+
+Essas escolhas respondem às capturas do notebook e à preferência expressa pelo usuário. A comparação com todos os estados correspondentes da cópia do Figma e a revisão nas dimensões 1340 × 800 e 800 × 1340 precisam ser repetidas após o ajuste.
