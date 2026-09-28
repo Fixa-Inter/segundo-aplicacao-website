@@ -123,7 +123,7 @@ export default function Dashboard() {
           <p>{error}</p>
           <button
             type="button"
-            className={common.secondaryButton}
+            className={common.secondary}
             onClick={() => {
               setLoading(true)
               setError('')
