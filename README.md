@@ -32,7 +32,7 @@ Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não v
 | `/perfil` | Dados do gestor editáveis **em memória** e validação demonstrativa de troca de senha |
 | `/manu` | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente |
 
-As ações em memória são perdidas ao recarregar. Não há endpoints inventados nem afirmação de persistência real. Os dados de exemplo estão em `src/mocks`; páginas acessam os services tipados de `src/services`. O cliente Axios em `src/services/api.ts` ficará disponível para integrar o contrato real quando existir. `.env.example` documenta `VITE_API_BASE_URL`; variáveis `VITE_` são públicas e não devem conter segredos.
+As ações em memória são perdidas ao recarregar. Não há endpoints inventados nem afirmação de persistência real. Os dados de exemplo estão em `src/mocks`; páginas acessam os services tipados de `src/services`. O cliente Axios em `src/services/api.ts` ficará disponível para integrar o contrato real quando existir. `.env.example` deixa `VITE_API_BASE_URL` comentada e sem URL presumida; variáveis `VITE_` são públicas e não devem conter segredos.
 
 O cadastro do gestor define acesso **TÉCNICO** automaticamente e copia seu endereço ao salvar. Os campos de endereço são somente para leitura. A senha de criação segue uma regra provisória e não é armazenada. Veja as [regras e decisões do cadastro](docs/REGRAS_CADASTRO_TECNICOS.md), incluindo os pontos a confirmar com a API.
 
