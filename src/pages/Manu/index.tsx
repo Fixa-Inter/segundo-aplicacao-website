@@ -86,7 +86,12 @@ export default function Manu() {
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-        <button className={styles.newChat} type="button" onClick={newChat} disabled={busy}>
+        <button
+          className={styles.newChat}
+          type="button"
+          onClick={newChat}
+          disabled={busy || !activeId}
+        >
           <Plus size={17} aria-hidden="true" /> Novo chat
         </button>
         <h2>Recentes</h2>
@@ -116,6 +121,12 @@ export default function Manu() {
       </aside>
       <section className={styles.chat} aria-label="Conversa com Manu">
         <DemoBadge>Respostas guiadas · sem IA conectada · histórico só nesta sessão</DemoBadge>
+        <div
+          className={`${styles.welcome} ${active?.messages.length ? styles.welcomeCompact : ''}`}
+        >
+          <img src={manu} alt="Manu, assistente do FIXA" width="240" height="240" />
+          <h2>Olá {user?.name ?? 'gestor'}, como posso te ajudar hoje?</h2>
+        </div>
         {active?.messages.length ? (
           <div
             ref={logRef}
@@ -141,12 +152,7 @@ export default function Manu() {
             ))}
             {busy && <p role="status">Manu está preparando uma resposta demonstrativa…</p>}
           </div>
-        ) : (
-          <div className={styles.welcome}>
-            <img src={manu} alt="Manu, assistente do FIXA" width="240" height="240" />
-            <h2>Olá {user?.name ?? 'gestor'}, como posso te ajudar hoje?</h2>
-          </div>
-        )}
+        ) : null}
         {error && (
           <p role="alert" className={common.error}>
             {error}
