@@ -116,3 +116,7 @@ No evento novo, a seta ficou em y≈65, o título em y≈129 e o rótulo “Nome
 ### Isolamento da sessão demonstrativa — 28/09
 
 No navegador, o nome do perfil foi alterado para “Gestora da sessão A”. Após confirmar o logout e entrar com outra identificação fictícia, o Perfil voltou a mostrar “Raphaely Sales”. O service restaura técnicos, eventos e perfil ao sair ou entrar, e rejeita gravações pendentes da sessão encerrada. Dois testes novos cobrem restauração das três entidades e uma gravação pendente. `npm run build`, `npm run lint`, `npm test` (**20 de 20**) e `npm run format:check` passaram. O roteiro visual dos demais fluxos permanece conforme as seções anteriores.
+
+### Checagem dirigida de nomes e teclado — 28/09
+
+Após o ajuste de sessão, o DOM carregado de Perfil, Dashboard, Equipe, Calendário, Manu, Home, Login e primeira etapa da Recuperação foi inspecionado para IDs duplicados, imagens sem atributo `alt` e botões/campos sem texto ou rótulo. Nenhum caso apareceu nesse recorte. No login, seis pressões consecutivas de Tab focaram Email/CNPJ, Senha, Mostrar senha, Esqueci minha senha, Entrar e Conheça o projeto, nessa ordem. Em rota autenticada, Enter no link “Pular para o conteúdo” focou o elemento principal; o modal de saída abriu com Enter, fechou com Escape e devolveu o foco ao botão Sair. A inspeção não cobre estados de erro, nomes acessíveis calculados por leitor de tela, contraste de todas as combinações nem navegação integral por Tab nas demais telas.
