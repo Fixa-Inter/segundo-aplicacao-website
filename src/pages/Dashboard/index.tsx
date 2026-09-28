@@ -64,59 +64,57 @@ export default function Dashboard() {
   const scatterMaxY = Math.max(1, ...scatter.map((item) => item.mean))
 
   return (
-    <div className={common.page}>
-      <PageHeader
-        title="Dashboard"
-        description="Indicadores de manutenção e tempo de atendimento."
-        action={<DemoBadge>Dados demonstrativos</DemoBadge>}
-      />
-      <div className={common.toolbar}>
-        <label htmlFor="dashboard-technician" className={common.field}>
-          Técnico
-          <select
-            id="dashboard-technician"
-            value={technicianId}
-            onChange={(event) => {
-              setLoading(true)
-              setError('')
-              setTechnicianId(event.target.value)
-            }}
-          >
-            <option value="">Todos os técnicos</option>
-            {technicians.map((technician) => (
-              <option key={technician.id} value={technician.id}>
-                {technician.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label htmlFor="dashboard-period" className={common.field}>
-          Período
-          <select
-            id="dashboard-period"
-            value={months}
-            onChange={(event) => setMonths(event.target.value)}
-          >
-            <option value="3">Últimos 3 meses</option>
-            <option value="7">Últimos 7 meses</option>
-          </select>
-        </label>
-        <label htmlFor="dashboard-metric" className={common.field}>
-          Comparar
-          <select
-            id="dashboard-metric"
-            value={metric}
-            onChange={(event) => setMetric(event.target.value as 'opened' | 'completed')}
-          >
-            <option value="completed">Concluídas</option>
-            <option value="opened">Abertas</option>
-          </select>
-        </label>
+    <div className={`${common.page} ${styles.dashboardPage}`}>
+      <PageHeader title="Dashboard" action={<DemoBadge>Dados demonstrativos</DemoBadge>} />
+      <div className={styles.controls}>
+        <div className={common.toolbar}>
+          <label htmlFor="dashboard-technician" className={common.field}>
+            <span className={styles.srOnly}>Técnico</span>
+            <select
+              id="dashboard-technician"
+              value={technicianId}
+              onChange={(event) => {
+                setLoading(true)
+                setError('')
+                setTechnicianId(event.target.value)
+              }}
+            >
+              <option value="">Todos os técnicos</option>
+              {technicians.map((technician) => (
+                <option key={technician.id} value={technician.id}>
+                  {technician.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label htmlFor="dashboard-period" className={common.field}>
+            <span className={styles.srOnly}>Período</span>
+            <select
+              id="dashboard-period"
+              value={months}
+              onChange={(event) => setMonths(event.target.value)}
+            >
+              <option value="3">Últimos 3 meses</option>
+              <option value="7">Últimos 7 meses</option>
+            </select>
+          </label>
+          <label htmlFor="dashboard-metric" className={common.field}>
+            <span className={styles.srOnly}>Comparar</span>
+            <select
+              id="dashboard-metric"
+              value={metric}
+              onChange={(event) => setMetric(event.target.value as 'opened' | 'completed')}
+            >
+              <option value="completed">Concluídas</option>
+              <option value="opened">Abertas</option>
+            </select>
+          </label>
+        </div>
+        <p className={`${common.muted} ${styles.demoNote}`}>
+          Distribuição sintética por técnico, independente do calendário. Técnicos novos não têm
+          indicadores históricos nesta demonstração.
+        </p>
       </div>
-      <p className={common.muted}>
-        Distribuição sintética por técnico, independente do calendário. Técnicos novos não têm
-        indicadores históricos nesta demonstração.
-      </p>
       {loading && <p role="status">Carregando indicadores…</p>}
       {error && (
         <div role="alert" className={common.error}>
