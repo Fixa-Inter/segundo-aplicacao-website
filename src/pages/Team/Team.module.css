@@ -1,3 +1,28 @@
+.teamPage {
+  position: relative;
+  margin-top: -26px;
+}
+.demoPosition {
+  position: absolute;
+  top: 68px;
+  left: 0;
+}
+.tabs {
+  margin-top: 16px;
+  margin-bottom: 10px;
+}
+@media (max-width: 1100px) {
+  .teamPage {
+    margin-top: 0;
+  }
+  .demoPosition {
+    position: static;
+  }
+  .tabs {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
 .search {
   position: relative;
   flex: 1 1 350px;
@@ -109,6 +134,14 @@
   min-width: 170px;
   border-radius: 999px;
   font-weight: 500;
+  position: absolute;
+  top: -56px;
+  right: 166px;
+}
+@media (max-width: 1100px) {
+  .addButton {
+    position: static;
+  }
 }
 .searchIcon {
   position: absolute;

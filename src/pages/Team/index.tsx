@@ -200,7 +200,7 @@ export default function Team() {
   }
 
   return (
-    <div className={common.page}>
+    <div className={`${common.page} ${styles.teamPage}`}>
       <PageHeader
         title="Minha equipe"
         action={
@@ -217,7 +217,9 @@ export default function Team() {
           )
         }
       />
-      <DemoBadge>Dados demonstrativos · alterações até recarregar</DemoBadge>
+      <div className={styles.demoPosition}>
+        <DemoBadge>Dados demonstrativos · alterações até recarregar</DemoBadge>
+      </div>
       {tab === 'Técnicos' && (
         <div className={common.toolbar}>
           <label htmlFor="team-search" className={`${common.field} ${styles.search}`}>
