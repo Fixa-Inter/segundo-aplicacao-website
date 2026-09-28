@@ -72,7 +72,7 @@ export function EventForm({
         <ArrowLeft size={28} />
       </button>
       <h1 className={styles.title}>
-        <span>{event ? 'Edite' : 'Agende'}</span> um evento
+        <span>{event ? 'Edite' : 'Agende'}</span> {event ? event.title : 'um evento'}
       </h1>
       <span className={styles.demoBadge}>
         <DemoBadge>Eventos demonstrativos · alterações até recarregar</DemoBadge>
