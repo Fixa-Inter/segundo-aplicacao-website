@@ -124,3 +124,5 @@ Após o ajuste de sessão, o DOM carregado de Perfil, Dashboard, Equipe, Calend�
 ### Estados de falha de carga — 28/09
 
 Equipe, Calendário e Perfil passaram a exibir erro de carga separado de lista/perfil vazio, com botão “Tentar novamente”. Build, lint, formatação e os 20 testes Node passaram. Os testes existentes não exercitam a interface desses novos estados. Nesta sessão, a ferramenta de navegador recusou abrir a URL local `http://127.0.0.1:5174/login` por política de URL; portanto, **não houve validação visual ou interativa dessa mudança**. Repetir o fluxo de falha e recuperação no navegador quando o acesso estiver disponível.
+
+Em nova tentativa, o navegador abriu a mesma URL local. O login demonstrativo levou à Home, e Equipe, Calendário e Perfil carregaram suas fixtures. No Perfil, a captura [qa-perfil-2026-09-28.png](evidencias/qa-perfil-2026-09-28.png) registrou a tela carregada; na viewport de 1159 × 668, não havia imagem quebrada nem transbordamento horizontal, e o console não mostrou erros. **A falha de carga e a ação “Tentar novamente” continuam sem teste interativo**, pois nenhum service foi forçado a falhar nessa visita.
