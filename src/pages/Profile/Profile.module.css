@@ -128,6 +128,23 @@
 .form input[aria-invalid='true'] {
   border-color: #96031a;
 }
+@media (min-width: 901px) {
+  .page {
+    position: relative;
+    left: 14px;
+    margin-top: -48px;
+    row-gap: 41px;
+  }
+  .information {
+    margin-top: 0;
+  }
+  .form {
+    margin-top: 4px;
+  }
+  .headerBadge {
+    margin-top: 36px;
+  }
+}
 @media (max-width: 900px) {
   .profileGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -161,7 +161,11 @@ export default function Profile() {
     <div className={`${common.page} ${styles.page}`}>
       <PageHeader
         title={editing ? 'Editar Perfil' : 'Perfil'}
-        action={<DemoBadge>Conta demonstrativa</DemoBadge>}
+        action={
+          <span className={styles.headerBadge}>
+            <DemoBadge>Conta demonstrativa</DemoBadge>
+          </span>
+        }
       />
       {notice && (
         <p role="status" className={common.status}>
