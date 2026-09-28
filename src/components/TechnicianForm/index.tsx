@@ -137,15 +137,13 @@ export function TechnicianForm({
         <ArrowLeft size={28} />
       </button>
       <h1 className={styles.title}>
-        <span>{technician ? 'Edite os dados' : 'Adicione um novo'}</span>{' '}
-        {technician ? 'do funcionário' : 'funcionário'}
+        <span>{technician ? 'Edite' : 'Adicione um novo'}</span>{' '}
+        {technician ? technician.name : 'funcionário'}
       </h1>
-      <DemoBadge>Cadastro demonstrativo · alterações até recarregar</DemoBadge>
+      <span className={styles.demoBadge}>
+        <DemoBadge>Cadastro demonstrativo · alterações até recarregar</DemoBadge>
+      </span>
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
-        <p className={styles.note}>
-          Use dados fictícios. Nenhuma conta ou senha real será criada. Os campos com * são
-          obrigatórios nesta demonstração.
-        </p>
         <fieldset disabled={busy}>
           <legend className={styles.srOnly}>
             Informações do técnico e endereço herdado do gestor
@@ -216,6 +214,10 @@ export function TechnicianForm({
           </div>
         </fieldset>
         <div className={styles.rules}>
+          <p className={styles.note}>
+            Use dados fictícios. Nenhuma conta ou senha real será criada. Os campos com * são
+            obrigatórios nesta demonstração.
+          </p>
           {!technician && (
             <p id="technician-password-rule" className={styles.note}>
               Senha: regra provisória de no mínimo 8 caracteres, maiúscula, minúscula e símbolo

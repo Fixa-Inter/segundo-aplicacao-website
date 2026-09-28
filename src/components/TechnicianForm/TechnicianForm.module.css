@@ -179,6 +179,27 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+@media (min-width: 901px) {
+  .page {
+    position: relative;
+    left: 14px;
+    margin-top: -62px;
+  }
+  .demoBadge {
+    position: absolute;
+    top: 7px;
+    left: 72px;
+  }
+  .form {
+    margin-top: 0;
+  }
+  .title {
+    margin-bottom: 33px;
+  }
+  .field {
+    gap: 5px;
+  }
+}
 @media (max-width: 900px) {
   .grid,
   .operational {

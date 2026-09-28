@@ -74,7 +74,9 @@ export function EventForm({
       <h1 className={styles.title}>
         <span>{event ? 'Edite' : 'Agende'}</span> um evento
       </h1>
-      <DemoBadge>Eventos demonstrativos · alterações até recarregar</DemoBadge>
+      <span className={styles.demoBadge}>
+        <DemoBadge>Eventos demonstrativos · alterações até recarregar</DemoBadge>
+      </span>
       <form ref={formRef} onSubmit={submit} noValidate aria-busy={busy} className={styles.form}>
         <fieldset disabled={busy} className={styles.grid}>
           <legend className={styles.srOnly}>Dados do evento</legend>

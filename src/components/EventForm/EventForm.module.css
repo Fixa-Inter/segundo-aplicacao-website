@@ -122,6 +122,20 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+@media (min-width: 901px) {
+  .page {
+    position: relative;
+    margin-top: -62px;
+  }
+  .demoBadge {
+    position: absolute;
+    top: 7px;
+    left: 72px;
+  }
+  .form {
+    margin-top: 32px;
+  }
+}
 @media (max-width: 600px) {
   .grid {
     grid-template-columns: minmax(0, 1fr);
