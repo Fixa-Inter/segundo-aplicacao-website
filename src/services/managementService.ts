@@ -22,12 +22,24 @@ import type {
   PerformancePoint,
 } from '../types/management'
 
-// Repositório em memória da demonstração. Um recarregamento restaura os exemplos.
+// Repositório em memória da demonstração, limitado à sessão atual.
 let technicians = initialTechnicians.map((item) => ({ ...item }))
 let events = initialEvents.map((item) => ({ ...item }))
 let profile = { ...initialProfile }
+let sessionVersion = 0
 
 const pause = () => new Promise<void>((resolve) => setTimeout(resolve, 180))
+
+export function clearDemoManagement(): void {
+  sessionVersion += 1
+  technicians = initialTechnicians.map((item) => ({ ...item }))
+  events = initialEvents.map((item) => ({ ...item }))
+  profile = { ...initialProfile }
+}
+
+function assertActiveSession(version: number): void {
+  if (version !== sessionVersion) throw new Error('A sessão de demonstração foi encerrada.')
+}
 
 export async function listTechnicians(): Promise<Technician[]> {
   await pause()
@@ -35,7 +47,9 @@ export async function listTechnicians(): Promise<Technician[]> {
 }
 
 export async function saveTechnician(input: TechnicianInput, id?: string): Promise<Technician> {
+  const version = sessionVersion
   await pause()
+  assertActiveSession(version)
   const validationErrors = Object.values(validateTechnician(input))
   if (validationErrors.length) throw new Error(validationErrors[0])
   if (
@@ -71,7 +85,9 @@ export async function saveTechnician(input: TechnicianInput, id?: string): Promi
 }
 
 export async function removeTechnician(id: string): Promise<void> {
+  const version = sessionVersion
   await pause()
+  assertActiveSession(version)
   if (events.some((event) => event.technicianId === id))
     throw new Error(
       'Este técnico possui eventos vinculados. Reatribua ou exclua os eventos primeiro.',
@@ -85,7 +101,9 @@ export async function listEvents(): Promise<CalendarEvent[]> {
 }
 
 export async function saveEvent(input: CalendarEventInput, id?: string): Promise<CalendarEvent> {
+  const version = sessionVersion
   await pause()
+  assertActiveSession(version)
   const validationErrors = Object.values(validateEvent(input))
   if (validationErrors.length) throw new Error(validationErrors[0])
   if (input.technicianId && !technicians.some((item) => item.id === input.technicianId))
@@ -107,7 +125,9 @@ export async function saveEvent(input: CalendarEventInput, id?: string): Promise
 }
 
 export async function removeEvent(id: string): Promise<void> {
+  const version = sessionVersion
   await pause()
+  assertActiveSession(version)
   events = events.filter((item) => item.id !== id)
 }
 
@@ -117,7 +137,9 @@ export async function getProfile(): Promise<ManagerProfile> {
 }
 
 export async function saveProfile(input: ManagerProfile): Promise<ManagerProfile> {
+  const version = sessionVersion
   await pause()
+  assertActiveSession(version)
   const validationErrors = Object.values(validateProfile(input))
   if (validationErrors.length) throw new Error(validationErrors[0])
   profile = {

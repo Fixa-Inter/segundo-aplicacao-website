@@ -1,6 +1,7 @@
 import { useReducer } from 'react'
 import type { AuthProviderProps } from '../types/ui'
 import { loginMock } from '../services/authService'
+import { clearDemoManagement } from '../services/managementService'
 import { clearDemoConversations } from '../services/manuService'
 import type { AuthAction, AuthState, LoginCredentials } from '../types/auth'
 
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     dispatch({ type: 'LOGIN_START' })
     try {
       const user = await loginMock(credentials)
+      clearDemoManagement()
       clearDemoConversations()
       dispatch({ type: 'LOGIN_SUCCESS', user })
       return true
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
   function logout() {
+    clearDemoManagement()
     clearDemoConversations()
     dispatch({ type: 'LOGOUT' })
   }

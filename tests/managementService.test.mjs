@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  clearDemoManagement,
   getProfile,
   getTechnicianPerformance,
   listTechnicians,
@@ -11,6 +12,7 @@ import {
   saveTechnician,
   saveEvent,
 } from '../src/services/managementService.ts'
+import { initialEvents, initialProfile, initialTechnicians } from '../src/mocks/management.ts'
 
 const technician = {
   name: 'Técnico de teste',
@@ -93,4 +95,35 @@ test('service rejeita cadastro inválido, e-mail duplicado e exclusão com event
   await assert.rejects(saveTechnician({ ...technician, email: 'ana@fixa.test' }), /Já existe/)
   await assert.rejects(saveTechnician({ ...technician, email: ' ANA@fixa.test ' }), /Já existe/)
   await assert.rejects(removeTechnician('t-1'), /eventos vinculados/)
+})
+
+test('encerrar a sessão restaura técnicos, eventos e perfil da demonstração', async () => {
+  clearDemoManagement()
+  await saveTechnician(technician)
+  await saveEvent({
+    title: 'Visita de teste',
+    date: '2026-03-11',
+    time: '09:00',
+    endTime: '10:00',
+    location: 'Sala de teste',
+    description: '',
+    observation: '',
+    technicianId: '',
+  })
+  await saveProfile({ ...initialProfile, name: 'Outro gestor' })
+
+  clearDemoManagement()
+
+  assert.deepEqual(await listTechnicians(), initialTechnicians)
+  assert.deepEqual(await listEvents(), initialEvents)
+  assert.deepEqual(await getProfile(), initialProfile)
+})
+
+test('gravação pendente não altera a sessão seguinte', async () => {
+  clearDemoManagement()
+  const pendingSave = saveTechnician(technician)
+  clearDemoManagement()
+
+  await assert.rejects(pendingSave, /sessão de demonstração foi encerrada/)
+  assert.deepEqual(await listTechnicians(), initialTechnicians)
 })

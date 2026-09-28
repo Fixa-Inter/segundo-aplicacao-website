@@ -141,7 +141,7 @@ export function TechnicianForm({
         {technician ? technician.name : 'funcionário'}
       </h1>
       <span className={styles.demoBadge}>
-        <DemoBadge>Cadastro demonstrativo · alterações até recarregar</DemoBadge>
+        <DemoBadge>Cadastro demonstrativo · dados desta sessão</DemoBadge>
       </span>
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
         <fieldset disabled={busy}>

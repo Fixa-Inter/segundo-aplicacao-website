@@ -156,7 +156,7 @@ export default function Calendar() {
           </button>
         }
       />
-      <DemoBadge>Dados demonstrativos · alterações até recarregar</DemoBadge>
+      <DemoBadge>Dados demonstrativos · alterações nesta sessão</DemoBadge>
       {notice && (
         <p role="status" className={common.status}>
           {notice}

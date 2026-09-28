@@ -218,7 +218,7 @@ export default function Team() {
         }
       />
       <div className={styles.demoPosition}>
-        <DemoBadge>Dados demonstrativos · alterações até recarregar</DemoBadge>
+        <DemoBadge>Dados demonstrativos · alterações nesta sessão</DemoBadge>
       </div>
       {tab === 'Técnicos' && (
         <div className={common.toolbar}>
