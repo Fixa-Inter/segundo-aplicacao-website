@@ -4,6 +4,9 @@ import { PinInput } from '@mantine/core'
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { AuthField } from '../../components/AuthField'
 import manu from '../../assets/figma/manu-recovery.png'
+import manuCode from '../../assets/figma/manu-recovery-code.png'
+import manuPassword from '../../assets/figma/manu-recovery-password.png'
+import manuSuccess from '../../assets/figma/manu-recovery-success.png'
 import {
   DEMO_RECOVERY_CODE,
   requestRecovery,
@@ -20,6 +23,18 @@ const titles: Record<RecoveryStep, string> = {
   code: 'Verifique seu e-mail',
   password: 'Defina sua nova senha',
   success: 'Demonstração concluída',
+}
+const artByStep: Record<RecoveryStep, string> = {
+  email: manu,
+  code: manuCode,
+  password: manuPassword,
+  success: manuSuccess,
+}
+const pageByStep: Record<RecoveryStep, string> = {
+  email: styles.emailPage,
+  code: styles.codePage,
+  password: styles.passwordPage,
+  success: styles.successPage,
 }
 export default function Recovery() {
   const [step, setStep] = useState<RecoveryStep>('email')
@@ -113,10 +128,10 @@ export default function Recovery() {
       : step === 'code'
         ? 'Digite o código de 6 dígitos para continuar'
         : step === 'password'
-          ? 'Use uma senha fictícia para validar esta demonstração'
+          ? ''
           : 'Fluxo validado. Nenhuma senha real foi alterada.'
   return (
-    <main className={`${styles.page} ${step === 'password' ? styles.passwordPage : ''}`}>
+    <main className={`${styles.page} ${pageByStep[step]}`}>
       {step !== 'success' &&
         (step === 'email' ? (
           <Link to="/login" className={styles.back} aria-label="Voltar ao login">
@@ -136,7 +151,7 @@ export default function Recovery() {
       <section className={styles.content} aria-labelledby="recovery-title">
         <img
           className={styles.manu}
-          src={manu}
+          src={artByStep[step]}
           width="760"
           height="760"
           alt="Manu ajudando na recuperação da senha"
@@ -144,15 +159,12 @@ export default function Recovery() {
         <h1 ref={headingRef} id="recovery-title" tabIndex={-1}>
           {titles[step]}
         </h1>
-        <p className={styles.description}>{description}</p>
+        {description && <p className={styles.description}>{description}</p>}
         {step === 'success' ? (
           <>
             <Link className={styles.primary} to="/login">
               Ir para o login
             </Link>
-            <p className={styles.demoNote}>
-              Demonstração concluída. Nenhuma senha real foi alterada.
-            </p>
           </>
         ) : (
           <>
@@ -181,7 +193,6 @@ export default function Recovery() {
                       setError(null)
                     }}
                   />
-                  <p className={styles.demoNote}>Demonstração: nenhum e-mail será enviado.</p>
                 </>
               )}
               {step === 'code' && (
@@ -215,7 +226,6 @@ export default function Recovery() {
                       'aria-label': `Dígito ${index + 1} do código`,
                     })}
                   />
-                  <p className={styles.demoNote}>Código de demonstração: {DEMO_RECOVERY_CODE}</p>
                 </div>
               )}
               {step === 'password' && (
@@ -261,8 +271,8 @@ export default function Recovery() {
               )}
               {step === 'password' && (
                 <p className={styles.demoNote}>
-                  Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial.
-                  A senha não é armazenada.
+                  Use uma senha fictícia. Regra provisória: mínimo de 8 caracteres, maiúscula,
+                  minúscula e símbolo especial. A senha não é armazenada.
                 </p>
               )}
               {step !== 'email' && error && (
@@ -285,6 +295,9 @@ export default function Recovery() {
                 Voltar ao login
               </Link>
             )}
+            {step === 'email' && (
+              <p className={styles.demoNote}>Demonstração: nenhum e-mail será enviado.</p>
+            )}
             {step === 'code' && (
               <p className={styles.resend}>
                 Não recebeu o código?{' '}
@@ -292,6 +305,9 @@ export default function Recovery() {
                   Reenviar
                 </button>
               </p>
+            )}
+            {step === 'code' && (
+              <p className={styles.demoNote}>Código de demonstração: {DEMO_RECOVERY_CODE}</p>
             )}
             {notice && (
               <p className={styles.demoNote} role="status">

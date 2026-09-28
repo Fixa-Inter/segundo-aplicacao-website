@@ -4,6 +4,7 @@
   background: #fefefe;
   position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
 }
 .back {
@@ -29,6 +30,7 @@
 }
 .content {
   width: min(820px, 100%, 84dvh);
+  min-width: 0;
   margin-inline: auto;
   text-align: center;
   --field-height: clamp(48px, 7.32dvh, 75px);
@@ -60,6 +62,45 @@
   font-weight: 300;
   color: #130943;
   line-height: 1.5;
+}
+@media (min-width: 601px) {
+  .emailPage .description {
+    margin-bottom: -6px;
+  }
+  .emailPage .content {
+    padding-bottom: 27px;
+  }
+  .codePage .content {
+    transform: translateY(-10px);
+  }
+  .codePage .manu {
+    position: relative;
+    top: -20px;
+  }
+  .codePage .primary {
+    margin-top: 52px;
+  }
+  .passwordPage .content {
+    transform: translateY(-25px);
+  }
+  .passwordPage .manu {
+    position: relative;
+    top: -15px;
+    transform: scale(1.1);
+  }
+  .passwordPage .primary {
+    margin-top: 8px;
+  }
+  .successPage .content {
+    transform: translateY(-45px);
+  }
+  .successPage .manu {
+    position: relative;
+    top: -20px;
+  }
+  .successPage .primary {
+    margin-top: 33px;
+  }
 }
 .form {
   text-align: left;
@@ -110,9 +151,13 @@
   justify-content: space-between;
   gap: clamp(8px, 2vw, 30px);
 }
-.pinInput {
+.pinRoot > div {
   width: clamp(36px, 8.8dvh, 90px);
   height: clamp(52px, 10.25dvh, 105px);
+}
+.pinInput {
+  width: 100%;
+  height: 100%;
   padding: 0;
   border: 2px solid transparent;
   border-radius: clamp(12px, 2.9dvh, 30px);
@@ -145,8 +190,8 @@
   gap: 16px;
 }
 .passwordPage .manu {
-  width: clamp(120px, 22dvh, 240px);
-  height: clamp(120px, 22dvh, 240px);
+  width: clamp(180px, 35dvh, 380px);
+  height: clamp(180px, 35dvh, 380px);
 }
 .error {
   color: #96031a;
@@ -182,6 +227,7 @@
   .pinRoot > div {
     flex: 1;
     min-width: 0;
+    height: 56px;
   }
   .passwordPage .manu {
     width: 135px;
