@@ -125,7 +125,6 @@
 @media (min-width: 901px) {
   .page {
     position: relative;
-    margin-top: -62px;
   }
   .demoBadge {
     position: absolute;

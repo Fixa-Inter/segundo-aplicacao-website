@@ -134,3 +134,9 @@ Na viewport disponível do navegador interno (1280 × 720), a Home mostrou a nav
 Na Manu, o compositor ocupou quase toda a largura da conversa. Antes do envio, “Novo chat” apareceu desabilitado; depois de enviar “Como cadastrar um técnico?”, ficou habilitado e com fundo azul claro. A imagem e a saudação continuaram visíveis acima das mensagens. O foco na busca e na mensagem alterou apenas o contorno arredondado do campo, sem retângulo interno sobre o botão de envio. No Calendário, o marcador do dia selecionado apareceu dentro do círculo e a data com evento manteve o rótulo acessível “com evento”.
 
 O navegador desta sessão não disponibilizou controle de viewport. Assim, **1340 × 800, 800 × 1340 e celular não foram reexecutados nesta revisão**; resultados de sessões anteriores não validam automaticamente o CSS novo. Também não houve nova medição direta contra o Figma. Build, lint, formatação e 20 testes Node foram executados após o ajuste.
+
+### Correção da sobreposição do cabeçalho — 28/09
+
+As capturas fornecidas pelo usuário mostraram os títulos de Dashboard, Equipe e Perfil cortados pelo cabeçalho fixo. Os deslocamentos negativos dessas páginas e dos formulários de técnico/evento foram removidos. O botão “Adicionar” da Equipe e o aviso de demonstração voltaram ao fluxo normal do layout.
+
+No navegador local, foram conferidos o topo de Dashboard, Equipe, Perfil, edição de Perfil, cadastro de técnico e formulário de evento. Títulos, botões e campos iniciais permaneceram visíveis abaixo do cabeçalho. No formulário de evento, a borda inferior do cabeçalho e o topo do botão Voltar ficaram ambos em y=80, enquanto o título começou em y=144. O documento mediu 1265 px de largura para uma viewport de 1280 px, sem transbordamento horizontal nessa tela. As resoluções 1340 × 800, 800 × 1340 e celular ainda não foram reexecutadas após esta correção.

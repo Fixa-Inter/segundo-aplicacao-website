@@ -64,7 +64,7 @@ export default function Dashboard() {
   const scatterMaxY = Math.max(1, ...scatter.map((item) => item.mean))
 
   return (
-    <div className={`${common.page} ${styles.dashboardPage}`}>
+    <div className={common.page}>
       <PageHeader title="Dashboard" action={<DemoBadge>Dados demonstrativos</DemoBadge>} />
       <div className={styles.controls}>
         <div className={common.toolbar}>

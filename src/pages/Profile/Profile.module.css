@@ -132,7 +132,6 @@
   .page {
     position: relative;
     left: 14px;
-    margin-top: -48px;
     row-gap: 41px;
   }
   .information {
@@ -140,9 +139,6 @@
   }
   .form {
     margin-top: 4px;
-  }
-  .headerBadge {
-    margin-top: 36px;
   }
 }
 @media (max-width: 900px) {
