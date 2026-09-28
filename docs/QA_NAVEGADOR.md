@@ -88,3 +88,11 @@ Na Equipe, `scrollWidth` não excedeu `innerWidth` em 1340 × 800, 800 × 1340 e
 O frame `5631:5998` foi comparado com o build em 1440 × 1024. Os controles foram compactados em uma faixa, com rótulos preservados para tecnologia assistiva e aviso visível sobre a distribuição sintética. Título x=306/y=97, filtros y=183, cartões y=251 e gráficos y=579; no Figma, as posições aproximadas são 320/85, 183, 249 e 590. Há diferenças de conteúdo e controles porque o Dashboard demonstra métricas e filtros funcionais em vez dos valores ilustrativos do frame.
 
 Em 1340 × 800, 800 × 1340 e 390 × 844, os três seletores permaneceram visíveis e `scrollWidth` não excedeu `innerWidth`. A altura do conteúdo requer rolagem vertical. A inspeção foi no navegador emulado; leitor de tela e tablet físico continuam pendentes.
+
+### Recuperação de senha — 28/09
+
+Os frames `5631:5663`, `5631:5679`, `5631:5700` e `5631:5729` da cópia do Figma foram consultados individualmente e comparados com as quatro etapas em 1440 × 1024. Foram aplicadas as ilustrações específicas de código, nova senha e conclusão. Na primeira etapa, o campo e o botão começam em y≈642/739 (referência ≈642/738); na etapa de senha, os campos em y≈567/708 (referência ≈564/706); na conclusão, o botão em y≈685 (referência ≈691). Textos de demonstração e o azul escuro do botão diferem intencionalmente do frame.
+
+No navegador local, e-mail fictício, código `123456` e senha fictícia `Exemplo!` chegaram à conclusão. O código colado nas seis caixas e a conclusão foram repetidos em 390 × 844. Foi encontrado e corrigido um transbordamento horizontal de 94 px na etapa do código no celular, causado pela largura mínima implícita da grade. Após a correção, `scrollWidth` ficou igual à largura da viewport (390 px); campo, caixas, botão e aviso ficaram inteiros e a imagem carregou. Na etapa do código, também foram conferidos 1340 × 800 e 800 × 1340, com `scrollWidth` igual à largura da viewport e imagem carregada. E-mail, senha e conclusão no celular não apresentaram transbordamento horizontal. A comparação de todos os erros, tablet físico e leitor de tela permanece aberta.
+
+Após as alterações, `npm run build`, `npm run lint`, `npm test` (18 de 18) e `npm run format:check` passaram. A formatação foi aplicada com Prettier, mantendo indentação consistente no código.
