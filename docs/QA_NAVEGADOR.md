@@ -71,3 +71,14 @@ Não foram executados leitor de tela (NVDA/VoiceOver), tablet físico, API real,
 | Manu e sessão | Conversa foi preservada ao navegar para Perfil e voltar. Após logout confirmado e novo login, Manu mostrou “Nenhuma conversa nesta sessão” | A resposta pendente entre rotas tem teste de service; o navegador observou retorno depois que a resposta terminou |
 
 `npm run build`, `npm run lint`, `npm test` e `npm run format:check` passaram após as alterações de código. A configuração local de GitHub Actions teve sintaxe/formatação conferida pelo Prettier; **não foi executada no GitHub**, pois não há repositório remoto ligado. Não foram testados os formatos de anexo além do TXT fictício.
+
+### Revisão pontual de acessibilidade — 27/09
+
+- A cor ciano do número grande do card “Tarefas A fazer” tinha contraste calculado de **2,95:1** sobre o azul `#396494`. Foi alterada de `#16c1ff` para `#1ac7ff`, com contraste de **3,11:1**. A cor computada `rgb(26, 199, 255)` foi confirmada no navegador. O [critério 1.4.3 da WCAG 2.1](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum) exige pelo menos 3:1 para texto grande.
+- Na Equipe carregada, foram inspecionados 30 controles visíveis; no Calendário carregado, 52. Nesse inventário, nenhum ficou sem nome extraído do texto, rótulo ou `aria-label`, e nenhum tinha largura ou altura inferior a 24 px. É uma inspeção dirigida do DOM; não substitui auditoria WCAG, navegação integral por Tab nem leitor de tela.
+
+### Comparação direta da Equipe — 27/09
+
+O frame `5631:6232` da cópia do Figma foi comparado com uma captura do build em 1440 × 1024. Após o ajuste, Adicionar ficou em x=1048/y=45, a busca em x=306/y=200 e a tabela em x=306/y=383. As posições aproximadas do frame são x=1048/y=45, x=308/y=205 e x=314/y=388, respectivamente. A barra superior mantém 20 px de separação entre Adicionar e o botão de notificações. O filtro de situação, o aviso de demonstração e os avatares de iniciais continuam diferentes da referência pelas razões registradas em [FIDELIDADE_VISUAL.md](FIDELIDADE_VISUAL.md).
+
+Na Equipe, `scrollWidth` não excedeu `innerWidth` em 1340 × 800, 800 × 1340 e 390 × 844. O botão Adicionar permaneceu visível, e em 800 px a tabela ocupou a largura disponível sem rolagem horizontal. Em 1340 × 800, a paginação fica abaixo da dobra e exige rolagem vertical. As capturas após mudanças rápidas de viewport exibiram artefatos de área preta ou escala; a inspeção visual válida foi a de 1440 × 1024 e 1340 × 800, complementada por medições de DOM nas demais larguras.
