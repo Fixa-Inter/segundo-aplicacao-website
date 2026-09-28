@@ -2,22 +2,41 @@
 
 Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 páginas. Esta matriz separa o que a aplicação React pode demonstrar do que depende do backend, de outras entregas da equipe ou de publicação. O Figma de referência é a [cópia Website v2](https://www.figma.com/design/zgDd0qejEdOT2E16qQOsJs/Fixa--Copy-?node-id=5631-5628).
 
-**Estados:** `Validado` = verificação executada e descrita; `Implementado, QA pendente` = existe código mas ainda não há evidência suficiente; `Parcial` = só a demonstração local existe; `Pendente externo` = depende de API, dados reais, hospedagem, processo de equipe ou outro repositório; `Fora do Web` = pertence a outra disciplina/artefato.
+**Estados:** `Validado` = implementação local e verificação indicada executadas; `Validado em código` = inspeção/build/teste, mas sem comprovação visual ou externa integral; `Validado no mock`/`Validado no cliente` = fluxo observado, sem aprovação da API ou autorização do servidor; `Implementado, QA pendente` = código sem evidência suficiente; `Parcial` = só uma parte local existe; `Pendente externo` = depende de API, dados reais, hospedagem, processo de equipe ou outro repositório; `Fora do Web` = pertence a outra disciplina/artefato. Uma aprovação de mock **não** aprova o critério que requer serviço ou dados reais.
+
+## Fluxos do gestor — Website v2
+
+Cada linha aponta a implementação, a verificação realizada e um passo de demonstração. O inventário visual de frames, adaptações e estados ainda abertos está em [FIDELIDADE_VISUAL.md](FIDELIDADE_VISUAL.md).
+
+| Requisito / Figma | Estado | Implementação / arquivo | Teste e forma de demonstrar |
+| --- | --- | --- | --- |
+| Login e sessão / `5631:5629` | Validado no mock | [`Login`](../src/pages/Login/index.tsx), [`authService`](../src/services/authService.ts), [`AuthContext`](../src/contexts/AuthContext.tsx) | Submit vazio focou Email/CNPJ; valores fictícios abriram Home com carregamento. Coordenadas comparadas em 1440 × 1024; entrar com `demo@fixa.test`/`demo1234` |
+| Recuperação em quatro etapas / `5631:5663`, `5679`, `5700`, `5729` | Validado no mock | [`Recovery`](../src/pages/Recovery/index.tsx), [`recoveryService`](../src/services/recoveryService.ts) | E-mail, código 123456, rejeição de código/senha e conclusão com aviso explícito; `npm test`; demonstrar com senha fictícia `Exemplo!` |
+| Home e navegação / `5631:5743` | Validado no mock | [`Home`](../src/pages/Home/index.tsx), [`AppLayout`](../src/components/AppLayout/index.tsx), [`homeService`](../src/services/homeService.ts) | Cards, gráfico, semana e navegação observados; criar evento no Calendário e encontrá-lo na Home; `npm test` |
+| Dashboard/BI / `5631:5998` | Validado no mock | [`Dashboard`](../src/pages/Dashboard/index.tsx), [`analytics`](../src/utils/analytics.ts), [`managementService`](../src/services/managementService.ts) | 18 testes incluem parcelas por técnico, quartis e histograma; no navegador filtrar Ana/3 meses e ler 13/9/4, observar dispersão; Data Mart ainda ausente |
+| Equipe, busca, filtro, paginação e abas / `5631:6232` | Validado no mock | [`Team`](../src/pages/Team/index.tsx), [`managementService`](../src/services/managementService.ts) | Buscar técnico, navegar páginas, alternar aba Técnicos/Gestores com setas; conta gestora e foco observados |
+| Cadastro e edição de técnico / `5631:6389`, `6522` | Validado no mock | [`TechnicianForm`](../src/components/TechnicianForm/index.tsx), [`managementValidation`](../src/utils/managementValidation.ts) | Erros e foco por campo; salvar, editar e excluir fictício. Tipo TÉCNICO e endereço herdado visíveis somente para leitura; senha provisória não armazenada |
+| Detalhes e desempenho / `5631:6658` | Validado no mock | [`TechnicianDetails`](../src/components/TechnicianDetails/index.tsx), [`performanceByTechnician`](../src/mocks/performance.ts) | Ana exibiu dados e gráficos semanal/mensal; voltar restaurou foco; técnico novo tem vazio no teste |
+| Calendário mensal e eventos / `5631:6796`, `7099`, `7208` | Validado no mock | [`Calendar`](../src/pages/Calendar/index.tsx), [`EventForm`](../src/components/EventForm/index.tsx) | Navegar dias com setas, criar/editar/excluir, rejeitar término anterior, observar foco. Evento salvo apareceu também na Home |
+| Perfil e troca de senha / `5631:6890`, `6981` | Validado no mock | [`Profile`](../src/pages/Profile/index.tsx) | Editar/cancelar dados, rejeitar 31/02/2000, observar foco; senha fictícia é validada e campos são limpos, sem alteração real |
+| Manu: conversa, histórico, busca e anexo / `5631:5893` | Validado no mock | [`Manu`](../src/pages/Manu/index.tsx), [`manuService`](../src/services/manuService.ts) | Sugestões, Ctrl+Enter, busca, novo chat, metadados de arquivo, histórico entre rotas; teste de resposta pendente após navegação e limpeza ao logout; sem IA |
+| Apresentação pública, rota privada e 404 / sem frame | Validado no cliente | [`App`](../src/App.tsx), [`About`](../src/pages/About/index.tsx), [`PrivateRoute`](../src/routes/PrivateRoute.tsx), [`NotFound`](../src/pages/NotFound/index.tsx) | `/sobre`, `/equipe` sem sessão e `/rota-inexistente` percorridos; autorização real é externa |
+| Todos os estados Figma, WCAG AA e tablet físico | Parcial | [revisão visual](FIDELIDADE_VISUAL.md), [QA](QA_NAVEGADOR.md) | Estados principais/responsividade observados; comparação integral, contraste formal, leitor de tela e dispositivo físico ainda pendentes |
 
 ## Desenvolvimento de Aplicações Dinâmicas — páginas 6–8
 
 | Critério do PDF | Estado | Implementação / arquivo | Teste e demonstração |
 | --- | --- | --- | --- |
-| Vite + React + TypeScript; apenas `.ts`/`.tsx` em `src` | Validado | [`package.json`](../package.json), [`src`](../src) | `npm run build`; inventário `rg --files src` sem `.js`/`.jsx` |
-| Componentes e páginas em pastas próprias com `index.tsx`; ao menos 6 componentes de responsabilidade única | Parcial | [`src/components`](../src/components), [`src/pages`](../src/pages) | Estrutura revisada; alguns módulos novos concentram formulários e visualização e ainda merecem extração antes da rubrica estrita de seis componentes |
-| Props e entidades tipadas em `src/types`, sem `any` | Parcial | [`src/types`](../src/types) | Build com TypeScript estrito; props dos componentes antigos tipadas, mas revisão manual completa das novas páginas ainda pendente |
+| Vite + React + TypeScript; fontes em `.ts`/`.tsx` | Validado | [`package.json`](../package.json), [`src`](../src) | `npm run build`; inventário sem `.js`/`.jsx` em `src`. CSS Modules e imagens são estilos/recursos, preservados conforme o projeto |
+| Componentes e páginas em pastas próprias com `index.tsx`; ao menos 6 componentes de responsabilidade única | Validado em código | [`src/components`](../src/components), [`src/pages`](../src/pages) | Nove componentes: AppLayout, AuthField, Brand, DemoBadge, PageHeader, StatCard, TechnicianForm, TechnicianDetails e EventForm; build/lint |
+| Props e entidades tipadas em `src/types`, sem `any` | Validado em código | [`src/types`](../src/types), [`tsconfig.app.json`](../tsconfig.app.json) | TypeScript estrito; revisão de props/contratos; busca sem `any` explícito em `src` |
 | Comunicação externa em `services`, `Promise<T>`, `try/catch`, sem `fetch` em páginas, URLs privadas fora do código | Parcial | [`managementService.ts`](../src/services/managementService.ts), [`manuService.ts`](../src/services/manuService.ts), [`.env.example`](../.env.example) | Services locais tipados; **não há API externa nem contrato**. Integrar e testar respostas HTTP quando houver backend |
-| `useState`, campos agrupados, sem mutação direta | Implementado, QA pendente | [`Team`](../src/pages/Team/index.tsx), [`Calendar`](../src/pages/Calendar/index.tsx), [`Profile`](../src/pages/Profile/index.tsx) | Revisão de código e build; mutações do mock substituem arrays/objetos |
-| `useEffect` com dependências corretas | Implementado, QA pendente | páginas de Dashboard, Equipe, Calendário e Perfil | Efeitos de carga inicial com cancelamento local; revisão dinâmica ao vivo pendente |
-| Listas com `key` de ID estável | Implementado, QA pendente | tabelas, eventos, conversas | Revisão de código; cadastro em Equipe verificado no navegador |
+| `useState`, campos agrupados, sem mutação direta | Validado em código | [`Team`](../src/pages/Team/index.tsx), [`Calendar`](../src/pages/Calendar/index.tsx), [`Profile`](../src/pages/Profile/index.tsx), services | Revisão de código/build e testes de cópias independentes; formulários percorridos no navegador |
+| `useEffect` com dependências corretas | Validado em código | páginas de Dashboard, Equipe, Calendário, Perfil e Manu | Lint de hooks; cargas com guarda de desmontagem; filtro do Dashboard e resposta pendente da Manu percorridos |
+| Listas com `key` de ID estável | Validado em código | tabelas, eventos, conversas e gráficos | Revisão de código; cadastro, busca, eventos e conversas percorridos no navegador |
 | `useParams` com verificação de parâmetro | Não aplicável | Nenhuma rota usa parâmetro dinâmico | Se forem criadas rotas de detalhe, implementar com guarda para `undefined` |
 | 3+ rotas, `Link`/`useNavigate`, rota curinga e retorno | Validado | [`App.tsx`](../src/App.tsx), [`NotFound`](../src/pages/NotFound/index.tsx) | Login → Home e navegação entre telas; URL inexistente levou à 404 com link de retorno no navegador |
-| WCAG 2.1 AA mínima, contraste, labels, alt, teclado, foco, erros `role=alert` | Parcial | [`index.css`](../src/index.css), [`AuthField`](../src/components/AuthField/index.tsx), páginas e modais Mantine | Labels/erros do cadastro vistos na árvore acessível; auditoria de contraste, Tab completo e leitor de tela pendentes |
+| WCAG 2.1 AA mínima, contraste, labels, alt, teclado, foco, erros `role=alert` | Parcial | [`index.css`](../src/index.css), [`AuthField`](../src/components/AuthField/index.tsx), páginas e modais Mantine | Labels/erros na árvore acessível; foco de erro em login/recuperação/cadastro/evento/perfil, teclado em abas/calendário/menu/Manu. Auditoria formal de contraste, Tab integral e leitor de tela pendentes |
 | Carregando/sucesso/erro no DOM, sem `alert()`/`console.log` como tratamento | Parcial | páginas e services | Estados de login, Dashboard e Equipe vistos no navegador; falhas de rede reais não podem ser simuladas sem API |
 | Publicação em Vercel ou GitHub Pages e link no README | Pendente externo | [`README.md`](../README.md) | Não há URL de deploy; validar site ao vivo depois de publicar |
 | 20 commits Conventional Commits em quatro semanas reais | Pendente externo | Histórico Git local iniciado nesta entrega | Commits reais em português; não é permitido criar datas ou commits retroativos. Verificar `git log` e duração real antes da avaliação |
@@ -27,9 +46,9 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 | Extra: `React.lazy` e `Suspense` por página | Validado em código | [`App.tsx`](../src/App.tsx) | Chunks separados no build; aba Network do DevTools ainda não verificada |
 | Extra: `localStorage` versionado | Pendente | Sessão, perfil e conversas ficam somente em memória | Implementar apenas com decisão de privacidade e necessidade real; não salvar senhas/chats por padrão |
 | Extra: `useCallback`/`useMemo` com perfil de performance | Pendente | Não introduzidos sem medição | Demonstrar no Profiler se houver gargalo real |
-| Extra: proteção XSS via JSX, sem `dangerouslySetInnerHTML` | Implementado, QA pendente | páginas de Equipe, Calendário e Manu | Revisar `rg` e testar texto com caracteres especiais |
+| Extra: proteção XSS via JSX, sem `dangerouslySetInnerHTML` | Validado em código | páginas de Equipe, Calendário e Manu | Busca estática sem HTML direto; texto literal `Texto<teste>` de evento observado sem criar elemento HTML. Teste de segurança externo pendente |
 | Extra: validação/sanitização tipada dos formulários | Parcial | [`managementValidation.ts`](../src/utils/managementValidation.ts), [`validation.ts`](../src/utils/validation.ts) | `npm test` valida técnico, evento, perfil e datas; ainda falta validar todas as regras definitivas da API |
-| Extra: `PrivateRoute` + Context | Validado em código | [`PrivateRoute.tsx`](../src/routes/PrivateRoute.tsx) | Acesso por login verificado; testar tentativa de URL privada sem sessão |
+| Extra: `PrivateRoute` + Context | Validado no cliente | [`PrivateRoute.tsx`](../src/routes/PrivateRoute.tsx) | `/equipe` sem sessão redirecionou ao login; servidor ainda precisa autenticar e autorizar |
 | Extra: ARIA avançada e leitor de tela | Parcial | Drawer/Modal Mantine, navegação e mensagens | Teste completo com NVDA/VoiceOver pendente |
 
 ## Desenvolvimento 1 e operações Web — páginas 1–2
@@ -39,19 +58,19 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 | Landing page sobre o projeto | Validado | [`About`](../src/pages/About/index.tsx), rota `/sobre` | Aberta no navegador em 1340 × 800, 800 × 1340 e 390 × 844; links de acesso na árvore acessível |
 | CRUD das tabelas administrativas definidas em POO | Parcial | CRUD de técnicos e eventos em [`managementService.ts`](../src/services/managementService.ts) e páginas | Cadastro de técnico e validação verificados no navegador; **não há Postgres/Servlet nem terceira tabela definida** |
 | GitHub + hospedagem estática + links | Pendente externo | Build Vite disponível | Repositório remoto e deploy não foram fornecidos; testar URL pública |
-| Responsividade e fidelidade ao protótipo UX | Parcial | CSS Modules e assets originais em [`src/assets/figma`](../src/assets/figma) | [QA no navegador](./QA_NAVEGADOR.md): sem rolagem horizontal no documento ou imagens quebradas nas três resoluções; captura visual falhou, comparação final pendente |
-| Documento detalhado de entregas com links | Parcial | Esta matriz, [`ROTEIRO_DAD.md`](./ROTEIRO_DAD.md) e [`QA_NAVEGADOR.md`](./QA_NAVEGADOR.md) | Documentos criados; preencher URLs do repositório e site após publicação |
+| Responsividade e fidelidade ao protótipo UX | Parcial | CSS Modules e assets originais em [`src/assets/figma`](../src/assets/figma) | [QA no navegador](./QA_NAVEGADOR.md) e [revisão visual](./FIDELIDADE_VISUAL.md): capturas voltaram em 26/09; Login medido na resolução original; três resoluções sem rolagem horizontal nas telas testadas. Comparação de todos os estados e tablet físico pendentes |
+| Documento detalhado de entregas com links | Parcial | Esta matriz, [`ROTEIRO_DAD.md`](./ROTEIRO_DAD.md), [`QA_NAVEGADOR.md`](./QA_NAVEGADOR.md) e [critérios externos](./CRITERIOS_EXTERNOS.md) | Evidência local registrada; URLs do repositório/site após publicação |
 
 ## Business Intelligence — páginas 10–11
 
 | Critério | Estado | Implementação / arquivo | Teste e demonstração |
 | --- | --- | --- | --- |
 | Conectividade com dados gerados pela aplicação | Pendente externo | [`getDashboard`](../src/services/managementService.ts) devolve fixture tipada | Substituir pelo Data Mart/API e validar origem/atualização |
-| Gráfico de barras e linha | Implementado, QA pendente | [`Dashboard`](../src/pages/Dashboard/index.tsx) | Renderização observada no navegador; checar mobile/tablet |
+| Gráfico de barras, linha e dispersão demonstrativos | Validado no mock | [`Dashboard`](../src/pages/Dashboard/index.tsx) | Renderização e texto acessível observados; dispersão vista no celular. Fonte real depende de BI |
 | KPIs e desvios | Parcial | Cards de totais, taxa e tempo médio no Dashboard | Fórmulas demonstrativas; desvios de referência ainda não definidos |
-| Histograma e boxplot | Implementado, QA pendente | Dashboard, alternativas textuais `role=img` | Build e árvore acessível; revisar distribuição com base real |
+| Histograma e boxplot | Validado no mock | [`Dashboard`](../src/pages/Dashboard/index.tsx), [`analytics.ts`](../src/utils/analytics.ts) | Testes de quartis, amostras e limites; árvore acessível e capturas mobile. Dados reais pendentes |
 | Mapas, se aplicável | Não aplicável até definição | Não há dados geográficos analíticos | Perguntar à equipe de BI se há dimensão espacial |
-| Filtros interativos | Parcial | Período e métrica no Dashboard | Valores do período exibidos no navegador; fonte ainda é mock |
+| Filtros interativos | Validado no mock | Técnico, período e métrica em [`Dashboard`](../src/pages/Dashboard/index.tsx), [`dashboardByTechnician`](../src/mocks/management.ts) | Ana + 3 meses mostrou 13 abertas, 9 concluídas, 4 pendentes; teste confirma parcelas/totais. Dados por técnico são sintéticos, fonte real pendente |
 | Relatório gerencial: base, problema, tratamento, KPIs | Pendente externo | Não há base/ETL real | Equipe BI deve entregar e vincular relatório |
 | Extra: pipeline/job Databricks e evidências | Fora do Web | Não pertence a este repositório React | Vincular artefatos de BI quando existirem |
 
@@ -70,7 +89,7 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 | Engenharia de Software, p.5 | Planejamento, RF, casos de uso, 2 atividades, dinâmica da equipe; extras padrão/testes | Pendente externo | Artefatos da equipe; testes deste Web não substituem os diagramas |
 | Aplicativos Móveis, pp.5–6 | Acesso, hardware, API, Firebase/SQLite, chatbot; extras avatar, notificação, tablet, GPS | Fora do Web | Aplicativo mobile e evidências no dispositivo |
 | Desenvolvimento 2, p.6 | API Spring MVC/JPA/Postgres, CRUD, MVC, validação, exceções; extras Swagger, SQL avançado, Security, NoSQL | Pendente externo | Código/contrato da API; services do Web aguardam integração |
-| Operações Ágeis, p.8 | PR/code review, cloud, containers; extras README, template PR, pipeline e documento com links | Parcial | README deste projeto; PRs aprovados, infraestrutura e pipeline dependem do repositório remoto/equipe |
+| Operações Ágeis, p.8 | PR/code review, cloud, containers; extras README, template PR, pipeline e documento com links | Parcial | README, [template de PR](../.github/PULL_REQUEST_TEMPLATE.md) e [workflow local de qualidade](../.github/workflows/qualidade.yml) preparados; PRs aprovados, execução remota, implantação e infraestrutura dependem do repositório/equipe |
 | UX 2º ano, p.9 | Pesquisas, CSD, benchmark, persona, jornada, protótipo mobile, heurística, testes, A/B, features, valor; extras V2/JTBD/UI Kit | Fora do Web | Entregas UX e mobile da equipe |
 | Modelagem de Dados, pp.9–10 | 3FN, 500 registros, RPA, Data Mart/ETL, funções, procedures, auditoria, índices; extras catálogo, backup, DAU, CTE | Pendente externo | Banco, scripts e evidências de execução |
 | IA 2º ano, p.11 | API IA multiagente (5), LangChain/LangGraph, sessões, memória, MCP/A2A, RAG, juiz, guardrail, observabilidade, arquitetura | Pendente externo | Serviço de IA; [`manuService.ts`](../src/services/manuService.ts) é somente resposta guiada |
@@ -78,7 +97,9 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 ## Bloqueios para a versão final integrada
 
 1. Contrato de API e autenticação real, incluindo autorização do gestor, técnico, eventos, perfil e Manu.
-2. Tabelas administrativas e regras de cadastro acordadas com POO/Backend; o formulário do Figma contém campos cuja persistência e política de senha ainda não foram definidas.
+2. Tabelas administrativas e contrato de campos acordados com POO/Backend. Acesso TÉCNICO automático e endereço herdado foram confirmados e implementados; a política de senha permanece provisória. Ver [regras do cadastro](./REGRAS_CADASTRO_TECNICOS.md).
 3. Fonte analítica, métricas e relatório da equipe de BI.
 4. Repositório remoto, hospedagem e URL pública. A pasta recebida não continha `.git`; qualquer histórico iniciado agora tem datas reais e não comprova quatro semanas passadas.
-5. Testes de leitor de tela, tablet físico e comparação visual final de todos os estados com Figma. Os viewports foram medidos no navegador, mas a captura visual falhou nesta sessão.
+5. Testes de leitor de tela, tablet físico e comparação visual final de todos os estados com Figma. A captura falhou em 25/09 e voltou a funcionar em 26/09; registrar comparações efetivamente realizadas em [QA](./QA_NAVEGADOR.md).
+
+O [inventário granular dos critérios das outras disciplinas](CRITERIOS_EXTERNOS.md) preserva cada exigência como pendência verificável, sem atribuir ao frontend entregas que ele não demonstra.

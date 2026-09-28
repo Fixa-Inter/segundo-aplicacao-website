@@ -1,0 +1,29 @@
+# Revisão visual — Website v2
+
+Referência somente para leitura: [cópia do Figma](https://www.figma.com/design/zgDd0qejEdOT2E16qQOsJs/Fixa--Copy-?node-id=5631-5628), seção `5631:5628`. Os IDs abaixo pertencem à cópia, não ao arquivo anterior. Revisão incremental de 26–27/09/2026; resultados de interação em [QA_NAVEGADOR.md](QA_NAVEGADOR.md).
+
+## Comparações e diferenças conhecidas
+
+| Tela / nó | Implementação | Conferência e diferença |
+| --- | --- | --- |
+| Login / `5631:5629` | `src/pages/Login` | Captura e coordenadas DOM em 1440 × 1024: título y=175,85, email y=389,59, senha y=546,03, botão y=703,74 e Manu x=766,98/y=175,85. Referência: 176/391/549/705 e Manu 766/176. Campos com cerca de 681 px, botão 290 × 70 e Manu 659 × 620. Aviso de mock, link público e controle de senha são adaptações funcionais. Conferidos também 1340 × 800, 800 × 1340 e 390 × 844, sem transbordamento horizontal. |
+| Recuperação / `5631:5663`, `5679`, `5700`, `5729` | `src/pages/Recovery` | Estrutura central, arte original, campos arredondados e quatro etapas. Textos informam simulação; sucesso não afirma alteração real de credencial. Botão usa azul escuro com texto branco para contraste, diferente do azul claro da referência. Fluxo completo e foco de erro verificados; equivalência pixel a pixel de cada etapa permanece aberta. |
+| Home / `5631:5743` | `src/pages/Home` | Banner e avatar originais, cards, gráfico e cinco dias úteis. Captura desktop conferida. A semana inicial e as contagens são de demonstração; eventos vêm do mesmo service do Calendário. Lista recebeu altura mínima de 285 px para evitar rolagem interna com um único evento. |
+| Dashboard / `5631:5998` | `src/pages/Dashboard` | Quatro cards, dois gráficos circulares, barras e demais gráficos. Barras, linha, histograma e boxplot atendem à demonstração BI do PDF; filtro por técnico e dispersão completam os controles da referência. Dados, escala e conteúdo diferem dos números ilustrativos do Figma. Dispersão relaciona quantidade de abertas e tempo médio por mês, com alternativa textual. Distribuição entre técnicos é sintética e preserva os totais da fixture, sem vínculo com eventos cadastrados. |
+| Equipe / `5631:6232` | `src/pages/Team` | Busca arredondada, abas, tabela de quatro colunas e ações. No celular a lista vira cartões. Avatares dos técnicos usam iniciais; fotos reais não foram fornecidas. Gestores mostra a conta de demonstração. |
+| Cadastro / `5631:6389`; edição / `5631:6522` | `src/components/TechnicianForm` | Formulário em página, grade de campos e endereço completo. Acesso TÉCNICO e endereço herdado somente para leitura, conforme regra confirmada pelo usuário. Especialidade, turno e situação estão em seção operacional provisória. Campos, validações, salvamento, cancelamento e ausência de transbordamento conferidos. Todos os estados de erro ainda precisam de comparação visual específica. |
+| Detalhes do técnico / `5631:6658` | `src/components/TechnicianDetails` | Informações, avatar de iniciais e gráfico empilhado semanal/mensal. Capturas desktop e tablet conferidas; retorno de foco verificado. Valores são fixture sintética independente dos eventos; técnico novo tem desempenho vazio. |
+| Calendário / `5631:6796` | `src/pages/Calendar` | Grade mensal, eventos e ações; teclado e CRUD demonstrativo verificados. Mês inicial março/2026 da massa de exemplo, diferente do mês ilustrativo da referência. |
+| Evento novo / `5631:7099`; edição / `5631:7208` | `src/components/EventForm` | Formulário em página com título, data, horários, responsável, local, descrição e observação. Data/hora digitáveis em DD/MM/AAAA e HH:MM evitam dependência de seletores nativos. Local é texto, pois não existe catálogo confirmado para o seletor do Figma. |
+| Perfil / `5631:6890`; edição / `5631:6981` | `src/pages/Profile` | Avatar original, informações em duas colunas e formulário em grade. Papel Gestor substitui Administrador do exemplo, conforme escopo confirmado. Botão claro tem texto escuro para contraste. Dados de empresa, nascimento e endereço são fictícios. Cancelamento, erro de data e limpeza de campos de senha verificados. |
+| Manu / `5631:5893` | `src/pages/Manu` | Histórico lateral, arte original 240 × 240, saudação em balão e caixa de mensagem branca. Captura desktop e medições nas três resoluções. No celular histórico fica acima da conversa. Controles de sugestão, metadados de anexo e envio funcionam localmente; respostas são guiadas. |
+| Apresentação e 404 / sem frame próprio | `src/pages/About`, `src/pages/NotFound` | Telas de apoio implementadas com identidade do FIXA; não se alega correspondência a frame inexistente. |
+
+## Como encerrar a revisão
+
+1. Abrir o build, carregar o frame correspondente e comparar na dimensão original. Distinguir diferenças de dados das diferenças de espaçamento, tipografia, imagens e cores.
+2. Percorrer estado inicial, carregamento, vazio, erro, sucesso, edição e confirmações de cada fluxo. Registrar somente os estados realmente observados.
+3. Repetir 1340 × 800, 800 × 1340 e celular; conferir foco, alvos de interação, rolagem e imagens. Tablet físico e leitor de tela são verificações adicionais ainda não executadas.
+4. Conferir com a equipe as diferenças condicionadas ao contrato: métricas do BI e vínculo com técnicos, catálogo de locais, fotos, campos obrigatórios e política definitiva de senha.
+
+Esta revisão registra comparações feitas e diferenças rastreáveis. **Não é aprovação visual integral de todos os frames e estados**, nem certificação WCAG. Avisos de demonstração permanecem enquanto não houver integração real.

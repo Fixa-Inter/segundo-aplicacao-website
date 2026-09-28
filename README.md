@@ -4,7 +4,7 @@ Aplicação de gestão de manutenção para o perfil gestor, em **React 19, Type
 
 ## Executar e verificar
 
-Requer Node.js 22.12+ ou 20.19+. Dentro de `fixa-web`:
+Requer Node.js 22.18+ (os testes importam TypeScript pelo suporte nativo do Node). Verificado com Node **24.11.1**. Dentro de `fixa-web`:
 
 ```bash
 npm ci
@@ -25,14 +25,20 @@ Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não v
 | --- | --- |
 | `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
 | `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
-| `/` | Home com banner original, indicadores, gráfico e calendário semanal |
-| `/dashboard` | KPIs, filtros de período/métrica, barras, linha, histograma e boxplot com dados demonstrativos |
-| `/equipe` | Busca, filtro, paginação, consulta, cadastro, edição e exclusão **em memória** de técnicos |
+| `/` | Home com banner original, indicadores, gráfico e calendário semanal compartilhando eventos com o Calendário |
+| `/dashboard` | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos |
+| `/equipe` | Busca, filtro, paginação, detalhes com desempenho semanal/mensal, cadastro, edição e exclusão **em memória** de técnicos; consulta da conta gestora demonstrativa |
 | `/calendario` | Grade mensal, seleção de dia e criação, edição e exclusão **em memória** de eventos com local, descrição, observação e horários |
 | `/perfil` | Dados do gestor editáveis **em memória** e validação demonstrativa de troca de senha |
-| `/manu` | Conversas guiadas **sem IA conectada** e sem gravação persistente |
+| `/manu` | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente |
 
 As ações em memória são perdidas ao recarregar. Não há endpoints inventados nem afirmação de persistência real. Os dados de exemplo estão em `src/mocks`; páginas acessam os services tipados de `src/services`. O cliente Axios em `src/services/api.ts` ficará disponível para integrar o contrato real quando existir. `.env.example` documenta `VITE_API_BASE_URL`; variáveis `VITE_` são públicas e não devem conter segredos.
+
+O cadastro do gestor define acesso **TÉCNICO** automaticamente e copia seu endereço ao salvar. Os campos de endereço são somente para leitura. A senha de criação segue uma regra provisória e não é armazenada. Veja as [regras e decisões do cadastro](docs/REGRAS_CADASTRO_TECNICOS.md), incluindo os pontos a confirmar com a API.
+
+A Manu preserva conversas entre rotas, inclusive respostas que terminem durante a navegação; login, logout e recarregamento limpam o histórico. Anexos guardam somente nome e tamanho: nenhum conteúdo é lido, enviado ou analisado. Use `Ctrl + Enter` para enviar a mensagem; `Enter` insere uma nova linha.
+
+Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos criados. No Dashboard, a distribuição demonstrativa entre os seis técnicos iniciais preserva os totais e amostras de cada mês. Técnicos novos mostram indicadores vazios. Isto não representa produtividade real nem conexão com Data Mart.
 
 ## Estrutura
 
@@ -49,11 +55,12 @@ Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege
 
 ## Qualidade e evidências
 
-- Build TypeScript/Vite, lint e testes Node podem ser executados pelos comandos acima.
+- Em 27/09/2026: build TypeScript/Vite, lint e **18 testes Node** aprovados. Os testes cobrem validação, cópias independentes, eventos compartilhados, distribuição analítica, recuperação e histórico da Manu.
 - O código usa Prettier com indentação de dois espaços, configurado em `.prettierrc.json`. Execute `npm run format` para aplicar o estilo.
+- [`.github/workflows/qualidade.yml`](.github/workflows/qualidade.yml) prepara build, lint, testes e formatação em PRs e `main`; [template de PR](.github/PULL_REQUEST_TEMPLATE.md) registra verificação. O workflow ainda não rodou em GitHub, pois falta o repositório remoto.
 - Login → Home, cadastro de técnico, CRUD de eventos, edição de perfil, Manu, navegação móvel, página pública e 404 foram percorridos no navegador local. Veja a [evidência de QA](docs/QA_NAVEGADOR.md) e seus limites.
-- Foram comparados os frames Home, Dashboard, Equipe, Calendário, Perfil e Manu da cópia do Figma. A Home recebeu o banner e o avatar originais; a Manu recebeu sua arte original.
-- A [matriz de requisitos](docs/MATRIZ_REQUISITOS.md) registra critério, estado, arquivo, teste e demonstração. O [roteiro DAD](docs/ROTEIRO_DAD.md) contém os passos de apresentação e o que ainda precisa ser validado.
+- A [revisão visual](docs/FIDELIDADE_VISUAL.md) registra os IDs da cópia do Figma, comparações realizadas e diferenças conhecidas. Ela não aprova todos os frames e estados. A Home recebeu o banner e o avatar originais; a Manu recebeu sua arte original.
+- A [matriz de requisitos](docs/MATRIZ_REQUISITOS.md) registra critério, estado, arquivo, teste e demonstração. Os [critérios externos](docs/CRITERIOS_EXTERNOS.md) detalham as entregas das demais disciplinas. O [roteiro DAD](docs/ROTEIRO_DAD.md) contém os passos de apresentação e o que ainda precisa ser validado.
 - `docs/REVISAO_INICIAL.md` descreve a revisão anterior e permanece como registro histórico, **não como estado atual**.
 
 ## Pendências de integração e publicação
