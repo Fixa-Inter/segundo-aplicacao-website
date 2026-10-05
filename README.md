@@ -37,7 +37,7 @@ As ações em memória são perdidas ao sair, entrar novamente ou recarregar. Um
 
 O cadastro do gestor define acesso **TÉCNICO** automaticamente e copia seu endereço ao salvar. Os campos de endereço são somente para leitura. A senha de criação segue uma regra provisória e não é armazenada. Veja as [regras e decisões do cadastro](docs/REGRAS_CADASTRO_TECNICOS.md), incluindo os pontos a confirmar com a API.
 
-A Manu preserva conversas entre rotas, inclusive respostas que terminem durante a navegação; login, logout e recarregamento limpam o histórico. Anexos guardam somente nome e tamanho: nenhum conteúdo é lido, enviado ou analisado. Use `Ctrl + Enter` para enviar a mensagem; `Enter` insere uma nova linha.
+A Manu preserva conversas entre rotas, inclusive respostas que terminem durante a navegação; login, logout e recarregamento limpam o histórico. Anexos guardam somente nome e tamanho: nenhum conteúdo é lido, enviado ou analisado. Use `Enter` para enviar a mensagem; `Shift + Enter` insere uma nova linha.
 
 A Equipe do gestor mostra apenas técnicos. A administração de gestores pertence ao escopo de Administração/RH, ainda sem interface e contrato nesta aplicação. As notificações e os selos repetidos de dados demonstrativos foram removidos por decisão do usuário; os limites dos mocks continuam descritos nesta documentação.
 

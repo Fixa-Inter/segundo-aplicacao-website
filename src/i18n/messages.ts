@@ -271,11 +271,11 @@ const messages: Record<string, readonly [string, string, string]> = {
       'Distribución sintética por técnico, independiente del calendario. Los técnicos nuevos no tienen indicadores históricos en esta demostración.',
       '按技术人员分配的模拟数据，与日历无关。新技术人员在演示中没有历史指标。',
     ],
-  'Ctrl + Enter para enviar. Anexos: até 3 arquivos de 5 MB; somente nome e tamanho ficam na sessão. Nenhum conteúdo é lido, enviado ou analisado.':
+  'Enter para enviar; Shift + Enter para uma nova linha. Anexos: até 3 arquivos de 5 MB; somente nome e tamanho ficam na sessão. Nenhum conteúdo é lido, enviado ou analisado.':
     [
-      'Ctrl + Enter to send. Attachments: up to 3 files of 5 MB; only name and size stay in the session. No content is read, sent or analyzed.',
-      'Ctrl + Enter para enviar. Adjuntos: hasta 3 archivos de 5 MB; solo nombre y tamaño quedan en la sesión. No se lee, envía ni analiza el contenido.',
-      '按 Ctrl + Enter 发送。最多三个附件，每个 5 MB；会话仅保留名称和大小。不会读取、发送或分析内容。',
+      'Enter to send; Shift + Enter for a new line. Attachments: up to 3 files of 5 MB; only name and size stay in the session. No content is read, sent or analyzed.',
+      'Enter para enviar; Shift + Enter para una nueva línea. Adjuntos: hasta 3 archivos de 5 MB; solo nombre y tamaño quedan en la sesión. No se lee, envía ni analiza el contenido.',
+      '按 Enter 发送，Shift + Enter 换行。最多三个附件，每个 5 MB；会话仅保留名称和大小。不会读取、发送或分析内容。',
     ],
   'Como cadastrar um técnico?': [
     'How do I register a technician?',

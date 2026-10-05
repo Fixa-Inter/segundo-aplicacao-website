@@ -188,12 +188,19 @@ export default function Manu() {
             id="manu-message"
             value={message}
             maxLength={500}
+            aria-describedby="manu-message-help"
             placeholder={t('Como posso te ajudar hoje?')}
             onChange={(event) => setMessage(event.target.value)}
             onKeyDown={(event) => {
-              if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+              // O IME pode usar Enter (código 229) para confirmar caracteres antes do envio.
+              if (
+                event.key === 'Enter' &&
+                !event.shiftKey &&
+                !event.nativeEvent.isComposing &&
+                event.nativeEvent.keyCode !== 229
+              ) {
                 event.preventDefault()
-                event.currentTarget.form?.requestSubmit()
+                if (!event.repeat) event.currentTarget.form?.requestSubmit()
               }
             }}
           />
@@ -305,9 +312,9 @@ export default function Manu() {
             </div>
           )}
         </form>
-        <p className={styles.note}>
+        <p id="manu-message-help" className={styles.note}>
           {t(
-            'Ctrl + Enter para enviar. Anexos: até 3 arquivos de 5 MB; somente nome e tamanho ficam na sessão. Nenhum conteúdo é lido, enviado ou analisado.',
+            'Enter para enviar; Shift + Enter para uma nova linha. Anexos: até 3 arquivos de 5 MB; somente nome e tamanho ficam na sessão. Nenhum conteúdo é lido, enviado ou analisado.',
           )}
         </p>
       </section>

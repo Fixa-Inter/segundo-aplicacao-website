@@ -202,3 +202,12 @@ O componente `WeekPicker` substitui os dois selects externos da Home. A troca de
 - Com teclado, ArrowRight em 31/12/2026 focou 01/01/2027 e mudou o mês visível. Enter confirmou a semana iniciada em 28/12/2026. Escape fechou o popover e devolveu o foco ao botão. Clique fora também fechou.
 - Em 390 × 844, o popover ficou entre x=37 e x=377; documento com 390 px, sem rolagem horizontal. Em 800 × 1340, calendário e faixa semanal foram conferidos em mandarim e tema escuro.
 - Console sem avisos/erros nesta sessão de revisão. Build, lint, Prettier e os 26 testes existentes passaram. Testes de semanas continuam cobrindo sábado/domingo, meses com seis linhas, fevereiro bissexto e viradas de ano. Leitor de tela e dispositivos físicos não foram testados.
+
+
+### Atalhos de envio da Manu — 05/10
+
+Alterado a pedido do usuário: Enter envia; Shift + Enter insere uma nova linha. A dica foi atualizada nos quatro idiomas e associada ao campo por `aria-describedby`. As referências a Ctrl + Enter nas verificações anteriores descrevem o comportamento daquela versão.
+
+No navegador local em 1340 × 800, Enter com campo vazio não criou conversa nem inseriu quebra de linha. A pergunta “Como agendar um evento?” foi enviada com Enter e recebeu resposta. Depois, Shift + Enter produziu o rascunho “Preciso de manutenção\nno sábado.” sem envio; Enter enviou esse texto como uma única mensagem, preservando a quebra. O campo foi limpo e continuou focado. Console sem avisos/erros. [Captura da conversa](evidencias/manu-enter-shift-enter-2026-10-05.jpg).
+
+Build, lint e formatação aprovados. O código também evita envio por repetição da tecla e durante composição de caracteres (IME); teclado físico com IME não foi testado nesta sessão.
