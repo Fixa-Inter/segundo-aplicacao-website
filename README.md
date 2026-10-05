@@ -25,7 +25,7 @@ Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não v
 | --- | --- |
 | `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
 | `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
-| `/` | Home com banner original, indicadores, gráfico e calendário com sete dias, seleção de mês/semana e eventos compartilhados com o Calendário |
+| `/` | Home com banner original, indicadores, gráfico e calendário com sete dias e seletor semanal em calendário mensal e eventos compartilhados com o Calendário |
 | `/dashboard` | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos |
 | `/equipe` | Busca, filtro, paginação, detalhes com desempenho semanal/mensal, cadastro, edição e exclusão **em memória** de técnicos |
 | `/calendario` | Grade mensal, seleção de dia e criação, edição e exclusão **em memória** de eventos com local, descrição, observação e horários |

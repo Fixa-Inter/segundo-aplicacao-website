@@ -112,36 +112,11 @@
   padding-inline: 17px;
   padding-block: 14px;
 }
-.month {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-.month button {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 0;
-  background: transparent;
-  border-radius: 50%;
-  color: var(--fixa-ink);
-  flex: none;
-  cursor: pointer;
-}
-.month button:hover {
-  background: var(--fixa-selected);
-}
-.month svg {
-  width: 20px;
-  height: 20px;
-}
 .days {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 4px;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 .days button {
   display: flex;
@@ -322,36 +297,6 @@
   }
 }
 
-.month select {
-  min-width: 0;
-  width: 180px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--fixa-ink);
-  font: inherit;
-  font-size: 17px;
-  padding: 6px 42px 6px 8px;
-  text-transform: capitalize;
-}
-.weekPicker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
-  font-size: 12px;
-}
-.weekPicker select {
-  min-width: 0;
-  flex: 1;
-  height: 30px;
-  padding: 4px 10px;
-  border: 1px solid var(--fixa-border);
-  border-radius: 8px;
-  background-color: var(--fixa-surface);
-  color: var(--fixa-ink);
-  font: inherit;
-}
 .days button {
   height: 56px;
   min-width: 0;

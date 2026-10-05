@@ -191,3 +191,14 @@ Revisão no navegador do ambiente em `http://127.0.0.1:5173`, com dados fictíci
 `npm test`: 26/26 aprovados; build TypeScript/Vite, lint e Prettier aprovados. Novos testes verificam cobertura de semanas, preferências corrompidas/indevidas, tradução com valores, datas por idioma e reconhecimento das sugestões pela Manu. Teste compartilhado Home/Calendário passou a usar evento de sábado.
 
 Foi observado um aviso de `createRoot` durante a edição de `main.tsx` com hot reload; uma recarga limpa foi feita para verificar a versão estável. Não há aprovação de leitor de tela, alto contraste, dispositivo físico, fluência por revisores nativos ou de todos os fluxos em todas as combinações de tema/idioma. A janela real do Edge do usuário e a integração com API/BI/IA continuam externas a esta checagem.
+
+
+### Substituição dos dropdowns por calendário semanal — 05/10
+
+O componente `WeekPicker` substitui os dois selects externos da Home. A troca de mês agora apenas navega no popover; a seleção é confirmada ao clicar em um dia. A semana inteira recebe uma faixa azul e o dia escolhido tem outro tom. Dados e eventos continuam nos mesmos services.
+
+- Em 1340 × 800 e 1280 × 720, o calendário com seis linhas ficou inteiramente dentro da janela; a Home manteve área/conteúdo de 720/720 e 640/640 px, sem rolagem residual. O popover abriu acima do botão devido ao espaço disponível.
+- Escolher sábado e domingo atualizou o dia selecionado na Home. A semana de 05/10 foi selecionada e capturada para comparar com a referência do usuário.
+- Com teclado, ArrowRight em 31/12/2026 focou 01/01/2027 e mudou o mês visível. Enter confirmou a semana iniciada em 28/12/2026. Escape fechou o popover e devolveu o foco ao botão. Clique fora também fechou.
+- Em 390 × 844, o popover ficou entre x=37 e x=377; documento com 390 px, sem rolagem horizontal. Em 800 × 1340, calendário e faixa semanal foram conferidos em mandarim e tema escuro.
+- Console sem avisos/erros nesta sessão de revisão. Build, lint, Prettier e os 26 testes existentes passaram. Testes de semanas continuam cobrindo sábado/domingo, meses com seis linhas, fevereiro bissexto e viradas de ano. Leitor de tela e dispositivos físicos não foram testados.

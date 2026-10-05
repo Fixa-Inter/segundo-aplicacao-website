@@ -28,6 +28,10 @@ export interface StatCardProps {
   value: number
   tone: 'blue' | 'yellow' | 'green' | 'red'
 }
+export interface WeekPickerProps {
+  value: string
+  onChange: (date: string) => void
+}
 export interface NavigationProps {
   onNavigate: () => void
   onLogout: () => void

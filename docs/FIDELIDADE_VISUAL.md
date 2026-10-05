@@ -44,3 +44,10 @@ Esta revisão aplica decisões novas do usuário: Home com sete dias (segunda a 
 O tema claro conserva a composição existente, com 32 px de espaço inferior no desktop e 28 px no celular. A retirada das abas e selos abre espaço na Equipe. O tema escuro usa superfícies, textos, bordas e estados adaptados; as ilustrações originais permanecem com suas cores. Não há frame de referência para Configurações e modo escuro. Os quatro idiomas são escolhas novas do usuário; mandarim usa chinês simplificado (`zh-CN`). Os títulos dos eventos, nomes e endereços cadastrados permanecem no idioma original.
 
 [Home com sábado selecionado](evidencias/home-semana-completa-2026-10-05.jpg) e [configurações em mandarim e modo escuro](evidencias/configuracoes-mandarim-2026-10-05.jpg) documentam a revisão. Esta alteração não constitui nova comparação integral com todos os frames do Figma nem aprovação de WCAG completa.
+
+
+### Seletor semanal com calendário mensal — 05/10
+
+A pedido do usuário, os dois dropdowns da Home foram substituídos por um botão com ícone de calendário e a data inicial da semana. Ao abrir, o calendário mensal mostra a semana como uma faixa azul contínua e o dia escolhido em outro tom, seguindo o estilo da captura enviada. As semanas continuam de segunda a domingo para manter a mesma ordem dos sete dias da Home. Dias dos meses vizinhos aparecem discretamente para permitir selecionar semanas completas nas viradas de mês.
+
+A troca do mês navega somente pelo seletor; clicar em um dia confirma sua semana e atualiza os eventos. O popover abre acima ou abaixo conforme o espaço, sem deslocar o conteúdo. [Captura do seletor aberto](evidencias/home-seletor-semanal-2026-10-05.jpg).
