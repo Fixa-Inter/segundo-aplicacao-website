@@ -233,6 +233,43 @@
   font-size: 13px;
   color: #4c5461;
 }
+@media (min-width: 901px) and (max-height: 850px) {
+  .home {
+    display: grid;
+    grid-template-rows: clamp(150px, 22dvh, 190px) auto minmax(270px, 1fr);
+    gap: 16px;
+    min-height: calc(100dvh - var(--header-height) - 36px);
+  }
+  .welcome,
+  .stats {
+    height: auto;
+    margin-bottom: 0;
+  }
+  .home .stats > * {
+    min-height: 0;
+    padding: 12px 15px;
+  }
+  .grid {
+    min-height: 0;
+  }
+  .chartPanel,
+  .eventPanel {
+    height: 100%;
+    padding-block: 16px;
+  }
+  .chart {
+    padding-top: 14px;
+  }
+  .days {
+    margin-top: 8px;
+  }
+  .days button {
+    height: 64px;
+  }
+  .eventPanel h3 {
+    margin: 7px 0 4px;
+  }
+}
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;

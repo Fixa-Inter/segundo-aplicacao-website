@@ -58,6 +58,7 @@ Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege
 ## Qualidade e evidências
 
 - Em 28/09/2026: build TypeScript/Vite, lint, formatação e **20 testes Node** aprovados. Os testes cobrem validação, cópias independentes, eventos compartilhados, distribuição analítica, recuperação, histórico da Manu e isolamento da sessão demonstrativa.
+- Em 05/10/2026: Home, lista da Equipe e Calendário foram ajustados para caber em janelas desktop baixas sem reduzir a sidebar; o símbolo da FIXA foi adicionado à aba. Build, lint, formatação e **20 testes Node** passaram novamente. As medidas e os limites dessa checagem estão no [QA do navegador](docs/QA_NAVEGADOR.md).
 - O código usa Prettier com indentação de dois espaços, configurado em `.prettierrc.json`. Execute `npm run format` para aplicar o estilo.
 - [`.github/workflows/qualidade.yml`](.github/workflows/qualidade.yml) prepara build, lint, testes e formatação em PRs e `main`; [template de PR](.github/PULL_REQUEST_TEMPLATE.md) registra verificação. O workflow ainda não rodou em GitHub, pois falta o repositório remoto.
 - Login → Home, cadastro de técnico, CRUD de eventos, edição de perfil, Manu, navegação móvel, página pública e 404 foram percorridos no navegador local. Veja a [evidência de QA](docs/QA_NAVEGADOR.md) e seus limites.

@@ -143,7 +143,7 @@ export default function Calendar() {
   }
 
   return (
-    <div className={common.page}>
+    <div className={`${common.page} ${styles.page}`}>
       <PageHeader
         title="Calendário"
         action={

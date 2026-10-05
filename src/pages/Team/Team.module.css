@@ -171,3 +171,39 @@
     font-size: 14px;
   }
 }
+@media (min-width: 901px) and (max-height: 850px) {
+  .page {
+    gap: 10px;
+  }
+  .search input,
+  .searchIcon {
+    height: 48px;
+  }
+  .searchIcon {
+    width: 48px;
+  }
+  .search input {
+    padding-left: 66px;
+  }
+  .tabs {
+    margin: 0;
+  }
+  .tabs button {
+    padding-block: 5px;
+    font-size: 18px;
+  }
+  .tablePanel {
+    padding-bottom: 8px;
+  }
+  .tablePanel table td {
+    padding-block: 5px;
+  }
+  .initials {
+    width: 40px;
+    height: 40px;
+  }
+  .nameButton {
+    gap: 12px;
+    padding: 2px;
+  }
+}
