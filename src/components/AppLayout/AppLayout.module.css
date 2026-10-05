@@ -1,10 +1,12 @@
 .shell {
+  --sidebar-width: clamp(220px, 17.4vw, 260px);
+  --header-height: 80px;
   display: flex;
   min-height: 100dvh;
   background: #fff;
 }
 .sidebar {
-  width: clamp(188px, 14vw, 216px);
+  width: var(--sidebar-width);
   flex: none;
   position: sticky;
   top: 0;
@@ -27,20 +29,26 @@
   right: 12px;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #d4deec;
+  border-radius: 8px;
+  background: #fff;
   color: #153d7d;
   cursor: pointer;
+  box-shadow: 0 1px 2px #0e223f0d;
 }
 .collapseButton:hover {
-  background: #e3edfc;
+  border-color: #a9c0e1;
+  background: #edf4ff;
+}
+.collapseButton:focus-visible {
+  outline: 2px solid #153d7d;
+  outline-offset: 2px;
 }
 .collapseButton svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 .nav {
   display: flex;
@@ -89,10 +97,12 @@
   min-width: 0;
 }
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: var(--sidebar-width);
+  right: 0;
   z-index: 3;
-  height: 80px;
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -139,7 +149,7 @@
   border-radius: 50%;
 }
 .main {
-  padding: 0 clamp(24px, 3vw, 48px) 36px;
+  padding: var(--header-height) clamp(24px, 4vw, 56px) 36px;
   max-width: 1600px;
   margin-inline: auto;
 }
@@ -188,8 +198,11 @@
 .skipLink:focus {
   transform: translateY(0);
 }
-.compact .sidebar {
-  width: 80px;
+.compact {
+  --sidebar-width: 80px;
+}
+.compact .collapseButton {
+  right: 25px;
 }
 .compact .sidebar .link {
   justify-content: center;
@@ -222,6 +235,9 @@
   max-width: none;
 }
 @media (max-width: 900px) {
+  .shell {
+    --sidebar-width: 0px;
+  }
   .sidebar {
     display: none;
   }
@@ -229,13 +245,12 @@
     display: grid;
     margin-right: auto;
   }
-  .header {
-    height: 80px;
-  }
 }
 @media (max-width: 600px) {
+  .shell {
+    --header-height: 76px;
+  }
   .header {
-    height: 76px;
     padding-inline: 20px;
     gap: 10px;
   }

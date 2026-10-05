@@ -97,7 +97,7 @@ export function AppLayout() {
       <a className={styles.skipLink} href="#conteudo">
         Pular para o conteúdo
       </a>
-      <aside className={styles.sidebar}>
+      <aside id="primary-sidebar" className={styles.sidebar}>
         <NavLink to="/" className={styles.logo} aria-label="FIXA, início">
           <Brand compact />
         </NavLink>
@@ -105,6 +105,8 @@ export function AppLayout() {
           className={styles.collapseButton}
           type="button"
           aria-label={compact ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+          title={compact ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+          aria-controls="primary-sidebar"
           aria-expanded={!compact}
           onClick={() => setSidebarPreference(!compact)}
         >
