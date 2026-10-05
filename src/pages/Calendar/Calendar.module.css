@@ -99,10 +99,10 @@
   gap: 14px;
   border-radius: 12px;
   padding: 16px;
-  background: #f4f8fe;
+  background: var(--fixa-event-bg);
 }
 .event time {
-  color: #153d7d;
+  color: var(--fixa-text-primary);
   font-weight: 600;
 }
 .event h3 {
@@ -138,14 +138,14 @@
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: #153d7d;
+  color: var(--fixa-text-primary);
   cursor: pointer;
 }
 .iconButton:hover {
-  background: #dceafa;
+  background: var(--fixa-hover);
 }
 .delete {
-  color: #96031a;
+  color: var(--fixa-danger-text);
 }
 .eventDate {
   display: grid;
@@ -165,14 +165,14 @@
   font-size: 13px;
 }
 .details summary {
-  color: #153d7d;
+  color: var(--fixa-text-primary);
   cursor: pointer;
 }
 .event {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: start;
-  background: #f5f7fa;
+  background: var(--fixa-neutral-surface);
 }
 .event h3 {
   margin: 0 0 4px;

@@ -3,10 +3,31 @@ export function shiftDate(isoDate: string, offset: number): string {
   date.setUTCDate(date.getUTCDate() + offset)
   return date.toISOString().slice(0, 10)
 }
-export function formatDate(isoDate: string, options: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat('pt-BR', { ...options, timeZone: 'UTC' }).format(
+export function formatDate(
+  isoDate: string,
+  options: Intl.DateTimeFormatOptions,
+  language = 'pt-BR',
+): string {
+  return new Intl.DateTimeFormat(language, { ...options, timeZone: 'UTC' }).format(
     new Date(`${isoDate}T12:00:00Z`),
   )
+}
+
+export function startOfWeek(isoDate: string): string {
+  const weekday = new Date(`${isoDate}T12:00:00Z`).getUTCDay()
+  return shiftDate(isoDate, -(weekday + 6) % 7)
+}
+
+export function monthWeeks(isoMonth: string): string[] {
+  const first = `${isoMonth}-01`
+  const last = new Date(`${first}T12:00:00Z`)
+  last.setUTCMonth(last.getUTCMonth() + 1, 0)
+  const lastDate = last.toISOString().slice(0, 10)
+  const weeks: string[] = []
+  for (let date = startOfWeek(first); date <= lastDate; date = shiftDate(date, 7)) {
+    weeks.push(date)
+  }
+  return weeks
 }
 export function parseDateInput(value: string): string {
   const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim())

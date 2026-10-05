@@ -3,7 +3,7 @@
   --header-height: 80px;
   display: flex;
   height: 100dvh;
-  background: #fff;
+  background: var(--fixa-surface);
 }
 .sidebar {
   width: var(--sidebar-width);
@@ -14,8 +14,8 @@
   display: flex;
   flex-direction: column;
   padding-block: 48px 28px;
-  background: #f5f7fa;
-  border-right: 1px solid #e1e8f2;
+  background: var(--fixa-neutral-surface);
+  border-right: 1px solid var(--fixa-border);
   z-index: 4;
 }
 .logo {
@@ -31,16 +31,16 @@
   place-items: center;
   width: 30px;
   height: 30px;
-  border: 1px solid #d4deec;
+  border: 1px solid var(--fixa-border);
   border-radius: 8px;
-  background: #fff;
-  color: #153d7d;
+  background: var(--fixa-surface);
+  color: var(--fixa-text-primary);
   cursor: pointer;
   box-shadow: 0 1px 2px #0e223f0d;
 }
 .collapseButton:hover {
-  border-color: #a9c0e1;
-  background: #edf4ff;
+  border-color: var(--fixa-text-primary);
+  background: var(--fixa-hover);
 }
 .collapseButton:focus-visible {
   outline: 2px solid #153d7d;
@@ -63,7 +63,7 @@
   border: 0;
   border-left: 4px solid transparent;
   background: transparent;
-  color: #130943;
+  color: var(--fixa-ink);
   text-decoration: none;
   font-size: clamp(16px, 1.25vw, 19px);
   font-weight: 500;
@@ -78,19 +78,19 @@
   stroke-width: 1.8;
 }
 .link:hover {
-  background: #e9eff8;
+  background: var(--fixa-hover);
 }
 .active {
-  border-left-color: #153d7d;
-  background: #e3edfc;
-  color: #153d7d;
+  border-left-color: var(--fixa-text-primary);
+  background: var(--fixa-selected);
+  color: var(--fixa-text-primary);
 }
 .account {
   margin-top: auto;
   padding-top: 22px;
 }
 .logout {
-  color: #b2162f;
+  color: var(--fixa-danger-text);
 }
 .content {
   display: flex;
@@ -109,7 +109,7 @@
   justify-content: flex-end;
   gap: 4px;
   padding-inline: clamp(20px, 2vw, 36px);
-  background: #fff;
+  background: var(--fixa-surface);
 }
 .iconButton {
   display: grid;
@@ -119,11 +119,11 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #0e223f;
+  color: var(--fixa-ink);
   cursor: pointer;
 }
 .iconButton:hover {
-  background: #f0f4fa;
+  background: var(--fixa-hover);
 }
 .iconButton svg {
   width: 26px;
@@ -136,8 +136,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #d9e9fc;
-  color: #153d7d;
+  background: var(--fixa-avatar-bg);
+  color: var(--fixa-text-primary);
   font-size: 20px;
   font-weight: 600;
   text-decoration: none;
@@ -155,7 +155,7 @@
   width: 100%;
   overflow-y: auto;
   scroll-padding-block: 16px;
-  padding: 0 clamp(24px, 4vw, 56px) 12px;
+  padding: 0 clamp(24px, 4vw, 56px) 32px;
   max-width: 1600px;
   margin-inline: auto;
 }
@@ -170,19 +170,15 @@
   background: transparent;
   border: 0;
   border-radius: 10px;
-  color: #153d7d;
+  color: var(--fixa-text-primary);
   cursor: pointer;
-}
-.notification {
-  margin: 4px;
-  font-size: 14px;
 }
 .drawerBody {
   display: flex;
   flex-direction: column;
   min-height: calc(100dvh - 80px);
   padding: 12px 0 24px;
-  background: #f5f7fa;
+  background: var(--fixa-neutral-surface);
 }
 .modalActions {
   display: flex;

@@ -1,3 +1,4 @@
+import { usePreferences } from './contexts/usePreferences'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
@@ -14,15 +15,17 @@ const Calendar = lazy(() => import('./pages/Calendar'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Manu = lazy(() => import('./pages/Manu'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+const Settings = lazy(() => import('./pages/Settings'))
 
 function App() {
+  const { t } = usePreferences()
   return (
     <AuthProvider>
       <BrowserRouter>
         <Suspense
           fallback={
             <p className="page-loading" role="status">
-              Carregando página…
+              {t('Carregando página…')}
             </p>
           }
         >
@@ -38,6 +41,7 @@ function App() {
                 <Route path="/calendario" element={<Calendar />} />
                 <Route path="/perfil" element={<Profile />} />
                 <Route path="/manu" element={<Manu />} />
+                <Route path="/configuracoes" element={<Settings />} />
               </Route>
             </Route>
             <Route path="/404" element={<NotFound />} />

@@ -1,6 +1,6 @@
 .page {
   min-height: 100dvh;
-  background: #fbfcfe;
+  background: var(--fixa-bg);
   color: var(--fixa-ink);
 }
 
@@ -25,7 +25,7 @@
 }
 
 .headerLink {
-  color: var(--fixa-primary);
+  color: var(--fixa-text-primary);
 }
 
 .hero {
@@ -40,7 +40,7 @@
 }
 
 .eyebrow {
-  color: #48689d;
+  color: var(--fixa-text-primary);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -50,7 +50,7 @@
 .hero h1 {
   max-width: 680px;
   margin: 16px 0 22px;
-  color: var(--fixa-primary);
+  color: var(--fixa-text-primary);
   font-size: clamp(38px, 5vw, 66px);
   line-height: 1.13;
 }
@@ -79,7 +79,7 @@
   place-items: center;
   min-height: 360px;
   border-radius: 32px;
-  background: #e7f0fb;
+  background: var(--fixa-accent-surface);
   overflow: hidden;
 }
 
@@ -90,7 +90,7 @@
 
 .features {
   padding: 68px clamp(24px, 6vw, 88px) 80px;
-  background: #edf3fb;
+  background: var(--fixa-panel);
 }
 
 .features h2,
@@ -101,7 +101,7 @@
 
 .features h2 {
   margin-top: 0;
-  color: var(--fixa-primary);
+  color: var(--fixa-text-primary);
   font-size: clamp(26px, 3vw, 36px);
 }
 
@@ -115,17 +115,17 @@
   min-height: 220px;
   padding: 28px;
   border-radius: 20px;
-  background: white;
+  background: var(--fixa-surface);
   box-shadow: 0 4px 24px #1939690c;
 }
 
 .grid svg {
-  color: var(--fixa-primary);
+  color: var(--fixa-text-primary);
 }
 
 .grid h3 {
   margin: 18px 0 8px;
-  color: var(--fixa-primary);
+  color: var(--fixa-text-primary);
 }
 
 .grid p {
@@ -137,7 +137,7 @@
   max-width: 1440px;
   margin-inline: auto;
   padding: 28px clamp(24px, 6vw, 88px);
-  color: #435169;
+  color: var(--fixa-muted);
   font-size: 13px;
 }
 

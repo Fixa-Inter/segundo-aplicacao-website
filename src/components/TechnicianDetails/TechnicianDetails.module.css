@@ -10,7 +10,7 @@
   height: 44px;
   border: 0;
   border-radius: 12px;
-  color: #153d7d;
+  color: var(--fixa-text-primary);
   background: transparent;
   cursor: pointer;
 }
@@ -22,13 +22,13 @@
 }
 .identity h1 {
   margin: 0;
-  color: #130943;
+  color: var(--fixa-ink);
   font-size: clamp(26px, 2.5vw, 36px);
   font-weight: 500;
 }
 .identity p {
   margin: 0;
-  color: #153d7d;
+  color: var(--fixa-text-primary);
   font-size: 24px;
 }
 .avatar {
@@ -37,8 +37,8 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  color: #153d7d;
-  background: #d6e3ff;
+  color: var(--fixa-text-primary);
+  background: var(--fixa-initials-bg);
   font-size: 36px;
   font-weight: 600;
 }
@@ -48,14 +48,14 @@
   padding: 10px 20px;
   border: 1px solid #153d7d;
   border-radius: 20px;
-  color: #153d7d;
-  background: white;
+  color: var(--fixa-text-primary);
+  background: var(--fixa-surface);
   font: inherit;
   cursor: pointer;
 }
 .information h2 {
   margin: 0 0 24px;
-  color: #130943;
+  color: var(--fixa-ink);
   font-size: 24px;
   font-weight: 500;
 }
@@ -69,7 +69,7 @@
   align-items: center;
   gap: 18px;
   margin: 0;
-  color: #435169;
+  color: var(--fixa-muted);
   overflow-wrap: anywhere;
 }
 .information svg {
@@ -79,13 +79,13 @@
 }
 .note {
   margin: 16px 0 0;
-  color: #435169;
+  color: var(--fixa-muted);
   font-size: 13px;
 }
 .performance {
   padding: 28px 32px;
   border-radius: 20px;
-  background: #f5f7fa;
+  background: var(--fixa-neutral-surface);
   min-width: 0;
 }
 .toolbar {
@@ -97,7 +97,7 @@
 }
 .toolbar h2 {
   margin: 0;
-  color: #153d7d;
+  color: var(--fixa-text-primary);
   font-size: 24px;
   font-weight: 500;
 }
@@ -113,7 +113,7 @@
   border: 1px solid #435169;
   border-radius: 12px;
   font: inherit;
-  color: #435169;
+  color: var(--fixa-muted);
   background: transparent;
 }
 .chart {
@@ -143,7 +143,7 @@
   flex-shrink: 0;
 }
 .total {
-  color: #435169;
+  color: var(--fixa-muted);
 }
 .completed {
   background: #64d3f7;
@@ -152,7 +152,7 @@
   background: #578bd6;
 }
 .late {
-  background: #130943;
+  background: var(--fixa-text-primary);
 }
 .legend {
   display: flex;

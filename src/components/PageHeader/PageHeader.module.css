@@ -8,7 +8,7 @@
 
 .heading h1 {
   margin: 0;
-  color: #130943;
+  color: var(--fixa-ink);
   font-size: clamp(30px, 3.61vw, 52px);
   line-height: 1.2;
   font-weight: 600;

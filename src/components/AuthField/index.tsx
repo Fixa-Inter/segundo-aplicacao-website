@@ -1,3 +1,4 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import type { AuthFieldProps } from '../../types/ui'
 import styles from './AuthField.module.css'
 export function AuthField({
@@ -8,6 +9,8 @@ export function AuthField({
   className = '',
   ...props
 }: AuthFieldProps) {
+  const { t } = usePreferences()
+
   return (
     <div className={`${styles.field} ${className}`}>
       <label htmlFor={id}>{label}</label>
@@ -22,7 +25,7 @@ export function AuthField({
       </div>
       {error && (
         <span id={`${id}-error`} className={styles.error} role="alert">
-          {error}
+          {t(error)}
         </span>
       )}
     </div>

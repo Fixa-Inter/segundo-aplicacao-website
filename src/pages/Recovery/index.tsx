@@ -1,3 +1,4 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { PinInput } from '@mantine/core'
@@ -37,6 +38,8 @@ const pageByStep: Record<RecoveryStep, string> = {
   success: styles.successPage,
 }
 export default function Recovery() {
+  const { t } = usePreferences()
+
   const [step, setStep] = useState<RecoveryStep>('email')
   const [form, setForm] = useState({ email: '', code: '', password: '', confirmation: '' })
   const [challenge, setChallenge] = useState<RecoveryChallenge | null>(null)
@@ -115,7 +118,7 @@ export default function Recovery() {
     setError(null)
     try {
       setChallenge(await requestRecovery(form.email))
-      setNotice(`Código de demonstração: ${DEMO_RECOVERY_CODE}. Nenhum e-mail real é enviado.`)
+      setNotice('Código de demonstração: 123456. Nenhum e-mail real é enviado.')
     } catch {
       setError('Não foi possível reenviar. Tente novamente.')
     } finally {
@@ -134,7 +137,7 @@ export default function Recovery() {
     <main className={`${styles.page} ${pageByStep[step]}`}>
       {step !== 'success' &&
         (step === 'email' ? (
-          <Link to="/login" className={styles.back} aria-label="Voltar ao login">
+          <Link to="/login" className={styles.back} aria-label={t('Voltar ao login')}>
             <ArrowLeft />
           </Link>
         ) : (
@@ -143,7 +146,7 @@ export default function Recovery() {
             disabled={busy}
             className={styles.back}
             onClick={back}
-            aria-label="Voltar à etapa anterior"
+            aria-label={t('Voltar à etapa anterior')}
           >
             <ArrowLeft />
           </button>
@@ -154,16 +157,16 @@ export default function Recovery() {
           src={artByStep[step]}
           width="760"
           height="760"
-          alt="Manu ajudando na recuperação da senha"
+          alt={t('Manu ajudando na recuperação da senha')}
         />
         <h1 ref={headingRef} id="recovery-title" tabIndex={-1}>
-          {titles[step]}
+          {t(titles[step])}
         </h1>
-        {description && <p className={styles.description}>{description}</p>}
+        {description && <p className={styles.description}>{t(description)}</p>}
         {step === 'success' ? (
           <>
             <Link className={styles.primary} to="/login">
-              Ir para o login
+              {t('Ir para o login')}
             </Link>
           </>
         ) : (
@@ -179,8 +182,8 @@ export default function Recovery() {
                 <>
                   <AuthField
                     id="recovery-email"
-                    label="Email"
-                    placeholder="Digite o seu e-mail"
+                    label={t('Email')}
+                    placeholder={t('Digite o seu e-mail')}
                     type="email"
                     autoComplete="off"
                     maxLength={120}
@@ -197,14 +200,15 @@ export default function Recovery() {
               )}
               {step === 'code' && (
                 <div className={styles.codeGroup}>
-                  <p className={styles.codeLabel}>Código</p>
+                  <p className={styles.codeLabel}>{t('Código')}</p>
                   {Array.from({ length: 6 }, (_, index) => (
                     <label
                       className={styles.srOnly}
                       htmlFor={`recovery-code-${index + 1}`}
                       key={`code-${index + 1}`}
                     >
-                      Dígito {index + 1} do código
+                      {t('Dígito')}
+                      {index + 1} {t('do código')}
                     </label>
                   ))}
                   <PinInput
@@ -218,12 +222,12 @@ export default function Recovery() {
                     placeholder=""
                     oneTimeCode
                     disabled={busy}
-                    ariaLabel="Dígito do código de recuperação"
+                    ariaLabel={t('Dígito do código de recuperação')}
                     error={Boolean(error)}
                     classNames={{ root: styles.pinRoot, input: styles.pinInput }}
                     getInputProps={(index) => ({
                       id: `recovery-code-${index + 1}`,
-                      'aria-label': `Dígito ${index + 1} do código`,
+                      'aria-label': t('Dígito {number} do código', { number: index + 1 }),
                     })}
                   />
                 </div>
@@ -232,10 +236,10 @@ export default function Recovery() {
                 <div className={styles.passwordFields}>
                   <AuthField
                     id="new-password"
-                    label="Nova senha"
+                    label={t('Nova senha')}
                     type={visible ? 'text' : 'password'}
                     autoComplete="off"
-                    placeholder="Digite sua nova senha"
+                    placeholder={t('Digite sua nova senha')}
                     maxLength={128}
                     disabled={busy}
                     value={form.password}
@@ -247,7 +251,7 @@ export default function Recovery() {
                       <button
                         type="button"
                         onClick={() => setVisible((current) => !current)}
-                        aria-label={visible ? 'Ocultar nova senha' : 'Mostrar nova senha'}
+                        aria-label={t(visible ? 'Ocultar nova senha' : 'Mostrar nova senha')}
                       >
                         {visible ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -255,10 +259,10 @@ export default function Recovery() {
                   />
                   <AuthField
                     id="confirm-password"
-                    label="Confirme a nova senha"
+                    label={t('Confirme a nova senha')}
                     type={visible ? 'text' : 'password'}
                     autoComplete="off"
-                    placeholder="Repita sua nova senha"
+                    placeholder={t('Repita sua nova senha')}
                     maxLength={128}
                     disabled={busy}
                     value={form.confirmation}
@@ -271,47 +275,52 @@ export default function Recovery() {
               )}
               {step === 'password' && (
                 <p className={styles.demoNote}>
-                  Use uma senha fictícia. Regra provisória: mínimo de 8 caracteres, maiúscula,
-                  minúscula e símbolo especial. A senha não é armazenada.
+                  {t(
+                    'Use uma senha fictícia. Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial. A senha não é armazenada.',
+                  )}
                 </p>
               )}
               {step !== 'email' && error && (
                 <p className={styles.error} role="alert">
-                  {error}
+                  {t(error)}
                 </p>
               )}
               <button className={styles.primary} disabled={busy} type="submit">
-                {busy
-                  ? 'Aguarde…'
-                  : step === 'email'
-                    ? 'Enviar e-mail'
-                    : step === 'code'
-                      ? 'Confirmar código'
-                      : 'Alterar senha'}
+                {t(
+                  busy
+                    ? 'Aguarde…'
+                    : step === 'email'
+                      ? 'Enviar e-mail'
+                      : step === 'code'
+                        ? 'Confirmar código'
+                        : 'Alterar senha',
+                )}
               </button>
             </form>
             {step === 'email' && (
               <Link className={styles.secondary} to="/login">
-                Voltar ao login
+                {t('Voltar ao login')}
               </Link>
             )}
             {step === 'email' && (
-              <p className={styles.demoNote}>Demonstração: nenhum e-mail será enviado.</p>
+              <p className={styles.demoNote}>{t('Demonstração: nenhum e-mail será enviado.')}</p>
             )}
             {step === 'code' && (
               <p className={styles.resend}>
-                Não recebeu o código?{' '}
+                {t('Não recebeu o código?')}{' '}
                 <button type="button" disabled={busy} onClick={resend}>
-                  Reenviar
+                  {t('Reenviar')}
                 </button>
               </p>
             )}
             {step === 'code' && (
-              <p className={styles.demoNote}>Código de demonstração: {DEMO_RECOVERY_CODE}</p>
+              <p className={styles.demoNote}>
+                {t('Código de demonstração:')} {DEMO_RECOVERY_CODE}
+              </p>
             )}
             {notice && (
               <p className={styles.demoNote} role="status">
-                {notice}
+                {t(notice)}
               </p>
             )}
           </>

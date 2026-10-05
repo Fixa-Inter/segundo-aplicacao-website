@@ -1,14 +1,17 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { MantineProvider } from '@mantine/core'
 import '@mantine/core/styles.css'
 import './index.css'
 import App from './App.tsx'
+import { PreferencesProvider } from './contexts/PreferencesContext'
+import { AppAppearance } from './components/AppAppearance'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <MantineProvider theme={{ fontFamily: 'Poppins, system-ui, sans-serif', primaryColor: 'blue' }}>
-      <App />
-    </MantineProvider>
+    <PreferencesProvider>
+      <AppAppearance>
+        <App />
+      </AppAppearance>
+    </PreferencesProvider>
   </StrictMode>,
 )

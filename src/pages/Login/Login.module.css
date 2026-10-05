@@ -1,6 +1,6 @@
 .page {
   min-height: 100dvh;
-  background: #fcfdfd;
+  background: var(--fixa-bg);
   position: relative;
   display: grid;
   align-items: center;
@@ -31,7 +31,7 @@
 .formArea h1 {
   margin: 0 0 clamp(26px, 4dvh, 41px);
   font-size: clamp(44px, 7.81dvh, 80px);
-  color: var(--fixa-primary);
+  color: var(--fixa-text-primary);
   font-weight: 600;
   line-height: 1.5;
 }
@@ -71,20 +71,20 @@
   cursor: wait;
 }
 .error {
-  color: #96031a;
+  color: var(--fixa-danger-text);
   font-size: 14px;
   margin: 10px 0 -12px;
 }
 .demo {
   margin: 12px 0 0;
-  color: #4c5461;
+  color: var(--fixa-muted);
   font-size: 12px;
   line-height: 1.5;
 }
 .aboutLink {
   display: inline-block;
   margin-top: 12px;
-  color: var(--fixa-primary);
+  color: var(--fixa-text-primary);
   font-size: 14px;
   font-weight: 600;
 }

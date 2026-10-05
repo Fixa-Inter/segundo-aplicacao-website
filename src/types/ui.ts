@@ -8,6 +8,12 @@ import type {
   Technician,
   TechnicianInput,
 } from './management'
+export interface AppAppearanceProps {
+  children: ReactNode
+}
+export interface PreferencesProviderProps {
+  children: ReactNode
+}
 export interface BrandProps {
   compact?: boolean
   className?: string
@@ -31,10 +37,6 @@ export interface PageHeaderProps {
   title: string
   description?: string
   action?: ReactNode
-}
-
-export interface DemoBadgeProps {
-  children: string
 }
 
 export interface TechnicianFormProps {

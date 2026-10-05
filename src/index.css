@@ -5,8 +5,8 @@
 @import '@fontsource/poppins/700.css';
 :root {
   font-family: Poppins, system-ui, sans-serif;
-  color: #130943;
-  background: #fcfdfd;
+  color: var(--fixa-ink);
+  background: var(--fixa-bg);
   font-synthesis: none;
   --fixa-primary: #153d7d;
   --fixa-ink: #130943;
@@ -14,6 +14,34 @@
   --fixa-bg: #fcfdfd;
   --fixa-card: #f3f8ff;
   --fixa-focus: #578bd6;
+
+  --fixa-surface: #fff;
+  --fixa-text-primary: #153d7d;
+  --fixa-border: #d4deec;
+  --fixa-home-panel: rgba(243, 248, 255, 0.6);
+  --fixa-danger-text: #96031a;
+  --fixa-success-text: #205d36;
+  --fixa-neutral-surface: #f5f7fa;
+  --fixa-panel: #f3f8ff;
+  --fixa-field-bg: #f3f4f9;
+  --fixa-auth-field: rgba(219, 224, 235, 0.3);
+  --fixa-banner-bg: #eef4fc;
+  --fixa-accent-surface: #e8f0fb;
+  --fixa-selected: #e3edfc;
+  --fixa-row-alt: #e0ebff;
+  --fixa-table-head: #9ab6df;
+  --fixa-initials-bg: #d6e3ff;
+  --fixa-avatar-bg: #d9e9fc;
+  --fixa-history-selected: #eaedf1;
+  --fixa-focus-bg: #f6f9fe;
+  --fixa-assistant-bg: #f0f5fd;
+  --fixa-hover: #e9eff8;
+  --fixa-table-hover: #ecf3fc;
+  --fixa-success-bg: #e8f5e9;
+  --fixa-error-bg: #fff0f2;
+  --fixa-event-bg: #f4f8fe;
+  --fixa-disabled-bg: #f2f4f7;
+  --fixa-soft-blue: #e8f0fe;
 }
 *,
 *::before,
@@ -47,7 +75,7 @@ input {
   min-height: 100dvh;
 }
 a {
-  color: var(--fixa-primary);
+  color: var(--fixa-text-primary);
 }
 button {
   touch-action: manipulation;
@@ -77,5 +105,49 @@ select:not([multiple]):not([size]) {
     transition: none !important;
     animation: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+:root[data-theme='dark'] {
+  --fixa-ink: #e8eef9;
+  --fixa-muted: #bdcbe0;
+  --fixa-bg: #121c2c;
+  --fixa-surface: #142035;
+  --fixa-text-primary: #a6c9ff;
+  --fixa-border: #405572;
+  --fixa-card: #1c2b42;
+  --fixa-home-panel: #1c2b42;
+  --fixa-danger-text: #ffafbd;
+  --fixa-success-text: #a7e6bd;
+  --fixa-neutral-surface: #182438;
+  --fixa-panel: #1c2b42;
+  --fixa-field-bg: #223047;
+  --fixa-auth-field: #223047;
+  --fixa-banner-bg: #20334f;
+  --fixa-accent-surface: #233a5b;
+  --fixa-selected: #294567;
+  --fixa-row-alt: #233650;
+  --fixa-table-head: #304d76;
+  --fixa-initials-bg: #2c466c;
+  --fixa-avatar-bg: #294567;
+  --fixa-history-selected: #263c56;
+  --fixa-focus-bg: #203653;
+  --fixa-assistant-bg: #22354f;
+  --fixa-hover: #263950;
+  --fixa-table-hover: #2b4262;
+  --fixa-success-bg: #173a29;
+  --fixa-error-bg: #442532;
+  --fixa-event-bg: #1c2b42;
+  --fixa-disabled-bg: #263143;
+  --fixa-soft-blue: #233a5b;
+}
+
+:root[data-theme='dark'] select:not([multiple]):not([size]) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23bdcbe0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+@media (forced-colors: active) {
+  :root[data-theme='dark'] select:not([multiple]):not([size]) {
+    appearance: auto;
+    background-image: none;
   }
 }

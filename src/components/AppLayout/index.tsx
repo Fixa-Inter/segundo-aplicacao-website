@@ -1,7 +1,7 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState } from 'react'
-import { Button, Drawer, Modal, Popover } from '@mantine/core'
+import { Button, Drawer, Modal } from '@mantine/core'
 import {
-  Bell,
   CalendarDays,
   ChartPie,
   Home,
@@ -30,41 +30,43 @@ const links = [
 ]
 
 function Navigation({ onNavigate, onLogout }: NavigationProps) {
+  const { t } = usePreferences()
+
   return (
     <>
-      <nav className={styles.nav} aria-label="Navegação principal">
+      <nav className={styles.nav} aria-label={t('Navegação principal')}>
         {links.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
             onClick={onNavigate}
-            aria-label={label}
+            aria-label={t(label)}
             className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}
           >
             <Icon aria-hidden="true" />
-            <span>{label}</span>
+            <span>{t(label)}</span>
           </NavLink>
         ))}
       </nav>
       <div className={styles.account}>
         <NavLink
           to="/perfil"
-          aria-label="Perfil"
+          aria-label={t('Perfil')}
           onClick={onNavigate}
           className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}
         >
           <UserRound aria-hidden="true" />
-          <span>Perfil</span>
+          <span>{t('Perfil')}</span>
         </NavLink>
         <button
           className={`${styles.link} ${styles.logout}`}
-          aria-label="Sair"
+          aria-label={t('Sair')}
           type="button"
           onClick={onLogout}
         >
           <LogOut aria-hidden="true" />
-          <span>Sair</span>
+          <span>{t('Sair')}</span>
         </button>
       </div>
     </>
@@ -72,6 +74,8 @@ function Navigation({ onNavigate, onLogout }: NavigationProps) {
 }
 
 export function AppLayout() {
+  const { t } = usePreferences()
+
   const [menuOpen, setMenuOpen] = useState(false)
   const [logoutOpen, setLogoutOpen] = useState(false)
   const { user, logout } = useAuth()
@@ -96,17 +100,17 @@ export function AppLayout() {
       className={`${styles.shell} ${compact ? styles.compact : ''} ${pathname === '/manu' ? styles.manu : ''}`}
     >
       <a className={styles.skipLink} href="#conteudo">
-        Pular para o conteúdo
+        {t('Pular para o conteúdo')}
       </a>
       <aside id="primary-sidebar" className={styles.sidebar}>
-        <NavLink to="/" className={styles.logo} aria-label="FIXA, início">
+        <NavLink to="/" className={styles.logo} aria-label={t('FIXA, início')}>
           <Brand compact />
         </NavLink>
         <button
           className={styles.collapseButton}
           type="button"
-          aria-label={compact ? 'Expandir menu lateral' : 'Recolher menu lateral'}
-          title={compact ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+          aria-label={t(compact ? 'Expandir menu lateral' : 'Recolher menu lateral')}
+          title={t(compact ? 'Expandir menu lateral' : 'Recolher menu lateral')}
           aria-controls="primary-sidebar"
           aria-expanded={!compact}
           onClick={() => setSidebarPreference(!compact)}
@@ -121,27 +125,21 @@ export function AppLayout() {
             className={styles.menuButton}
             type="button"
             onClick={() => setMenuOpen(true)}
-            aria-label="Abrir menu"
+            aria-label={t('Abrir menu')}
           >
             <Menu />
           </button>
-          <Popover position="bottom-end" width={280} withArrow shadow="sm">
-            <Popover.Target>
-              <button className={styles.iconButton} type="button" aria-label="Notificações">
-                <Bell />
-              </button>
-            </Popover.Target>
-            <Popover.Dropdown>
-              <p className={styles.notification}>Nenhuma notificação por enquanto.</p>
-            </Popover.Dropdown>
-          </Popover>
-          <NavLink to="/perfil" className={styles.iconButton} aria-label="Configurações do perfil">
+          <NavLink
+            to="/configuracoes"
+            className={styles.iconButton}
+            aria-label={t('Configurações')}
+          >
             <Settings />
           </NavLink>
           <NavLink
             to="/perfil"
             className={styles.avatar}
-            aria-label={`Abrir perfil de ${user?.name ?? 'gestor'}`}
+            aria-label={t('Abrir perfil de {name}', { name: user?.name ?? 'gestor' })}
           >
             <img src={avatar} width="50" height="50" alt="" />
           </NavLink>
@@ -151,7 +149,7 @@ export function AppLayout() {
         </main>
       </div>
       <Drawer
-        closeButtonProps={{ 'aria-label': 'Fechar menu' }}
+        closeButtonProps={{ 'aria-label': t('Fechar menu') }}
         opened={menuOpen}
         onClose={closeMenu}
         title={<Brand />}
@@ -161,16 +159,16 @@ export function AppLayout() {
         <Navigation onNavigate={closeMenu} onLogout={openLogout} />
       </Drawer>
       <Modal
-        closeButtonProps={{ 'aria-label': 'Fechar confirmação de saída' }}
+        closeButtonProps={{ 'aria-label': t('Fechar confirmação de saída') }}
         opened={logoutOpen}
         onClose={() => setLogoutOpen(false)}
-        title="Sair da conta?"
+        title={t('Sair da conta?')}
         centered
       >
-        <p>Você voltará à tela de login.</p>
+        <p>{t('Você voltará à tela de login.')}</p>
         <div className={styles.modalActions}>
           <Button variant="default" onClick={() => setLogoutOpen(false)}>
-            Cancelar
+            {t('Cancelar')}
           </Button>
           <Button
             onClick={() => {
@@ -179,7 +177,7 @@ export function AppLayout() {
               navigate('/login', { replace: true })
             }}
           >
-            Sair
+            {t('Sair')}
           </Button>
         </div>
       </Modal>

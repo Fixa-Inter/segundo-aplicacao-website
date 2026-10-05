@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { usePreferences } from '../../contexts/usePreferences'
+import { useEffect, useRef, useState } from 'react'
 import { Modal } from '@mantine/core'
 import { Pencil, Search, Trash2 } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
 import { TechnicianDetails } from '../../components/TechnicianDetails'
 import { TechnicianForm } from '../../components/TechnicianForm'
@@ -25,6 +24,8 @@ import styles from './Team.module.css'
 const pageSize = 4
 
 export default function Team() {
+  const { t } = usePreferences()
+
   const [items, setItems] = useState<Technician[]>([])
   const [manager, setManager] = useState<ManagerProfile | null>(null)
   const [loading, setLoading] = useState(true)
@@ -35,7 +36,6 @@ export default function Team() {
   const [notice, setNotice] = useState('')
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('Todos')
-  const [tab, setTab] = useState<'Técnicos' | 'Gestores'>('Técnicos')
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState<Technician | null>(null)
   const [formOpen, setFormOpen] = useState(false)
@@ -112,24 +112,6 @@ export default function Team() {
   )
   const lastPage = Math.max(1, Math.ceil(filtered.length / pageSize))
   const shown = filtered.slice((page - 1) * pageSize, page * pageSize)
-  function moveTab(event: KeyboardEvent<HTMLDivElement>) {
-    const next =
-      event.key === 'ArrowRight' || event.key === 'ArrowLeft'
-        ? tab === 'Técnicos'
-          ? 'Gestores'
-          : 'Técnicos'
-        : event.key === 'End'
-          ? 'Gestores'
-          : event.key === 'Home'
-            ? 'Técnicos'
-            : null
-    if (!next) return
-    event.preventDefault()
-    setTab(next)
-    event.currentTarget
-      .querySelector<HTMLButtonElement>(`[role="tab"][data-tab="${next}"]`)
-      ?.focus()
-  }
   function openForm(item?: Technician) {
     setEditing(item ?? null)
     setError('')
@@ -204,109 +186,69 @@ export default function Team() {
   return (
     <div className={`${common.page} ${styles.page}`}>
       <PageHeader
-        title="Minha equipe"
+        title={t('Minha equipe')}
         action={
-          tab === 'Técnicos' && (
-            <button
-              ref={addButtonRef}
-              className={`${common.primary} ${styles.addButton}`}
-              type="button"
-              onClick={() => openForm()}
-              disabled={loading || Boolean(loadError) || !manager}
-            >
-              + Adicionar
-            </button>
-          )
+          <button
+            ref={addButtonRef}
+            className={`${common.primary} ${styles.addButton}`}
+            type="button"
+            onClick={() => openForm()}
+            disabled={loading || Boolean(loadError) || !manager}
+          >
+            {t('+ Adicionar')}
+          </button>
         }
       />
-      <DemoBadge>Dados demonstrativos · alterações nesta sessão</DemoBadge>
-      {tab === 'Técnicos' && (
-        <div className={common.toolbar}>
-          <label htmlFor="team-search" className={`${common.field} ${styles.search}`}>
-            <span className={styles.srOnly}>Pesquisar</span>
-            <span className={styles.searchIcon} aria-hidden="true">
-              <Search size={25} />
-            </span>
-            <input
-              id="team-search"
-              type="search"
-              value={query}
-              maxLength={120}
-              placeholder="Pesquisar..."
-              onChange={(event) => {
-                setQuery(event.target.value)
-                setPage(1)
-              }}
-            />
-          </label>
-          <label htmlFor="team-status" className={common.field}>
-            Situação
-            <select
-              id="team-status"
-              value={filter}
-              onChange={(event) => {
-                setFilter(event.target.value)
-                setPage(1)
-              }}
-            >
-              <option>Todos</option>
-              <option>Ativo</option>
-              <option>Inativo</option>
-            </select>
-          </label>
-        </div>
-      )}
-      <div
-        className={styles.tabs}
-        role="tablist"
-        aria-label="Tipo de integrante"
-        onKeyDown={moveTab}
-      >
-        <button
-          id="team-tab-tech"
-          data-tab="Técnicos"
-          type="button"
-          role="tab"
-          aria-selected={tab === 'Técnicos'}
-          aria-controls="team-panel-tech"
-          tabIndex={tab === 'Técnicos' ? 0 : -1}
-          onClick={() => setTab('Técnicos')}
-        >
-          Técnicos
-        </button>
-        <button
-          id="team-tab-managers"
-          data-tab="Gestores"
-          type="button"
-          role="tab"
-          aria-selected={tab === 'Gestores'}
-          aria-controls="team-panel-managers"
-          tabIndex={tab === 'Gestores' ? 0 : -1}
-          onClick={() => setTab('Gestores')}
-        >
-          Gestores
-        </button>
+      <div className={common.toolbar}>
+        <label htmlFor="team-search" className={`${common.field} ${styles.search}`}>
+          <span className={styles.srOnly}>{t('Pesquisar')}</span>
+          <span className={styles.searchIcon} aria-hidden="true">
+            <Search size={25} />
+          </span>
+          <input
+            id="team-search"
+            type="search"
+            value={query}
+            maxLength={120}
+            placeholder={t('Pesquisar...')}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              setPage(1)
+            }}
+          />
+        </label>
+        <label htmlFor="team-status" className={common.field}>
+          {t('Situação')}
+          <select
+            id="team-status"
+            value={filter}
+            onChange={(event) => {
+              setFilter(event.target.value)
+              setPage(1)
+            }}
+          >
+            <option value="Todos">{t('Todos')}</option>
+            <option value="Ativo">{t('Ativo')}</option>
+            <option value="Inativo">{t('Inativo')}</option>
+          </select>
+        </label>
       </div>
       {notice && (
         <p className={common.status} role="status">
-          {notice}
+          {t(notice)}
         </p>
       )}
       {error && !formOpen && (
         <p className={common.error} role="alert">
-          {error}
+          {t(error)}
         </p>
       )}
       {loading ? (
-        <p role="status">Carregando equipe…</p>
+        <p role="status">{t('Carregando equipe…')}</p>
       ) : loadError ? (
-        <section
-          id={tab === 'Técnicos' ? 'team-panel-tech' : 'team-panel-managers'}
-          role="tabpanel"
-          aria-labelledby={tab === 'Técnicos' ? 'team-tab-tech' : 'team-tab-managers'}
-        >
+        <section aria-label={t('Técnicos')}>
           <div role="alert" className={common.error}>
-            <p>{loadError}</p>
+            <p>{t(loadError)}</p>
             <button
               className={common.secondary}
               type="button"
@@ -316,53 +258,15 @@ export default function Team() {
                 setLoadAttempt((current) => current + 1)
               }}
             >
-              Tentar novamente
+              {t('Tentar novamente')}
             </button>
           </div>
-        </section>
-      ) : tab === 'Gestores' ? (
-        <section
-          id="team-panel-managers"
-          className={`${common.panel} ${styles.tablePanel}`}
-          role="tabpanel"
-          aria-labelledby="team-tab-managers"
-        >
-          {manager ? (
-            <div className={common.tableWrap}>
-              <table className={common.table}>
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Empresa</th>
-                    <th>Ação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-label="Nome">{manager.name}</td>
-                    <td data-label="E-mail">{manager.email}</td>
-                    <td data-label="Empresa">{manager.company}</td>
-                    <td data-label="Ação">
-                      <Link to="/perfil">Ver perfil</Link>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className={common.empty}>Nenhum gestor disponível nesta conta demonstrativa.</p>
-          )}
-          <p className={common.muted}>
-            A gestão de outras contas exige regras de autorização e contrato da API.
-          </p>
         </section>
       ) : (
         <section
           id="team-panel-tech"
           className={`${common.panel} ${styles.tablePanel}`}
-          role="tabpanel"
-          aria-labelledby="team-tab-tech"
+          aria-label={t('Técnicos')}
         >
           {filtered.length ? (
             <>
@@ -370,21 +274,21 @@ export default function Team() {
                 <table className={common.table}>
                   <thead>
                     <tr>
-                      <th>Nome</th>
-                      <th>Turno</th>
-                      <th>Especialidade</th>
-                      <th>Ações</th>
+                      <th>{t('Nome')}</th>
+                      <th>{t('Turno')}</th>
+                      <th>{t('Especialidade')}</th>
+                      <th>{t('Ações')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {shown.map((item) => (
                       <tr key={item.id}>
-                        <td data-label="Nome">
+                        <td data-label={t('Nome')}>
                           <button
                             type="button"
                             className={styles.nameButton}
                             id={`tech-details-${item.id}`}
-                            aria-label={`Ver detalhes de ${item.name}`}
+                            aria-label={t('Ver detalhes de {name}', { name: item.name })}
                             onClick={() => showDetails(item)}
                           >
                             <span className={styles.initials} aria-hidden="true">
@@ -396,18 +300,18 @@ export default function Team() {
                             </span>
                             <span>
                               {item.name}
-                              <small>{item.status}</small>
+                              <small>{t(item.status)}</small>
                             </span>
                           </button>
                         </td>
-                        <td data-label="Turno">{item.shift}</td>
-                        <td data-label="Especialidade">{item.specialty}</td>
-                        <td data-label="Ações">
+                        <td data-label={t('Turno')}>{item.shift}</td>
+                        <td data-label={t('Especialidade')}>{item.specialty}</td>
+                        <td data-label={t('Ações')}>
                           <div className={common.actions}>
                             <button
                               type="button"
                               className={styles.iconButton}
-                              aria-label={`Editar ${item.name}`}
+                              aria-label={t('Editar {name}', { name: item.name })}
                               onClick={() => openForm(item)}
                             >
                               <Pencil size={20} />
@@ -415,7 +319,7 @@ export default function Team() {
                             <button
                               type="button"
                               className={`${styles.iconButton} ${styles.delete}`}
-                              aria-label={`Excluir ${item.name}`}
+                              aria-label={t('Excluir {name}', { name: item.name })}
                               onClick={() => setDeleting(item)}
                             >
                               <Trash2 size={20} />
@@ -434,10 +338,11 @@ export default function Team() {
                   disabled={page === 1}
                   onClick={() => setPage((current) => current - 1)}
                 >
-                  Anterior
+                  {t('Anterior')}
                 </button>
                 <span>
-                  Página {page} de {lastPage}
+                  {t('Página')}
+                  {page} {t('de')} {lastPage}
                 </span>
                 <button
                   className={common.secondary}
@@ -445,29 +350,33 @@ export default function Team() {
                   disabled={page >= lastPage}
                   onClick={() => setPage((current) => current + 1)}
                 >
-                  Próxima
+                  {t('Próxima')}
                 </button>
               </div>
             </>
           ) : (
-            <p className={common.empty}>Nenhum técnico encontrado para os filtros escolhidos.</p>
+            <p className={common.empty}>
+              {t('Nenhum técnico encontrado para os filtros escolhidos.')}
+            </p>
           )}
         </section>
       )}
       <Modal
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
-        title="Excluir técnico?"
-        closeButtonProps={{ 'aria-label': 'Fechar confirmação de exclusão do técnico' }}
+        title={t('Excluir técnico?')}
+        closeButtonProps={{ 'aria-label': t('Fechar confirmação de exclusão do técnico') }}
         centered
       >
-        <p>Excluir {deleting?.name} desta sessão de demonstração?</p>
+        <p>
+          {t('Excluir')} {deleting?.name} {t('desta sessão de demonstração?')}
+        </p>
         <div className={common.formActions}>
           <button className={common.secondary} type="button" onClick={() => setDeleting(null)}>
-            Cancelar
+            {t('Cancelar')}
           </button>
           <button className={common.danger} type="button" onClick={confirmDelete} disabled={busy}>
-            {busy ? 'Excluindo…' : 'Excluir'}
+            {t(busy ? 'Excluindo…' : 'Excluir')}
           </button>
         </div>
       </Modal>

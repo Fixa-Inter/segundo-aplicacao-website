@@ -1,7 +1,7 @@
 .welcome {
   height: clamp(205px, 17.4vw, 250px);
   border-radius: 25px;
-  background: #eef4fc;
+  background: var(--fixa-banner-bg);
   display: flex;
   align-items: center;
   padding-left: clamp(24px, 3.6vw, 52px);
@@ -13,6 +13,8 @@
   position: relative;
   z-index: 1;
   min-width: 0;
+  max-width: 55%;
+  overflow-wrap: anywhere;
   font-size: clamp(28px, 3.12vw, 45px);
   font-weight: 400;
   line-height: 1.35;
@@ -25,18 +27,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-.demo {
-  position: absolute;
-  z-index: 1;
-  left: clamp(24px, 3.6vw, 52px);
-  bottom: 12px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: #e8f0fb;
-  color: #153d7d;
-  font-size: 11px;
-  font-weight: 600;
 }
 .stats {
   display: grid;
@@ -54,7 +44,7 @@
   min-width: 0;
   height: 350px;
   padding: 24px;
-  background: rgba(243, 248, 255, 0.6);
+  background: var(--fixa-home-panel);
   border-radius: 20px;
 }
 .chartPanel {
@@ -80,7 +70,7 @@
   justify-content: space-between;
   padding-bottom: 34px;
   font-size: 14px;
-  color: #4c5461;
+  color: var(--fixa-muted);
   text-align: right;
   width: 24px;
 }
@@ -97,7 +87,7 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  color: #4c5461;
+  color: var(--fixa-muted);
   font-size: 14px;
 }
 .barTrack {
@@ -114,25 +104,19 @@
   border-radius: 15px;
 }
 .highlight {
-  background: #153d7d;
+  background: var(--fixa-text-primary);
 }
 .eventPanel {
   display: flex;
   flex-direction: column;
   padding-inline: 17px;
+  padding-block: 14px;
 }
 .month {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-}
-.month h2 {
-  font-size: clamp(18px, 1.74vw, 25px);
-  font-weight: 500;
-  margin: 0;
-  text-transform: capitalize;
-  white-space: nowrap;
 }
 .month button {
   display: grid;
@@ -142,12 +126,12 @@
   border: 0;
   background: transparent;
   border-radius: 50%;
-  color: #130943;
+  color: var(--fixa-ink);
   flex: none;
   cursor: pointer;
 }
 .month button:hover {
-  background: #e3edfc;
+  background: var(--fixa-selected);
 }
 .month svg {
   width: 20px;
@@ -155,9 +139,9 @@
 }
 .days {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 4px;
-  margin-top: 18px;
+  margin-top: 10px;
 }
 .days button {
   display: flex;
@@ -169,13 +153,13 @@
   border: 0;
   border-radius: 35px;
   background: transparent;
-  color: #130943;
+  color: var(--fixa-ink);
   font-size: clamp(13px, 1.11vw, 16px);
   cursor: pointer;
   text-transform: capitalize;
 }
 .days button:hover {
-  background: #e3edfc;
+  background: var(--fixa-selected);
 }
 .days button[aria-pressed='true'] {
   background: #153d7d;
@@ -199,7 +183,7 @@
 }
 .event {
   padding: clamp(10px, 1.46dvh, 15px);
-  background: #fff;
+  background: var(--fixa-surface);
   border-radius: 15px;
   display: flex;
   gap: 18px;
@@ -207,7 +191,7 @@
 }
 .event time {
   font-weight: 600;
-  color: #0e223f;
+  color: var(--fixa-ink);
   text-align: center;
   font-size: 22px;
   line-height: 1.2;
@@ -231,7 +215,7 @@
   margin: 0;
   padding: 12px 8px;
   font-size: 13px;
-  color: #4c5461;
+  color: var(--fixa-muted);
 }
 @media (min-width: 901px) and (min-height: 851px) {
   .home {
@@ -261,7 +245,7 @@
   }
   .chartPanel,
   .eventPanel {
-    height: clamp(250px, min(28vw, 36dvh), 350px);
+    height: clamp(276px, min(28vw, 36dvh), 350px);
     padding-block: clamp(16px, 2.4dvh, 24px);
   }
   .chart {
@@ -304,9 +288,6 @@
     height: auto;
     min-height: 320px;
   }
-  .month h2 {
-    font-size: 22px;
-  }
   .days button {
     height: 80px;
     font-size: 15px;
@@ -339,4 +320,54 @@
   .axis {
     font-size: 12px;
   }
+}
+
+.month select {
+  min-width: 0;
+  width: 180px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fixa-ink);
+  font: inherit;
+  font-size: 17px;
+  padding: 6px 42px 6px 8px;
+  text-transform: capitalize;
+}
+.weekPicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.weekPicker select {
+  min-width: 0;
+  flex: 1;
+  height: 30px;
+  padding: 4px 10px;
+  border: 1px solid var(--fixa-border);
+  border-radius: 8px;
+  background-color: var(--fixa-surface);
+  color: var(--fixa-ink);
+  font: inherit;
+}
+.days button {
+  height: 56px;
+  min-width: 0;
+  padding-inline: 0;
+  border-radius: 22px;
+  font-size: 12px;
+}
+.days span {
+  white-space: nowrap;
+}
+.days strong {
+  font-size: 20px;
+}
+.eventPanel h3 {
+  margin-top: 6px;
+}
+.eventPanel {
+  padding-block: 14px;
 }

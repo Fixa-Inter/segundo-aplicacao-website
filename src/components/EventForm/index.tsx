@@ -1,7 +1,7 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { AuthField } from '../AuthField'
-import { DemoBadge } from '../DemoBadge'
 import type { CalendarEventInput } from '../../types/management'
 import type { EventFormProps } from '../../types/ui'
 import { formatDate, parseDateInput } from '../../utils/calendar'
@@ -16,6 +16,8 @@ export function EventForm({
   onSaved,
   onCancel,
 }: EventFormProps) {
+  const { t } = usePreferences()
+
   const [form, setForm] = useState<CalendarEventInput>({
     title: event?.title ?? '',
     location: event?.location ?? '',
@@ -67,25 +69,22 @@ export function EventForm({
         type="button"
         onClick={onCancel}
         disabled={busy}
-        aria-label="Voltar para calendário"
+        aria-label={t('Voltar para calendário')}
       >
         <ArrowLeft size={28} />
       </button>
       <h1 className={styles.title}>
-        <span>{event ? 'Edite' : 'Agende'}</span> {event ? event.title : 'um evento'}
+        <span>{t(event ? 'Edite' : 'Agende')}</span> {event ? event.title : t('um evento')}
       </h1>
-      <span className={styles.demoBadge}>
-        <DemoBadge>Eventos demonstrativos · dados desta sessão</DemoBadge>
-      </span>
       <form ref={formRef} onSubmit={submit} noValidate aria-busy={busy} className={styles.form}>
         <fieldset disabled={busy} className={styles.grid}>
-          <legend className={styles.srOnly}>Dados do evento</legend>
+          <legend className={styles.srOnly}>{t('Dados do evento')}</legend>
           <AuthField
             className={styles.name}
             id="event-title"
-            label="Nome do evento *"
+            label={t('Nome do evento *')}
             value={form.title}
-            placeholder="Digite o nome"
+            placeholder={t('Digite o nome')}
             maxLength={100}
             required
             autoFocus
@@ -94,9 +93,9 @@ export function EventForm({
           />
           <AuthField
             id="event-location"
-            label="Local do evento"
+            label={t('Local do evento')}
             value={form.location}
-            placeholder="Informe o local"
+            placeholder={t('Informe o local')}
             maxLength={100}
             error={errors.location}
             onChange={(e) => update('location', e.currentTarget.value)}
@@ -104,29 +103,29 @@ export function EventForm({
           {(['description', 'observation'] as const).map((key) => (
             <div className={`${styles.field} ${styles.full}`} key={key}>
               <label htmlFor={`event-${key}`}>
-                {key === 'description' ? 'Descrição' : 'Observação'}
+                {t(key === 'description' ? 'Descrição' : 'Observação')}
               </label>
               <textarea
                 id={`event-${key}`}
                 value={form[key]}
                 maxLength={300}
-                placeholder="Adicione uma breve descrição…"
+                placeholder={t('Adicione uma breve descrição…')}
                 aria-invalid={Boolean(errors[key])}
                 aria-describedby={errors[key] ? `event-${key}-error` : undefined}
                 onChange={(e) => update(key, e.currentTarget.value)}
               />
               {errors[key] && (
                 <span id={`event-${key}-error`} className={styles.error} role="alert">
-                  {errors[key]}
+                  {t(errors[key] ?? '')}
                 </span>
               )}
             </div>
           ))}
           <AuthField
             id="event-date"
-            label="Data *"
+            label={t('Data *')}
             value={date}
-            placeholder="DD/MM/AAAA"
+            placeholder={t('DD/MM/AAAA')}
             inputMode="numeric"
             maxLength={10}
             required
@@ -138,9 +137,9 @@ export function EventForm({
           />
           <AuthField
             id="event-start"
-            label="Horário de início *"
+            label={t('Horário de início *')}
             value={form.time}
-            placeholder="09:00"
+            placeholder={t('09:00')}
             inputMode="numeric"
             maxLength={5}
             required
@@ -149,9 +148,9 @@ export function EventForm({
           />
           <AuthField
             id="event-end"
-            label="Horário de término *"
+            label={t('Horário de término *')}
             value={form.endTime}
-            placeholder="10:00"
+            placeholder={t('10:00')}
             inputMode="numeric"
             maxLength={5}
             required
@@ -159,13 +158,13 @@ export function EventForm({
             onChange={(e) => update('endTime', e.currentTarget.value)}
           />
           <div className={`${styles.field} ${styles.full}`}>
-            <label htmlFor="event-technician">Técnico responsável</label>
+            <label htmlFor="event-technician">{t('Técnico responsável')}</label>
             <select
               id="event-technician"
               value={form.technicianId}
               onChange={(e) => update('technicianId', e.currentTarget.value)}
             >
-              <option value="">Não atribuído</option>
+              <option value="">{t('Não atribuído')}</option>
               {technicians
                 .filter(
                   (technician) =>
@@ -180,20 +179,21 @@ export function EventForm({
           </div>
         </fieldset>
         <p className={styles.note}>
-          Use dados fictícios. Campos com * são obrigatórios. Data em DD/MM/AAAA e horários em
-          HH:MM; o término deve ser após o início no mesmo dia.
+          {t(
+            'Use dados fictícios. Campos com * são obrigatórios. Data em DD/MM/AAAA e horários em HH:MM; o término deve ser após o início no mesmo dia.',
+          )}
         </p>
         {error && (
           <p className={styles.error} role="alert">
-            {error}
+            {t(error)}
           </p>
         )}
         <div className={styles.actions}>
           <button className={styles.cancel} type="button" onClick={onCancel} disabled={busy}>
-            Cancelar
+            {t('Cancelar')}
           </button>
           <button className={styles.save} type="submit" disabled={busy}>
-            {busy ? 'Salvando…' : 'Salvar'}
+            {t(busy ? 'Salvando…' : 'Salvar')}
           </button>
         </div>
       </form>

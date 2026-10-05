@@ -1,8 +1,8 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Modal } from '@mantine/core'
 import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
 import { EventForm } from '../../components/EventForm'
-import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
 import {
   listEvents,
@@ -11,11 +11,13 @@ import {
   saveEvent,
 } from '../../services/managementService'
 import type { CalendarEvent, Technician } from '../../types/management'
-import { formatDate, monthDays, shiftDate } from '../../utils/calendar'
+import { monthDays, shiftDate } from '../../utils/calendar'
 import common from '../management.module.css'
 import styles from './Calendar.module.css'
 
 export default function Calendar() {
+  const { t, formatDate } = usePreferences()
+
   const [month, setMonth] = useState('2026-03')
   const [selectedDay, setSelectedDay] = useState('2026-03-11')
   const [events, setEvents] = useState<CalendarEvent[]>([])
@@ -145,7 +147,7 @@ export default function Calendar() {
   return (
     <div className={`${common.page} ${styles.page}`}>
       <PageHeader
-        title="Calendário"
+        title={t('Calendário')}
         action={
           <button
             ref={addButtonRef}
@@ -154,26 +156,25 @@ export default function Calendar() {
             onClick={() => openForm()}
             disabled={loading || Boolean(loadError)}
           >
-            Adicionar evento
+            {t('Adicionar evento')}
           </button>
         }
       />
-      <DemoBadge>Dados demonstrativos · alterações nesta sessão</DemoBadge>
       {notice && (
         <p role="status" className={common.status}>
-          {notice}
+          {t(notice)}
         </p>
       )}
       {error && !formOpen && (
         <p role="alert" className={common.error}>
-          {error}
+          {t(error)}
         </p>
       )}
       {loading ? (
-        <p role="status">Carregando calendário…</p>
+        <p role="status">{t('Carregando calendário…')}</p>
       ) : loadError ? (
         <div role="alert" className={common.error}>
-          <p>{loadError}</p>
+          <p>{t(loadError)}</p>
           <button
             className={common.secondary}
             type="button"
@@ -183,28 +184,30 @@ export default function Calendar() {
               setLoadAttempt((current) => current + 1)
             }}
           >
-            Tentar novamente
+            {t('Tentar novamente')}
           </button>
         </div>
       ) : (
         <div className={styles.calendarLayout}>
           <section
             className={`${common.panel} ${styles.calendarPanel}`}
-            aria-label="Calendário mensal"
+            aria-label={t('Calendário mensal')}
           >
             <div className={styles.monthHeader}>
-              <button type="button" onClick={() => changeMonth(-1)} aria-label="Mês anterior">
+              <button type="button" onClick={() => changeMonth(-1)} aria-label={t('Mês anterior')}>
                 <ChevronLeft size={19} />
               </button>
               <h2 aria-live="polite">
                 {formatDate(`${month}-01`, { month: 'long', year: 'numeric' })}
               </h2>
-              <button type="button" onClick={() => changeMonth(1)} aria-label="Próximo mês">
+              <button type="button" onClick={() => changeMonth(1)} aria-label={t('Próximo mês')}>
                 <ChevronRight size={19} />
               </button>
             </div>
-            <div ref={calendarRef} className={styles.calendarGrid} aria-label="Dias do mês">
-              {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
+            <div ref={calendarRef} className={styles.calendarGrid} aria-label={t('Dias do mês')}>
+              {Array.from({ length: 7 }, (_, index) =>
+                formatDate(shiftDate('2026-03-01', index), { weekday: 'short' }),
+              ).map((day) => (
                 <span className={styles.weekday} key={day}>
                   {day}
                 </span>
@@ -217,7 +220,7 @@ export default function Calendar() {
                   tabIndex={date === selectedDay ? 0 : -1}
                   onKeyDown={(event) => moveDay(event, date)}
                   className={`${styles.day} ${date.slice(0, 7) !== month ? styles.outside : ''}`}
-                  aria-label={`${formatDate(date, { dateStyle: 'full' })}${events.some((item) => item.date === date) ? ', com evento' : ''}`}
+                  aria-label={`${formatDate(date, { dateStyle: 'full' })}${events.some((item) => item.date === date) ? t(', com evento') : ''}`}
                   aria-pressed={date === selectedDay}
                   onClick={() => {
                     setSelectedDay(date)
@@ -234,7 +237,8 @@ export default function Calendar() {
           </section>
           <section className={styles.eventsPanel} aria-labelledby="day-events">
             <h2 id="day-events">
-              Eventos do dia · {formatDate(selectedDay, { dateStyle: 'long' })}
+              {t('Eventos do dia ·')}
+              {formatDate(selectedDay, { dateStyle: 'long' })}
             </h2>
             {selectedEvents.length ? (
               <div className={styles.eventList}>
@@ -250,21 +254,29 @@ export default function Calendar() {
                         {item.time}–{item.endTime}
                       </time>
                       <details className={styles.details}>
-                        <summary>Ver detalhes</summary>
-                        {item.location && <p>Local: {item.location}</p>}
-                        <p>{item.description || 'Sem descrição.'}</p>
-                        {item.observation && <p>Observação: {item.observation}</p>}
+                        <summary>{t('Ver detalhes')}</summary>
+                        {item.location && (
+                          <p>
+                            {t('Local:')} {item.location}
+                          </p>
+                        )}
+                        <p>{item.description || t('Sem descrição.')}</p>
+                        {item.observation && (
+                          <p>
+                            {t('Observação:')} {item.observation}
+                          </p>
+                        )}
                         <p className={common.muted}>
-                          Técnico:{' '}
+                          {t('Técnico:')}{' '}
                           {technicians.find((tech) => tech.id === item.technicianId)?.name ??
-                            'Não atribuído'}
+                            t('Não atribuído')}
                         </p>
                       </details>
                     </div>
                     <div className={common.actions}>
                       <button
                         className={styles.iconButton}
-                        aria-label={`Editar evento ${item.title}`}
+                        aria-label={t('Editar evento {name}', { name: item.title })}
                         type="button"
                         onClick={() => openForm(item)}
                       >
@@ -272,7 +284,7 @@ export default function Calendar() {
                       </button>
                       <button
                         className={`${styles.iconButton} ${styles.delete}`}
-                        aria-label={`Excluir evento ${item.title}`}
+                        aria-label={t('Excluir evento {name}', { name: item.title })}
                         type="button"
                         onClick={() => setDeleting(item)}
                       >
@@ -283,7 +295,7 @@ export default function Calendar() {
                 ))}
               </div>
             ) : (
-              <p className={common.empty}>Nenhum evento neste dia.</p>
+              <p className={common.empty}>{t('Nenhum evento neste dia.')}</p>
             )}
           </section>
         </div>
@@ -291,17 +303,19 @@ export default function Calendar() {
       <Modal
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
-        title="Excluir evento?"
-        closeButtonProps={{ 'aria-label': 'Fechar confirmação de exclusão do evento' }}
+        title={t('Excluir evento?')}
+        closeButtonProps={{ 'aria-label': t('Fechar confirmação de exclusão do evento') }}
         centered
       >
-        <p>Excluir {deleting?.title} desta sessão de demonstração?</p>
+        <p>
+          {t('Excluir')} {deleting?.title} {t('desta sessão de demonstração?')}
+        </p>
         <div className={common.formActions}>
           <button className={common.secondary} type="button" onClick={() => setDeleting(null)}>
-            Cancelar
+            {t('Cancelar')}
           </button>
           <button className={common.danger} type="button" onClick={confirmDelete} disabled={busy}>
-            {busy ? 'Excluindo…' : 'Excluir'}
+            {t(busy ? 'Excluindo…' : 'Excluir')}
           </button>
         </div>
       </Modal>

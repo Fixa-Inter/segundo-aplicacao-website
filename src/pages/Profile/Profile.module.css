@@ -51,7 +51,7 @@
   align-items: center;
   gap: 14px;
   font-size: 16px;
-  color: #4c5461;
+  color: var(--fixa-muted);
 }
 .information p svg {
   flex: none;
@@ -114,7 +114,7 @@
   grid-column: span 2;
 }
 .form label {
-  color: #153d7d;
+  color: var(--fixa-text-primary);
   font-size: 20px;
 }
 .form input {
@@ -122,11 +122,11 @@
   padding: 14px 20px;
   border: 1px solid transparent;
   border-radius: 25px;
-  background: #f3f4f9;
+  background: var(--fixa-field-bg);
   font-size: 16px;
 }
 .form input[aria-invalid='true'] {
-  border-color: #96031a;
+  border-color: var(--fixa-danger-text);
 }
 @media (min-width: 901px) {
   .page {

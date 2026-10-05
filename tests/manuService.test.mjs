@@ -9,6 +9,19 @@ import {
   subscribeDemoConversations,
 } from '../src/services/manuService.ts'
 
+test('respostas guiadas reconhecem perguntas sugeridas nos quatro idiomas', async () => {
+  for (const question of [
+    'Como cadastrar um técnico?',
+    'How do I register a technician?',
+    '¿Cómo registro un técnico?',
+    '如何注册技术人员？',
+  ]) {
+    assert.match(await getDemoReply(question), /Na página Equipe/)
+  }
+  assert.match(await getDemoReply('如何安排事件？'), /No Calendário/)
+  assert.match(await getDemoReply('How do I view indicators?'), /O Dashboard/)
+})
+
 test('histórico em memória preserva cópias e somente metadados de anexos', async () => {
   clearDemoConversations()
   const snapshot = beginDemoMessage('teste', 'Como agendar um evento?', [

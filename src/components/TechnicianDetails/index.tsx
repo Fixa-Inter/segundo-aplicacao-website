@@ -1,9 +1,8 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef } from 'react'
 import { ArrowLeft, CalendarDays, Mail, MapPin, Phone } from 'lucide-react'
-import { DemoBadge } from '../DemoBadge'
 import type { PerformancePeriod } from '../../types/management'
 import type { TechnicianDetailsProps } from '../../types/ui'
-import { formatDate } from '../../utils/calendar'
 import styles from './TechnicianDetails.module.css'
 
 export function TechnicianDetails({
@@ -16,6 +15,8 @@ export function TechnicianDetails({
   error,
   onPeriodChange,
 }: TechnicianDetailsProps) {
+  const { t, formatDate } = usePreferences()
+
   const headingRef = useRef<HTMLHeadingElement>(null)
   useEffect(() => {
     headingRef.current?.focus()
@@ -36,7 +37,7 @@ export function TechnicianDetails({
         type="button"
         className={styles.back}
         onClick={onBack}
-        aria-label="Voltar para equipe"
+        aria-label={t('Voltar para equipe')}
       >
         <ArrowLeft size={28} />
       </button>
@@ -52,15 +53,16 @@ export function TechnicianDetails({
           <h1 ref={headingRef} tabIndex={-1}>
             {technician.name}
           </h1>
-          <p>Técnico · {technician.specialty}</p>
+          <p>
+            {t('Técnico ·')} {technician.specialty}
+          </p>
         </div>
         <button type="button" className={styles.edit} onClick={onEdit}>
-          Editar técnico
+          {t('Editar técnico')}
         </button>
       </div>
-      <DemoBadge>Cadastro e desempenho demonstrativos</DemoBadge>
-      <section className={styles.information} aria-label="Informações do técnico">
-        <h2>Informações</h2>
+      <section className={styles.information} aria-label={t('Informações do técnico')}>
+        <h2>{t('Informações')}</h2>
         <div>
           <p>
             <Mail aria-hidden="true" />
@@ -76,20 +78,22 @@ export function TechnicianDetails({
           </p>
           <p>
             <MapPin aria-hidden="true" />
-            {address} · CEP {technician.postalCode}
+            {address} {t('· CEP')} {technician.postalCode}
             {technician.complement && ` · ${technician.complement}`}
           </p>
         </div>
         <p className={styles.note}>
-          Acesso: {technician.accessType} · Turno: {technician.shift} · Situação:{' '}
-          {technician.status}. Endereço herdado do gestor.
+          {t('Acesso:')}
+          {t(technician.accessType)} {t('· Turno:')} {technician.shift} {t('· Situação:')}{' '}
+          {t(technician.status)}
+          {t('. Endereço herdado do gestor.')}
         </p>
       </section>
       <section className={styles.performance} aria-labelledby="performance-title">
         <div className={styles.toolbar}>
-          <h2 id="performance-title">Desempenho</h2>
+          <h2 id="performance-title">{t('Desempenho')}</h2>
           <label htmlFor="technician-performance-period">
-            Período
+            {t('Período')}
             <select
               id="technician-performance-period"
               value={period}
@@ -97,15 +101,15 @@ export function TechnicianDetails({
                 onPeriodChange(event.currentTarget.value as PerformancePeriod)
               }}
             >
-              <option value="week">Última semana</option>
-              <option value="month">Último mês</option>
+              <option value="week">{t('Última semana')}</option>
+              <option value="month">{t('Último mês')}</option>
             </select>
           </label>
         </div>
         {loading ? (
-          <p role="status">Carregando desempenho…</p>
+          <p role="status">{t('Carregando desempenho…')}</p>
         ) : error ? (
-          <p role="alert">{error}</p>
+          <p role="alert">{t(error)}</p>
         ) : points.length ? (
           <>
             <div
@@ -114,12 +118,12 @@ export function TechnicianDetails({
               aria-label={points
                 .map(
                   (point) =>
-                    `${point.label}: ${point.completed} concluídas, ${point.active} em andamento e ${point.late} atrasadas`,
+                    `${t(point.label)}: ${point.completed} concluídas, ${point.active} em andamento e ${point.late} atrasadas`,
                 )
                 .join('; ')}
             >
               {points.map((point) => (
-                <div className={styles.column} key={point.label}>
+                <div className={styles.column} key={t(point.label)}>
                   <span className={styles.total}>
                     {point.completed + point.active + point.late}
                   </span>
@@ -133,30 +137,30 @@ export function TechnicianDetails({
                     <div className={styles.active} style={{ flex: point.active }} />
                     <div className={styles.completed} style={{ flex: point.completed }} />
                   </div>
-                  <span>{point.label}</span>
+                  <span>{t(point.label)}</span>
                 </div>
               ))}
             </div>
             <div className={styles.legend}>
               <span>
                 <i className={styles.completed} />
-                Concluídas
+                {t('Concluídas')}
               </span>
               <span>
                 <i className={styles.active} />
-                Em andamento
+                {t('Em andamento')}
               </span>
               <span>
                 <i className={styles.late} />
-                Atrasadas
+                {t('Atrasadas')}
               </span>
             </div>
             <p className={styles.note}>
-              Fixture sintética, sem vínculo com chamados reais ou eventos do calendário.
+              {t('Fixture sintética, sem vínculo com chamados reais ou eventos do calendário.')}
             </p>
           </>
         ) : (
-          <p>Nenhum registro de desempenho neste período.</p>
+          <p>{t('Nenhum registro de desempenho neste período.')}</p>
         )}
       </section>
     </div>

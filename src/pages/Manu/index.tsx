@@ -1,6 +1,6 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowUp, Paperclip, Plus, Search, X } from 'lucide-react'
-import { DemoBadge } from '../../components/DemoBadge'
 import { useAuth } from '../../contexts/useAuth'
 import {
   beginDemoMessage,
@@ -14,6 +14,8 @@ import common from '../management.module.css'
 import styles from './Manu.module.css'
 
 export default function Manu() {
+  const { t } = usePreferences()
+
   const { user } = useAuth()
   const [conversations, setConversations] = useState(listDemoConversations)
   const [activeId, setActiveId] = useState<string | null>(
@@ -72,15 +74,15 @@ export default function Manu() {
 
   return (
     <div className={styles.page}>
-      <aside className={styles.history} aria-label="Conversas da Manu">
-        <h1>Manu</h1>
+      <aside className={styles.history} aria-label={t('Conversas da Manu')}>
+        <h1>{t('Manu')}</h1>
         <label htmlFor="manu-search" className={styles.search}>
-          <span className={styles.srOnly}>Pesquisar conversas</span>
+          <span className={styles.srOnly}>{t('Pesquisar conversas')}</span>
           <Search size={14} aria-hidden="true" />
           <input
             id="manu-search"
             type="search"
-            placeholder="Pesquisar"
+            placeholder={t('Pesquisar')}
             value={query}
             maxLength={50}
             onChange={(event) => setQuery(event.target.value)}
@@ -92,11 +94,11 @@ export default function Manu() {
           onClick={newChat}
           disabled={busy || !activeId}
         >
-          <Plus size={17} aria-hidden="true" /> Novo chat
+          <Plus size={17} aria-hidden="true" /> {t('Novo chat')}
         </button>
-        <h2>Recentes</h2>
+        <h2>{t('Recentes')}</h2>
         {filtered.length ? (
-          <nav aria-label="Conversas recentes">
+          <nav aria-label={t('Conversas recentes')}>
             {filtered.map((item) => (
               <button
                 className={styles.conversation}
@@ -115,17 +117,19 @@ export default function Manu() {
           </nav>
         ) : (
           <p className={common.muted}>
-            {query ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa nesta sessão.'}
+            {t(query ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa nesta sessão.')}
           </p>
         )}
       </aside>
-      <section className={styles.chat} aria-label="Conversa com Manu">
-        <DemoBadge>Respostas guiadas · sem IA conectada · histórico só nesta sessão</DemoBadge>
+      <section className={styles.chat} aria-label={t('Conversa com Manu')}>
         <div
           className={`${styles.welcome} ${active?.messages.length ? styles.welcomeCompact : ''}`}
         >
-          <img src={manu} alt="Manu, assistente do FIXA" width="240" height="240" />
-          <h2>Olá {user?.name ?? 'gestor'}, como posso te ajudar hoje?</h2>
+          <img src={manu} alt={t('Manu, assistente do FIXA')} width="240" height="240" />
+          <h2>
+            {t('Olá')} {user?.name ?? 'gestor'}
+            {t(', como posso te ajudar hoje?')}
+          </h2>
         </div>
         {active?.messages.length ? (
           <div
@@ -140,22 +144,29 @@ export default function Manu() {
                 key={item.id}
                 className={`${styles.bubble} ${item.author === 'user' ? styles.user : styles.assistant}`}
               >
-                <strong>{item.author === 'user' ? 'Você' : 'Manu'}</strong>
-                <p>{item.text}</p>
+                <strong>{t(item.author === 'user' ? 'Você' : 'Manu')}</strong>
+                <p>
+                  {item.author === 'user'
+                    ? item.text
+                    : item.text
+                        .split('\n')
+                        .map((line) => t(line))
+                        .join('\n')}
+                </p>
                 {item.attachments?.map((attachment) => (
                   <small className={styles.attachmentName} key={attachment.id}>
-                    <Paperclip size={14} aria-hidden="true" /> {attachment.name} · somente nome e
-                    tamanho
+                    <Paperclip size={14} aria-hidden="true" /> {attachment.name}{' '}
+                    {t('· somente nome e tamanho')}
                   </small>
                 ))}
               </div>
             ))}
-            {busy && <p role="status">Manu está preparando uma resposta demonstrativa…</p>}
+            {busy && <p role="status">{t('Manu está preparando uma resposta demonstrativa…')}</p>}
           </div>
         ) : null}
         {error && (
           <p role="alert" className={common.error}>
-            {error}
+            {t(error)}
           </p>
         )}
         <form
@@ -170,14 +181,14 @@ export default function Manu() {
           }}
         >
           <label className={styles.srOnly} htmlFor="manu-message">
-            Mensagem para Manu
+            {t('Mensagem para Manu')}
           </label>
           <textarea
             ref={messageRef}
             id="manu-message"
             value={message}
             maxLength={500}
-            placeholder="Como posso te ajudar hoje?"
+            placeholder={t('Como posso te ajudar hoje?')}
             onChange={(event) => setMessage(event.target.value)}
             onKeyDown={(event) => {
               if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
@@ -191,11 +202,11 @@ export default function Manu() {
               {attachments.map((attachment) => (
                 <li key={attachment.id}>
                   <span>
-                    {attachment.name} ({Math.ceil(attachment.size / 1024)} KB)
+                    {attachment.name} ({Math.ceil(attachment.size / 1024)} {t('KB)')}
                   </span>
                   <button
                     type="button"
-                    aria-label={`Remover anexo ${attachment.name}`}
+                    aria-label={t('Remover anexo {name}', { name: attachment.name })}
                     onClick={() =>
                       setAttachments((items) => items.filter((item) => item.id !== attachment.id))
                     }
@@ -210,7 +221,7 @@ export default function Manu() {
             <button
               ref={suggestionsRef}
               type="button"
-              aria-label="Sugestões de perguntas"
+              aria-label={t('Sugestões de perguntas')}
               aria-expanded={suggestionsOpen}
               aria-controls="manu-suggestions"
               onClick={() => setSuggestionsOpen((current) => !current)}
@@ -219,7 +230,7 @@ export default function Manu() {
             </button>
             <button
               type="button"
-              aria-label="Adicionar anexo demonstrativo"
+              aria-label={t('Adicionar anexo demonstrativo')}
               disabled={attachments.length >= 3 || busy}
               onClick={() => fileRef.current?.click()}
             >
@@ -231,7 +242,7 @@ export default function Manu() {
               className={styles.srOnly}
               type="file"
               tabIndex={-1}
-              aria-label="Arquivo demonstrativo"
+              aria-label={t('Arquivo demonstrativo')}
               accept="image/png,image/jpeg,image/webp,application/pdf,text/plain"
               onChange={(event) => {
                 const file = event.currentTarget.files?.[0]
@@ -260,14 +271,14 @@ export default function Manu() {
               }}
             />
             <label htmlFor="manu-file" className={styles.srOnly}>
-              Arquivo demonstrativo
+              {t('Arquivo demonstrativo')}
             </label>
             <small>{message.length}/500</small>
             <button
               className={styles.send}
               type="submit"
               disabled={busy || !message.trim()}
-              aria-label="Enviar mensagem"
+              aria-label={t('Enviar mensagem')}
             >
               <ArrowUp size={20} />
             </button>
@@ -280,23 +291,24 @@ export default function Manu() {
                 'Como consultar indicadores?',
               ].map((text) => (
                 <button
-                  key={text}
+                  key={t(text)}
                   type="button"
                   onClick={() => {
-                    setMessage(text)
+                    setMessage(t(text))
                     setSuggestionsOpen(false)
                     messageRef.current?.focus()
                   }}
                 >
-                  {text}
+                  {t(text)}
                 </button>
               ))}
             </div>
           )}
         </form>
         <p className={styles.note}>
-          Ctrl + Enter para enviar. Anexos: até 3 arquivos de 5 MB; somente nome e tamanho ficam na
-          sessão. Nenhum conteúdo é lido, enviado ou analisado.
+          {t(
+            'Ctrl + Enter para enviar. Anexos: até 3 arquivos de 5 MB; somente nome e tamanho ficam na sessão. Nenhum conteúdo é lido, enviado ou analisado.',
+          )}
         </p>
       </section>
     </div>

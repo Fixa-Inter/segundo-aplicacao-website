@@ -1,13 +1,13 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Modal } from '@mantine/core'
 import { CalendarDays, Mail, MapPin, Phone } from 'lucide-react'
-import { DemoBadge } from '../../components/DemoBadge'
 import { PageHeader } from '../../components/PageHeader'
 import { getProfile, saveProfile } from '../../services/managementService'
 import { useAuth } from '../../contexts/useAuth'
 import type { ManagerProfile } from '../../types/management'
 import { validateDemoPassword, validateProfile } from '../../utils/managementValidation'
-import { formatDate, parseDateInput } from '../../utils/calendar'
+import { formatDate as formatDateInput, parseDateInput } from '../../utils/calendar'
 import avatar from '../../assets/figma/avatar.png'
 import common from '../management.module.css'
 import styles from './Profile.module.css'
@@ -42,6 +42,8 @@ const fields: { key: keyof ManagerProfile; label: string; type?: string; maxLeng
 ]
 
 export default function Profile() {
+  const { t, formatDate } = usePreferences()
+
   const { updateName } = useAuth()
   const [profile, setProfile] = useState<ManagerProfile>(empty)
   const [loading, setLoading] = useState(true)
@@ -161,29 +163,22 @@ export default function Profile() {
 
   return (
     <div className={`${common.page} ${styles.page}`}>
-      <PageHeader
-        title={editing ? 'Editar Perfil' : 'Perfil'}
-        action={
-          <span className={styles.headerBadge}>
-            <DemoBadge>Conta demonstrativa</DemoBadge>
-          </span>
-        }
-      />
+      <PageHeader title={t(editing ? 'Editar Perfil' : 'Perfil')} />
       {notice && (
         <p role="status" className={common.status}>
-          {notice}
+          {t(notice)}
         </p>
       )}
       {error && !passwordOpen && (
         <p role="alert" className={common.error}>
-          {error}
+          {t(error)}
         </p>
       )}
       {loading ? (
-        <p role="status">Carregando perfil…</p>
+        <p role="status">{t('Carregando perfil…')}</p>
       ) : loadError ? (
         <div role="alert" className={common.error}>
-          <p>{loadError}</p>
+          <p>{t(loadError)}</p>
           <button
             className={common.secondary}
             type="button"
@@ -193,16 +188,18 @@ export default function Profile() {
               setLoadAttempt((current) => current + 1)
             }}
           >
-            Tentar novamente
+            {t('Tentar novamente')}
           </button>
         </div>
       ) : (
         <>
           <div className={styles.identity}>
-            <img src={avatar} width="88" height="88" alt="Avatar ilustrativo do perfil" />
+            <img src={avatar} width="88" height="88" alt={t('Avatar ilustrativo do perfil')} />
             <div>
               <h2>{profile.name}</h2>
-              <p>Gestor · {profile.company}</p>
+              <p>
+                {t('Gestor ·')} {profile.company}
+              </p>
             </div>
             {!editing && (
               <button
@@ -213,7 +210,7 @@ export default function Profile() {
                   setPasswordOpen(true)
                 }}
               >
-                Alterar senha
+                {t('Alterar senha')}
               </button>
             )}
           </div>
@@ -222,14 +219,14 @@ export default function Profile() {
               <div className={styles.profileGrid}>
                 {fields.map((field) => (
                   <div className={`${common.field} ${styles[field.key]}`} key={field.key}>
-                    <label htmlFor={`profile-${field.key}`}>{field.label}</label>
+                    <label htmlFor={`profile-${field.key}`}>{t(field.label)}</label>
                     <input
                       id={`profile-${field.key}`}
                       disabled={busy}
                       type={field.type ?? 'text'}
                       maxLength={field.maxLength}
                       value={field.key === 'birthDate' ? birthDateText : profile[field.key]}
-                      placeholder={field.key === 'birthDate' ? 'DD/MM/AAAA' : undefined}
+                      placeholder={field.key === 'birthDate' ? t('DD/MM/AAAA') : undefined}
                       inputMode={field.key === 'birthDate' ? 'numeric' : undefined}
                       aria-invalid={Boolean(fieldErrors[field.key])}
                       aria-describedby={
@@ -247,7 +244,7 @@ export default function Profile() {
                     />
                     {fieldErrors[field.key] && (
                       <span id={`profile-${field.key}-error`} role="alert" className={common.error}>
-                        {fieldErrors[field.key]}
+                        {t(fieldErrors[field.key] ?? '')}
                       </span>
                     )}
                   </div>
@@ -264,16 +261,16 @@ export default function Profile() {
                   }}
                   disabled={busy}
                 >
-                  Cancelar
+                  {t('Cancelar')}
                 </button>
                 <button className={common.primary} type="submit" disabled={busy}>
-                  {busy ? 'Salvando…' : 'Salvar'}
+                  {t(busy ? 'Salvando…' : 'Salvar')}
                 </button>
               </div>
             </form>
           ) : (
-            <section className={styles.information} aria-label="Informações do perfil">
-              <h3>Informações</h3>
+            <section className={styles.information} aria-label={t('Informações do perfil')}>
+              <h3>{t('Informações')}</h3>
               <div>
                 <p>
                   <Mail size={18} aria-hidden="true" />
@@ -287,7 +284,7 @@ export default function Profile() {
                   <CalendarDays size={18} aria-hidden="true" />
                   {profile.birthDate
                     ? formatDate(profile.birthDate, { dateStyle: 'long' })
-                    : 'Não informado'}
+                    : t('Não informado')}
                 </p>
                 <p>
                   <MapPin size={18} aria-hidden="true" />
@@ -301,12 +298,14 @@ export default function Profile() {
                 onClick={() => {
                   setError('')
                   setBirthDateText(
-                    profile.birthDate ? formatDate(profile.birthDate, { dateStyle: 'short' }) : '',
+                    profile.birthDate
+                      ? formatDateInput(profile.birthDate, { dateStyle: 'short' })
+                      : '',
                   )
                   setEditing(true)
                 }}
               >
-                Editar perfil
+                {t('Editar perfil')}
               </button>
             </section>
           )}
@@ -315,18 +314,20 @@ export default function Profile() {
       <Modal
         opened={passwordOpen}
         onClose={closePassword}
-        title="Trocar senha"
-        closeButtonProps={{ 'aria-label': 'Fechar demonstração de troca de senha' }}
+        title={t('Trocar senha')}
+        closeButtonProps={{ 'aria-label': t('Fechar demonstração de troca de senha') }}
         centered
       >
-        <p className={common.muted}>Demonstração de validação. Nenhuma senha real será alterada.</p>
         <p className={common.muted}>
-          Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial.
+          {t('Demonstração de validação. Nenhuma senha real será alterada.')}
+        </p>
+        <p className={common.muted}>
+          {t('Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial.')}
         </p>
         <form onSubmit={validatePassword} noValidate>
           <div className={styles.passwordFields}>
             <label htmlFor="profile-password-current" className={common.field}>
-              Senha atual
+              {t('Senha atual')}
               <input
                 id="profile-password-current"
                 type="password"
@@ -339,7 +340,7 @@ export default function Profile() {
               />
             </label>
             <label htmlFor="profile-password-next" className={common.field}>
-              Nova senha
+              {t('Nova senha')}
               <input
                 id="profile-password-next"
                 type="password"
@@ -352,7 +353,7 @@ export default function Profile() {
               />
             </label>
             <label htmlFor="profile-password-confirmation" className={common.field}>
-              Confirmar nova senha
+              {t('Confirmar nova senha')}
               <input
                 id="profile-password-confirmation"
                 type="password"
@@ -367,15 +368,15 @@ export default function Profile() {
           </div>
           {error && (
             <p role="alert" className={common.error}>
-              {error}
+              {t(error)}
             </p>
           )}
           <div className={common.formActions}>
             <button className={common.secondary} type="button" onClick={closePassword}>
-              Cancelar
+              {t('Cancelar')}
             </button>
             <button className={common.primary} type="submit">
-              Validar formulário
+              {t('Validar formulário')}
             </button>
           </div>
         </form>

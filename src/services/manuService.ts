@@ -91,13 +91,13 @@ export async function getDemoReply(question: string): Promise<string> {
     throw new Error('A mensagem deve ter de 1 a 500 caracteres.')
   await new Promise<void>((resolve) => setTimeout(resolve, 300))
   const text = question.toLocaleLowerCase('pt-BR')
-  if (/solicita|chamado|pedido/.test(text))
+  if (/solicita|chamado|pedido|request|ticket|请求|工单/.test(text))
     return 'Para acompanhar uma solicitação, consulte o calendário e a equipe responsável. A abertura de chamados depende da API do FIXA.'
-  if (/técnic|equipe/.test(text))
+  if (/técnic|equipe|technician|team|equipo|技术|团队/.test(text))
     return 'Na página Equipe você pode buscar técnicos e simular cadastros, edições e exclusões nesta sessão.'
-  if (/calend|evento|agend/.test(text))
+  if (/calend|evento|agend|event|日历|事件|安排/.test(text))
     return 'No Calendário você pode selecionar uma data e simular a criação, edição ou exclusão de eventos.'
-  if (/indicador|dashboard|relatório/.test(text))
+  if (/indicador|dashboard|relatório|indicator|指标|看板/.test(text))
     return 'O Dashboard mostra indicadores demonstrativos com filtros de período. A conexão com dados reais depende do backend e da camada de BI.'
   return 'Posso orientar sobre equipe, calendário, solicitações e indicadores do FIXA. Esta é uma resposta guiada de demonstração, sem IA conectada.'
 }

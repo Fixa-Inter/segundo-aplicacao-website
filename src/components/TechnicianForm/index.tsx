@@ -1,10 +1,10 @@
+import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import type { Address, TechnicianInput } from '../../types/management'
 import type { TechnicianFormProps } from '../../types/ui'
 import { validateDemoPassword, validateTechnician } from '../../utils/managementValidation'
 import { formatDate, parseDateInput } from '../../utils/calendar'
-import { DemoBadge } from '../DemoBadge'
 import styles from './TechnicianForm.module.css'
 
 const fields: {
@@ -38,6 +38,8 @@ export function TechnicianForm({
   onSaved,
   onCancel,
 }: TechnicianFormProps) {
+  const { t } = usePreferences()
+
   const [form, setForm] = useState<TechnicianInput>({
     name: technician?.name ?? '',
     birthDate: technician?.birthDate ?? '',
@@ -62,7 +64,7 @@ export function TechnicianForm({
     const id = `technician-${field.key}`
     return (
       <div className={`${styles.field} ${styles[field.key]}`} key={field.key}>
-        <label htmlFor={id}>{field.label} *</label>
+        <label htmlFor={id}>{t(field.label)} *</label>
         <input
           id={id}
           type={field.type ?? 'text'}
@@ -74,7 +76,7 @@ export function TechnicianForm({
           inputMode={field.key === 'birthDate' ? 'numeric' : undefined}
           placeholder={
             field.key === 'birthDate'
-              ? 'DD/MM/AAAA'
+              ? t('DD/MM/AAAA')
               : field.key === 'shift'
                 ? '08:00 - 16:00'
                 : undefined
@@ -90,7 +92,7 @@ export function TechnicianForm({
         />
         {errors[field.key] && (
           <span id={`${id}-error`} className={styles.error} role="alert">
-            {errors[field.key]}
+            {t(errors[field.key] ?? '')}
           </span>
         )}
       </div>
@@ -132,27 +134,24 @@ export function TechnicianForm({
         type="button"
         onClick={onCancel}
         disabled={busy}
-        aria-label="Voltar para equipe"
+        aria-label={t('Voltar para equipe')}
       >
         <ArrowLeft size={28} />
       </button>
       <h1 className={styles.title}>
-        <span>{technician ? 'Edite' : 'Adicione um novo'}</span>{' '}
-        {technician ? technician.name : 'funcionário'}
+        <span>{t(technician ? 'Edite' : 'Adicione um novo')}</span>{' '}
+        {technician ? technician.name : t('funcionário')}
       </h1>
-      <span className={styles.demoBadge}>
-        <DemoBadge>Cadastro demonstrativo · dados desta sessão</DemoBadge>
-      </span>
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
         <fieldset disabled={busy}>
           <legend className={styles.srOnly}>
-            Informações do técnico e endereço herdado do gestor
+            {t('Informações do técnico e endereço herdado do gestor')}
           </legend>
           <div className={`${styles.grid} ${technician ? styles.edit : ''}`}>
             {fields.slice(0, 3).map(renderField)}
             {!technician && (
               <div className={`${styles.field} ${styles.password}`}>
-                <label htmlFor="technician-password">Senha de demonstração *</label>
+                <label htmlFor="technician-password">{t('Senha de demonstração *')}</label>
                 <span className={styles.passwordField}>
                   <input
                     id="technician-password"
@@ -170,11 +169,11 @@ export function TechnicianForm({
                   />
                   <button
                     type="button"
-                    aria-label={
+                    aria-label={t(
                       passwordVisible
                         ? 'Ocultar senha de demonstração'
-                        : 'Mostrar senha de demonstração'
-                    }
+                        : 'Mostrar senha de demonstração',
+                    )}
                     aria-pressed={passwordVisible}
                     onClick={() => setPasswordVisible((current) => !current)}
                   >
@@ -186,23 +185,23 @@ export function TechnicianForm({
                   className={styles.error}
                   role={passwordError ? 'alert' : undefined}
                 >
-                  {passwordError}
+                  {t(passwordError ?? '')}
                 </span>
               </div>
             )}
             {renderField(fields[3])}
             <div className={`${styles.field} ${styles.access}`}>
-              <label htmlFor="technician-access">Tipo de acesso</label>
+              <label htmlFor="technician-access">{t('Tipo de acesso')}</label>
               <input
                 id="technician-access"
-                value="TÉCNICO"
+                value={t('TÉCNICO')}
                 readOnly
                 aria-describedby="technician-access-note"
               />
             </div>
             {addressFields.map((field) => (
               <div className={`${styles.field} ${styles[field.key]}`} key={field.key}>
-                <label htmlFor={`technician-${field.key}`}>{field.label}</label>
+                <label htmlFor={`technician-${field.key}`}>{t(field.label)}</label>
                 <input
                   id={`technician-${field.key}`}
                   value={manager[field.key]}
@@ -215,29 +214,31 @@ export function TechnicianForm({
         </fieldset>
         <div className={styles.rules}>
           <p className={styles.note}>
-            Use dados fictícios. Nenhuma conta ou senha real será criada. Os campos com * são
-            obrigatórios nesta demonstração.
+            {t(
+              'Use dados fictícios. Nenhuma conta ou senha real será criada. Os campos com * são obrigatórios nesta demonstração.',
+            )}
           </p>
           {!technician && (
             <p id="technician-password-rule" className={styles.note}>
-              Senha: regra provisória de no mínimo 8 caracteres, maiúscula, minúscula e símbolo
-              especial. A senha não é armazenada.
+              {t(
+                'Senha: regra provisória de no mínimo 8 caracteres, maiúscula, minúscula e símbolo especial. A senha não é armazenada.',
+              )}
             </p>
           )}
           <p id="technician-access-note" className={styles.note}>
-            O tipo TÉCNICO é definido automaticamente pelo cadastro do gestor.
+            {t('O tipo TÉCNICO é definido automaticamente pelo cadastro do gestor.')}
           </p>
           <p id="technician-address-note" className={styles.note}>
-            O endereço de {manager.name} será aplicado ao salvar e não pode ser alterado neste
-            cadastro.
+            {t('O endereço de')}
+            {manager.name} {t('será aplicado ao salvar e não pode ser alterado neste cadastro.')}
           </p>
         </div>
         <fieldset disabled={busy}>
-          <legend>Informações operacionais da demonstração</legend>
+          <legend>{t('Informações operacionais da demonstração')}</legend>
           <div className={styles.operational}>
             {fields.slice(4).map(renderField)}
             <div className={styles.field}>
-              <label htmlFor="technician-status">Situação</label>
+              <label htmlFor="technician-status">{t('Situação')}</label>
               <select
                 id="technician-status"
                 value={form.status}
@@ -248,23 +249,23 @@ export function TechnicianForm({
                   }))
                 }
               >
-                <option>Ativo</option>
-                <option>Inativo</option>
+                <option value="Ativo">{t('Ativo')}</option>
+                <option value="Inativo">{t('Inativo')}</option>
               </select>
             </div>
           </div>
         </fieldset>
         {error && (
           <p role="alert" className={styles.error}>
-            {error}
+            {t(error)}
           </p>
         )}
         <div className={styles.actions}>
           <button className={styles.cancel} type="button" onClick={onCancel} disabled={busy}>
-            Cancelar
+            {t('Cancelar')}
           </button>
           <button className={styles.save} type="submit" disabled={busy}>
-            {busy ? 'Salvando…' : 'Salvar'}
+            {t(busy ? 'Salvando…' : 'Salvar')}
           </button>
         </div>
       </form>
