@@ -170,3 +170,24 @@ O Dashboard foi levado ao fim com `Ctrl + End` em 1280 × 720: somente o conteú
 Os selects continuam nativos, com uma única seta centralizada verticalmente a 14 px da borda direita e 42 px reservados para evitar colisão com o texto. O filtro Situação da Equipe e a Situação do cadastro foram alterados por teclado; no celular o dropdown abriu normalmente. A regra também se aplica aos selects do Dashboard, do formulário de evento e do desempenho do técnico. A alternativa nativa para alto contraste está no CSS, mas não foi testada com alto contraste ativado nesta sessão.
 
 Em 800 × 1340, Home, Equipe e Calendário couberam sem rolagem ou transbordamento horizontal. Em 390 × 844, Equipe e Calendário mantiveram rolagem vertical dentro do conteúdo, com o cabeçalho fora dessa área e sem transbordamento horizontal. A janela real do Edge e dispositivos físicos permanecem por conferir. Build, lint, formatação e os 20 testes existentes passaram; as verificações de geometria acima são manuais no navegador do ambiente.
+
+
+### Sete dias, Equipe do gestor e configurações — 05/10
+
+Revisão no navegador do ambiente em `http://127.0.0.1:5173`, com dados fictícios. A pasta estava sem alterações locais no início desta etapa. Foram removidos a aba Gestores, o botão/popover de notificações e o componente DemoBadge. Mensagens de validação e feedback das ações permanecem; os limites dos mocks estão documentados.
+
+| Cenário executado | Resultado observado |
+| --- | --- |
+| Home em 1280 × 720 e 1340 × 800 | Sete dias e seletores de mês/semana visíveis, sem rolagem da área principal: respectivamente 640/640 e 720/720 px de altura disponível/conteúdo. Evento de sábado 14/03/2026 criado no Calendário apareceu ao selecionar sábado na Home. |
+| Viradas de mês e ano | Escolher semana 30/03 e avançar levou a abril; escolher 28/12 e avançar levou a 04/01/2027. Trocar mês seleciona seu primeiro dia. Testes cobrem meses curtos, longos e fevereiro bissexto. |
+| Equipe em 1280 × 720 | Apenas técnicos, tabela e paginação visíveis com espaço inferior; área de 640/640 px, sem rolagem residual. Cadastro vazio exibiu erros em inglês e focou nome. Tipo automático e endereço somente para leitura permaneceram. |
+| Preferências | Português, inglês, espanhol e mandarim selecionados com atualização imediata. Recarregar encerrou a sessão, conservando mandarim e tema escuro; novo login manteve ambos. Armazenamento contém somente idioma/tema. |
+| Perfil em espanhol | Data exibida no formulário como 11/03/2000, salva sem trocar mês/dia; apresentação localizada e feedback traduzido. |
+| Manu em mandarim | Sugestão de agenda enviada com Ctrl+Enter; resposta guiada apareceu em chinês, saudação continuou visível e Novo chat ficou habilitado. Texto enviado pelo usuário foi preservado. |
+| Tema escuro | Conferidos Configurações, Home, Equipe/cadastro, Perfil, Calendário, Dashboard (incluindo gráficos inferiores), Manu e Login. Ajustados contraste dos pontos/linhas, mediana, dia selecionado e botão azul do Perfil. As ilustrações originais mantêm suas cores; a marca recebe brilho adicional no tema escuro para melhorar a visibilidade. |
+| Tablet 800 × 1340 | Home e Configurações conferidas, sem transbordamento horizontal; Home com área/conteúdo de 1260/1260 px. Configurações também abriu na orientação horizontal. |
+| Celular 390 × 844 | Configurações, menu em mandarim e sete dias da Home utilizáveis; rolagem da Home contida na área abaixo do cabeçalho (768 px disponíveis, conteúdo 1157 px). Largura do documento 390 px, sem transbordamento horizontal. |
+
+`npm test`: 26/26 aprovados; build TypeScript/Vite, lint e Prettier aprovados. Novos testes verificam cobertura de semanas, preferências corrompidas/indevidas, tradução com valores, datas por idioma e reconhecimento das sugestões pela Manu. Teste compartilhado Home/Calendário passou a usar evento de sábado.
+
+Foi observado um aviso de `createRoot` durante a edição de `main.tsx` com hot reload; uma recarga limpa foi feita para verificar a versão estável. Não há aprovação de leitor de tela, alto contraste, dispositivo físico, fluência por revisores nativos ou de todos os fluxos em todas as combinações de tema/idioma. A janela real do Edge do usuário e a integração com API/BI/IA continuam externas a esta checagem.

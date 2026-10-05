@@ -25,11 +25,12 @@ Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não v
 | --- | --- |
 | `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
 | `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
-| `/` | Home com banner original, indicadores, gráfico e calendário semanal compartilhando eventos com o Calendário |
+| `/` | Home com banner original, indicadores, gráfico e calendário com sete dias, seleção de mês/semana e eventos compartilhados com o Calendário |
 | `/dashboard` | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos |
-| `/equipe` | Busca, filtro, paginação, detalhes com desempenho semanal/mensal, cadastro, edição e exclusão **em memória** de técnicos; consulta da conta gestora demonstrativa |
+| `/equipe` | Busca, filtro, paginação, detalhes com desempenho semanal/mensal, cadastro, edição e exclusão **em memória** de técnicos |
 | `/calendario` | Grade mensal, seleção de dia e criação, edição e exclusão **em memória** de eventos com local, descrição, observação e horários |
 | `/perfil` | Dados do gestor editáveis **em memória** e validação demonstrativa de troca de senha |
+| `/configuracoes` | Português, inglês, espanhol e mandarim (chinês simplificado); temas claro e escuro, aplicados na hora |
 | `/manu` | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente |
 
 As ações em memória são perdidas ao sair, entrar novamente ou recarregar. Uma gravação iniciada antes do logout não altera a sessão seguinte. Não há endpoints inventados nem afirmação de persistência real. Os dados de exemplo estão em `src/mocks`; páginas acessam os services tipados de `src/services`. O cliente Axios em `src/services/api.ts` ficará disponível para integrar o contrato real quando existir. `.env.example` deixa `VITE_API_BASE_URL` comentada e sem URL presumida; variáveis `VITE_` são públicas e não devem conter segredos.
@@ -37,6 +38,8 @@ As ações em memória são perdidas ao sair, entrar novamente ou recarregar. Um
 O cadastro do gestor define acesso **TÉCNICO** automaticamente e copia seu endereço ao salvar. Os campos de endereço são somente para leitura. A senha de criação segue uma regra provisória e não é armazenada. Veja as [regras e decisões do cadastro](docs/REGRAS_CADASTRO_TECNICOS.md), incluindo os pontos a confirmar com a API.
 
 A Manu preserva conversas entre rotas, inclusive respostas que terminem durante a navegação; login, logout e recarregamento limpam o histórico. Anexos guardam somente nome e tamanho: nenhum conteúdo é lido, enviado ou analisado. Use `Ctrl + Enter` para enviar a mensagem; `Enter` insere uma nova linha.
+
+A Equipe do gestor mostra apenas técnicos. A administração de gestores pertence ao escopo de Administração/RH, ainda sem interface e contrato nesta aplicação. As notificações e os selos repetidos de dados demonstrativos foram removidos por decisão do usuário; os limites dos mocks continuam descritos nesta documentação.
 
 No desktop, o botão no topo da navegação lateral recolhe e expande o menu em qualquer rota. Em telas menores, o botão do cabeçalho abre o menu móvel. Na Manu, a saudação permanece visível durante a conversa e “Novo chat” só fica disponível depois que a conversa atual recebe uma mensagem.
 
@@ -46,16 +49,19 @@ Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos cr
 
 - `src/pages`: telas com `index.tsx` e CSS Modules.
 - `src/components`: marca, campos, cards e layout reutilizáveis.
-- `src/contexts`: sessão demonstrativa com Context, reducer tipado e hook.
+- `src/contexts`: sessão demonstrativa e preferências de idioma/tema com Context e hooks.
 - `src/types`: contratos das entidades e props.
 - `src/services`: interface de dados da demonstração, preparada para substituição por API.
 - `src/mocks`: massa inicial e indicadores.
-- `src/utils`: validação e datas.
+- `src/utils`: validação, datas, semanas e leitura segura de preferências.
+- `src/i18n`: traduções da interface; nomes e conteúdo cadastrados são preservados.
 - `src/assets/figma`: imagens locais exportadas do protótipo, sem URLs temporárias em runtime.
 
-Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
+Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`; são preservados ao recarregar e sair da conta. Valores inválidos retornam ao português e tema claro. Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
 
 ## Qualidade e evidências
+
+- Em 05/10/2026, nesta revisão: **26 testes Node**, build, lint e formatação aprovados. A revisão no navegador validou os quatro idiomas, tema escuro, preferências após recarregar, evento de sábado na Home e semanas entre meses/anos. Home e Equipe continuam cabendo em notebook; tablet e celular foram conferidos. Veja os cenários e limites em [QA](docs/QA_NAVEGADOR.md).
 
 - Em 28/09/2026: build TypeScript/Vite, lint, formatação e **20 testes Node** aprovados. Os testes cobrem validação, cópias independentes, eventos compartilhados, distribuição analítica, recuperação, histórico da Manu e isolamento da sessão demonstrativa.
 - Em 05/10/2026: a Home foi refinada para preservar as proporções do Figma em diferentes alturas, com sidebar maior. Home, Equipe, Calendário e Perfil cabem sem rolagem em 1280 × 720 e 1340 × 800 no estado inicial. Quando necessária, a rolagem ocorre na área abaixo do cabeçalho, evitando sobreposição; as setas dos campos de seleção têm posição e espaçamento consistentes. O símbolo da FIXA foi adicionado à aba. As medidas e os limites dessa checagem estão no [QA do navegador](docs/QA_NAVEGADOR.md).

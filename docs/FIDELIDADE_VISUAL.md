@@ -35,3 +35,12 @@ Esta revisão registra comparações feitas e diferenças rastreáveis. **Não �
 A navegação desktop passou a ter largura menor e controle de recolher/expandir em todas as rotas. O cabeçalho fica no topo durante a rolagem, com notificações, configurações e avatar alinhados à direita. A Home usa alturas mínimas mais estáveis para banner e indicadores; em largura de tablet, os cartões e painéis passam a uma composição mais folgada. A Manu amplia o compositor, mantém imagem e saudação após o primeiro envio, distingue visualmente o estado disponível de “Novo chat” e aplica o foco ao contêiner arredondado dos campos. No Calendário, o marcador de evento fica dentro do círculo da data e o hover não acrescenta outra superfície ao dia selecionado.
 
 Essas escolhas respondem às capturas do notebook e à preferência expressa pelo usuário. A comparação com todos os estados correspondentes da cópia do Figma e a revisão nas dimensões 1340 × 800 e 800 × 1340 precisam ser repetidas após o ajuste.
+
+
+### Calendário da Home e preferências — 05/10
+
+Esta revisão aplica decisões novas do usuário: Home com sete dias (segunda a domingo), escolha de mês e semana, Equipe restrita a técnicos, retirada das notificações e dos selos repetidos de demonstração. Essas adaptações substituem as abas Gestores e os avisos descritos nas comparações anteriores. A gestão de gestores fica no escopo de Administração/RH; não foi criada autorização simulada para esse papel.
+
+O tema claro conserva a composição existente, com 32 px de espaço inferior no desktop e 28 px no celular. A retirada das abas e selos abre espaço na Equipe. O tema escuro usa superfícies, textos, bordas e estados adaptados; as ilustrações originais permanecem com suas cores. Não há frame de referência para Configurações e modo escuro. Os quatro idiomas são escolhas novas do usuário; mandarim usa chinês simplificado (`zh-CN`). Os títulos dos eventos, nomes e endereços cadastrados permanecem no idioma original.
+
+[Home com sábado selecionado](evidencias/home-semana-completa-2026-10-05.jpg) e [configurações em mandarim e modo escuro](evidencias/configuracoes-mandarim-2026-10-05.jpg) documentam a revisão. Esta alteração não constitui nova comparação integral com todos os frames do Figma nem aprovação de WCAG completa.
