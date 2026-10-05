@@ -82,6 +82,7 @@ export function AppLayout() {
   const mainRef = useRef<HTMLElement>(null)
   useEffect(() => {
     mainRef.current?.focus({ preventScroll: true })
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [pathname])
   const closeMenu = () => setMenuOpen(false)

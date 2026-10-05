@@ -1,15 +1,13 @@
 .page {
   display: grid;
   grid-template-columns: minmax(210px, 240px) minmax(0, 1fr);
-  min-height: calc(100dvh - var(--chat-header-height));
-  --chat-header-height: 80px;
+  min-height: calc(100dvh - var(--header-height));
 }
 .history {
   position: relative;
   z-index: 4;
   padding: 56px 18px 22px;
-  margin-top: calc(-1 * var(--chat-header-height));
-  height: 100dvh;
+  height: calc(100dvh - var(--header-height));
   overflow-y: auto;
   background: #fff;
   box-shadow: 2px 0 8px #8a93a226;
@@ -99,7 +97,7 @@
 }
 .chat {
   min-width: 0;
-  height: calc(100dvh - var(--chat-header-height));
+  height: calc(100dvh - var(--header-height));
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -348,7 +346,7 @@
     flex: none;
   }
   .chat {
-    height: max(680px, calc(100dvh - var(--chat-header-height)));
+    height: max(680px, calc(100dvh - var(--header-height)));
     padding: 16px 20px 28px;
   }
   .welcome {

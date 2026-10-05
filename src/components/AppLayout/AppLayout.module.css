@@ -2,7 +2,7 @@
   --sidebar-width: clamp(220px, 17.4vw, 260px);
   --header-height: 80px;
   display: flex;
-  min-height: 100dvh;
+  height: 100dvh;
   background: #fff;
 }
 .sidebar {
@@ -93,14 +93,15 @@
   color: #b2162f;
 }
 .content {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   min-width: 0;
+  min-height: 0;
 }
 .header {
-  position: fixed;
-  top: 0;
-  left: var(--sidebar-width);
-  right: 0;
+  position: relative;
+  flex: none;
   z-index: 3;
   height: var(--header-height);
   display: flex;
@@ -149,7 +150,12 @@
   border-radius: 50%;
 }
 .main {
-  padding: var(--header-height) clamp(24px, 4vw, 56px) 36px;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  scroll-padding-block: 16px;
+  padding: 0 clamp(24px, 4vw, 56px) 12px;
   max-width: 1600px;
   margin-inline: auto;
 }
