@@ -1,11 +1,11 @@
 .welcome {
-  height: clamp(205px, 16vw, 250px);
+  height: clamp(205px, 17.4vw, 250px);
   border-radius: 25px;
   background: #eef4fc;
   display: flex;
   align-items: center;
   padding-left: clamp(24px, 3.6vw, 52px);
-  margin-bottom: 24px;
+  margin-bottom: 27px;
   overflow: hidden;
   position: relative;
 }
@@ -42,7 +42,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(14px, 1.875vw, 27px);
-  margin-bottom: 30px;
+  margin-bottom: clamp(22px, calc(8dvh - 36px), 47px);
 }
 .grid {
   display: grid;
@@ -233,41 +233,48 @@
   font-size: 13px;
   color: #4c5461;
 }
-@media (min-width: 901px) and (max-height: 850px) {
+@media (min-width: 901px) and (min-height: 851px) {
   .home {
-    display: grid;
-    grid-template-rows: clamp(150px, 22dvh, 190px) auto minmax(270px, 1fr);
-    gap: 16px;
-    min-height: calc(100dvh - var(--header-height) - 36px);
+    padding-top: clamp(0px, calc(27dvh - 230px), 47px);
   }
-  .welcome,
-  .stats {
-    height: auto;
-    margin-bottom: 0;
+}
+@media (min-width: 901px) and (max-height: 950px) {
+  .welcome {
+    height: clamp(170px, min(17.4vw, 25dvh), 250px);
+    margin-bottom: clamp(18px, 2.5dvh, 24px);
+  }
+  .welcome h1 {
+    font-size: clamp(28px, 5dvh, 45px);
   }
   .home .stats > * {
-    min-height: 0;
-    padding: 12px 15px;
+    min-height: clamp(104px, min(10.5vw, 15dvh), 150px);
+    padding: clamp(10px, 1.6dvh, 18px) clamp(14px, 1.5vw, 20px);
   }
-  .grid {
-    min-height: 0;
+  .stats h2 {
+    font-size: clamp(20px, 3.2dvh, 28px);
+  }
+  .stats h2 span {
+    font-size: clamp(14px, 2.2dvh, 20px);
+  }
+  .stats strong {
+    font-size: clamp(35px, 5.4dvh, 50px);
   }
   .chartPanel,
   .eventPanel {
-    height: 100%;
-    padding-block: 16px;
+    height: clamp(250px, min(28vw, 36dvh), 350px);
+    padding-block: clamp(16px, 2.4dvh, 24px);
   }
   .chart {
-    padding-top: 14px;
+    padding-top: clamp(12px, 2.3dvh, 24px);
   }
   .days {
-    margin-top: 8px;
+    margin-top: clamp(8px, 1.6dvh, 18px);
   }
   .days button {
-    height: 64px;
+    height: clamp(64px, min(5vw, 10dvh), 92px);
   }
   .eventPanel h3 {
-    margin: 7px 0 4px;
+    margin: clamp(7px, 1.4dvh, 14px) 0 6px;
   }
 }
 @media (max-width: 900px) {

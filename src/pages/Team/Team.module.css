@@ -171,39 +171,39 @@
     font-size: 14px;
   }
 }
-@media (min-width: 901px) and (max-height: 850px) {
+@media (min-width: 901px) and (max-height: 950px) {
   .page {
-    gap: 10px;
+    gap: 8px;
   }
   .search input,
   .searchIcon {
-    height: 48px;
+    height: 54px;
   }
   .searchIcon {
-    width: 48px;
+    width: 54px;
   }
   .search input {
-    padding-left: 66px;
+    padding-left: 72px;
   }
   .tabs {
     margin: 0;
   }
   .tabs button {
-    padding-block: 5px;
-    font-size: 18px;
+    padding-block: 7px;
+    font-size: 19px;
   }
   .tablePanel {
     padding-bottom: 8px;
   }
   .tablePanel table td {
-    padding-block: 5px;
+    padding-block: 9px;
   }
   .initials {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
   .nameButton {
-    gap: 12px;
-    padding: 2px;
+    gap: 14px;
+    padding: 3px;
   }
 }

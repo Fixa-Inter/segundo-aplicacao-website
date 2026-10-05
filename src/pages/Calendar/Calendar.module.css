@@ -183,43 +183,43 @@
   font-size: 13px;
   font-weight: 400;
 }
-@media (min-width: 901px) and (max-height: 850px) {
+@media (min-width: 901px) and (max-height: 950px) {
   .page {
-    gap: 10px;
+    gap: 8px;
   }
   .calendarLayout {
     gap: 12px;
   }
   .calendarPanel {
-    padding: 14px 18px;
+    padding: 16px 20px;
   }
   .monthHeader {
-    margin-bottom: 6px;
+    margin-bottom: 10px;
   }
   .calendarGrid {
-    gap: 2px;
+    gap: 3px;
   }
   .weekday {
-    font-size: 18px;
+    font-size: 20px;
   }
   .day {
-    width: 42px;
-    height: 42px;
-    font-size: 18px;
+    width: 46px;
+    height: 46px;
+    font-size: 20px;
   }
   .dayNumber {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
   .dayNumber i {
-    bottom: 4px;
+    bottom: 6px;
   }
   .eventsPanel h2 {
-    margin-bottom: 8px;
-    font-size: 18px;
+    margin-bottom: 12px;
+    font-size: 20px;
   }
   .event {
-    padding: 10px 14px;
+    padding: 14px 16px;
   }
 }
 @media (max-width: 600px) {
