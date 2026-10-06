@@ -30,7 +30,7 @@ test('seletor de semanas cobre todos os dias de meses curtos, longos e bissextos
   assert.equal(monthWeeks('2026-03').length, 6)
 })
 
-test('semanas de domingo a sábado correspondem à referência da Home', () => {
+test('cálculo de semanas também admite início no domingo', () => {
   assert.equal(startOfWeek('2026-10-05', 0), '2026-10-04')
   assert.equal(startOfWeek('2026-10-10', 0), '2026-10-04')
   assert.equal(startOfWeek('2026-10-11', 0), '2026-10-11')

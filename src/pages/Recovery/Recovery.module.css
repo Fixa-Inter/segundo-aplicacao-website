@@ -116,14 +116,14 @@
   margin-top: clamp(16px, 2.15dvh, 22px);
   border: 0;
   border-radius: 35px;
-  background: #153d7d;
+  background: #578bd6;
   color: #fff;
   font-size: clamp(18px, 2.44dvh, 25px);
   font-weight: 500;
   cursor: pointer;
 }
 .primary:hover {
-  background: #102f63;
+  background: #477bc8;
 }
 .primary:disabled {
   opacity: 0.7;

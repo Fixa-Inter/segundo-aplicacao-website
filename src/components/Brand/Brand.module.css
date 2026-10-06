@@ -14,16 +14,10 @@
   filter: brightness(1.8);
 }
 .compact {
-  width: 92px;
-  height: 106px;
-  overflow: hidden;
-  position: relative;
+  width: max-content;
+  height: auto;
 }
 .compact img {
-  position: absolute;
-  width: 280px;
-  max-width: none;
-  height: 106px;
-  left: 0;
-  object-fit: fill;
+  width: auto;
+  height: auto;
 }

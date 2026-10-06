@@ -1,7 +1,9 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState } from 'react'
-import { Modal } from '@mantine/core'
-import { Pencil, Search, Trash2 } from 'lucide-react'
+import { FigmaIcon } from '../../components/FigmaIcon'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { FilterButton } from '../../components/FilterButton'
+import { Pagination } from '../../components/Pagination'
 import { PageHeader } from '../../components/PageHeader'
 import { TechnicianDetails } from '../../components/TechnicianDetails'
 import { TechnicianForm } from '../../components/TechnicianForm'
@@ -195,7 +197,8 @@ export default function Team() {
             onClick={() => openForm()}
             disabled={loading || Boolean(loadError) || !manager}
           >
-            {t('+ Adicionar')}
+            <FigmaIcon name="plus" />
+            {t('Adicionar')}
           </button>
         }
       />
@@ -203,7 +206,7 @@ export default function Team() {
         <label htmlFor="team-search" className={`${common.field} ${styles.search}`}>
           <span className={styles.srOnly}>{t('Pesquisar')}</span>
           <span className={styles.searchIcon} aria-hidden="true">
-            <Search size={25} />
+            <FigmaIcon name="search" />
           </span>
           <input
             id="team-search"
@@ -217,21 +220,27 @@ export default function Team() {
             }}
           />
         </label>
-        <label htmlFor="team-status" className={common.field}>
-          {t('Situação')}
-          <select
-            id="team-status"
-            value={filter}
-            onChange={(event) => {
-              setFilter(event.target.value)
-              setPage(1)
-            }}
-          >
-            <option value="Todos">{t('Todos')}</option>
-            <option value="Ativo">{t('Ativo')}</option>
-            <option value="Inativo">{t('Inativo')}</option>
-          </select>
-        </label>
+      </div>
+      <div className={styles.sectionHeading}>
+        <h2>{t('Técnicos')}</h2>
+        <FilterButton active={filter !== 'Todos'}>
+          {' '}
+          <label htmlFor="team-status" className={common.field}>
+            {t('Situação')}
+            <select
+              id="team-status"
+              value={filter}
+              onChange={(event) => {
+                setFilter(event.target.value)
+                setPage(1)
+              }}
+            >
+              <option value="Todos">{t('Todos')}</option>
+              <option value="Ativo">{t('Ativo')}</option>
+              <option value="Inativo">{t('Inativo')}</option>
+            </select>
+          </label>
+        </FilterButton>
       </div>
       {notice && (
         <p className={common.status} role="status">
@@ -314,7 +323,7 @@ export default function Team() {
                               aria-label={t('Editar {name}', { name: item.name })}
                               onClick={() => openForm(item)}
                             >
-                              <Pencil size={20} />
+                              <FigmaIcon name="edit" />
                             </button>
                             <button
                               type="button"
@@ -322,7 +331,7 @@ export default function Team() {
                               aria-label={t('Excluir {name}', { name: item.name })}
                               onClick={() => setDeleting(item)}
                             >
-                              <Trash2 size={20} />
+                              <FigmaIcon name="trash" />
                             </button>
                           </div>
                         </td>
@@ -331,28 +340,7 @@ export default function Team() {
                   </tbody>
                 </table>
               </div>
-              <div className={common.pager}>
-                <button
-                  className={common.secondary}
-                  type="button"
-                  disabled={page === 1}
-                  onClick={() => setPage((current) => current - 1)}
-                >
-                  {t('Anterior')}
-                </button>
-                <span>
-                  {t('Página')}
-                  {page} {t('de')} {lastPage}
-                </span>
-                <button
-                  className={common.secondary}
-                  type="button"
-                  disabled={page >= lastPage}
-                  onClick={() => setPage((current) => current + 1)}
-                >
-                  {t('Próxima')}
-                </button>
-              </div>
+              <Pagination page={page} total={lastPage} onChange={setPage} />
             </>
           ) : (
             <p className={common.empty}>
@@ -361,25 +349,15 @@ export default function Team() {
           )}
         </section>
       )}
-      <Modal
+      <ConfirmDialog
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
-        title={t('Excluir técnico?')}
-        closeButtonProps={{ 'aria-label': t('Fechar confirmação de exclusão do técnico') }}
-        centered
-      >
-        <p>
-          {t('Excluir')} {deleting?.name} {t('desta sessão de demonstração?')}
-        </p>
-        <div className={common.formActions}>
-          <button className={common.secondary} type="button" onClick={() => setDeleting(null)}>
-            {t('Cancelar')}
-          </button>
-          <button className={common.danger} type="button" onClick={confirmDelete} disabled={busy}>
-            {t(busy ? 'Excluindo…' : 'Excluir')}
-          </button>
-        </div>
-      </Modal>
+        question="Tem certeza que deseja excluir o registro?"
+        subject={deleting?.name}
+        confirmLabel="Excluir"
+        busy={busy}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

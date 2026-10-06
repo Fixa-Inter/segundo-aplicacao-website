@@ -1,7 +1,9 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { Modal } from '@mantine/core'
-import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
+import { FigmaIcon } from '../../components/FigmaIcon'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { EventDetails } from '../../components/EventDetails'
 import { EventForm } from '../../components/EventForm'
 import { PageHeader } from '../../components/PageHeader'
 import {
@@ -18,8 +20,14 @@ import styles from './Calendar.module.css'
 export default function Calendar() {
   const { t, formatDate } = usePreferences()
 
-  const [month, setMonth] = useState('2026-03')
-  const [selectedDay, setSelectedDay] = useState('2026-03-11')
+  const { state } = useLocation()
+  const linkedDate =
+    typeof state?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(state.date)
+      ? state.date
+      : '2026-03-11'
+  const [month, setMonth] = useState(linkedDate.slice(0, 7))
+  const [selectedDay, setSelectedDay] = useState(linkedDate)
+  const [details, setDetails] = useState<CalendarEvent | null>(null)
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [technicians, setTechnicians] = useState<Technician[]>([])
   const [loading, setLoading] = useState(true)
@@ -195,20 +203,20 @@ export default function Calendar() {
           >
             <div className={styles.monthHeader}>
               <button type="button" onClick={() => changeMonth(-1)} aria-label={t('Mês anterior')}>
-                <ChevronLeft size={19} />
+                <FigmaIcon name="chevron-left" />
               </button>
               <h2 aria-live="polite">
                 {formatDate(`${month}-01`, { month: 'long', year: 'numeric' })}
               </h2>
               <button type="button" onClick={() => changeMonth(1)} aria-label={t('Próximo mês')}>
-                <ChevronRight size={19} />
+                <FigmaIcon name="chevron-right" />
               </button>
             </div>
             <div ref={calendarRef} className={styles.calendarGrid} aria-label={t('Dias do mês')}>
               {Array.from({ length: 7 }, (_, index) =>
-                formatDate(shiftDate('2026-03-01', index), { weekday: 'short' }),
-              ).map((day) => (
-                <span className={styles.weekday} key={day}>
+                formatDate(shiftDate('2026-03-01', index), { weekday: 'narrow' }),
+              ).map((day, index) => (
+                <span className={styles.weekday} key={index}>
                   {day}
                 </span>
               ))}
@@ -237,42 +245,33 @@ export default function Calendar() {
           </section>
           <section className={styles.eventsPanel} aria-labelledby="day-events">
             <h2 id="day-events">
-              {t('Eventos do dia ·')}
-              {formatDate(selectedDay, { dateStyle: 'long' })}
+              {t('Eventos do dia')}
+              <span className={styles.srOnly}>
+                {' '}
+                · {formatDate(selectedDay, { dateStyle: 'long' })}
+              </span>
             </h2>
             {selectedEvents.length ? (
               <div className={styles.eventList}>
                 {selectedEvents.map((item) => (
                   <article className={styles.event} key={item.id}>
-                    <div className={styles.eventDate} aria-hidden="true">
-                      <strong>{Number(item.date.slice(-2))}</strong>
-                      <span>{formatDate(item.date, { weekday: 'short' }).replace('.', '')}</span>
-                    </div>
-                    <div>
-                      <h3>{item.title}</h3>
-                      <time dateTime={`${item.date}T${item.time}`}>
-                        {item.time}–{item.endTime}
-                      </time>
-                      <details className={styles.details}>
-                        <summary>{t('Ver detalhes')}</summary>
-                        {item.location && (
-                          <p>
-                            {t('Local:')} {item.location}
-                          </p>
-                        )}
-                        <p>{item.description || t('Sem descrição.')}</p>
-                        {item.observation && (
-                          <p>
-                            {t('Observação:')} {item.observation}
-                          </p>
-                        )}
-                        <p className={common.muted}>
-                          {t('Técnico:')}{' '}
-                          {technicians.find((tech) => tech.id === item.technicianId)?.name ??
-                            t('Não atribuído')}
-                        </p>
-                      </details>
-                    </div>
+                    <button
+                      className={styles.eventSummary}
+                      type="button"
+                      onClick={() => setDetails(item)}
+                      aria-label={t('Ver evento {name}', { name: item.title })}
+                    >
+                      <span className={styles.eventDate} aria-hidden="true">
+                        <strong>{Number(item.date.slice(-2))}</strong>
+                        <span>{formatDate(item.date, { weekday: 'short' }).replace('.', '')}</span>
+                      </span>
+                      <span>
+                        <span className={styles.eventTitle}>{item.title}</span>
+                        <time dateTime={`${item.date}T${item.time}`}>
+                          {item.time}–{item.endTime}
+                        </time>
+                      </span>
+                    </button>
                     <div className={common.actions}>
                       <button
                         className={styles.iconButton}
@@ -280,7 +279,7 @@ export default function Calendar() {
                         type="button"
                         onClick={() => openForm(item)}
                       >
-                        <Pencil size={24} aria-hidden="true" />
+                        <FigmaIcon name="edit" />
                       </button>
                       <button
                         className={`${styles.iconButton} ${styles.delete}`}
@@ -288,7 +287,7 @@ export default function Calendar() {
                         type="button"
                         onClick={() => setDeleting(item)}
                       >
-                        <Trash2 size={24} aria-hidden="true" />
+                        <FigmaIcon name="trash" />
                       </button>
                     </div>
                   </article>
@@ -300,25 +299,16 @@ export default function Calendar() {
           </section>
         </div>
       )}
-      <Modal
+      <EventDetails event={details} onClose={() => setDetails(null)} />
+      <ConfirmDialog
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
-        title={t('Excluir evento?')}
-        closeButtonProps={{ 'aria-label': t('Fechar confirmação de exclusão do evento') }}
-        centered
-      >
-        <p>
-          {t('Excluir')} {deleting?.title} {t('desta sessão de demonstração?')}
-        </p>
-        <div className={common.formActions}>
-          <button className={common.secondary} type="button" onClick={() => setDeleting(null)}>
-            {t('Cancelar')}
-          </button>
-          <button className={common.danger} type="button" onClick={confirmDelete} disabled={busy}>
-            {t(busy ? 'Excluindo…' : 'Excluir')}
-          </button>
-        </div>
-      </Modal>
+        question="Tem certeza que deseja excluir o registro?"
+        subject={deleting?.title}
+        confirmLabel="Excluir"
+        busy={busy}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

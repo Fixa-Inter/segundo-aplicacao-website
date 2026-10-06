@@ -10,6 +10,8 @@
   font-synthesis: none;
   --fixa-primary: #153d7d;
   --fixa-ink: #130943;
+  --fixa-black: #000;
+  --fixa-event-text: #202020;
   --fixa-muted: #4c5461;
   --fixa-bg: #fcfdfd;
   --fixa-card: #f3f8ff;
@@ -27,9 +29,9 @@
   --fixa-auth-field: rgba(219, 224, 235, 0.3);
   --fixa-banner-bg: #eef4fc;
   --fixa-accent-surface: #e8f0fb;
-  --fixa-selected: #e3edfc;
-  --fixa-row-alt: #e0ebff;
-  --fixa-table-head: #9ab6df;
+  --fixa-selected: #d6e4ff;
+  --fixa-row-alt: #d6e4ff;
+  --fixa-table-head: #99b6e5;
   --fixa-initials-bg: #d6e3ff;
   --fixa-avatar-bg: #d9e9fc;
   --fixa-history-selected: #eaedf1;
@@ -39,7 +41,7 @@
   --fixa-table-hover: #ecf3fc;
   --fixa-success-bg: #e8f5e9;
   --fixa-error-bg: #fff0f2;
-  --fixa-event-bg: #f4f8fe;
+  --fixa-event-bg: #f5f7fa;
   --fixa-disabled-bg: #f2f4f7;
   --fixa-soft-blue: #e8f0fe;
 }
@@ -110,6 +112,8 @@ select:not([multiple]):not([size]) {
 
 :root[data-theme='dark'] {
   --fixa-ink: #e8eef9;
+  --fixa-black: #e8eef9;
+  --fixa-event-text: #e8eef9;
   --fixa-muted: #bdcbe0;
   --fixa-bg: #121c2c;
   --fixa-surface: #142035;

@@ -1,7 +1,9 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Modal } from '@mantine/core'
-import { CalendarDays, Mail, MapPin, Phone } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { AuthField } from '../../components/AuthField'
+import manuPassword from '../../assets/figma/manu-change-password.png'
+import { FigmaIcon } from '../../components/FigmaIcon'
 import { PageHeader } from '../../components/PageHeader'
 import { getProfile, saveProfile } from '../../services/managementService'
 import { useAuth } from '../../contexts/useAuth'
@@ -59,6 +61,7 @@ export default function Profile() {
   const [birthDateText, setBirthDateText] = useState('')
   const savedProfileRef = useRef<ManagerProfile>(empty)
   const editButtonRef = useRef<HTMLButtonElement>(null)
+  const passwordButtonRef = useRef<HTMLButtonElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const wasEditing = useRef(false)
 
@@ -72,6 +75,7 @@ export default function Profile() {
     setPasswordOpen(false)
     setPassword({ current: '', next: '', confirmation: '' })
     setError('')
+    requestAnimationFrame(() => passwordButtonRef.current?.focus())
   }
 
   useEffect(() => {
@@ -153,6 +157,7 @@ export default function Profile() {
     }
     setPassword({ current: '', next: '', confirmation: '' })
     setPasswordOpen(false)
+    requestAnimationFrame(() => passwordButtonRef.current?.focus())
     setNotice(
       'Formulário validado. Nenhuma credencial foi alterada: a API de autenticação ainda não existe.',
     )
@@ -161,6 +166,71 @@ export default function Profile() {
     .filter(Boolean)
     .join(', ')
 
+  if (passwordOpen) {
+    return (
+      <section className={styles.passwordPage} aria-labelledby="change-password-title">
+        <button
+          type="button"
+          className={styles.passwordBack}
+          onClick={closePassword}
+          aria-label={t('Voltar ao perfil')}
+        >
+          <FigmaIcon name="back" />
+        </button>
+        <img className={styles.passwordManu} src={manuPassword} width="352" height="350" alt="" />
+        <h1 id="change-password-title">{t('Troque sua senha')}</h1>
+        <form onSubmit={validatePassword} noValidate>
+          <div className={styles.passwordFields}>
+            <AuthField
+              id="profile-password-current"
+              label={t('Senha antiga')}
+              type="password"
+              autoComplete="off"
+              maxLength={128}
+              value={password.current}
+              autoFocus
+              onChange={(event) =>
+                setPassword((current) => ({ ...current, current: event.target.value }))
+              }
+            />
+            <AuthField
+              id="profile-password-next"
+              label={t('Nova senha')}
+              type="password"
+              autoComplete="off"
+              maxLength={128}
+              value={password.next}
+              onChange={(event) =>
+                setPassword((current) => ({ ...current, next: event.target.value }))
+              }
+            />
+            <AuthField
+              id="profile-password-confirmation"
+              label={t('Confirmar nova senha')}
+              type="password"
+              autoComplete="off"
+              maxLength={128}
+              value={password.confirmation}
+              onChange={(event) =>
+                setPassword((current) => ({ ...current, confirmation: event.target.value }))
+              }
+            />
+          </div>
+          {error && (
+            <p role="alert" className={common.error}>
+              {t(error)}
+            </p>
+          )}
+          <button className={styles.passwordSubmit} type="submit">
+            {t('Alterar')}
+          </button>
+          <p>
+            {t('Não lembra sua senha?')} <Link to="/recuperar-senha">{t('Enviar código')}</Link>
+          </p>
+        </form>
+      </section>
+    )
+  }
   return (
     <div className={`${common.page} ${styles.page}`}>
       <PageHeader title={t(editing ? 'Editar Perfil' : 'Perfil')} />
@@ -203,6 +273,7 @@ export default function Profile() {
             </div>
             {!editing && (
               <button
+                ref={passwordButtonRef}
                 className={common.primary}
                 type="button"
                 onClick={() => {
@@ -273,21 +344,21 @@ export default function Profile() {
               <h3>{t('Informações')}</h3>
               <div>
                 <p>
-                  <Mail size={18} aria-hidden="true" />
+                  <FigmaIcon name="mail" />
                   {profile.email}
                 </p>
                 <p>
-                  <Phone size={18} aria-hidden="true" />
+                  <FigmaIcon name="phone" />
                   {profile.phone}
                 </p>
                 <p>
-                  <CalendarDays size={18} aria-hidden="true" />
+                  <FigmaIcon name="profile-calendar" />
                   {profile.birthDate
                     ? formatDate(profile.birthDate, { dateStyle: 'long' })
                     : t('Não informado')}
                 </p>
                 <p>
-                  <MapPin size={18} aria-hidden="true" />
+                  <FigmaIcon name="location" />
                   {address}
                 </p>
               </div>
@@ -305,82 +376,12 @@ export default function Profile() {
                   setEditing(true)
                 }}
               >
-                {t('Editar perfil')}
+                <FigmaIcon name="profile-edit" /> {t('Editar perfil')}
               </button>
             </section>
           )}
         </>
       )}
-      <Modal
-        opened={passwordOpen}
-        onClose={closePassword}
-        title={t('Trocar senha')}
-        closeButtonProps={{ 'aria-label': t('Fechar demonstração de troca de senha') }}
-        centered
-      >
-        <p className={common.muted}>
-          {t('Demonstração de validação. Nenhuma senha real será alterada.')}
-        </p>
-        <p className={common.muted}>
-          {t('Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial.')}
-        </p>
-        <form onSubmit={validatePassword} noValidate>
-          <div className={styles.passwordFields}>
-            <label htmlFor="profile-password-current" className={common.field}>
-              {t('Senha atual')}
-              <input
-                id="profile-password-current"
-                type="password"
-                autoComplete="off"
-                maxLength={128}
-                value={password.current}
-                onChange={(event) =>
-                  setPassword((current) => ({ ...current, current: event.target.value }))
-                }
-              />
-            </label>
-            <label htmlFor="profile-password-next" className={common.field}>
-              {t('Nova senha')}
-              <input
-                id="profile-password-next"
-                type="password"
-                autoComplete="off"
-                maxLength={128}
-                value={password.next}
-                onChange={(event) =>
-                  setPassword((current) => ({ ...current, next: event.target.value }))
-                }
-              />
-            </label>
-            <label htmlFor="profile-password-confirmation" className={common.field}>
-              {t('Confirmar nova senha')}
-              <input
-                id="profile-password-confirmation"
-                type="password"
-                autoComplete="off"
-                maxLength={128}
-                value={password.confirmation}
-                onChange={(event) =>
-                  setPassword((current) => ({ ...current, confirmation: event.target.value }))
-                }
-              />
-            </label>
-          </div>
-          {error && (
-            <p role="alert" className={common.error}>
-              {t(error)}
-            </p>
-          )}
-          <div className={common.formActions}>
-            <button className={common.secondary} type="button" onClick={closePassword}>
-              {t('Cancelar')}
-            </button>
-            <button className={common.primary} type="submit">
-              {t('Validar formulário')}
-            </button>
-          </div>
-        </form>
-      </Modal>
     </div>
   )
 }

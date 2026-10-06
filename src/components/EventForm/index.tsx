@@ -1,6 +1,6 @@
+import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
-import { ArrowLeft } from 'lucide-react'
 import { AuthField } from '../AuthField'
 import type { CalendarEventInput } from '../../types/management'
 import type { EventFormProps } from '../../types/ui'
@@ -71,7 +71,7 @@ export function EventForm({
         disabled={busy}
         aria-label={t('Voltar para calendário')}
       >
-        <ArrowLeft size={28} />
+        <FigmaIcon name="back" />
       </button>
       <h1 className={styles.title}>
         <span>{t(event ? 'Edite' : 'Agende')}</span> {event ? event.title : t('um evento')}

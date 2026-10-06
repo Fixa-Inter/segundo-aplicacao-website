@@ -2,6 +2,42 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Tem certeza que deseja sair da conta?': [
+    'Are you sure you want to sign out?',
+    '¿Seguro que deseas cerrar la sesión?',
+    '确定要退出账户吗？',
+  ],
+  'Tem certeza que deseja excluir o registro?': [
+    'Are you sure you want to delete this record?',
+    '¿Seguro que deseas eliminar el registro?',
+    '确定要删除此记录吗？',
+  ],
+  'Informações sobre o evento': ['Event information', 'Información del evento', '活动信息'],
+  Local: ['Location', 'Lugar', '地点'],
+  Data: ['Date', 'Fecha', '日期'],
+  Horário: ['Time', 'Horario', '时间'],
+  'Eventos do dia': ['Events for the day', 'Eventos del día', '当天事件'],
+  'Fechar informações do evento': [
+    'Close event information',
+    'Cerrar información del evento',
+    '关闭活动信息',
+  ],
+  'Ver evento {name}': ['View event {name}', 'Ver evento {name}', '查看活动{name}'],
+  'Filtrar, filtros ativos': [
+    'Filter, active filters',
+    'Filtrar, filtros activos',
+    '筛选，筛选已启用',
+  ],
+  'Paginação da equipe': ['Team pagination', 'Paginación del equipo', '团队分页'],
+  'Página {number}': ['Page {number}', 'Página {number}', '第{number}页'],
+  'Troque sua senha': ['Change your password', 'Cambia tu contraseña', '修改密码'],
+  'Senha antiga': ['Current password', 'Contraseña actual', '当前密码'],
+  'Não lembra sua senha?': ['Forgot your password?', '¿Olvidaste tu contraseña?', '忘记密码？'],
+  'Enviar código': ['Send code', 'Enviar código', '发送验证码'],
+  'Voltar ao perfil': ['Back to profile', 'Volver al perfil', '返回个人资料'],
+  Alterar: ['Change', 'Cambiar', '修改'],
+  'Abrir Dashboard': ['Open Dashboard', 'Abrir Dashboard', '打开仪表板'],
+
   'Escolher mês e ano': ['Choose month and year', 'Elegir mes y año', '选择月份和年份'],
   'Voltar aos dias do mês': [
     'Back to days of the month',

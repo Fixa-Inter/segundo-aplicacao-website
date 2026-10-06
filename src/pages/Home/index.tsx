@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { StatCard } from '../../components/StatCard'
-import { WeekPicker } from '../../components/WeekPicker'
+import { Link } from 'react-router-dom'
+import { FigmaIcon } from '../../components/FigmaIcon'
 import { useAuth } from '../../contexts/useAuth'
 import banner from '../../assets/figma/home-banner.png'
 import { getHomeData } from '../../services/homeService'
@@ -23,7 +24,7 @@ export default function Home() {
       .then((result) => {
         if (!active) return
         setData(result)
-        setWeekStart(result.weekStart)
+        setWeekStart(startOfWeek(result.selectedDay, 1))
         setSelectedDay(result.selectedDay)
       })
       .catch(() => {
@@ -51,9 +52,18 @@ export default function Home() {
   }
   if (!data) return <p role="status">{t('Carregando resumo…')}</p>
   const { taskSummary, monthlyTasks } = data
-  const days = Array.from({ length: 7 }, (_, offset) => shiftDate(weekStart, offset))
+  const days = Array.from({ length: 5 }, (_, offset) => shiftDate(weekStart, offset))
   const events = data.events.filter((event) => event.date === selectedDay)
 
+  function changeMonth(offset: number) {
+    const date = new Date(`${selectedDay.slice(0, 7)}-01T12:00:00Z`)
+    date.setUTCMonth(date.getUTCMonth() + offset)
+    const firstDay = date.toISOString().slice(0, 10)
+    const monday = startOfWeek(firstDay, 1)
+    const next = monday < firstDay ? shiftDate(monday, 7) : monday
+    setSelectedDay(next)
+    setWeekStart(next)
+  }
   return (
     <div className={styles.home}>
       <section className={styles.welcome} aria-labelledby="home-title">
@@ -67,7 +77,12 @@ export default function Home() {
       </section>
       <div className={styles.grid}>
         <section className={styles.chartPanel} aria-labelledby="chart-heading">
-          <h2 id="chart-heading">{t('Tarefas registradas')}</h2>
+          <div className={styles.chartHeading}>
+            <h2 id="chart-heading">{t('Tarefas registradas')}</h2>
+            <Link to="/dashboard" aria-label={t('Abrir Dashboard')}>
+              <FigmaIcon name="arrow-up-right" />
+            </Link>
+          </div>
           <div
             className={styles.chart}
             role="img"
@@ -96,13 +111,17 @@ export default function Home() {
           </div>
         </section>
         <section className={styles.eventPanel} aria-label={t('Calendário resumido')}>
-          <WeekPicker
-            value={selectedDay}
-            onChange={(date) => {
-              setSelectedDay(date)
-              setWeekStart(startOfWeek(date, 0))
-            }}
-          />
+          <div className={styles.monthHeader}>
+            <button type="button" onClick={() => changeMonth(-1)} aria-label={t('Mês anterior')}>
+              <FigmaIcon name="chevron-left" />
+            </button>
+            <h2 aria-live="polite">
+              {formatDate(selectedDay, { month: 'long', year: 'numeric' }).replace(' de ', ' ')}
+            </h2>
+            <button type="button" onClick={() => changeMonth(1)} aria-label={t('Próximo mês')}>
+              <FigmaIcon name="chevron-right" />
+            </button>
+          </div>
           <div className={styles.days} aria-label={t('Dias da semana')}>
             {days.map((date) => (
               <button
@@ -130,6 +149,14 @@ export default function Home() {
                     <h4>{event.title}</h4>
                     <span>{event.time}</span>
                   </div>
+                  <Link
+                    className={styles.eventLink}
+                    to="/calendario"
+                    state={{ date: event.date }}
+                    aria-label={t('Ver evento {name}', { name: event.title })}
+                  >
+                    <FigmaIcon name="more" />
+                  </Link>
                 </article>
               ))
             ) : (

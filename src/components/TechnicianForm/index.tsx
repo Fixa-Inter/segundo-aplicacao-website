@@ -1,6 +1,7 @@
+import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import type { Address, TechnicianInput } from '../../types/management'
 import type { TechnicianFormProps } from '../../types/ui'
 import { validateDemoPassword, validateTechnician } from '../../utils/managementValidation'
@@ -136,7 +137,7 @@ export function TechnicianForm({
         disabled={busy}
         aria-label={t('Voltar para equipe')}
       >
-        <ArrowLeft size={28} />
+        <FigmaIcon name="back" />
       </button>
       <h1 className={styles.title}>
         <span>{t(technician ? 'Edite' : 'Adicione um novo')}</span>{' '}

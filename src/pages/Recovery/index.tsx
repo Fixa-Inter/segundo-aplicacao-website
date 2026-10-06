@@ -1,8 +1,9 @@
+import { FigmaIcon } from '../../components/FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { PinInput } from '@mantine/core'
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { AuthField } from '../../components/AuthField'
 import manu from '../../assets/figma/manu-recovery.png'
 import manuCode from '../../assets/figma/manu-recovery-code.png'
@@ -138,7 +139,7 @@ export default function Recovery() {
       {step !== 'success' &&
         (step === 'email' ? (
           <Link to="/login" className={styles.back} aria-label={t('Voltar ao login')}>
-            <ArrowLeft />
+            <FigmaIcon name="back" />
           </Link>
         ) : (
           <button
@@ -148,7 +149,7 @@ export default function Recovery() {
             onClick={back}
             aria-label={t('Voltar à etapa anterior')}
           >
-            <ArrowLeft />
+            <FigmaIcon name="back" />
           </button>
         ))}
       <section className={styles.content} aria-labelledby="recovery-title">

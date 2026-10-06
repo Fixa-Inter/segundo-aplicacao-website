@@ -28,7 +28,7 @@
   line-height: 1;
 }
 .blue {
-  color: #1ac7ff;
+  color: #16c1ff;
 }
 .yellow {
   color: #f7ff5a;
@@ -37,7 +37,7 @@
   color: #47fb74;
 }
 .red {
-  color: #ffb0b0;
+  color: #ff8486;
 }
 @media (max-width: 600px) {
   .card {

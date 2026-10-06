@@ -1,5 +1,5 @@
 .page {
-  max-width: 1120px;
+  width: 100%;
 }
 .back {
   display: grid;
@@ -17,7 +17,7 @@
   margin: 0 0 20px;
   color: var(--fixa-ink);
   font-size: clamp(28px, 3.05vw, 44px);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.3;
 }
 .title span {

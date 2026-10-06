@@ -1,6 +1,6 @@
+import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef } from 'react'
-import { ArrowLeft, CalendarDays, Mail, MapPin, Phone } from 'lucide-react'
 import type { PerformancePeriod } from '../../types/management'
 import type { TechnicianDetailsProps } from '../../types/ui'
 import styles from './TechnicianDetails.module.css'
@@ -39,7 +39,7 @@ export function TechnicianDetails({
         onClick={onBack}
         aria-label={t('Voltar para equipe')}
       >
-        <ArrowLeft size={28} />
+        <FigmaIcon name="back" />
       </button>
       <div className={styles.identity}>
         <span className={styles.avatar} aria-hidden="true">
@@ -65,19 +65,19 @@ export function TechnicianDetails({
         <h2>{t('Informações')}</h2>
         <div>
           <p>
-            <Mail aria-hidden="true" />
+            <FigmaIcon name="mail" />
             {technician.email}
           </p>
           <p>
-            <Phone aria-hidden="true" />
+            <FigmaIcon name="phone" />
             {technician.phone}
           </p>
           <p>
-            <CalendarDays aria-hidden="true" />
+            <FigmaIcon name="profile-calendar" />
             {formatDate(technician.birthDate, { dateStyle: 'long' })}
           </p>
           <p>
-            <MapPin aria-hidden="true" />
+            <FigmaIcon name="location" />
             {address} {t('· CEP')} {technician.postalCode}
             {technician.complement && ` · ${technician.complement}`}
           </p>

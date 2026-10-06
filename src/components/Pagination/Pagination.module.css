@@ -1,0 +1,31 @@
+.pager {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 12px 20px 0;
+}
+.pager button {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  height: 45px;
+  padding: 8px;
+  border: 0;
+  border-radius: 15px;
+  background: transparent;
+  color: var(--fixa-muted);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.pager button:hover:not([aria-current='page']):not(:disabled) {
+  background: var(--fixa-hover);
+}
+.pager button[aria-current='page'] {
+  color: white;
+  background: #153d7d;
+}
+.pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

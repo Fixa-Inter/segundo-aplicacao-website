@@ -16,6 +16,7 @@ export interface PreferencesProviderProps {
 }
 export interface BrandProps {
   compact?: boolean
+  collapsed?: boolean
   className?: string
 }
 export interface AuthFieldProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -28,10 +29,6 @@ export interface StatCardProps {
   value: number
   tone: 'blue' | 'yellow' | 'green' | 'red'
 }
-export interface WeekPickerProps {
-  value: string
-  onChange: (date: string) => void
-}
 export interface NavigationProps {
   onNavigate: () => void
   onLogout: () => void
@@ -41,6 +38,63 @@ export interface PageHeaderProps {
   title: string
   description?: string
   action?: ReactNode
+}
+
+export interface FigmaIconProps {
+  name:
+    | 'home'
+    | 'dashboard'
+    | 'team'
+    | 'calendar'
+    | 'manu'
+    | 'profile'
+    | 'logout'
+    | 'settings'
+    | 'edit'
+    | 'trash'
+    | 'filter'
+    | 'chevron-left'
+    | 'chevron-right'
+    | 'arrow-up-right'
+    | 'close'
+    | 'search'
+    | 'plus'
+    | 'more'
+    | 'new-chat'
+    | 'mail'
+    | 'phone'
+    | 'location'
+    | 'profile-calendar'
+    | 'profile-edit'
+    | 'back'
+    | 'chat-search'
+    | 'attachment'
+    | 'chat-plus'
+    | 'send'
+    | 'select-arrow'
+  active?: boolean
+}
+export interface ConfirmDialogProps {
+  opened: boolean
+  question: string
+  subject?: string
+  confirmLabel: string
+  busy?: boolean
+  onClose: () => void
+  onConfirm: () => void
+}
+export interface FilterButtonProps {
+  children: ReactNode
+  active?: boolean
+}
+export interface PaginationProps {
+  page: number
+  total: number
+  onChange: (page: number) => void
+}
+export interface EventDetailsProps {
+  event: CalendarEvent | null
+  onClose: () => void
 }
 
 export interface TechnicianFormProps {

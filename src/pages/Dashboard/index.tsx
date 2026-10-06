@@ -1,5 +1,6 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useState } from 'react'
+import { FilterButton } from '../../components/FilterButton'
 import { PageHeader } from '../../components/PageHeader'
 import { getDashboard, listTechnicians } from '../../services/managementService'
 import type { DashboardRecord, Technician } from '../../types/management'
@@ -73,6 +74,7 @@ export default function Dashboard() {
           <label htmlFor="dashboard-technician" className={common.field}>
             <span className={styles.srOnly}>{t('Técnico')}</span>
             <select
+              className={styles.technicianSelect}
               id="dashboard-technician"
               value={technicianId}
               onChange={(event) => {
@@ -81,7 +83,7 @@ export default function Dashboard() {
                 setTechnicianId(event.target.value)
               }}
             >
-              <option value="">{t('Todos os técnicos')}</option>
+              <option value="">{t('Técnico')}</option>
               {technicians.map((technician) => (
                 <option key={technician.id} value={technician.id}>
                   {technician.name}
@@ -89,6 +91,9 @@ export default function Dashboard() {
               ))}
             </select>
           </label>
+        </div>
+        <FilterButton active={months !== '7' || metric !== 'completed'}>
+          {' '}
           <label htmlFor="dashboard-period" className={common.field}>
             <span className={styles.srOnly}>{t('Período')}</span>
             <select
@@ -111,12 +116,7 @@ export default function Dashboard() {
               <option value="opened">{t('Abertas')}</option>
             </select>
           </label>
-        </div>
-        <p className={`${common.muted} ${styles.demoNote}`}>
-          {t(
-            'Distribuição sintética por técnico, independente do calendário. Técnicos novos não têm indicadores históricos nesta demonstração.',
-          )}
-        </p>
+        </FilterButton>
       </div>
       {loading && <p role="status">{t('Carregando indicadores…')}</p>}
       {error && (
@@ -170,7 +170,7 @@ export default function Dashboard() {
                       name: completionRate,
                     })}
                     style={{
-                      background: `conic-gradient(var(--fixa-text-primary) ${completionRate}%, #dbe7f6 0)`,
+                      background: `conic-gradient(#2cc64d ${completionRate}%, #0b5805 0)`,
                     }}
                   >
                     <span>{completionRate}%</span>
@@ -186,7 +186,7 @@ export default function Dashboard() {
                       name: 100 - completionRate,
                     })}
                     style={{
-                      background: `conic-gradient(#578bd6 ${100 - completionRate}%, #dbe7f6 0)`,
+                      background: `conic-gradient(#5ad1f8 ${100 - completionRate}%, #153d7d 0)`,
                     }}
                   >
                     <span>{pending}</span>
@@ -219,6 +219,63 @@ export default function Dashboard() {
                     </div>
                   ))}
                 </div>
+              </section>
+              <section className={common.panel} aria-labelledby="scatter-title">
+                <h2 id="scatter-title">{t('Solicitações abertas × tempo médio')}</h2>
+                {scatter.length ? (
+                  <>
+                    <svg
+                      className={styles.scatter}
+                      viewBox="0 0 320 200"
+                      role="img"
+                      aria-label={scatter
+                        .map((item) =>
+                          t('{month}: {opened} abertas e média de {mean} horas', {
+                            month: t(item.month),
+                            opened: item.opened,
+                            mean: formatHour(item.mean),
+                          }),
+                        )
+                        .join('; ')}
+                    >
+                      <path d="M 40 15 V 160 H 300" fill="none" stroke="var(--fixa-muted)" />
+                      <text x="35" y="178">
+                        0
+                      </text>
+                      <text x="300" y="178" textAnchor="end">
+                        {scatterMaxX}
+                      </text>
+                      <text x="33" y="25" textAnchor="end">
+                        {formatHour(scatterMaxY)}
+                      </text>
+                      <text x="170" y="196" textAnchor="middle">
+                        {t('Abertas (quantidade)')}
+                      </text>
+                      <text x="14" y="90" textAnchor="middle" transform="rotate(-90 14 90)">
+                        {t('Tempo médio (h)')}
+                      </text>
+                      {scatter.map((item) => (
+                        <g key={t(item.month)}>
+                          <circle
+                            cx={40 + (item.opened / scatterMaxX) * 260}
+                            cy={160 - (item.mean / scatterMaxY) * 140}
+                            r="5"
+                            fill="var(--fixa-text-primary)"
+                          />
+                          <title>
+                            {t(item.month)}: {item.opened} {t('abertas ·')} {formatHour(item.mean)}{' '}
+                            {t('h')}
+                          </title>
+                        </g>
+                      ))}
+                    </svg>
+                    <p className={common.muted}>
+                      {t('Cada ponto representa um mês; a relação não estabelece causa e efeito.')}
+                    </p>
+                  </>
+                ) : (
+                  <p>{t('Não há tempos de atendimento para comparar.')}</p>
+                )}
               </section>
               <section className={common.panel} aria-labelledby="line-title">
                 <h2 id="line-title">{t('Evolução de concluídas')}</h2>
@@ -324,63 +381,6 @@ export default function Dashboard() {
                   </>
                 ) : (
                   <p>{t('Não há tempos de atendimento neste período.')}</p>
-                )}
-              </section>
-              <section className={common.panel} aria-labelledby="scatter-title">
-                <h2 id="scatter-title">{t('Solicitações abertas × tempo médio')}</h2>
-                {scatter.length ? (
-                  <>
-                    <svg
-                      className={styles.scatter}
-                      viewBox="0 0 320 200"
-                      role="img"
-                      aria-label={scatter
-                        .map((item) =>
-                          t('{month}: {opened} abertas e média de {mean} horas', {
-                            month: t(item.month),
-                            opened: item.opened,
-                            mean: formatHour(item.mean),
-                          }),
-                        )
-                        .join('; ')}
-                    >
-                      <path d="M 40 15 V 160 H 300" fill="none" stroke="var(--fixa-muted)" />
-                      <text x="35" y="178">
-                        0
-                      </text>
-                      <text x="300" y="178" textAnchor="end">
-                        {scatterMaxX}
-                      </text>
-                      <text x="33" y="25" textAnchor="end">
-                        {formatHour(scatterMaxY)}
-                      </text>
-                      <text x="170" y="196" textAnchor="middle">
-                        {t('Abertas (quantidade)')}
-                      </text>
-                      <text x="14" y="90" textAnchor="middle" transform="rotate(-90 14 90)">
-                        {t('Tempo médio (h)')}
-                      </text>
-                      {scatter.map((item) => (
-                        <g key={t(item.month)}>
-                          <circle
-                            cx={40 + (item.opened / scatterMaxX) * 260}
-                            cy={160 - (item.mean / scatterMaxY) * 140}
-                            r="5"
-                            fill="var(--fixa-text-primary)"
-                          />
-                          <title>
-                            {t(item.month)}: {item.opened} {t('abertas ·')} {formatHour(item.mean)}{' '}
-                            {t('h')}
-                          </title>
-                        </g>
-                      ))}
-                    </svg>
-                    <p className={common.muted}>
-                      {t('Cada ponto representa um mês; a relação não estabelece causa e efeito.')}
-                    </p>
-                  </>
-                ) : (
-                  <p>{t('Não há tempos de atendimento para comparar.')}</p>
                 )}
               </section>
             </div>

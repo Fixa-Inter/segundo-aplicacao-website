@@ -1,6 +1,7 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { ArrowUp, Paperclip, Plus, Search, X } from 'lucide-react'
+import { Paperclip, X } from 'lucide-react'
+import { FigmaIcon } from '../../components/FigmaIcon'
 import { useAuth } from '../../contexts/useAuth'
 import {
   beginDemoMessage,
@@ -78,7 +79,7 @@ export default function Manu() {
         <h1>{t('Manu')}</h1>
         <label htmlFor="manu-search" className={styles.search}>
           <span className={styles.srOnly}>{t('Pesquisar conversas')}</span>
-          <Search size={14} aria-hidden="true" />
+          <FigmaIcon name="chat-search" />
           <input
             id="manu-search"
             type="search"
@@ -94,7 +95,7 @@ export default function Manu() {
           onClick={newChat}
           disabled={busy || !activeId}
         >
-          <Plus size={17} aria-hidden="true" /> {t('Novo chat')}
+          <FigmaIcon name="new-chat" /> {t('Novo chat')}
         </button>
         <h2>{t('Recentes')}</h2>
         {filtered.length ? (
@@ -233,7 +234,7 @@ export default function Manu() {
               aria-controls="manu-suggestions"
               onClick={() => setSuggestionsOpen((current) => !current)}
             >
-              <Plus size={24} />
+              <FigmaIcon name="chat-plus" />
             </button>
             <button
               type="button"
@@ -241,7 +242,7 @@ export default function Manu() {
               disabled={attachments.length >= 3 || busy}
               onClick={() => fileRef.current?.click()}
             >
-              <Paperclip size={22} />
+              <FigmaIcon name="attachment" />
             </button>
             <input
               id="manu-file"
@@ -287,7 +288,7 @@ export default function Manu() {
               disabled={busy || !message.trim()}
               aria-label={t('Enviar mensagem')}
             >
-              <ArrowUp size={20} />
+              <FigmaIcon name="send" />
             </button>
           </div>
           {suggestionsOpen && (

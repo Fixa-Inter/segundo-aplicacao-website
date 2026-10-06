@@ -55,8 +55,8 @@
 .bar {
   width: min(100%, 45px);
   min-height: 2px;
-  background: #578bd6;
-  border-radius: 8px 8px 0 0;
+  background: #153d7d;
+  border-radius: 25px 25px 0 0;
 }
 .value {
   font-weight: 600;
@@ -140,7 +140,7 @@
   min-width: 0;
   border-radius: 20px;
   padding: 18px;
-  background: var(--fixa-accent-surface);
+  background: var(--fixa-neutral-surface);
 }
 
 .summaryCard {
@@ -148,23 +148,25 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 145px;
-  color: var(--fixa-muted);
+  color: var(--fixa-black);
 }
 
 .summaryCard strong {
-  color: var(--fixa-text-primary);
+  align-self: flex-end;
+  color: #578bd6;
   font-size: clamp(28px, 3vw, 42px);
 }
 
 .ringCard {
   text-align: center;
-  background: var(--fixa-panel);
+  background: var(--fixa-neutral-surface);
 }
 
 .ringCard h2 {
   margin: 0 0 12px;
-  color: var(--fixa-text-primary);
-  font-size: 16px;
+  color: var(--fixa-black);
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .ringCard p {
@@ -188,7 +190,7 @@
   width: 73%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--fixa-panel);
+  background: var(--fixa-neutral-surface);
   color: var(--fixa-text-primary);
   font-size: clamp(22px, 2.5vw, 32px);
   font-weight: 700;
@@ -215,5 +217,32 @@
 @media (max-width: 480px) {
   .rings {
     grid-template-columns: 1fr;
+  }
+}
+
+.controls select.technicianSelect {
+  background-color: #153d7d;
+  color: white;
+  border: 0;
+  border-radius: 35px;
+  min-height: 40px;
+  max-width: 300px;
+  background-image: url('../../assets/figma/icons/select-arrow.svg');
+  background-position: left 12px center;
+  padding-left: 34px;
+  padding-right: 18px;
+}
+.controls .technicianSelect option {
+  color: var(--fixa-ink);
+  background: var(--fixa-surface);
+}
+.charts > section {
+  background: var(--fixa-neutral-surface);
+  color: var(--fixa-black);
+}
+@media (max-width: 1100px) {
+  .controls {
+    flex-direction: row;
+    align-items: center;
   }
 }
