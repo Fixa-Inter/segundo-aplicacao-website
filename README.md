@@ -25,10 +25,10 @@ Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não v
 | --- | --- |
 | `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
 | `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
-| `/` | Home com banner original, indicadores, gráfico e calendário de domingo a sábado; escolha de mês/ano e dia para mostrar sua semana e eventos compartilhados com o Calendário |
+| `/` | Home com banner original, indicadores, gráfico e resumo do calendário de segunda a sexta, setas de mês e links para o Calendário completo |
 | `/dashboard` | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos |
-| `/equipe` | Busca, filtro, paginação, detalhes com desempenho semanal/mensal, cadastro, edição e exclusão **em memória** de técnicos |
-| `/calendario` | Grade mensal, seleção de dia e criação, edição e exclusão **em memória** de eventos com local, descrição, observação e horários |
+| `/equipe` | Busca, botão Filtrar, paginação numerada, detalhes com desempenho semanal/mensal, cadastro, edição e confirmação de exclusão **em memória** de técnicos |
+| `/calendario` | Grade mensal, seleção de dia, modal de informações e criação, edição e confirmação de exclusão **em memória** de eventos com local, descrição, observação e horários |
 | `/perfil` | Dados do gestor editáveis **em memória** e validação demonstrativa de troca de senha |
 | `/configuracoes` | Português, inglês, espanhol e mandarim (chinês simplificado); temas claro e escuro, aplicados na hora |
 | `/manu` | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente |
@@ -60,6 +60,8 @@ Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos cr
 Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`; são preservados ao recarregar e sair da conta. Valores inválidos retornam ao português e tema claro. Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
 
 ## Qualidade e evidências
+
+- Revisão após feedback da designer em 06/10/2026: ícones e logos vetoriais originais do Website v2, cores/tipografia, header alinhado, filtros, paginação e modais de exclusão/saída/informações corrigidos. A Home voltou ao resumo de cinco dias do Figma; o seletor mensal detalhado foi retirado. Build, lint, Prettier e **27/27 testes** aprovados; revisão em desktop, notebook, tablet e celular registrada na [auditoria de design](docs/REVISAO_DESIGN_2026-10-06.md), com capturas e adaptações preservadas. Os registros abaixo descrevem versões anteriores.
 
 - Em 06/10/2026: **27 testes Node**, build, lint e formatação aprovados. Calendário da Home mais espaçoso, com grade de meses/ano, seleção por dia e semana de domingo a sábado; Novo chat ocupa a largura do histórico e a alça acima de Enviar foi removida. Revisão visual em notebook, tablet e celular registrada no [QA](docs/QA_NAVEGADOR.md). O botão nativo de senha do Edge foi ocultado somente em campos com controle próprio; confirmação visual no Edge ainda pendente.
 

@@ -1,5 +1,7 @@
 # Revisão visual — Website v2
 
+**Estado atual:** [revisão após feedback da designer, 06/10/2026](REVISAO_DESIGN_2026-10-06.md), com frames consultados, correções, capturas e adaptações. A Home voltou ao resumo de cinco dias do Figma e o WeekPicker foi retirado. Os registros abaixo são históricos e não prevalecem sobre essa revisão.
+
 Referência somente para leitura: [cópia do Figma](https://www.figma.com/design/zgDd0qejEdOT2E16qQOsJs/Fixa--Copy-?node-id=5631-5628), seção `5631:5628`. Os IDs abaixo pertencem à cópia, não ao arquivo anterior. Revisão incremental de 26–28/09/2026; resultados de interação em [QA_NAVEGADOR.md](QA_NAVEGADOR.md).
 
 As coordenadas abaixo registram as comparações feitas antes do ajuste de ergonomia solicitado em 28/09. A largura da navegação, as alturas da Home e a composição da Manu mudaram depois dessa medição para atender melhor o notebook mostrado nas capturas do usuário. Esses números permanecem como histórico e **não aprovam a posição atual** dessas telas no Figma.
@@ -62,3 +64,11 @@ Clicar no mês/ano abre uma grade de 12 meses; as setas mudam o ano nessa grade 
 Na Manu, Novo chat ocupa toda a largura útil do histórico e distingue os estados disponível/desabilitado. A alça nativa de redimensionamento do textarea foi removida; o campo conserva rolagem interna para texto longo. [Conversa com os controles ajustados](evidencias/manu-controles-2026-10-06.jpg).
 
 Estas alterações seguem as capturas e decisões recentes do usuário; não representam aprovação integral de todos os frames do Figma.
+
+### Retomada dos detalhes do Website v2 — 06/10
+
+Os frames principais e os modais `5631:7373`, `7380` e `7387` foram consultados para corrigir diferenças relatadas pela designer. Aplicados ícones originais, inclusive Manu e variantes ativas, e logos vetoriais do menu. Header/main agora compartilham alinhamento; Equipe usa Filtrar com funil, cabeçalhos brancos, ações originais e paginação numerada com setas. Exclusão/saída usam as confirmações do protótipo, e informações do Calendário abrem o modal próprio.
+
+A Home retorna à proporção gráfico/resumo de 700:360, cinco dias e navegação simples do mês, substituindo o seletor detalhado descrito acima. Dashboard, Perfil, formulários e recuperação receberam ajustes de cores, ícones e tipografia; senha segue a página com a arte original. Manu mantém as adaptações funcionais solicitadas anteriormente.
+
+Veja a [matriz da revisão e as capturas](REVISAO_DESIGN_2026-10-06.md) para verificações em 1440 × 1024, 1280 × 720, 1340 × 800, 800 × 1340 e 390 × 844. Permanecem adaptações de dados reais do mock, grade mensal completa, gráficos do PDF, responsividade e acessibilidade; não se alega igualdade de cada pixel nem aprovação de todos os estados.

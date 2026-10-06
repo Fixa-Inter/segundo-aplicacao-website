@@ -1,0 +1,182 @@
+[
+  {
+    "broken": 0,
+    "height": 800,
+    "horizontal": false,
+    "mainClient": 720,
+    "mainScroll": 720,
+    "url": "/",
+    "width": 1340
+  },
+  {
+    "broken": 0,
+    "height": 800,
+    "horizontal": false,
+    "mainClient": 720,
+    "mainScroll": 1803,
+    "url": "/dashboard",
+    "width": 1340
+  },
+  {
+    "broken": 0,
+    "height": 800,
+    "horizontal": false,
+    "mainClient": 720,
+    "mainScroll": 720,
+    "url": "/perfil",
+    "width": 1340
+  },
+  {
+    "broken": 0,
+    "height": 800,
+    "horizontal": false,
+    "mainClient": 720,
+    "mainScroll": 720,
+    "url": "/equipe",
+    "width": 1340
+  },
+  {
+    "broken": 0,
+    "height": 800,
+    "horizontal": false,
+    "mainClient": 720,
+    "mainScroll": 720,
+    "url": "/manu",
+    "width": 1340
+  },
+  {
+    "broken": 0,
+    "height": 1340,
+    "horizontal": false,
+    "mainClient": 1260,
+    "mainScroll": 1260,
+    "url": "/",
+    "width": 800
+  },
+  {
+    "broken": 0,
+    "height": 1340,
+    "horizontal": false,
+    "mainClient": 1260,
+    "mainScroll": 1260,
+    "url": "/equipe",
+    "width": 800
+  },
+  {
+    "broken": 0,
+    "height": 1340,
+    "horizontal": false,
+    "mainClient": 1260,
+    "mainScroll": 1260,
+    "url": "/calendario",
+    "width": 800
+  },
+  {
+    "broken": 0,
+    "height": 1340,
+    "horizontal": false,
+    "mainClient": 1260,
+    "mainScroll": 1260,
+    "url": "/perfil",
+    "width": 800
+  },
+  {
+    "broken": 0,
+    "height": 1340,
+    "horizontal": false,
+    "mainClient": 1260,
+    "mainScroll": 1824,
+    "url": "/dashboard",
+    "width": 800
+  },
+  {
+    "broken": 0,
+    "height": 844,
+    "horizontal": false,
+    "mainClient": 768,
+    "mainScroll": 1169,
+    "url": "/",
+    "width": 390
+  },
+  {
+    "broken": 0,
+    "height": 844,
+    "horizontal": false,
+    "mainClient": 768,
+    "mainScroll": 1361,
+    "url": "/equipe",
+    "width": 390
+  },
+  {
+    "broken": 0,
+    "height": 844,
+    "horizontal": false,
+    "mainClient": 768,
+    "mainScroll": 768,
+    "url": "/calendario",
+    "width": 390
+  },
+  {
+    "broken": 0,
+    "height": 844,
+    "horizontal": false,
+    "mainClient": 768,
+    "mainScroll": 768,
+    "url": "/perfil",
+    "width": 390
+  },
+  {
+    "broken": 0,
+    "height": 844,
+    "horizontal": false,
+    "mainClient": 768,
+    "mainScroll": 768,
+    "url": "/manu",
+    "width": 390
+  },
+  {
+    "broken": 0,
+    "height": 800,
+    "horizontal": false,
+    "mainClient": 720,
+    "mainScroll": 720,
+    "url": "/calendario",
+    "width": 1340
+  },
+  {
+    "broken": 0,
+    "height": 720,
+    "horizontal": false,
+    "mainClient": 640,
+    "mainScroll": 640,
+    "url": "/equipe",
+    "width": 1280
+  },
+  {
+    "broken": 0,
+    "height": 720,
+    "horizontal": false,
+    "mainClient": 640,
+    "mainScroll": 640,
+    "url": "/",
+    "width": 1280
+  },
+  {
+    "broken": 0,
+    "height": 720,
+    "horizontal": false,
+    "mainClient": 640,
+    "mainScroll": 640,
+    "url": "/manu",
+    "width": 1280
+  },
+  {
+    "broken": 0,
+    "height": 844,
+    "horizontal": false,
+    "mainClient": 768,
+    "mainScroll": 2679,
+    "url": "/dashboard",
+    "width": 390
+  }
+]

@@ -233,3 +233,17 @@ Verificação manual no navegador integrado do ambiente, em localhost e com dado
 O CSS `input::-ms-reveal { display: none; }` está limitado ao AuthField com botão próprio e ao campo de senha do cadastro de técnico, conforme a [documentação oficial do Edge](https://learn.microsoft.com/en-us/microsoft-edge/web-platform/password-reveal). Campos sem controle próprio conservam o recurso nativo. **Correção implementada; confirmação visual no Edge não executada.**
 
 `npm test`: **27/27 aprovados**. Build TypeScript/Vite, lint e Prettier aprovados; teste novo cobre semanas domingo–sábado, meses e ano bissexto. Console sem erros/avisos na sessão conferida. Evidências: [calendário](evidencias/home-calendario-dia-semana-2026-10-06.jpg) e [Manu](evidencias/manu-controles-2026-10-06.jpg). Leitor de tela, IME físico e dispositivos físicos continuam não verificados nesta revisão.
+
+### Revisão após feedback da designer — 06/10
+
+O [relatório atual de design](REVISAO_DESIGN_2026-10-06.md) detalha cada correção, os frames consultados, medidas, capturas e limites. **Ele substitui os registros anteriores sobre o seletor da Home:** retirado o WeekPicker; retomado o resumo de cinco dias do Figma. Sábado/domingo continuam no Calendário completo.
+
+- Comparação direta dos frames principais, formulários, confirmação de saída/exclusão e informações de evento. Aplicados ícones e logos vetoriais originais, incluindo Manu; corrigidos cores, tipografia e alinhamento header/main.
+- Filtrar/Inativo, Escape/retorno de foco e páginas 1/2 conferidos. Edição de Ana salva. Cancelar exclusão conservou Diego; confirmar removeu o registro fictício. Logout encerrou a sessão; novo login restaurou dados.
+- Registro abriu o modal de evento com local, data, horário, descrição e observação. Fechar/Escape restauraram foco. Modal conferido também em inglês, mandarim/tema escuro e celular. Retirada a expansão de detalhes inline.
+- Home, Equipe, Calendário, Perfil, Dashboard e Manu conferidos em 1340 × 800, 800 × 1340 e 390 × 844; nenhuma imagem quebrada nem transbordamento horizontal. Home/Equipe/Manu conferidas também em 1280 × 720 sem rolagem externa no estado inicial; senha cabe nessa resolução.
+- Corrigida altura da Manu em tablet/celular para manter compositor acessível. Enter enviou, Shift+Enter inseriu linha, Novo chat reiniciou e saudação permaneceu. Rolagem de mensagens continua interna.
+- Desktop mantém Home, Equipe, Calendário e Perfil sem rolagem no estado inicial. BI conserva gráficos adicionais do PDF abaixo dos principais; celular, formulários/listas maiores e mensagens de sucesso podem exigir rolagem abaixo do header.
+- Recarga limpa e navegação/filtros sem erros/avisos de console. Erro transitório de contexto durante hot reload da edição não voltou após recarga. Build, lint, Prettier e **27/27 testes Node aprovados**.
+
+As [33 capturas e medidas](evidencias/design-2026-10-06) documentam estados efetivamente observados. Não aprovam todos os fluxos em todos os idiomas/temas, fidelidade de cada pixel, WCAG formal, Edge, IME físico, leitor de tela nem tablet físico. API/BI real/publicação permanecem externos.
