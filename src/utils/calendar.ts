@@ -13,18 +13,18 @@ export function formatDate(
   )
 }
 
-export function startOfWeek(isoDate: string): string {
+export function startOfWeek(isoDate: string, firstDay: 0 | 1 = 1): string {
   const weekday = new Date(`${isoDate}T12:00:00Z`).getUTCDay()
-  return shiftDate(isoDate, -(weekday + 6) % 7)
+  return shiftDate(isoDate, -((weekday - firstDay + 7) % 7))
 }
 
-export function monthWeeks(isoMonth: string): string[] {
+export function monthWeeks(isoMonth: string, firstDay: 0 | 1 = 1): string[] {
   const first = `${isoMonth}-01`
   const last = new Date(`${first}T12:00:00Z`)
   last.setUTCMonth(last.getUTCMonth() + 1, 0)
   const lastDate = last.toISOString().slice(0, 10)
   const weeks: string[] = []
-  for (let date = startOfWeek(first); date <= lastDate; date = shiftDate(date, 7)) {
+  for (let date = startOfWeek(first, firstDay); date <= lastDate; date = shiftDate(date, 7)) {
     weeks.push(date)
   }
   return weeks

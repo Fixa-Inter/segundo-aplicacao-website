@@ -113,6 +113,9 @@
 .passwordField input {
   padding-right: 52px;
 }
+.passwordField input::-ms-reveal {
+  display: none;
+}
 .passwordField button {
   position: absolute;
   right: 8px;

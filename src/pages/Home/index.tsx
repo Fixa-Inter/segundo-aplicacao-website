@@ -100,7 +100,7 @@ export default function Home() {
             value={selectedDay}
             onChange={(date) => {
               setSelectedDay(date)
-              setWeekStart(startOfWeek(date))
+              setWeekStart(startOfWeek(date, 0))
             }}
           />
           <div className={styles.days} aria-label={t('Dias da semana')}>

@@ -17,4 +17,4 @@ export const monthlyTasks: MonthlyTaskCount[] = [
   { month: 'Jun', value: 24 },
   { month: 'Jul', value: 18 },
 ]
-export const previewWeekStart = '2026-03-09'
+export const previewWeekStart = '2026-03-08'

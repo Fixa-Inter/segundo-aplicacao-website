@@ -29,3 +29,22 @@ test('seletor de semanas cobre todos os dias de meses curtos, longos e bissextos
   }
   assert.equal(monthWeeks('2026-03').length, 6)
 })
+
+test('semanas de domingo a sábado correspondem à referência da Home', () => {
+  assert.equal(startOfWeek('2026-10-05', 0), '2026-10-04')
+  assert.equal(startOfWeek('2026-10-10', 0), '2026-10-04')
+  assert.equal(startOfWeek('2026-10-11', 0), '2026-10-11')
+  assert.equal(startOfWeek('2027-01-01', 0), '2026-12-27')
+  assert.deepEqual(monthWeeks('2026-03', 0), [
+    '2026-03-01',
+    '2026-03-08',
+    '2026-03-15',
+    '2026-03-22',
+    '2026-03-29',
+  ])
+  const leapDays = monthWeeks('2024-02', 0).flatMap((start) =>
+    Array.from({ length: 7 }, (_, offset) => shiftDate(start, offset)),
+  )
+  assert.equal(leapDays.filter((date) => date.startsWith('2024-02')).length, 29)
+  assert.equal(new Set(leapDays).size, leapDays.length)
+})

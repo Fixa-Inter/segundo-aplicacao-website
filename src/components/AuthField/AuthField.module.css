@@ -42,6 +42,10 @@
 .control:has(button) input {
   padding-right: 56px;
 }
+/* Evita dois controles de revelar senha quando o Edge adiciona seu próprio botão. */
+.control:has(button) input::-ms-reveal {
+  display: none;
+}
 .control button {
   position: absolute;
   right: 10px;

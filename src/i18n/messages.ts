@@ -2,6 +2,14 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Escolher mês e ano': ['Choose month and year', 'Elegir mes y año', '选择月份和年份'],
+  'Voltar aos dias do mês': [
+    'Back to days of the month',
+    'Volver a los días del mes',
+    '返回月份日期',
+  ],
+  'Ano anterior': ['Previous year', 'Año anterior', '上一年'],
+  'Próximo ano': ['Next year', 'Próximo año', '下一年'],
   'Seletor semanal': ['Week selector', 'Selector semanal', '周选择器'],
   'Semana de {date}': ['Week of {date}', 'Semana del {date}', '{date}所在周'],
   'Selecionar semana': ['Select week', 'Seleccionar semana', '选择周'],
