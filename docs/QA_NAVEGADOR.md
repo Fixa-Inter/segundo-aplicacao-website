@@ -211,3 +211,25 @@ Alterado a pedido do usuário: Enter envia; Shift + Enter insere uma nova linha.
 No navegador local em 1340 × 800, Enter com campo vazio não criou conversa nem inseriu quebra de linha. A pergunta “Como agendar um evento?” foi enviada com Enter e recebeu resposta. Depois, Shift + Enter produziu o rascunho “Preciso de manutenção\nno sábado.” sem envio; Enter enviou esse texto como uma única mensagem, preservando a quebra. O campo foi limpo e continuou focado. Console sem avisos/erros. [Captura da conversa](evidencias/manu-enter-shift-enter-2026-10-05.jpg).
 
 Build, lint e formatação aprovados. O código também evita envio por repetição da tecla e durante composição de caracteres (IME); teclado físico com IME não foi testado nesta sessão.
+
+
+### Calendário por dia, senha no Edge e controles da Manu — 06/10
+
+Verificação manual no navegador integrado do ambiente, em localhost e com dados fictícios. O Edge não apareceu entre os navegadores conectados; a confirmação de seu controle nativo permanece pendente.
+
+| Cenário executado | Resultado observado |
+| --- | --- |
+| Mostrar/ocultar senha no Login | Controle próprio alternou `password` → `text` → `password`; a identificação e senha fictícias permitiram entrar normalmente. |
+| Home em 1340 × 800 e 1280 × 720 | Área/conteúdo de 720/720 e 640/640 px, sem rolagem residual ou horizontal. Calendário mais largo, sete dias e eventos visíveis. |
+| Mês e ano | Grade de 12 meses aberta pelo título; próximo ano/anterior funcionaram. Selecionar outubro apenas mudou a visão do picker, mantendo a data anterior até confirmar um dia. |
+| Dia e semana | Selecionar 05/10/2026 mostrou domingo 04 a sábado 10 na Home, com dia 5 marcado e estado vazio de eventos. Reabrir mostrou a faixa semanal e o dia escolhido em outra cor. |
+| Teclado | ArrowRight em 31/10 focou 01/11 e mudou o mês; Enter confirmou a semana iniciada em 01/11. Escape fechou o popover e retornou foco ao botão. |
+| Tablet 800 × 1340 e celular 390 × 844 | Picker inteiro dentro da janela e documento sem transbordamento horizontal. No celular, rolagem vertical fica na área abaixo do cabeçalho; dia, semana e evento permaneceram acessíveis. |
+| Tema escuro | Grade dos 12 meses, seleção e painel da Home conferidos; superfícies e textos usam tokens do tema. Tema claro restaurado ao terminar. |
+| Novo chat | Botão com 204 px em desktop, mesma largura útil da coluna; disponível após a resposta e desabilitado após iniciar novo chat, com foco no campo. No celular ocupa toda a largura útil, respeitando o padding da coluna. |
+| Campo da Manu | `resize: none`; captura confirma ausência da alça acima de Enviar. Texto fictício de 440 caracteres/20 linhas permaneceu acessível por rolagem interna (92 px disponíveis, 590 px de conteúdo). Campo e botão conferidos também em 390 × 844. |
+| Atalhos da Manu | Shift+Enter inseriu quebra sem envio; Enter enviou a pergunta, recebeu resposta, limpou o campo e habilitou Novo chat. Saudação continuou visível. |
+
+O CSS `input::-ms-reveal { display: none; }` está limitado ao AuthField com botão próprio e ao campo de senha do cadastro de técnico, conforme a [documentação oficial do Edge](https://learn.microsoft.com/en-us/microsoft-edge/web-platform/password-reveal). Campos sem controle próprio conservam o recurso nativo. **Correção implementada; confirmação visual no Edge não executada.**
+
+`npm test`: **27/27 aprovados**. Build TypeScript/Vite, lint e Prettier aprovados; teste novo cobre semanas domingo–sábado, meses e ano bissexto. Console sem erros/avisos na sessão conferida. Evidências: [calendário](evidencias/home-calendario-dia-semana-2026-10-06.jpg) e [Manu](evidencias/manu-controles-2026-10-06.jpg). Leitor de tela, IME físico e dispositivos físicos continuam não verificados nesta revisão.

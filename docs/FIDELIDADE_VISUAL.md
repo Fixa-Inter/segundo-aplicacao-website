@@ -51,3 +51,14 @@ O tema claro conserva a composição existente, com 32 px de espaço inferior no
 A pedido do usuário, os dois dropdowns da Home foram substituídos por um botão com ícone de calendário e a data inicial da semana. Ao abrir, o calendário mensal mostra a semana como uma faixa azul contínua e o dia escolhido em outro tom, seguindo o estilo da captura enviada. As semanas continuam de segunda a domingo para manter a mesma ordem dos sete dias da Home. Dias dos meses vizinhos aparecem discretamente para permitir selecionar semanas completas nas viradas de mês.
 
 A troca do mês navega somente pelo seletor; clicar em um dia confirma sua semana e atualiza os eventos. O popover abre acima ou abaixo conforme o espaço, sem deslocar o conteúdo. [Captura do seletor aberto](evidencias/home-seletor-semanal-2026-10-05.jpg).
+
+
+### Refinamento do calendário e controles — 06/10
+
+A nova referência enviada pelo usuário substitui a ordem de segunda a domingo da revisão de 05/10: o calendário da Home agora usa **domingo a sábado**. O painel recebe mais largura (proporção 3:2 entre gráfico e calendário), espaçamento de 20 px e seleção circular somente no número do dia, com o rótulo fora do círculo. O botão mostra a data escolhida, como na referência.
+
+Clicar no mês/ano abre uma grade de 12 meses; as setas mudam o ano nessa grade e mudam o mês na visão de dias. Clicar em um dia confirma a semana correspondente. A faixa azul contínua, o dia em outro tom e o hover circular reproduzem a interação solicitada. Dias vizinhos permanecem discretos para escolher semanas completas entre meses. O popover abre acima do controle quando falta espaço abaixo. [Calendário com 5 de outubro selecionado](evidencias/home-calendario-dia-semana-2026-10-06.jpg).
+
+Na Manu, Novo chat ocupa toda a largura útil do histórico e distingue os estados disponível/desabilitado. A alça nativa de redimensionamento do textarea foi removida; o campo conserva rolagem interna para texto longo. [Conversa com os controles ajustados](evidencias/manu-controles-2026-10-06.jpg).
+
+Estas alterações seguem as capturas e decisões recentes do usuário; não representam aprovação integral de todos os frames do Figma.

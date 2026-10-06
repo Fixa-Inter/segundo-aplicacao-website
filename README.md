@@ -25,7 +25,7 @@ Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não v
 | --- | --- |
 | `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
 | `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
-| `/` | Home com banner original, indicadores, gráfico e calendário com sete dias e seletor semanal em calendário mensal e eventos compartilhados com o Calendário |
+| `/` | Home com banner original, indicadores, gráfico e calendário de domingo a sábado; escolha de mês/ano e dia para mostrar sua semana e eventos compartilhados com o Calendário |
 | `/dashboard` | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos |
 | `/equipe` | Busca, filtro, paginação, detalhes com desempenho semanal/mensal, cadastro, edição e exclusão **em memória** de técnicos |
 | `/calendario` | Grade mensal, seleção de dia e criação, edição e exclusão **em memória** de eventos com local, descrição, observação e horários |
@@ -37,7 +37,7 @@ As ações em memória são perdidas ao sair, entrar novamente ou recarregar. Um
 
 O cadastro do gestor define acesso **TÉCNICO** automaticamente e copia seu endereço ao salvar. Os campos de endereço são somente para leitura. A senha de criação segue uma regra provisória e não é armazenada. Veja as [regras e decisões do cadastro](docs/REGRAS_CADASTRO_TECNICOS.md), incluindo os pontos a confirmar com a API.
 
-A Manu preserva conversas entre rotas, inclusive respostas que terminem durante a navegação; login, logout e recarregamento limpam o histórico. Anexos guardam somente nome e tamanho: nenhum conteúdo é lido, enviado ou analisado. Use `Enter` para enviar a mensagem; `Shift + Enter` insere uma nova linha.
+A Manu preserva conversas entre rotas, inclusive respostas que terminem durante a navegação; login, logout e recarregamento limpam o histórico. Anexos guardam somente nome e tamanho: nenhum conteúdo é lido, enviado ou analisado. Use `Enter` para enviar a mensagem; `Shift + Enter` insere uma nova linha. O campo não possui alça de redimensionamento; textos longos continuam acessíveis pela rolagem interna.
 
 A Equipe do gestor mostra apenas técnicos. A administração de gestores pertence ao escopo de Administração/RH, ainda sem interface e contrato nesta aplicação. As notificações e os selos repetidos de dados demonstrativos foram removidos por decisão do usuário; os limites dos mocks continuam descritos nesta documentação.
 
@@ -60,6 +60,8 @@ Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos cr
 Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`; são preservados ao recarregar e sair da conta. Valores inválidos retornam ao português e tema claro. Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
 
 ## Qualidade e evidências
+
+- Em 06/10/2026: **27 testes Node**, build, lint e formatação aprovados. Calendário da Home mais espaçoso, com grade de meses/ano, seleção por dia e semana de domingo a sábado; Novo chat ocupa a largura do histórico e a alça acima de Enviar foi removida. Revisão visual em notebook, tablet e celular registrada no [QA](docs/QA_NAVEGADOR.md). O botão nativo de senha do Edge foi ocultado somente em campos com controle próprio; confirmação visual no Edge ainda pendente.
 
 - Em 05/10/2026, nesta revisão: **26 testes Node**, build, lint e formatação aprovados. A revisão no navegador validou os quatro idiomas, tema escuro, preferências após recarregar, evento de sábado na Home e semanas entre meses/anos. Home e Equipe continuam cabendo em notebook; tablet e celular foram conferidos. Veja os cenários e limites em [QA](docs/QA_NAVEGADOR.md).
 
