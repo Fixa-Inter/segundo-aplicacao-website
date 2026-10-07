@@ -159,11 +159,12 @@ export default function Calendar() {
         action={
           <button
             ref={addButtonRef}
-            className={common.primary}
+            className={`${common.primary} ${common.addButton}`}
             type="button"
             onClick={() => openForm()}
             disabled={loading || Boolean(loadError)}
           >
+            <FigmaIcon name="plus" />
             {t('Adicionar evento')}
           </button>
         }

@@ -54,3 +54,25 @@ Em 07/10/2026: `npm run build`, `npm run lint`, `npm run format:check` e **30/30
 Home: altura de rolagem igual à área disponível em 1340 × 800 e 1280 × 720; Calendário inicial também coube em 1340 × 800. Pop-up de saída coube no celular. Em celular, formulários, listas longas e gráficos continuam acessíveis por rolagem quando necessário. Cancelar exclusão e Escape restauraram foco; cancelar Salvar preservou o formulário; confirmar Salvar no evento e no perfil atualizou apenas a sessão local. Inglês e tema escuro foram percorridos no pop-up de saída, depois restaurados para português e claro. As novas mensagens têm traduções nos quatro idiomas, mas não se alega QA visual integral de todos os estados e idiomas.
 
 Limites: não há API, autorização de servidor, envio de código, persistência de senha nem deploy. A comparação completa de todos os frames, tablet físico e leitor de tela permanece pendente. Esta revisão não certifica equivalência pixel a pixel de toda a aplicação.
+
+
+## Complemento — faixa mensal e controles
+
+O feedback seguinte do usuário atualizou o resumo da Home: agora todos os dias do mês aparecem numa faixa horizontal rolável, com aproximadamente sete dias visíveis por vez. Isto substitui a faixa fixa de sete dias descrita acima. O calendário detalhado continua na aba Calendário.
+
+- A seleção inicial fica centralizada somente na faixa; a página não muda de posição. As setas de mês selecionam o dia 1 do mês anterior/seguinte. Os dias são calculados pela função existente `monthDays`, removendo as células de meses vizinhos. Não há seletor detalhado adicional.
+- Clique escolhe o dia e exibe seus eventos. Teclas esquerda/direita movem entre dias; Home/End acessam o primeiro/último. A faixa também tem rolagem horizontal nativa por mouse/trackpad/toque e barra fina. O foco usa contorno interno, evitando recorte nas bordas.
+- No Dashboard, a seta branca original passou a imagem independente do fundo do select, com largura de 16 px e altura automática (8,31 px medida). Ela permanece centralizada à esquerda, sem deformação, sem capturar cliques e sem depender do background global dos selects. O controle nativo de seleção foi preservado.
+- No botão de detalhes do técnico, hover e foco realçam o fundo e a borda; o avatar muda de cor e o texto não recebe sublinhado. Cores usam os tokens do tema, com transição breve respeitando a preferência por movimento reduzido.
+- Equipe e Calendário agora usam a mesma classe de Adicionar em `management.module.css`: raio de 999 px, altura mínima de 44 px, peso de fonte 500, gap de 12 px e ícone “+” de 18 × 18 px. Os rótulos específicos e os handlers existentes foram preservados.
+
+Verificação local: março exibiu os dias 1–31 e fevereiro os dias 1–28. Home/End selecionaram as duas extremidades; rolagem horizontal por mouse mudou a posição da faixa e deixou `main.scrollTop` em zero. Em 1340 × 800, a main mediu 720/720 px de altura disponível/altura de rolagem; em 1280 × 720, 640/640 px. Em 390 × 844, largura total de 390 px, sem transbordamento horizontal da página; apenas a faixa tem conteúdo mais largo. No Dashboard, seleção de Ana Costa funcionou e a seta foi conferida visualmente e por DOM. O destaque dos técnicos foi observado em foco por teclado, com a mesma regra CSS usada no hover. Ambos os botões Adicionar mediram 44,4 px de altura, raio de 999 px e mesmo ícone/gap. Console sem erros na sessão de QA.
+
+Build, lint, formatação e os 30 testes existentes passaram novamente. Não foram criados testes que apenas repetem as alterações de estilo. Essas verificações não representam QA visual integral de todos os idiomas, estados ou dispositivos físicos.
+
+Capturas adicionais:
+
+- [Home, último dia do mês, 1280 × 720](evidencias/design-2026-10-07/home-mes-1280x720.png)
+- [Dashboard, seta proporcional, 1340 × 800](evidencias/design-2026-10-07/dashboard-seta-1340x800.png)
+- [Equipe, destaque por foco e botão Adicionar, 1340 × 800](evidencias/design-2026-10-07/equipe-destaque-1340x800.png)
+- [Calendário, botão Adicionar padronizado, 1340 × 800](evidencias/design-2026-10-07/calendario-adicionar-1340x800.png)

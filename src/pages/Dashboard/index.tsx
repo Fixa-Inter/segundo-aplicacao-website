@@ -1,5 +1,6 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useState } from 'react'
+import { FigmaIcon } from '../../components/FigmaIcon'
 import { FilterButton } from '../../components/FilterButton'
 import { PageHeader } from '../../components/PageHeader'
 import { getDashboard, listTechnicians } from '../../services/managementService'
@@ -71,8 +72,12 @@ export default function Dashboard() {
       <PageHeader title={t('Dashboard')} />
       <div className={styles.controls}>
         <div className={common.toolbar}>
-          <label htmlFor="dashboard-technician" className={common.field}>
+          <label
+            htmlFor="dashboard-technician"
+            className={`${common.field} ${styles.technicianField}`}
+          >
             <span className={styles.srOnly}>{t('Técnico')}</span>
+            <FigmaIcon name="select-arrow" />
             <select
               className={styles.technicianSelect}
               id="dashboard-technician"

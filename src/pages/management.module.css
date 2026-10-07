@@ -243,3 +243,18 @@
     font-weight: 600;
   }
 }
+
+.primary.addButton {
+  min-width: 170px;
+  border-radius: 999px;
+  font-weight: 500;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+.addButton img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}

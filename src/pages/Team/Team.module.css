@@ -67,8 +67,28 @@
   gap: 20px;
   padding: 5px;
 }
-.nameButton:hover {
-  text-decoration: underline;
+.nameButton {
+  width: 100%;
+  border-radius: 14px;
+  transition:
+    background-color 150ms,
+    box-shadow 150ms;
+}
+.nameButton:is(:hover, :focus-visible) {
+  background: var(--fixa-surface);
+  box-shadow: inset 0 0 0 1px var(--fixa-border);
+}
+.nameButton .initials {
+  transition:
+    background-color 150ms,
+    color 150ms;
+}
+.nameButton:is(:hover, :focus-visible) .initials {
+  background: var(--fixa-text-primary);
+  color: var(--fixa-surface);
+}
+.nameButton:is(:hover, :focus-visible) small {
+  color: var(--fixa-ink);
 }
 .iconButton {
   border: 0;
@@ -108,11 +128,6 @@
   }
 }
 
-.addButton {
-  min-width: 170px;
-  border-radius: 999px;
-  font-weight: 500;
-}
 .searchIcon {
   position: absolute;
   left: 0;
@@ -205,12 +220,6 @@
   color: var(--fixa-text-primary);
   font-size: 22px;
   font-weight: 500;
-}
-.addButton {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
 }
 
 @media (min-width: 901px) and (min-height: 951px) {

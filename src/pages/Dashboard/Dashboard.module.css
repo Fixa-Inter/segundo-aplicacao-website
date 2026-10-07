@@ -225,12 +225,11 @@
   color: white;
   border: 0;
   border-radius: 35px;
-  min-height: 40px;
+  min-height: 44px;
+  font-size: 16px;
   max-width: 300px;
-  background-image: url('../../assets/figma/icons/select-arrow.svg');
-  background-size: 14px 8px;
-  background-position: left 12px center;
-  padding-left: 34px;
+  background-image: none;
+  padding-left: 44px;
   padding-right: 18px;
 }
 .controls .technicianSelect option {
@@ -245,5 +244,24 @@
   .controls {
     flex-direction: row;
     align-items: center;
+  }
+}
+
+.technicianField {
+  position: relative;
+}
+.technicianField > img {
+  position: absolute;
+  left: 17px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: auto;
+  filter: none;
+  pointer-events: none;
+}
+@media (forced-colors: active) {
+  .technicianField > img {
+    display: none;
   }
 }

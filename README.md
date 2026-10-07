@@ -25,7 +25,7 @@ Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não v
 | --- | --- |
 | `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
 | `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
-| `/` | Home com banner original, indicadores, gráfico e resumo do calendário de segunda a domingo, setas de mês e links para o Calendário completo |
+| `/` | Home com banner original, indicadores, gráfico e resumo do calendário com todos os dias do mês em uma faixa horizontal rolável, setas de mês e links para o Calendário completo |
 | `/dashboard` | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos |
 | `/equipe` | Busca, botão Filtrar, paginação numerada, detalhes com desempenho semanal/mensal, cadastro, edição e confirmação de exclusão **em memória** de técnicos |
 | `/calendario` | Grade mensal, seleção de dia, modal de informações e criação, edição e confirmação de exclusão **em memória** de eventos com local, descrição, observação e horários |
@@ -60,6 +60,8 @@ Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos cr
 Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`; são preservados ao recarregar e sair da conta. Valores inválidos retornam ao português e tema claro. Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
 
 ## Qualidade e evidências
+
+- Complemento de 07/10/2026: resumo mensal da Home rolável, seta do Dashboard como SVG proporcional, destaque dos técnicos sem sublinhado e botões Adicionar compartilhando formato arredondado com “+”. Home sem rolagem vertical em 1280 × 720 e 1340 × 800; faixa mensal percorrida pelo mouse e teclado. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--faixa-mensal-e-controles). Build, lint, formatação e **30 testes** aprovados.
 
 - Revisão de 07/10/2026: pop-ups compactos com as três ilustrações originais enviadas pelo usuário, sobreposição corrigida, confirmação de salvar, Home com sete dias e Manu inteira, filtros com limpeza, Adicionar à direita da main e sidebar recolhida mais espaçosa. Recuperação usa e-mail preenchido no Login e troca autenticada abre página própria. Build, lint, Prettier e **30/30 testes** aprovados. [Revisão atual e capturas](docs/REVISAO_DESIGN_2026-10-07.md). Os registros anteriores abaixo são históricos.
 

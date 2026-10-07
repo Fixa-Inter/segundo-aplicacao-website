@@ -192,7 +192,7 @@ export default function Team() {
         action={
           <button
             ref={addButtonRef}
-            className={`${common.primary} ${styles.addButton}`}
+            className={`${common.primary} ${common.addButton}`}
             type="button"
             onClick={() => openForm()}
             disabled={loading || Boolean(loadError) || !manager}

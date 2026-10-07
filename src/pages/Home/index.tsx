@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { StatCard } from '../../components/StatCard'
 import { Link } from 'react-router-dom'
 import { FigmaIcon } from '../../components/FigmaIcon'
@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/useAuth'
 import banner from '../../assets/figma/home-banner.png'
 import { getHomeData } from '../../services/homeService'
 import type { HomeData } from '../../types/home'
-import { shiftDate, startOfWeek } from '../../utils/calendar'
+import { monthDays } from '../../utils/calendar'
 import { usePreferences } from '../../contexts/usePreferences'
 import styles from './Home.module.css'
 
@@ -16,7 +16,7 @@ export default function Home() {
   const [data, setData] = useState<HomeData | null>(null)
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
-  const [weekStart, setWeekStart] = useState('')
+  const daysRef = useRef<HTMLDivElement>(null)
   const [selectedDay, setSelectedDay] = useState('')
   useEffect(() => {
     let active = true
@@ -24,7 +24,6 @@ export default function Home() {
       .then((result) => {
         if (!active) return
         setData(result)
-        setWeekStart(startOfWeek(result.selectedDay, 1))
         setSelectedDay(result.selectedDay)
       })
       .catch(() => {
@@ -34,6 +33,13 @@ export default function Home() {
       active = false
     }
   }, [attempt])
+  useEffect(() => {
+    const rail = daysRef.current
+    const selected = rail?.querySelector<HTMLButtonElement>("[aria-pressed='true']")
+    if (!rail || !selected) return
+    // Move somente a faixa de dias; o restante da página permanece na mesma posição.
+    rail.scrollTo({ left: selected.offsetLeft - (rail.clientWidth - selected.offsetWidth) / 2 })
+  }, [selectedDay])
   if (error) {
     return (
       <div role="alert">
@@ -52,17 +58,26 @@ export default function Home() {
   }
   if (!data) return <p role="status">{t('Carregando resumo…')}</p>
   const { taskSummary, monthlyTasks } = data
-  const days = Array.from({ length: 7 }, (_, offset) => shiftDate(weekStart, offset))
+  const month = selectedDay.slice(0, 7)
+  const days = monthDays(month).filter((date) => date.startsWith(month))
   const events = data.events.filter((event) => event.date === selectedDay)
 
   function changeMonth(offset: number) {
     const date = new Date(`${selectedDay.slice(0, 7)}-01T12:00:00Z`)
     date.setUTCMonth(date.getUTCMonth() + offset)
-    const firstDay = date.toISOString().slice(0, 10)
-    const monday = startOfWeek(firstDay, 1)
-    const next = monday < firstDay ? shiftDate(monday, 7) : monday
-    setSelectedDay(next)
-    setWeekStart(next)
+    setSelectedDay(date.toISOString().slice(0, 10))
+  }
+  function moveDay(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    const nextIndex = {
+      ArrowLeft: Math.max(0, index - 1),
+      ArrowRight: Math.min(days.length - 1, index + 1),
+      Home: 0,
+      End: days.length - 1,
+    }[event.key]
+    if (nextIndex === undefined) return
+    event.preventDefault()
+    setSelectedDay(days[nextIndex])
+    daysRef.current?.querySelector<HTMLButtonElement>(`[data-date="${days[nextIndex]}"]`)?.focus()
   }
   return (
     <div className={styles.home}>
@@ -122,13 +137,15 @@ export default function Home() {
               <FigmaIcon name="chevron-right" />
             </button>
           </div>
-          <div className={styles.days} aria-label={t('Dias da semana')}>
-            {days.map((date) => (
+          <div ref={daysRef} className={styles.days} aria-label={t('Dias do mês')}>
+            {days.map((date, index) => (
               <button
                 key={date}
                 type="button"
                 aria-label={formatDate(date, { dateStyle: 'full' })}
                 aria-pressed={date === selectedDay}
+                data-date={date}
+                onKeyDown={(event) => moveDay(event, index)}
                 onClick={() => setSelectedDay(date)}
               >
                 <span>{formatDate(date, { weekday: 'short' }).replace('.', '')}</span>
