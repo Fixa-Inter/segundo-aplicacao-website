@@ -1,6 +1,6 @@
 # Revisão visual — Website v2
 
-**Estado atual:** [revisão após feedback da designer, 06/10/2026](REVISAO_DESIGN_2026-10-06.md), com frames consultados, correções, capturas e adaptações. A Home voltou ao resumo de cinco dias do Figma e o WeekPicker foi retirado. Os registros abaixo são históricos e não prevalecem sobre essa revisão.
+**Estado atual:** [revisão de 07/10/2026](REVISAO_DESIGN_2026-10-07.md), usando o arquivo original e os SVGs entregues pelo usuário. Confirmações compactas sobre a página, sete dias no resumo da Home, posicionamento das ações e telas de senha atualizados. Os registros abaixo são históricos e não prevalecem sobre essa revisão.
 
 Referência somente para leitura: [cópia do Figma](https://www.figma.com/design/zgDd0qejEdOT2E16qQOsJs/Fixa--Copy-?node-id=5631-5628), seção `5631:5628`. Os IDs abaixo pertencem à cópia, não ao arquivo anterior. Revisão incremental de 26–28/09/2026; resultados de interação em [QA_NAVEGADOR.md](QA_NAVEGADOR.md).
 

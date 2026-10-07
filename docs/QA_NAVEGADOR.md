@@ -1,5 +1,7 @@
 # Verificação no navegador local
 
+**Revisão atual:** [QA de 07/10/2026 e capturas](REVISAO_DESIGN_2026-10-07.md). Pop-ups originais, sete dias na Home, filtros, alinhamento, edição do perfil/evento e recuperação pública/autenticada conferidos. Build, lint, formatação e 30 testes aprovados. Os registros abaixo preservam as verificações anteriores.
+
 Executada na aplicação Vite em `http://127.0.0.1:5173`, na sessão de 25/09/2026. Esta evidência distingue a interação observada da comparação visual ainda pendente.
 
 | Verificação | Resultado observado | Limite |

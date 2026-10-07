@@ -1,6 +1,6 @@
 # FIXA Web
 
-Aplicação de gestão de manutenção para o perfil gestor, em **React 19, TypeScript e Vite**. A interface segue os frames **Website v2** do [Figma acadêmico](https://www.figma.com/design/zgDd0qejEdOT2E16qQOsJs/Fixa--Copy-?node-id=5631-5628). O projeto está em fase de **demonstração local**: a API e a base analítica ainda não foram entregues.
+Aplicação de gestão de manutenção para o perfil gestor, em **React 19, TypeScript e Vite**. A interface segue os frames **Website v2** do [Figma acadêmico](https://www.figma.com/design/VeZNU2w9BMTKBpa3z24BxL/Fixa?node-id=3665-79544). O projeto está em fase de **demonstração local**: a API e a base analítica ainda não foram entregues.
 
 ## Executar e verificar
 
@@ -19,17 +19,17 @@ O Vite informa a URL local. `npm run preview` serve o build de `dist/`.
 
 ## Demonstração
 
-Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não vazias são aceitas **somente no mock**; não use credenciais reais. A sessão termina ao atualizar a página. Em recuperação, use um e-mail válido e o código `123456`; nenhum e-mail é enviado e nenhuma senha é alterada.
+Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não vazias são aceitas **somente no mock**; não use credenciais reais. A sessão termina ao atualizar a página. Em recuperação, use um e-mail válido e o código `123456`; nenhum e-mail é enviado e nenhuma senha é alterada. Se o e-mail já estiver preenchido no Login, Esqueci minha senha abre diretamente a etapa de código.
 
 | Rota | Fluxo disponível nesta versão |
 | --- | --- |
 | `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
 | `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
-| `/` | Home com banner original, indicadores, gráfico e resumo do calendário de segunda a sexta, setas de mês e links para o Calendário completo |
+| `/` | Home com banner original, indicadores, gráfico e resumo do calendário de segunda a domingo, setas de mês e links para o Calendário completo |
 | `/dashboard` | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos |
 | `/equipe` | Busca, botão Filtrar, paginação numerada, detalhes com desempenho semanal/mensal, cadastro, edição e confirmação de exclusão **em memória** de técnicos |
 | `/calendario` | Grade mensal, seleção de dia, modal de informações e criação, edição e confirmação de exclusão **em memória** de eventos com local, descrição, observação e horários |
-| `/perfil` | Dados do gestor editáveis **em memória** e validação demonstrativa de troca de senha |
+| `/perfil`, `/alterar-senha` | Dados do gestor editáveis **em memória**, confirmação de salvamento e página de troca de senha demonstrativa com senha antiga e nova |
 | `/configuracoes` | Português, inglês, espanhol e mandarim (chinês simplificado); temas claro e escuro, aplicados na hora |
 | `/manu` | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente |
 
@@ -60,6 +60,8 @@ Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos cr
 Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`; são preservados ao recarregar e sair da conta. Valores inválidos retornam ao português e tema claro. Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
 
 ## Qualidade e evidências
+
+- Revisão de 07/10/2026: pop-ups compactos com as três ilustrações originais enviadas pelo usuário, sobreposição corrigida, confirmação de salvar, Home com sete dias e Manu inteira, filtros com limpeza, Adicionar à direita da main e sidebar recolhida mais espaçosa. Recuperação usa e-mail preenchido no Login e troca autenticada abre página própria. Build, lint, Prettier e **30/30 testes** aprovados. [Revisão atual e capturas](docs/REVISAO_DESIGN_2026-10-07.md). Os registros anteriores abaixo são históricos.
 
 - Revisão após feedback da designer em 06/10/2026: ícones e logos vetoriais originais do Website v2, cores/tipografia, header alinhado, filtros, paginação e modais de exclusão/saída/informações corrigidos. A Home voltou ao resumo de cinco dias do Figma; o seletor mensal detalhado foi retirado. Build, lint, Prettier e **27/27 testes** aprovados; revisão em desktop, notebook, tablet e celular registrada na [auditoria de design](docs/REVISAO_DESIGN_2026-10-06.md), com capturas e adaptações preservadas. Os registros abaixo descrevem versões anteriores.
 

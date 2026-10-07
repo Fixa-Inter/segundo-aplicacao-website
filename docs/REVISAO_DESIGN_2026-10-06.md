@@ -1,5 +1,7 @@
 # Revisão do Website v2 — 06/10/2026
 
+**Registro histórico:** decisões de confirmações, calendário resumido, ações e troca de senha foram atualizadas na [revisão de 07/10/2026](REVISAO_DESIGN_2026-10-07.md).
+
 Referência: [Figma acadêmico, Website v2](https://www.figma.com/design/zgDd0qejEdOT2E16qQOsJs/Fixa--Copy-?node-id=5631-5628). Os frames foram consultados em leitura, sem modificar o arquivo. Esta revisão atende às diferenças apontadas pela designer e **substitui as decisões anteriores sobre o seletor da Home**. Os services continuam demonstrativos, sem endpoints inventados.
 
 ## Alterações e verificação
