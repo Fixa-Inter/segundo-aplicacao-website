@@ -52,7 +52,7 @@ export default function Home() {
   }
   if (!data) return <p role="status">{t('Carregando resumo…')}</p>
   const { taskSummary, monthlyTasks } = data
-  const days = Array.from({ length: 5 }, (_, offset) => shiftDate(weekStart, offset))
+  const days = Array.from({ length: 7 }, (_, offset) => shiftDate(weekStart, offset))
   const events = data.events.filter((event) => event.date === selectedDay)
 
   function changeMonth(offset: number) {

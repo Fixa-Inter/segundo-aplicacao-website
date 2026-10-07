@@ -92,7 +92,18 @@ export default function Dashboard() {
             </select>
           </label>
         </div>
-        <FilterButton active={months !== '7' || metric !== 'completed'}>
+        <FilterButton
+          active={months !== '7' || metric !== 'completed' || Boolean(technicianId)}
+          onClear={() => {
+            setMonths('7')
+            setMetric('completed')
+            if (technicianId) {
+              setLoading(true)
+              setError('')
+              setTechnicianId('')
+            }
+          }}
+        >
           {' '}
           <label htmlFor="dashboard-period" className={common.field}>
             <span className={styles.srOnly}>{t('Período')}</span>

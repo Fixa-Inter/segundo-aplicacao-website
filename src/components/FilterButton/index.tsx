@@ -4,7 +4,7 @@ import { FigmaIcon } from '../FigmaIcon'
 import type { FilterButtonProps } from '../../types/ui'
 import styles from './FilterButton.module.css'
 
-export function FilterButton({ children, active = false }: FilterButtonProps) {
+export function FilterButton({ children, active = false, onClear }: FilterButtonProps) {
   const { t } = usePreferences()
   return (
     <Popover position="bottom-end" shadow="md" trapFocus returnFocus withinPortal>
@@ -19,7 +19,12 @@ export function FilterButton({ children, active = false }: FilterButtonProps) {
           {active && <i aria-hidden="true" />}
         </button>
       </Popover.Target>
-      <Popover.Dropdown className={styles.dropdown}>{children}</Popover.Dropdown>
+      <Popover.Dropdown className={styles.dropdown}>
+        {children}
+        <button className={styles.clear} type="button" disabled={!active} onClick={onClear}>
+          {t('Limpar filtros')}
+        </button>
+      </Popover.Dropdown>
     </Popover>
   )
 }

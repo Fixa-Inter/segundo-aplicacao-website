@@ -2,6 +2,31 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Deseja deletar esse registro?': [
+    'Delete this record?',
+    '¿Eliminar este registro?',
+    '要删除此记录吗？',
+  ],
+  'Salvar alterações?': ['Save changes?', '¿Guardar los cambios?', '保存更改吗？'],
+  'Essa ação não poderá ser desfeita.': [
+    'This action cannot be undone.',
+    'Esta acción no se puede deshacer.',
+    '此操作无法撤销。',
+  ],
+  'Você poderá entrar novamente': [
+    'You can sign in again',
+    'Podrás iniciar sesión de nuevo',
+    '您可以再次登录',
+  ],
+  'Limpar filtros': ['Clear filters', 'Limpiar filtros', '清除筛选'],
+  'Defina uma nova senha': ['Set a new password', 'Establece una nueva contraseña', '设置新密码'],
+  'Senha validada!': ['Password validated!', '¡Contraseña validada!', '密码已验证！'],
+  'Código de validação para {email}': [
+    'Verification code for {email}',
+    'Código de verificación para {email}',
+    '{email}的验证码',
+  ],
+  Continuar: ['Continue', 'Continuar', '继续'],
   'Tem certeza que deseja sair da conta?': [
     'Are you sure you want to sign out?',
     '¿Seguro que deseas cerrar la sesión?',

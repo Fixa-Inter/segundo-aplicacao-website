@@ -202,10 +202,10 @@
   transform: translateY(0);
 }
 .compact {
-  --sidebar-width: 80px;
+  --sidebar-width: 104px;
 }
 .compact .collapseButton {
-  right: 25px;
+  right: 37px;
 }
 .compact .sidebar .link {
   justify-content: center;
@@ -273,11 +273,6 @@
   margin-inline: auto;
   padding-inline: var(--content-gutter);
 }
-.pageActions {
-  display: flex;
-  gap: 12px;
-  margin-right: 16px;
-}
 .manu .headerInner {
   max-width: none;
   padding-inline: 32px;
@@ -285,14 +280,6 @@
 @media (max-width: 600px) {
   .headerInner {
     gap: 6px;
-  }
-  .pageActions {
-    margin-right: 0;
-  }
-  .pageActions button {
-    min-width: 0;
-    font-size: 13px;
-    padding-inline: 12px;
   }
   .manu .headerInner {
     padding-inline: 20px;

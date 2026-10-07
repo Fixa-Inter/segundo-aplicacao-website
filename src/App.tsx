@@ -32,8 +32,9 @@ function App() {
           <Routes>
             <Route path="/sobre" element={<About />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/recuperar-senha" element={<Recovery />} />
+            <Route path="/recuperar-senha" element={<Recovery key="recover" />} />
             <Route element={<PrivateRoute />}>
+              <Route path="/alterar-senha" element={<Recovery key="change" />} />
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />

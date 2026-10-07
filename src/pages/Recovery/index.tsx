@@ -1,7 +1,10 @@
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../../contexts/useAuth'
+import { readRecoveryChallenge, maskRecoveryEmail } from '../../utils/recovery'
+import manuChange from '../../assets/figma/manu-change-password.png'
 import { PinInput } from '@mantine/core'
 import { Eye, EyeOff } from 'lucide-react'
 import { AuthField } from '../../components/AuthField'
@@ -10,6 +13,7 @@ import manuCode from '../../assets/figma/manu-recovery-code.png'
 import manuPassword from '../../assets/figma/manu-recovery-password.png'
 import manuSuccess from '../../assets/figma/manu-recovery-success.png'
 import {
+  changePassword,
   DEMO_RECOVERY_CODE,
   requestRecovery,
   resetPassword,
@@ -23,27 +27,41 @@ import styles from './Recovery.module.css'
 const titles: Record<RecoveryStep, string> = {
   email: 'Esqueceu sua senha?',
   code: 'Verifique seu e-mail',
-  password: 'Defina sua nova senha',
-  success: 'Demonstração concluída',
+  password: 'Defina uma nova senha',
+  change: 'Troque sua senha',
+  success: 'Senha validada!',
 }
 const artByStep: Record<RecoveryStep, string> = {
   email: manu,
   code: manuCode,
   password: manuPassword,
+  change: manuChange,
   success: manuSuccess,
 }
 const pageByStep: Record<RecoveryStep, string> = {
   email: styles.emailPage,
   code: styles.codePage,
   password: styles.passwordPage,
+  change: styles.passwordPage,
   success: styles.successPage,
 }
 export default function Recovery() {
   const { t } = usePreferences()
 
-  const [step, setStep] = useState<RecoveryStep>('email')
-  const [form, setForm] = useState({ email: '', code: '', password: '', confirmation: '' })
-  const [challenge, setChallenge] = useState<RecoveryChallenge | null>(null)
+  const { pathname, state } = useLocation()
+  const { user } = useAuth()
+  const changing = pathname === '/alterar-senha'
+  const returnTo = user ? '/perfil' : '/login'
+  const [entry] = useState(() => readRecoveryChallenge(state))
+  const [step, setStep] = useState<RecoveryStep>(changing ? 'change' : entry ? 'code' : 'email')
+  const [form, setForm] = useState({
+    email: entry?.email ?? '',
+    code: '',
+    password: '',
+    confirmation: '',
+    current: '',
+  })
+  const [challenge, setChallenge] = useState<RecoveryChallenge | null>(entry)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
@@ -81,20 +99,28 @@ export default function Recovery() {
       setError('Digite os seis dígitos do código.')
       return
     }
-    if (step === 'password') {
+    if (step === 'change' && !form.current) {
+      setError('Informe a senha atual.')
+      return
+    }
+    if (step === 'password' || step === 'change') {
       const passwordError = validateDemoPassword(form.password)
       if (passwordError) {
         setError(passwordError)
         return
       }
-      if (form.password !== form.confirmation) {
+      if (step === 'password' && form.password !== form.confirmation) {
         setError('As senhas não coincidem.')
         return
       }
     }
     setBusy(true)
     try {
-      if (step === 'email') {
+      if (step === 'change') {
+        await changePassword(form.current, form.password)
+        setForm((current) => ({ ...current, current: '', password: '', confirmation: '' }))
+        setStep('success')
+      } else if (step === 'email') {
         setChallenge(await requestRecovery(form.email))
         setStep('code')
       } else if (step === 'code' && challenge) {
@@ -130,15 +156,19 @@ export default function Recovery() {
     step === 'email'
       ? 'Insira seu e-mail para simular o envio de um código de recuperação'
       : step === 'code'
-        ? 'Digite o código de 6 dígitos para continuar'
-        : step === 'password'
+        ? t('Código de validação para {email}', { email: maskRecoveryEmail(form.email) })
+        : step === 'password' || step === 'change'
           ? ''
           : 'Fluxo validado. Nenhuma senha real foi alterada.'
   return (
     <main className={`${styles.page} ${pageByStep[step]}`}>
       {step !== 'success' &&
-        (step === 'email' ? (
-          <Link to="/login" className={styles.back} aria-label={t('Voltar ao login')}>
+        (step === 'email' || step === 'change' ? (
+          <Link
+            to={returnTo}
+            className={styles.back}
+            aria-label={t(user ? 'Voltar ao perfil' : 'Voltar ao login')}
+          >
             <FigmaIcon name="back" />
           </Link>
         ) : (
@@ -166,8 +196,8 @@ export default function Recovery() {
         {description && <p className={styles.description}>{t(description)}</p>}
         {step === 'success' ? (
           <>
-            <Link className={styles.primary} to="/login">
-              {t('Ir para o login')}
+            <Link className={styles.primary} to={returnTo}>
+              {t(user ? 'Voltar ao perfil' : 'Ir para o login')}
             </Link>
           </>
         ) : (
@@ -233,8 +263,24 @@ export default function Recovery() {
                   />
                 </div>
               )}
-              {step === 'password' && (
+              {(step === 'password' || step === 'change') && (
                 <div className={styles.passwordFields}>
+                  {step === 'change' && (
+                    <AuthField
+                      id="current-password"
+                      label={t('Senha antiga')}
+                      type="password"
+                      autoComplete="off"
+                      maxLength={128}
+                      value={form.current}
+                      disabled={busy}
+                      onChange={(event) => {
+                        const current = event.currentTarget.value
+                        setForm((form) => ({ ...form, current }))
+                      }}
+                    />
+                  )}
+
                   <AuthField
                     id="new-password"
                     label={t('Nova senha')}
@@ -258,23 +304,25 @@ export default function Recovery() {
                       </button>
                     }
                   />
-                  <AuthField
-                    id="confirm-password"
-                    label={t('Confirme a nova senha')}
-                    type={visible ? 'text' : 'password'}
-                    autoComplete="off"
-                    placeholder={t('Repita sua nova senha')}
-                    maxLength={128}
-                    disabled={busy}
-                    value={form.confirmation}
-                    onChange={(event) => {
-                      const confirmation = event.currentTarget.value
-                      setForm((current) => ({ ...current, confirmation }))
-                    }}
-                  />
+                  {step === 'password' && (
+                    <AuthField
+                      id="confirm-password"
+                      label={t('Confirme a nova senha')}
+                      type={visible ? 'text' : 'password'}
+                      autoComplete="off"
+                      placeholder={t('Repita sua nova senha')}
+                      maxLength={128}
+                      disabled={busy}
+                      value={form.confirmation}
+                      onChange={(event) => {
+                        const confirmation = event.currentTarget.value
+                        setForm((current) => ({ ...current, confirmation }))
+                      }}
+                    />
+                  )}
                 </div>
               )}
-              {step === 'password' && (
+              {(step === 'password' || step === 'change') && (
                 <p className={styles.demoNote}>
                   {t(
                     'Use uma senha fictícia. Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial. A senha não é armazenada.',
@@ -294,10 +342,17 @@ export default function Recovery() {
                       ? 'Enviar e-mail'
                       : step === 'code'
                         ? 'Confirmar código'
-                        : 'Alterar senha',
+                        : step === 'change'
+                          ? 'Alterar'
+                          : 'Continuar',
                 )}
               </button>
             </form>
+            {step === 'change' && (
+              <p className={styles.resend}>
+                {t('Não lembra sua senha?')} <Link to="/recuperar-senha">{t('Enviar código')}</Link>
+              </p>
+            )}
             {step === 'email' && (
               <Link className={styles.secondary} to="/login">
                 {t('Voltar ao login')}

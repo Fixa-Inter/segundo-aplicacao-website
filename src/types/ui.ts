@@ -76,7 +76,7 @@ export interface FigmaIconProps {
 }
 export interface ConfirmDialogProps {
   opened: boolean
-  question: string
+  variant: 'delete' | 'save' | 'logout'
   subject?: string
   confirmLabel: string
   busy?: boolean
@@ -84,6 +84,7 @@ export interface ConfirmDialogProps {
   onConfirm: () => void
 }
 export interface FilterButtonProps {
+  onClear: () => void
   children: ReactNode
   active?: boolean
 }

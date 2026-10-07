@@ -74,7 +74,6 @@ function Navigation({ onNavigate, onLogout }: NavigationProps) {
 export function AppLayout() {
   const { t } = usePreferences()
 
-  const [actionsTarget, setActionsTarget] = useState<HTMLDivElement | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [logoutOpen, setLogoutOpen] = useState(false)
   const { user, logout } = useAuth()
@@ -129,7 +128,6 @@ export function AppLayout() {
             >
               <Menu />
             </button>
-            <div ref={setActionsTarget} className={styles.pageActions} />
             <NavLink
               to="/configuracoes"
               className={styles.iconButton}
@@ -147,7 +145,7 @@ export function AppLayout() {
           </div>
         </header>
         <main ref={mainRef} id="conteudo" tabIndex={-1} className={styles.main}>
-          <Outlet context={actionsTarget} />
+          <Outlet />
         </main>
       </div>
       <Drawer
@@ -163,7 +161,7 @@ export function AppLayout() {
       <ConfirmDialog
         opened={logoutOpen}
         onClose={() => setLogoutOpen(false)}
-        question="Tem certeza que deseja sair da conta?"
+        variant="logout"
         confirmLabel="Sair"
         onConfirm={() => {
           logout()

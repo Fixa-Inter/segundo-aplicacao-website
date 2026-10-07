@@ -24,3 +24,11 @@ export async function resetPassword(challenge: RecoveryChallenge, password: stri
   if (error) throw new Error(error)
   // Mock: nenhum e-mail é enviado e nenhuma credencial real é alterada.
 }
+
+export async function changePassword(current: string, next: string): Promise<void> {
+  if (!current) throw new Error('Informe a senha atual.')
+  const error = validateDemoPassword(next)
+  if (error) throw new Error(error)
+  await delay()
+  // Mock: a senha atual não é verificada e nenhuma credencial é armazenada ou alterada.
+}

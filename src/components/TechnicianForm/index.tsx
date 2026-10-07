@@ -1,3 +1,4 @@
+import { ConfirmDialog } from '../ConfirmDialog'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
@@ -58,6 +59,7 @@ export function TechnicianForm({
   const [passwordError, setPasswordError] = useState<string | undefined>()
   const [errors, setErrors] = useState<Partial<Record<keyof TechnicianInput, string>>>({})
   const [error, setError] = useState('')
+  const [pending, setPending] = useState<TechnicianInput | null>(null)
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -115,6 +117,12 @@ export function TechnicianForm({
       })
       return
     }
+    setPending(input)
+  }
+
+  async function confirmSave() {
+    if (!pending || busy) return
+    const input = pending
     setBusy(true)
     try {
       // A senha apenas valida o formulário demonstrativo e nunca é enviada ao repositório em memória.
@@ -124,6 +132,7 @@ export function TechnicianForm({
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o técnico.')
     } finally {
+      setPending(null)
       setBusy(false)
     }
   }
@@ -270,6 +279,15 @@ export function TechnicianForm({
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        opened={Boolean(pending)}
+        variant="save"
+        subject={form.name}
+        confirmLabel="Salvar"
+        busy={busy}
+        onClose={() => setPending(null)}
+        onConfirm={confirmSave}
+      />
     </div>
   )
 }

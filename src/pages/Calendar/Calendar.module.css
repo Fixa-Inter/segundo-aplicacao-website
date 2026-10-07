@@ -45,6 +45,8 @@
   color: #fff;
 }
 .day {
+  padding: 0;
+  line-height: 1;
   display: grid;
   place-items: center;
   min-width: 0;

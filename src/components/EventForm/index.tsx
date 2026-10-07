@@ -1,3 +1,4 @@
+import { ConfirmDialog } from '../ConfirmDialog'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
@@ -31,6 +32,7 @@ export function EventForm({
   const [date, setDate] = useState(formatDate(form.date, { dateStyle: 'short' }))
   const [errors, setErrors] = useState<Partial<Record<keyof CalendarEventInput, string>>>({})
   const [error, setError] = useState('')
+  const [pending, setPending] = useState<CalendarEventInput | null>(null)
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -52,12 +54,19 @@ export function EventForm({
       )
       return
     }
+    setPending(input)
+  }
+
+  async function confirmSave() {
+    if (!pending || busy) return
+    const input = pending
     setBusy(true)
     try {
       onSaved(await onSubmit(input))
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o evento.')
     } finally {
+      setPending(null)
       setBusy(false)
     }
   }
@@ -197,6 +206,15 @@ export function EventForm({
           </button>
         </div>
       </form>
+      <ConfirmDialog
+        opened={Boolean(pending)}
+        variant="save"
+        subject={form.title}
+        confirmLabel="Salvar"
+        busy={busy}
+        onClose={() => setPending(null)}
+        onConfirm={confirmSave}
+      />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 .content {
+  border-radius: 50px;
   background: var(--fixa-surface);
 }
 

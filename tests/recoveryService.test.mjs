@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  changePassword,
   DEMO_RECOVERY_CODE,
   requestRecovery,
   resetPassword,
@@ -16,4 +17,10 @@ test('recuperação demonstrativa valida e-mail, código e política provisória
   await assert.rejects(resetPassword(challenge, 'exemplo!'), /maiúscula/)
   await resetPassword(challenge, 'Exemplo!')
   assert.equal('password' in challenge, false)
+})
+
+test('troca demonstrativa exige senha atual e nova senha válida sem persistir credenciais', async () => {
+  await assert.rejects(changePassword('', 'Exemplo!'), /senha atual/)
+  await assert.rejects(changePassword('Ficticia!', 'curta'), /8 caracteres/)
+  assert.equal(await changePassword('Ficticia!', 'Exemplo!'), undefined)
 })

@@ -223,7 +223,14 @@ export default function Team() {
       </div>
       <div className={styles.sectionHeading}>
         <h2>{t('Técnicos')}</h2>
-        <FilterButton active={filter !== 'Todos'}>
+        <FilterButton
+          active={filter !== 'Todos' || Boolean(query)}
+          onClear={() => {
+            setFilter('Todos')
+            setQuery('')
+            setPage(1)
+          }}
+        >
           {' '}
           <label htmlFor="team-status" className={common.field}>
             {t('Situação')}
@@ -352,7 +359,7 @@ export default function Team() {
       <ConfirmDialog
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
-        question="Tem certeza que deseja excluir o registro?"
+        variant="delete"
         subject={deleting?.name}
         confirmLabel="Excluir"
         busy={busy}

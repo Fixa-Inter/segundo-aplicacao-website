@@ -1,5 +1,7 @@
+import { requestRecovery } from '../../services/recoveryService'
+import { validateEmail } from '../../utils/validation'
 import { usePreferences } from '../../contexts/usePreferences'
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type MouseEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/useAuth'
@@ -16,6 +18,8 @@ export default function Login() {
   const [submitted, setSubmitted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
+  const [recovering, setRecovering] = useState(false)
+  const [recoveryError, setRecoveryError] = useState('')
   const identifierError =
     submitted && !form.identifier.trim() ? 'Informe seu e-mail ou CNPJ.' : undefined
   const passwordError = submitted && !form.password ? 'Informe sua senha.' : undefined
@@ -23,7 +27,7 @@ export default function Login() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitted(true)
-    if (loading) return
+    if (loading || recovering) return
     if (!form.identifier.trim() || !form.password) {
       event.currentTarget
         .querySelector<HTMLInputElement>(form.identifier.trim() ? '#password' : '#identifier')
@@ -31,6 +35,24 @@ export default function Login() {
       return
     }
     if (await login(form)) navigate('/', { replace: true })
+  }
+  async function forgot(event: MouseEvent<HTMLAnchorElement>) {
+    if (recovering || loading) {
+      event.preventDefault()
+      return
+    }
+    if (validateEmail(form.identifier)) return
+    event.preventDefault()
+    setRecovering(true)
+    setRecoveryError('')
+    try {
+      const challenge = await requestRecovery(form.identifier)
+      navigate('/recuperar-senha', { state: { challenge } })
+    } catch {
+      setRecoveryError('Não foi possível continuar. Tente novamente.')
+    } finally {
+      setRecovering(false)
+    }
   }
   return (
     <main className={styles.page}>
@@ -40,7 +62,7 @@ export default function Login() {
       <div className={styles.layout}>
         <section className={styles.formArea} aria-labelledby="login-title">
           <h1 id="login-title">{t('Login')}</h1>
-          <form onSubmit={submit} noValidate aria-busy={loading}>
+          <form onSubmit={submit} noValidate aria-busy={loading || recovering}>
             <div className={styles.fields}>
               <AuthField
                 id="identifier"
@@ -48,7 +70,7 @@ export default function Login() {
                 autoComplete="off"
                 placeholder={t('Coloque seu Email/CNPJ')}
                 maxLength={120}
-                disabled={loading}
+                disabled={loading || recovering}
                 value={form.identifier}
                 error={identifierError}
                 onChange={(event) => {
@@ -63,7 +85,7 @@ export default function Login() {
                 autoComplete="off"
                 placeholder={t('Coloque sua senha')}
                 maxLength={128}
-                disabled={loading}
+                disabled={loading || recovering}
                 value={form.password}
                 error={passwordError}
                 onChange={(event) => {
@@ -83,14 +105,16 @@ export default function Login() {
               />
             </div>
             <div className={styles.forgot}>
-              <Link to="/recuperar-senha">{t('Esqueci minha senha')}</Link>
+              <Link to="/recuperar-senha" onClick={forgot} aria-disabled={recovering || loading}>
+                {t('Esqueci minha senha')}
+              </Link>
             </div>
-            {error && (
+            {(error || recoveryError) && (
               <p role="alert" className={styles.error}>
-                {t(error)}
+                {t(error || recoveryError)}
               </p>
             )}
-            <button type="submit" disabled={loading} className={styles.submit}>
+            <button type="submit" disabled={loading || recovering} className={styles.submit}>
               {t(loading ? 'Entrando…' : 'Entrar')}
             </button>
             <p className={styles.demo}>

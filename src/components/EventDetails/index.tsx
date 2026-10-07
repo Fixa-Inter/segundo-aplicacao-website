@@ -15,8 +15,11 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
       radius={25}
       padding={0}
     >
-      <Modal.Overlay />
-      <Modal.Content className={styles.content} aria-label={t('Informações sobre o evento')}>
+      <Modal.Overlay backgroundOpacity={0.35} />
+      <Modal.Content
+        classNames={{ content: styles.content }}
+        aria-label={t('Informações sobre o evento')}
+      >
         <Modal.Body>
           {event && (
             <div className={styles.body}>

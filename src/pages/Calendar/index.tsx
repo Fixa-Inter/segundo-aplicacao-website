@@ -303,7 +303,7 @@ export default function Calendar() {
       <ConfirmDialog
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
-        question="Tem certeza que deseja excluir o registro?"
+        variant="delete"
         subject={deleting?.title}
         confirmLabel="Excluir"
         busy={busy}

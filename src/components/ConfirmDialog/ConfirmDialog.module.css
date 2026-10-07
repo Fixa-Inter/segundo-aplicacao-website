@@ -1,54 +1,73 @@
 .content {
-  background: var(--fixa-neutral-surface);
+  border-radius: 30px;
+  background: #f6f9fc;
 }
-
 .body {
-  min-height: 500px;
-  padding: 85px 36px 80px;
+  min-height: 340px;
+  padding: 5px 24px 27px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 65px;
+  align-items: center;
+}
+.art {
+  display: block;
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
 }
 .body h2 {
   margin: 0;
   text-align: center;
-  color: var(--fixa-black);
-  font-size: clamp(28px, 3.2vw, 46px);
-  font-weight: 600;
+  color: #130943;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.subtitle {
+  margin: 0;
+  text-align: center;
+  color: #000;
+  font-size: 12px;
+  font-weight: 300;
   line-height: 1.5;
 }
 .actions {
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  gap: 20px;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 28px;
 }
 .actions button {
   font: inherit;
-  font-size: clamp(20px, 2.1vw, 30px);
+  font-size: 13px;
   cursor: pointer;
   border: 0;
-  min-height: 64px;
+  min-height: 35px;
+  width: 115px;
+  padding: 6px 12px;
+  border-radius: 15px;
+  position: relative;
+}
+.actions button::after {
+  content: '';
+  position: absolute;
+  inset: -5px 0;
 }
 .cancel {
-  color: var(--fixa-black);
-  background: transparent;
-  padding: 12px 20px;
-  border-radius: 40px;
+  color: #130943;
+  background: #c4cfe0;
 }
 .cancel:hover {
-  background: var(--fixa-hover);
+  filter: brightness(0.96);
 }
 .confirm {
   color: white;
-  background: #96031a;
-  border-radius: 40px;
-  min-width: 255px;
-  padding: 16px 30px;
+  background: #153d7d;
 }
 .confirm:hover {
-  background: #780214;
+  background: #12346a;
 }
 .actions button:disabled {
   opacity: 0.6;
@@ -61,18 +80,4 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-@media (max-width: 600px), (max-height: 600px) {
-  .body {
-    min-height: 0;
-    padding: 40px 24px;
-    gap: 30px;
-  }
-  .actions {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .confirm {
-    min-width: 150px;
-  }
 }
