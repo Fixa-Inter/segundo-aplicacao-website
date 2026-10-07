@@ -38,13 +38,6 @@ const artByStep: Record<RecoveryStep, string> = {
   change: manuChange,
   success: manuSuccess,
 }
-const pageByStep: Record<RecoveryStep, string> = {
-  email: styles.emailPage,
-  code: styles.codePage,
-  password: styles.passwordPage,
-  change: styles.passwordPage,
-  success: styles.successPage,
-}
 export default function Recovery() {
   const { t } = usePreferences()
 
@@ -161,7 +154,7 @@ export default function Recovery() {
           ? ''
           : 'Fluxo validado. Nenhuma senha real foi alterada.'
   return (
-    <main className={`${styles.page} ${pageByStep[step]}`}>
+    <main className={styles.page}>
       {step !== 'success' &&
         (step === 'email' || step === 'change' ? (
           <Link
@@ -183,17 +176,19 @@ export default function Recovery() {
           </button>
         ))}
       <section className={styles.content} aria-labelledby="recovery-title">
-        <img
-          className={styles.manu}
-          src={artByStep[step]}
-          width="760"
-          height="760"
-          alt={t('Manu ajudando na recuperação da senha')}
-        />
-        <h1 ref={headingRef} id="recovery-title" tabIndex={-1}>
-          {t(titles[step])}
-        </h1>
-        {description && <p className={styles.description}>{t(description)}</p>}
+        <header className={styles.heading}>
+          <img
+            className={styles.manu}
+            src={artByStep[step]}
+            width="760"
+            height="760"
+            alt={t('Manu ajudando na recuperação da senha')}
+          />
+          <h1 ref={headingRef} id="recovery-title" tabIndex={-1}>
+            {t(titles[step])}
+          </h1>
+          {description && <p className={styles.description}>{t(description)}</p>}
+        </header>
         {step === 'success' ? (
           <>
             <Link className={styles.primary} to={returnTo}>

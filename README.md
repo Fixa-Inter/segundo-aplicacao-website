@@ -21,17 +21,17 @@ O Vite informa a URL local. `npm run preview` serve o build de `dist/`.
 
 Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não vazias são aceitas **somente no mock**; não use credenciais reais. A sessão termina ao atualizar a página. Em recuperação, use um e-mail válido e o código `123456`; nenhum e-mail é enviado e nenhuma senha é alterada. Se o e-mail já estiver preenchido no Login, Esqueci minha senha abre diretamente a etapa de código.
 
-| Rota | Fluxo disponível nesta versão |
-| --- | --- |
-| `/sobre` | Página pública de apresentação do projeto e acesso à demonstração |
-| `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback |
-| `/` | Home com banner original, indicadores, gráfico e resumo do calendário com todos os dias do mês em uma faixa horizontal rolável, setas de mês e links para o Calendário completo |
-| `/dashboard` | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos |
-| `/equipe` | Busca, botão Filtrar, paginação numerada, detalhes com desempenho semanal/mensal, cadastro, edição e confirmação de exclusão **em memória** de técnicos |
-| `/calendario` | Grade mensal, seleção de dia, modal de informações e criação, edição e confirmação de exclusão **em memória** de eventos com local, descrição, observação e horários |
-| `/perfil`, `/alterar-senha` | Dados do gestor editáveis **em memória**, confirmação de salvamento e página de troca de senha demonstrativa com senha antiga e nova |
-| `/configuracoes` | Português, inglês, espanhol e mandarim (chinês simplificado); temas claro e escuro, aplicados na hora |
-| `/manu` | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente |
+| Rota                         | Fluxo disponível nesta versão                                                                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/sobre`                     | Página pública de apresentação do projeto e acesso à demonstração                                                                                                               |
+| `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback                                                                                                         |
+| `/`                          | Home com banner original, indicadores, gráfico e resumo do calendário com todos os dias do mês em uma faixa horizontal rolável, setas de mês e links para o Calendário completo |
+| `/dashboard`                 | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos                                     |
+| `/equipe`                    | Busca, botão Filtrar, paginação numerada, detalhes com desempenho semanal/mensal, cadastro, edição e confirmação de exclusão **em memória** de técnicos                         |
+| `/calendario`                | Grade mensal, seleção de dia, modal de informações e criação, edição e confirmação de exclusão **em memória** de eventos com local, descrição, observação e horários            |
+| `/perfil`, `/alterar-senha`  | Dados do gestor editáveis **em memória**, confirmação de salvamento e página de troca de senha demonstrativa com senha antiga e nova                                            |
+| `/configuracoes`             | Português, inglês, espanhol e mandarim (chinês simplificado); temas claro e escuro, aplicados na hora                                                                           |
+| `/manu`                      | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente                                                                       |
 
 As ações em memória são perdidas ao sair, entrar novamente ou recarregar. Uma gravação iniciada antes do logout não altera a sessão seguinte. Não há endpoints inventados nem afirmação de persistência real. Os dados de exemplo estão em `src/mocks`; páginas acessam os services tipados de `src/services`. O cliente Axios em `src/services/api.ts` ficará disponível para integrar o contrato real quando existir. `.env.example` deixa `VITE_API_BASE_URL` comentada e sem URL presumida; variáveis `VITE_` são públicas e não devem conter segredos.
 
@@ -60,6 +60,8 @@ Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos cr
 Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`; são preservados ao recarregar e sair da conta. Valores inválidos retornam ao português e tema claro. Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
 
 ## Qualidade e evidências
+
+- Telas de senha alinhadas em 07/10/2026: coluna central compartilhada, campos e botões com a mesma largura, ilustrações proporcionais e seis dígitos igualmente espaçados. Recuperação e troca demonstrativas percorridas no navegador; desktop, notebook e celular conferidos. Build, lint, formatação e **32 testes** aprovados. [Verificação e capturas](docs/ALINHAMENTO_SENHA_2026-10-07.md).
 
 - Complemento de legibilidade em 07/10/2026: gráficos com escalas, linhas e valores; menu Técnico com seta animada e hover; legendas das cores; ações de visualizar; confirmações maiores e evento mais compacto; histórico da Manu no topo; ícones estáveis ao recolher a sidebar e logo corrigida. Build, lint, formatação e **32 testes** aprovados. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--leitura-dos-gráficos-e-ações-de-visualizar).
 
