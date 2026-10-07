@@ -1,13 +1,13 @@
 .page {
   display: grid;
   grid-template-columns: minmax(210px, 240px) minmax(0, 1fr);
-  min-height: calc(100dvh - var(--header-height));
+  min-height: 100dvh;
 }
 .history {
   position: relative;
   z-index: 4;
-  padding: 56px 18px 22px;
-  height: calc(100dvh - var(--header-height));
+  padding: 24px 18px 22px;
+  height: 100dvh;
   overflow-y: auto;
   background: var(--fixa-surface);
   box-shadow: 2px 0 8px #8a93a226;
@@ -97,11 +97,11 @@
 }
 .chat {
   min-width: 0;
-  height: calc(100dvh - var(--header-height));
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 12px clamp(20px, 3vw, 48px) 20px;
+  padding: calc(var(--header-height) + 12px) clamp(20px, 3vw, 48px) 20px;
 }
 .welcome {
   flex: 1;
@@ -324,6 +324,7 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, 1fr);
     height: calc(100dvh - var(--header-height));
+    min-height: 0;
   }
   .history {
     z-index: auto;
@@ -397,4 +398,18 @@
     font-size: 14px;
     padding: 14px;
   }
+}
+
+.newChat,
+.conversation,
+.composer button {
+  transition:
+    background-color 150ms,
+    color 150ms;
+}
+.composer button:hover:not(:disabled) {
+  background: var(--fixa-hover);
+}
+.composer .send:hover:not(:disabled) {
+  background: #25165a;
 }

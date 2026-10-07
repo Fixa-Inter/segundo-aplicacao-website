@@ -1,3 +1,4 @@
+import { Eye } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -256,12 +257,7 @@ export default function Calendar() {
               <div className={styles.eventList}>
                 {selectedEvents.map((item) => (
                   <article className={styles.event} key={item.id}>
-                    <button
-                      className={styles.eventSummary}
-                      type="button"
-                      onClick={() => setDetails(item)}
-                      aria-label={t('Ver evento {name}', { name: item.title })}
-                    >
+                    <div className={styles.eventSummary}>
                       <span className={styles.eventDate} aria-hidden="true">
                         <strong>{Number(item.date.slice(-2))}</strong>
                         <span>{formatDate(item.date, { weekday: 'short' }).replace('.', '')}</span>
@@ -272,8 +268,16 @@ export default function Calendar() {
                           {item.time}–{item.endTime}
                         </time>
                       </span>
-                    </button>
+                    </div>
                     <div className={common.actions}>
+                      <button
+                        type="button"
+                        className={styles.iconButton}
+                        aria-label={t('Ver evento {name}', { name: item.title })}
+                        onClick={() => setDetails(item)}
+                      >
+                        <Eye aria-hidden="true" />
+                      </button>
                       <button
                         className={styles.iconButton}
                         aria-label={t('Editar evento {name}', { name: item.title })}

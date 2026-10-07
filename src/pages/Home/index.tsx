@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { DataChart } from '../../components/DataChart'
 import { StatCard } from '../../components/StatCard'
 import { Link } from 'react-router-dom'
 import { FigmaIcon } from '../../components/FigmaIcon'
@@ -35,10 +36,17 @@ export default function Home() {
   }, [attempt])
   useEffect(() => {
     const rail = daysRef.current
-    const selected = rail?.querySelector<HTMLButtonElement>("[aria-pressed='true']")
-    if (!rail || !selected) return
+    if (!rail) return
     // Move somente a faixa de dias; o restante da página permanece na mesma posição.
-    rail.scrollTo({ left: selected.offsetLeft - (rail.clientWidth - selected.offsetWidth) / 2 })
+    const centerSelection = () => {
+      const selected = rail.querySelector<HTMLButtonElement>("[aria-pressed='true']")
+      if (selected)
+        rail.scrollTo({ left: selected.offsetLeft - (rail.clientWidth - selected.offsetWidth) / 2 })
+    }
+    centerSelection()
+    const observer = new ResizeObserver(centerSelection)
+    observer.observe(rail)
+    return () => observer.disconnect()
   }, [selectedDay])
   if (error) {
     return (
@@ -98,32 +106,18 @@ export default function Home() {
               <FigmaIcon name="arrow-up-right" />
             </Link>
           </div>
-          <div
-            className={styles.chart}
-            role="img"
-            aria-label={t('Tarefas por mês. {name}.', {
+          <DataChart
+            fill
+            softBars
+            data={monthlyTasks.map((item) => ({
+              label: t(item.month),
+              value: item.value,
+              accent: item.month === 'Mar',
+            }))}
+            label={t('Tarefas por mês. {name}.', {
               name: monthlyTasks.map((item) => `${t(item.month)}: ${item.value}`).join('; '),
             })}
-          >
-            <div className={styles.axis} aria-hidden="true">
-              {[40, 30, 20, 10, 0].map((value) => (
-                <span key={value}>{value}</span>
-              ))}
-            </div>
-            <div className={styles.plot} aria-hidden="true">
-              {monthlyTasks.map((item) => (
-                <div key={t(item.month)} className={styles.barColumn}>
-                  <div className={styles.barTrack}>
-                    <div
-                      className={`${styles.bar} ${item.month === 'Mar' ? styles.highlight : ''}`}
-                      style={{ height: `${(item.value / 40) * 100}%` }}
-                    />
-                  </div>
-                  <span>{t(item.month)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          />
         </section>
         <section className={styles.eventPanel} aria-label={t('Calendário resumido')}>
           <div className={styles.monthHeader}>

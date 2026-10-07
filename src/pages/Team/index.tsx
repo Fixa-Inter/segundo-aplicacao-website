@@ -1,3 +1,4 @@
+import { Eye } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState } from 'react'
 import { FigmaIcon } from '../../components/FigmaIcon'
@@ -198,7 +199,7 @@ export default function Team() {
             disabled={loading || Boolean(loadError) || !manager}
           >
             <FigmaIcon name="plus" />
-            {t('Adicionar')}
+            {t('Adicionar técnico')}
           </button>
         }
       />
@@ -300,13 +301,7 @@ export default function Team() {
                     {shown.map((item) => (
                       <tr key={item.id}>
                         <td data-label={t('Nome')}>
-                          <button
-                            type="button"
-                            className={styles.nameButton}
-                            id={`tech-details-${item.id}`}
-                            aria-label={t('Ver detalhes de {name}', { name: item.name })}
-                            onClick={() => showDetails(item)}
-                          >
+                          <div className={styles.member}>
                             <span className={styles.initials} aria-hidden="true">
                               {item.name
                                 .split(' ')
@@ -318,12 +313,21 @@ export default function Team() {
                               {item.name}
                               <small>{t(item.status)}</small>
                             </span>
-                          </button>
+                          </div>
                         </td>
                         <td data-label={t('Turno')}>{item.shift}</td>
                         <td data-label={t('Especialidade')}>{item.specialty}</td>
                         <td data-label={t('Ações')}>
                           <div className={common.actions}>
+                            <button
+                              type="button"
+                              className={styles.iconButton}
+                              id={`tech-details-${item.id}`}
+                              aria-label={t('Ver detalhes de {name}', { name: item.name })}
+                              onClick={() => showDetails(item)}
+                            >
+                              <Eye aria-hidden="true" />
+                            </button>
                             <button
                               type="button"
                               className={styles.iconButton}

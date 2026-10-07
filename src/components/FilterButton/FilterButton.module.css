@@ -52,3 +52,10 @@
   opacity: 0.5;
   cursor: default;
 }
+
+.trigger,
+.clear {
+  transition:
+    background-color 150ms,
+    color 150ms;
+}

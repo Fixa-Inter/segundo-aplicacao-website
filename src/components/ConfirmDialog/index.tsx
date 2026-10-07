@@ -38,7 +38,7 @@ export function ConfirmDialog({
       opened={opened}
       onClose={onClose}
       centered
-      size={320}
+      size={400}
       radius={30}
       padding={0}
       closeOnClickOutside={!busy}
@@ -52,7 +52,7 @@ export function ConfirmDialog({
       >
         <Modal.Body>
           <div className={styles.body} aria-busy={busy}>
-            <img className={styles.art} src={art} width="200" height="200" alt="" />
+            <img className={styles.art} src={art} width="240" height="240" alt="" />
             <h2>{t(question)}</h2>
             <p className={styles.subtitle}>{t(subtitle)}</p>
             {subject && (

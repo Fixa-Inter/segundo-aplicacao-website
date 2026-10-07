@@ -1,6 +1,8 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useState } from 'react'
-import { FigmaIcon } from '../../components/FigmaIcon'
+import { Menu } from '@mantine/core'
+import { ChevronDown, Check } from 'lucide-react'
+import { DataChart } from '../../components/DataChart'
 import { FilterButton } from '../../components/FilterButton'
 import { PageHeader } from '../../components/PageHeader'
 import { getDashboard, listTechnicians } from '../../services/managementService'
@@ -20,6 +22,7 @@ export default function Dashboard() {
   const [technicians, setTechnicians] = useState<Technician[]>([])
   const [technicianId, setTechnicianId] = useState('')
   const [retry, setRetry] = useState(0)
+  const [technicianMenuOpen, setTechnicianMenuOpen] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -49,53 +52,68 @@ export default function Dashboard() {
   const hours = visible.flatMap((item) => item.hours)
   const summary = summarizeHours(hours)
   const average = summary ? formatNumber(summary.mean, { maximumFractionDigits: 1 }) : '—'
-  const hourAxisMax = Math.max(1, summary?.max ?? 0)
-  const position = (value: number) => (value / hourAxisMax) * 100
   const formatHour = (value: number) => formatNumber(value, { maximumFractionDigits: 2 })
-  const max = Math.max(1, ...visible.map((item) => Math.max(item.opened, item.completed)))
-  const points = visible
-    .map(
-      (item, index) =>
-        `${visible.length === 1 ? 50 : (index * 100) / (visible.length - 1)},${100 - (item.completed / max) * 100}`,
-    )
-    .join(' ')
   const histogram = buildHistogram(hours)
   const scatter = visible.flatMap((item) => {
     const monthlySummary = summarizeHours(item.hours)
     return monthlySummary ? [{ ...item, mean: monthlySummary.mean }] : []
   })
-  const scatterMaxX = Math.max(1, ...scatter.map((item) => item.opened))
-  const scatterMaxY = Math.max(1, ...scatter.map((item) => item.mean))
+  function selectTechnician(id: string) {
+    if (id === technicianId) return
+    setLoading(true)
+    setError('')
+    setTechnicianId(id)
+  }
+  const selectedTechnician = technicians.find((item) => item.id === technicianId)
 
   return (
     <div className={common.page}>
       <PageHeader title={t('Dashboard')} />
       <div className={styles.controls}>
         <div className={common.toolbar}>
-          <label
-            htmlFor="dashboard-technician"
-            className={`${common.field} ${styles.technicianField}`}
+          <Menu
+            opened={technicianMenuOpen}
+            onChange={setTechnicianMenuOpen}
+            position="bottom-start"
+            width={260}
+            shadow="md"
+            radius="lg"
+            returnFocus
           >
-            <span className={styles.srOnly}>{t('Técnico')}</span>
-            <FigmaIcon name="select-arrow" />
-            <select
-              className={styles.technicianSelect}
-              id="dashboard-technician"
-              value={technicianId}
-              onChange={(event) => {
-                setLoading(true)
-                setError('')
-                setTechnicianId(event.target.value)
-              }}
-            >
-              <option value="">{t('Técnico')}</option>
-              {technicians.map((technician) => (
-                <option key={technician.id} value={technician.id}>
-                  {technician.name}
-                </option>
-              ))}
-            </select>
-          </label>
+            <Menu.Target>
+              <button
+                type="button"
+                className={styles.technicianButton}
+                aria-label={
+                  selectedTechnician
+                    ? t('Técnico: {name}', { name: selectedTechnician.name })
+                    : t('Técnico')
+                }
+              >
+                <ChevronDown
+                  aria-hidden="true"
+                  className={technicianMenuOpen ? styles.arrowOpen : ''}
+                />
+                <span>{selectedTechnician?.name ?? t('Técnico')}</span>
+              </button>
+            </Menu.Target>
+            <Menu.Dropdown className={styles.technicianMenu}>
+              <Menu.RadioGroup value={technicianId} onChange={selectTechnician}>
+                {[{ id: '', name: t('Técnico') }, ...technicians].map((item) => (
+                  <Menu.RadioItem
+                    key={item.id}
+                    value={item.id}
+                    closeMenuOnClick
+                    checkIcon={<Check size={16} aria-hidden="true" />}
+                    className={styles.technicianOption}
+                    data-selected={technicianId === item.id || undefined}
+                  >
+                    {item.name}
+                  </Menu.RadioItem>
+                ))}
+              </Menu.RadioGroup>
+            </Menu.Dropdown>
+          </Menu>
         </div>
         <FilterButton
           active={months !== '7' || metric !== 'completed' || Boolean(technicianId)}
@@ -191,7 +209,16 @@ export default function Dashboard() {
                   >
                     <span>{completionRate}%</span>
                   </div>
-                  <p>{t('Concluídas / abertas')}</p>
+                  <ul className={styles.legend} aria-label={t('Legenda')}>
+                    <li>
+                      <i style={{ background: '#2cc64d' }} aria-hidden="true" />
+                      {t('Concluídas')} <strong>{completed}</strong>
+                    </li>
+                    <li>
+                      <i style={{ background: '#0b5805' }} aria-hidden="true" />
+                      {t('Pendentes')} <strong>{pending}</strong>
+                    </li>
+                  </ul>
                 </div>
                 <div className={styles.ringCard}>
                   <h2>{t('Em andamento')}</h2>
@@ -207,44 +234,46 @@ export default function Dashboard() {
                   >
                     <span>{pending}</span>
                   </div>
-                  <p>{t('Solicitações pendentes')}</p>
+                  <ul className={styles.legend} aria-label={t('Legenda')}>
+                    <li>
+                      <i style={{ background: '#5ad1f8' }} aria-hidden="true" />
+                      {t('Pendentes')} <strong>{pending}</strong>
+                    </li>
+                    <li>
+                      <i style={{ background: '#153d7d' }} aria-hidden="true" />
+                      {t('Concluídas')} <strong>{completed}</strong>
+                    </li>
+                  </ul>
                 </div>
               </section>
             </div>
             <div className={styles.charts}>
               <section className={common.panel} aria-labelledby="bar-title">
                 <h2 id="bar-title">{t('Solicitações por mês')}</h2>
-                <div
-                  className={styles.bars}
-                  role="img"
-                  aria-label={visible
+                <DataChart
+                  data={visible.map((item) => ({ label: t(item.month), value: item[metric] }))}
+                  label={visible
                     .map(
                       (item) =>
                         `${t(item.month)}: ${item[metric]} ${t(metric === 'opened' ? 'Abertas' : 'Concluídas')}`,
                     )
                     .join('; ')}
-                >
-                  {visible.map((item) => (
-                    <div className={styles.barItem} key={t(item.month)}>
-                      <span className={styles.value}>{item[metric]}</span>
-                      <div
-                        className={styles.bar}
-                        style={{ height: `${(item[metric] / max) * 100}%` }}
-                      />
-                      <span>{t(item.month)}</span>
-                    </div>
-                  ))}
-                </div>
+                />
               </section>
               <section className={common.panel} aria-labelledby="scatter-title">
                 <h2 id="scatter-title">{t('Solicitações abertas × tempo médio')}</h2>
                 {scatter.length ? (
                   <>
-                    <svg
-                      className={styles.scatter}
-                      viewBox="0 0 320 200"
-                      role="img"
-                      aria-label={scatter
+                    <DataChart
+                      kind="scatter"
+                      xLabel={t('Abertas (quantidade)')}
+                      yLabel={t('Tempo médio (h)')}
+                      data={scatter.map((item) => ({
+                        label: t(item.month),
+                        x: item.opened,
+                        value: item.mean,
+                      }))}
+                      label={scatter
                         .map((item) =>
                           t('{month}: {opened} abertas e média de {mean} horas', {
                             month: t(item.month),
@@ -253,38 +282,7 @@ export default function Dashboard() {
                           }),
                         )
                         .join('; ')}
-                    >
-                      <path d="M 40 15 V 160 H 300" fill="none" stroke="var(--fixa-muted)" />
-                      <text x="35" y="178">
-                        0
-                      </text>
-                      <text x="300" y="178" textAnchor="end">
-                        {scatterMaxX}
-                      </text>
-                      <text x="33" y="25" textAnchor="end">
-                        {formatHour(scatterMaxY)}
-                      </text>
-                      <text x="170" y="196" textAnchor="middle">
-                        {t('Abertas (quantidade)')}
-                      </text>
-                      <text x="14" y="90" textAnchor="middle" transform="rotate(-90 14 90)">
-                        {t('Tempo médio (h)')}
-                      </text>
-                      {scatter.map((item) => (
-                        <g key={t(item.month)}>
-                          <circle
-                            cx={40 + (item.opened / scatterMaxX) * 260}
-                            cy={160 - (item.mean / scatterMaxY) * 140}
-                            r="5"
-                            fill="var(--fixa-text-primary)"
-                          />
-                          <title>
-                            {t(item.month)}: {item.opened} {t('abertas ·')} {formatHour(item.mean)}{' '}
-                            {t('h')}
-                          </title>
-                        </g>
-                      ))}
-                    </svg>
+                    />
                     <p className={common.muted}>
                       {t('Cada ponto representa um mês; a relação não estabelece causa e efeito.')}
                     </p>
@@ -295,57 +293,26 @@ export default function Dashboard() {
               </section>
               <section className={common.panel} aria-labelledby="line-title">
                 <h2 id="line-title">{t('Evolução de concluídas')}</h2>
-                <svg
-                  className={styles.line}
-                  viewBox="0 0 100 110"
-                  preserveAspectRatio="none"
-                  role="img"
-                  aria-label={visible
-                    .map((item) => `${t(item.month)}: ${item.completed}`)
-                    .join('; ')}
-                >
-                  <polyline
-                    points={points}
-                    fill="none"
-                    stroke="var(--fixa-text-primary)"
-                    strokeWidth="2"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                </svg>
-                <div className={styles.labels}>
-                  {visible.map((item) => (
-                    <span key={t(item.month)}>{t(item.month)}</span>
-                  ))}
-                </div>
+                <DataChart
+                  kind="line"
+                  data={visible.map((item) => ({ label: t(item.month), value: item.completed }))}
+                  label={visible.map((item) => `${t(item.month)}: ${item.completed}`).join('; ')}
+                />
               </section>
               <section className={common.panel} aria-labelledby="hist-title">
                 <h2 id="hist-title">{t('Distribuição do tempo de atendimento')}</h2>
-                <div
-                  className={styles.histogram}
-                  role="img"
-                  aria-label={histogram
+                <DataChart
+                  data={histogram.map((bin) => ({
+                    label: `${bin.from}–${bin.to}${t('h')}`,
+                    value: bin.count,
+                  }))}
+                  label={histogram
                     .map(
                       (bin, index) =>
                         `De ${bin.from} horas inclusive a ${bin.to} horas ${index === 4 ? 'inclusive' : 'exclusive'}: ${bin.count} atendimentos`,
                     )
                     .join('; ')}
-                >
-                  {histogram.map((bin) => (
-                    <div className={styles.barItem} key={bin.from}>
-                      <span className={styles.value}>{bin.count}</span>
-                      <div
-                        className={styles.bar}
-                        style={{
-                          height: `${(bin.count / Math.max(1, ...histogram.map((item) => item.count))) * 100}%`,
-                        }}
-                      />
-                      <span>
-                        {bin.from}–{bin.to}
-                        {t('h')}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                />
                 <p className={common.muted}>
                   {t('Intervalos incluem o início e excluem o fim; o último inclui ambos.')}
                 </p>
@@ -354,10 +321,11 @@ export default function Dashboard() {
                 <h2 id="box-title">{t('Variação do tempo')}</h2>
                 {summary ? (
                   <>
-                    <div
-                      className={styles.box}
-                      role="img"
-                      aria-label={t(
+                    <DataChart
+                      kind="box"
+                      box={summary}
+                      xLabel={t('Tempo de atendimento (h)')}
+                      label={t(
                         'Mínimo {value1} horas, primeiro quartil {value2} horas, mediana {value3} horas, terceiro quartil {value4} horas e máximo {value5} horas.',
                         {
                           value1: formatHour(summary.min),
@@ -367,31 +335,10 @@ export default function Dashboard() {
                           value5: formatHour(summary.max),
                         },
                       )}
-                    >
-                      <div
-                        className={styles.whisker}
-                        style={{
-                          left: `${position(summary.min)}%`,
-                          width: `${position(summary.max - summary.min)}%`,
-                        }}
-                      />
-                      <div
-                        className={styles.boxBody}
-                        style={{
-                          left: `${position(summary.q1)}%`,
-                          width: `${position(summary.q3 - summary.q1)}%`,
-                        }}
-                      />
-                      <i
-                        className={styles.median}
-                        style={{ left: `${position(summary.median)}%` }}
-                      />
-                    </div>
+                    />
                     <p className={common.muted}>
-                      {t('Mediana:')}
-                      {formatHour(summary.median)} {t('h · Mínimo:')} {formatHour(summary.min)}{' '}
-                      {t('h · Máximo:')}
-                      {formatHour(summary.max)}{' '}
+                      {t('Mediana:')} {formatHour(summary.median)} {t('h · Mínimo:')}{' '}
+                      {formatHour(summary.min)} {t('h · Máximo:')} {formatHour(summary.max)}{' '}
                       {t('h. Quartis interpolados; hastes nos extremos da amostra.')}
                     </p>
                   </>

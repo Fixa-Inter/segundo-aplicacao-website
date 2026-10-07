@@ -55,7 +55,7 @@
   background: var(--fixa-primary);
   border: 1px solid var(--fixa-primary);
 }
-.primary:hover {
+.primary:hover:not(:disabled) {
   background: #0e2d60;
 }
 .secondary {
@@ -63,7 +63,7 @@
   background: var(--fixa-surface);
   border: 1px solid var(--fixa-border);
 }
-.secondary:hover {
+.secondary:hover:not(:disabled) {
   background: var(--fixa-accent-surface);
 }
 .danger {
@@ -71,7 +71,7 @@
   background: var(--fixa-surface);
   border: 1px solid #c57483;
 }
-.danger:hover {
+.danger:hover:not(:disabled) {
   background: var(--fixa-error-bg);
 }
 .primary:disabled,
@@ -257,4 +257,13 @@
   width: 18px;
   height: 18px;
   filter: brightness(0) invert(1);
+}
+
+.primary,
+.secondary,
+.danger {
+  transition:
+    background-color 150ms,
+    color 150ms,
+    box-shadow 150ms;
 }

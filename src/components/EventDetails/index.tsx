@@ -11,8 +11,8 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
       opened={Boolean(event)}
       onClose={onClose}
       centered
-      size={900}
-      radius={25}
+      size={760}
+      radius={28}
       padding={0}
     >
       <Modal.Overlay backgroundOpacity={0.35} />

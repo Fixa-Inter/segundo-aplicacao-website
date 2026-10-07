@@ -31,7 +31,7 @@
   width: 24%;
 }
 .tablePanel table th:last-child {
-  width: 110px;
+  width: 172px;
 }
 .tablePanel table td:last-child {
   padding-right: 0;
@@ -54,41 +54,14 @@
 .tablePanel > div:last-child {
   padding-right: 20px;
 }
-.nameButton {
+.member {
   max-width: 100%;
   overflow-wrap: anywhere;
-  border: 0;
-  background: none;
   color: var(--fixa-ink);
-  cursor: pointer;
-  text-align: left;
   display: flex;
   align-items: center;
   gap: 20px;
   padding: 5px;
-}
-.nameButton {
-  width: 100%;
-  border-radius: 14px;
-  transition:
-    background-color 150ms,
-    box-shadow 150ms;
-}
-.nameButton:is(:hover, :focus-visible) {
-  background: var(--fixa-surface);
-  box-shadow: inset 0 0 0 1px var(--fixa-border);
-}
-.nameButton .initials {
-  transition:
-    background-color 150ms,
-    color 150ms;
-}
-.nameButton:is(:hover, :focus-visible) .initials {
-  background: var(--fixa-text-primary);
-  color: var(--fixa-surface);
-}
-.nameButton:is(:hover, :focus-visible) small {
-  color: var(--fixa-ink);
 }
 .iconButton {
   border: 0;
@@ -152,7 +125,7 @@
   background: var(--fixa-initials-bg);
   font-weight: 600;
 }
-.nameButton small {
+.member small {
   display: block;
   color: var(--fixa-muted);
   font-size: 12px;
@@ -201,7 +174,7 @@
     width: 44px;
     height: 44px;
   }
-  .nameButton {
+  .member {
     gap: 14px;
     padding: 3px;
   }
@@ -245,4 +218,16 @@
   .sectionHeading h2 {
     padding-block: 6px 8px;
   }
+}
+
+.iconButton svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.8;
+}
+
+.iconButton {
+  transition:
+    background-color 150ms,
+    color 150ms;
 }

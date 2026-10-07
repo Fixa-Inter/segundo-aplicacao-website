@@ -61,6 +61,8 @@ Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`
 
 ## Qualidade e evidências
 
+- Complemento de legibilidade em 07/10/2026: gráficos com escalas, linhas e valores; menu Técnico com seta animada e hover; legendas das cores; ações de visualizar; confirmações maiores e evento mais compacto; histórico da Manu no topo; ícones estáveis ao recolher a sidebar e logo corrigida. Build, lint, formatação e **32 testes** aprovados. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--leitura-dos-gráficos-e-ações-de-visualizar).
+
 - Complemento de 07/10/2026: resumo mensal da Home rolável, seta do Dashboard como SVG proporcional, destaque dos técnicos sem sublinhado e botões Adicionar compartilhando formato arredondado com “+”. Home sem rolagem vertical em 1280 × 720 e 1340 × 800; faixa mensal percorrida pelo mouse e teclado. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--faixa-mensal-e-controles). Build, lint, formatação e **30 testes** aprovados.
 
 - Revisão de 07/10/2026: pop-ups compactos com as três ilustrações originais enviadas pelo usuário, sobreposição corrigida, confirmação de salvar, Home com sete dias e Manu inteira, filtros com limpeza, Adicionar à direita da main e sidebar recolhida mais espaçosa. Recuperação usa e-mail preenchido no Login e troca autenticada abre página própria. Build, lint, Prettier e **30/30 testes** aprovados. [Revisão atual e capturas](docs/REVISAO_DESIGN_2026-10-07.md). Os registros anteriores abaixo são históricos.

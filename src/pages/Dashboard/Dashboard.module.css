@@ -31,97 +31,6 @@
     text-align: left;
   }
 }
-.bars,
-.histogram {
-  height: 220px;
-  display: flex;
-  align-items: end;
-  gap: 12px;
-  padding-top: 20px;
-  border-bottom: 1px solid var(--fixa-border);
-}
-.barItem {
-  height: 100%;
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: end;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  color: var(--fixa-muted);
-}
-.bar {
-  width: min(100%, 45px);
-  min-height: 2px;
-  background: #153d7d;
-  border-radius: 25px 25px 0 0;
-}
-.value {
-  font-weight: 600;
-}
-.line {
-  display: block;
-  width: 100%;
-  height: 205px;
-  overflow: visible;
-  border-bottom: 1px solid var(--fixa-border);
-}
-.labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--fixa-muted);
-}
-.scatter {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 260px;
-  color: var(--fixa-muted);
-  font-size: 11px;
-  fill: currentColor;
-}
-.box {
-  height: 125px;
-  position: relative;
-  margin: 20px;
-}
-.whisker {
-  position: absolute;
-  top: 50%;
-  border-top: 2px solid var(--fixa-text-primary);
-}
-.whisker::before,
-.whisker::after {
-  content: '';
-  position: absolute;
-  top: -12px;
-  height: 24px;
-  border-left: 2px solid var(--fixa-text-primary);
-}
-.whisker::before {
-  left: 0;
-}
-.whisker::after {
-  right: 0;
-}
-.boxBody {
-  position: absolute;
-  top: 30%;
-  height: 40%;
-  border: 2px solid #153d7d;
-  background: #b4d0f4;
-  min-width: 4px;
-}
-.median {
-  position: absolute;
-  top: 30%;
-  height: 40%;
-  border-left: 3px solid #153d7d;
-}
-
 .overview {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -158,12 +67,18 @@
 }
 
 .ringCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-height: 304px;
   text-align: center;
   background: var(--fixa-neutral-surface);
 }
 
 .ringCard h2 {
-  margin: 0 0 12px;
+  margin: 0;
   color: var(--fixa-black);
   font-size: 18px;
   font-weight: 500;
@@ -220,22 +135,6 @@
   }
 }
 
-.controls select.technicianSelect:not([multiple]):not([size]) {
-  background-color: #153d7d;
-  color: white;
-  border: 0;
-  border-radius: 35px;
-  min-height: 44px;
-  font-size: 16px;
-  max-width: 300px;
-  background-image: none;
-  padding-left: 44px;
-  padding-right: 18px;
-}
-.controls .technicianSelect option {
-  color: var(--fixa-ink);
-  background: var(--fixa-surface);
-}
 .charts > section {
   background: var(--fixa-neutral-surface);
   color: var(--fixa-black);
@@ -247,21 +146,85 @@
   }
 }
 
-.technicianField {
-  position: relative;
+.technicianButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  max-width: 300px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: #153d7d;
+  color: white;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    box-shadow 150ms;
 }
-.technicianField > img {
-  position: absolute;
-  left: 17px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: auto;
-  filter: none;
-  pointer-events: none;
+.technicianButton:hover,
+.technicianButton[aria-expanded='true'] {
+  background: #234f92;
+  box-shadow: 0 0 0 3px var(--fixa-selected);
 }
-@media (forced-colors: active) {
-  .technicianField > img {
-    display: none;
-  }
+.technicianButton span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.technicianButton svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.2;
+  transition: transform 180ms ease;
+}
+.technicianButton .arrowOpen {
+  transform: rotate(-90deg);
+}
+.technicianMenu {
+  background: var(--fixa-surface);
+  border-color: var(--fixa-border);
+  padding: 6px;
+}
+.technicianOption {
+  color: var(--fixa-ink);
+  border-radius: 8px;
+  min-height: 40px;
+}
+.technicianOption[data-selected] {
+  background: var(--fixa-selected);
+  color: var(--fixa-text-primary);
+}
+.technicianOption[data-hovered] {
+  background: var(--fixa-hover);
+}
+.legend {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  max-width: 210px;
+}
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--fixa-muted);
+  font-size: 12px;
+}
+.legend i {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.legend strong {
+  margin-left: auto;
+  color: var(--fixa-ink);
+  font-weight: 600;
 }

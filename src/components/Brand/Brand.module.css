@@ -18,6 +18,13 @@
   height: auto;
 }
 .compact img {
-  width: auto;
-  height: auto;
+  width: 100px;
+  height: 116px;
+  transition:
+    width 220ms ease,
+    height 220ms ease;
+}
+.compact img.collapsed {
+  width: 72px;
+  height: 84px;
 }

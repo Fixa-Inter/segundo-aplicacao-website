@@ -76,3 +76,47 @@ Capturas adicionais:
 - [Dashboard, seta proporcional, 1340 × 800](evidencias/design-2026-10-07/dashboard-seta-1340x800.png)
 - [Equipe, destaque por foco e botão Adicionar, 1340 × 800](evidencias/design-2026-10-07/equipe-destaque-1340x800.png)
 - [Calendário, botão Adicionar padronizado, 1340 × 800](evidencias/design-2026-10-07/calendario-adicionar-1340x800.png)
+
+
+## Complemento — leitura dos gráficos e ações de visualizar
+
+Este complemento atende ao feedback seguinte do usuário e substitui as decisões anteriores sobre o select nativo de Técnico, acesso pelo nome do técnico, tamanho das confirmações e informações do evento. Foram usadas as capturas fornecidas e as artes locais já obtidas do Figma.
+
+- Home e Dashboard compartilham `DataChart`, com escalas iniciadas em zero, marcações numéricas, linhas de referência e valores nas barras/pontos da linha. O componente mede a área disponível para manter as fontes legíveis ao redimensionar; não deforma o SVG. Dispersão tem duas escalas numéricas e identificação de cada mês no tooltip nativo. Histograma mantém os intervalos existentes e o boxplot mostra a escala em horas e a mediana. Os dados e cálculos dos services foram preservados.
+- A escala escolhe intervalos legíveis, cobre o maior valor e usa marcações inteiras para contagens. Dois testes novos cobrem valores zero, fracionários e grandes, intervalos uniformes e rejeição de limites inválidos.
+- Os cards circulares distribuem título, anel e legenda no espaço disponível. As duas cores recebem rótulos de Concluídas/Pendentes e suas quantidades; porcentagem e contagem central continuam visíveis. O total demonstrativo inicial permanece 213 abertas, 165 concluídas e 48 pendentes.
+- Técnico passou a menu Mantine com opções arredondadas, indicação do técnico selecionado, navegação por teclado e retorno do foco. A seta é um ChevronDown vetorial sem preenchimento, de 20 px, que gira para a direita enquanto aberto. Hover e abertura realçam o azul e a borda. Os demais botões de ação, filtros, navegação e compositor receberam transições curtas de cor; a regra global de movimento reduzido continua aplicável.
+- Os dias da Home têm largura mínima de 58 px, altura de 80 px em notebook e 88 px em celular. Em áreas largas, sete dias cabem; em áreas menores, a faixa preserva o tamanho dos botões e continua rolável até o fim do mês. O encaixe automático foi retirado para não recortar o último dia, e ResizeObserver mantém a seleção visível ao redimensionar a área. Home/End e setas continuam disponíveis. O primeiro evento cabe inteiro no painel inicial em 1280 × 720.
+- Equipe agora tem Visualizar, Editar e Excluir, nessa ordem. O olhinho abre os detalhes e recebe novamente o foco ao voltar; o nome é informação estática. O botão de cadastro diz Adicionar técnico, com o mesmo “+”, altura e raio do Adicionar evento.
+- Eventos também têm olhinho explícito antes de Editar/Excluir. O resumo deixou de ser um botão. As informações mantêm o desenho de campos do Figma, com largura de 760 px, raio de 28 px, espaçamentos menores e uma única família tipográfica. Em celular, os campos ficam numa coluna. Fechar/Escape devolvem foco ao olhinho.
+- Confirmações passaram de 320 para 400 px no desktop, com arte de 240 px, título de 20 px, texto de 14 px e botões de 44 px de altura. As três ilustrações originais foram preservadas. Em celular, a largura fica em 320 px e a arte em 200 px.
+- Na Manu, o histórico ocupa a altura da tela e começa a 24 px do topo no desktop. O header ocupa apenas a região da conversa; o chat mantém espaço acima para os controles. Em celular, o header volta ao fluxo normal.
+- Sidebar aberta e recolhida usam os mesmos ícones de 28 × 28 px, padding e altura de cada item. Apenas os textos se ocultam; largura, logo e textos têm transição. A logo usa um único vetor nos dois estados, corrigido por espelhamento horizontal para corresponder ao PNG oficial da FIXA. A imagem completa com o nome FIXA continua preservada.
+
+### Verificação deste complemento
+
+Build, ESLint, Prettier e **32/32 testes Node** aprovados. Navegador local em `localhost:5175`, sem publicação.
+
+- Em 1340 × 800, os cinco ícones de navegação mediram 28 × 28 px, x = 36 px e y = 204/264/324/384/444 px, antes e depois de expandir. O título da Manu ficou a 24 px do topo nos dois estados.
+- Home em 1280 × 720: main com 640 px disponíveis e 640 px de conteúdo; primeiro evento com 56 px disponíveis e 56 px de conteúdo. End selecionou 31/03 mantendo a main em scrollTop = 0.
+- Dashboard: escolher Ana Costa atualizou os indicadores para 38 abertas, 29 concluídas e 9 pendentes; Limpar filtros restaurou 213/165/48. Enter abriu o menu; seta para baixo moveu o foco; Enter selecionou Ana; Escape fechou e devolveu o foco ao botão. O grupo de opções usa Menu.RadioGroup/RadioItem para anunciar a seleção. Menu, legendas e escalas foram conferidos visualmente. Os gráficos inferiores continuam acessíveis pela rolagem da main.
+- Equipe: olhinho abriu Ana Costa; voltar restaurou foco. Confirmação de excluir foi aberta e cancelada, sem excluir registros. Calendário: olhinho abriu o evento e Escape restaurou foco.
+- Em 390 × 844, Home e Calendário ficaram com largura de página de 390 px. O modal de evento mediu aproximadamente 351 × 625 px, com toda a informação visível; a confirmação manteve texto e ações acessíveis. Na Equipe, os três botões de ação ficaram na mesma linha, com 44 × 44 px cada. No Dashboard, o menu também coube sem transbordamento. Após redimensionar a Home, o dia 31 ficou totalmente visível (extremo direito do botão: 334,8 px; extremo da faixa: 335,2 px).
+
+Capturas deste complemento:
+
+- [Home com gráfico e dias, 1280 × 720](evidencias/design-2026-10-07/home-grafico-dias-1280x720.png)
+- [Home com gráfico e dias, 1340 × 800](evidencias/design-2026-10-07/home-grafico-dias-1340x800.png)
+- [Home no celular](evidencias/design-2026-10-07/home-grafico-dias-390x844.png)
+- [Dashboard: menu no celular](evidencias/design-2026-10-07/dashboard-menu-390x844.png)
+- [Dashboard: menu e legendas](evidencias/design-2026-10-07/dashboard-menu-legendas-1340x800.png)
+- [Dashboard: escalas dos gráficos](evidencias/design-2026-10-07/dashboard-escalas-1340x800.png)
+- [Equipe: ações de visualizar](evidencias/design-2026-10-07/equipe-visualizar-1340x800.png)
+- [Confirmação maior no desktop](evidencias/design-2026-10-07/popup-legivel-1340x800.png)
+- [Confirmação no celular](evidencias/design-2026-10-07/popup-legivel-390x844.png)
+- [Informações do evento no desktop](evidencias/design-2026-10-07/evento-compacto-1340x800.png)
+- [Informações do evento no celular](evidencias/design-2026-10-07/evento-compacto-390x844.png)
+- [Manu com sidebar recolhida](evidencias/design-2026-10-07/manu-historico-recolhido-1340x800.png)
+- [Manu com sidebar expandida](evidencias/design-2026-10-07/manu-historico-expandido-1340x800.png)
+
+As traduções novas existem em português, inglês, espanhol e mandarim. Não se alega QA visual integral dos quatro idiomas, equivalência pixel a pixel de todos os frames ou integração com Databricks/backend.

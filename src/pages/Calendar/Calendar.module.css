@@ -238,10 +238,11 @@
     width: 44px;
   }
   .event {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
   .event > :last-child {
-    grid-column: 2;
+    grid-column: 1;
+    justify-content: flex-end;
   }
 }
 
@@ -265,10 +266,6 @@
   color: var(--fixa-event-text);
   font: inherit;
   text-align: left;
-  cursor: pointer;
-}
-.eventSummary:hover .eventTitle {
-  text-decoration: underline;
 }
 .eventTitle {
   display: block;
@@ -320,4 +317,16 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.iconButton svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.8;
+}
+
+.iconButton {
+  transition:
+    background-color 150ms,
+    color 150ms;
 }
