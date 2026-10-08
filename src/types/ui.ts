@@ -76,7 +76,7 @@ export interface FigmaIconProps {
 }
 export interface ConfirmDialogProps {
   opened: boolean
-  variant: 'delete' | 'save' | 'logout'
+  variant: 'delete' | 'save' | 'logout' | 'discard'
   subject?: string
   confirmLabel: string
   busy?: boolean

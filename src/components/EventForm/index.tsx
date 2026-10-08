@@ -1,4 +1,6 @@
 import { ConfirmDialog } from '../ConfirmDialog'
+import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
+import { hasFormChanges } from '../../utils/formChanges'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
@@ -30,11 +32,15 @@ export function EventForm({
     technicianId: event?.technicianId ?? '',
   })
   const [date, setDate] = useState(formatDate(form.date, { dateStyle: 'short' }))
+  const [initial] = useState(() => ({ ...form, dateText: date }))
   const [errors, setErrors] = useState<Partial<Record<keyof CalendarEventInput, string>>>({})
   const [error, setError] = useState('')
   const [pending, setPending] = useState<CalendarEventInput | null>(null)
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
+  const isDirty = hasFormChanges({ ...form, dateText: date }, initial)
+  const requestExit = useUnsavedForm(isDirty, busy)
+  const cancel = () => requestExit(onCancel)
 
   function update<K extends keyof CalendarEventInput>(key: K, value: CalendarEventInput[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -76,7 +82,7 @@ export function EventForm({
       <button
         className={styles.back}
         type="button"
-        onClick={onCancel}
+        onClick={cancel}
         disabled={busy}
         aria-label={t('Voltar para calendário')}
       >
@@ -198,7 +204,7 @@ export function EventForm({
           </p>
         )}
         <div className={styles.actions}>
-          <button className={styles.cancel} type="button" onClick={onCancel} disabled={busy}>
+          <button className={styles.cancel} type="button" onClick={cancel} disabled={busy}>
             {t('Cancelar')}
           </button>
           <button className={styles.save} type="submit" disabled={busy}>

@@ -8,6 +8,8 @@ const messages: Record<string, readonly [string, string, string]> = {
     '要删除此记录吗？',
   ],
   'Salvar alterações?': ['Save changes?', '¿Guardar los cambios?', '保存更改吗？'],
+  'Descartar alterações?': ['Discard changes?', '¿Descartar los cambios?', '放弃更改吗？'],
+  Descartar: ['Discard', 'Descartar', '放弃'],
   'Essa ação não poderá ser desfeita.': [
     'This action cannot be undone.',
     'Esta acción no se puede deshacer.',

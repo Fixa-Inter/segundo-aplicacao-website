@@ -1,4 +1,6 @@
 import { usePreferences } from '../../contexts/usePreferences'
+import { UnsavedChangesProvider } from '../../contexts/UnsavedChangesContext'
+import { useUnsavedChanges } from '../../contexts/useUnsavedChanges'
 import { useEffect, useRef, useState } from 'react'
 import { Drawer } from '@mantine/core'
 import { FigmaIcon } from '../FigmaIcon'
@@ -72,7 +74,16 @@ function Navigation({ onNavigate, onLogout }: NavigationProps) {
 }
 
 export function AppLayout() {
+  return (
+    <UnsavedChangesProvider>
+      <Layout />
+    </UnsavedChangesProvider>
+  )
+}
+
+function Layout() {
   const { t } = usePreferences()
+  const { requestExit } = useUnsavedChanges()
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [logoutOpen, setLogoutOpen] = useState(false)
@@ -164,9 +175,11 @@ export function AppLayout() {
         variant="logout"
         confirmLabel="Sair"
         onConfirm={() => {
-          logout()
           setLogoutOpen(false)
-          navigate('/login', { replace: true })
+          requestExit(() => {
+            logout()
+            navigate('/login', { replace: true })
+          })
         }}
       />
     </div>

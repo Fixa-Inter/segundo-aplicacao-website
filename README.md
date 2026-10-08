@@ -61,6 +61,8 @@ Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`
 
 ## Qualidade e evidências
 
+- Em 08/10/2026: confirmação de descarte para técnicos, eventos e perfil, incluindo Cancelar, Voltar, navegação entre rotas e saída da conta. Ilustração nova gerada com ImageGen e integrada ao mesmo pop-up das demais confirmações. Build, lint, formatação e **35 testes** aprovados. [Prompt, cenários e capturas](docs/DESCARTE_ALTERACOES_2026-10-08.md).
+
 - Telas de senha alinhadas em 07/10/2026: coluna central compartilhada, campos e botões com a mesma largura, ilustrações proporcionais e seis dígitos igualmente espaçados. Recuperação e troca demonstrativas percorridas no navegador; desktop, notebook e celular conferidos. Build, lint, formatação e **32 testes** aprovados. [Verificação e capturas](docs/ALINHAMENTO_SENHA_2026-10-07.md).
 
 - Complemento de legibilidade em 07/10/2026: gráficos com escalas, linhas e valores; menu Técnico com seta animada e hover; legendas das cores; ações de visualizar; confirmações maiores e evento mais compacto; histórico da Manu no topo; ícones estáveis ao recolher a sidebar e logo corrigida. Build, lint, formatação e **32 testes** aprovados. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--leitura-dos-gráficos-e-ações-de-visualizar).

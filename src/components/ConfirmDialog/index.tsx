@@ -6,6 +6,7 @@ import styles from './ConfirmDialog.module.css'
 import deleteArt from '../../assets/figma/confirm-delete.png'
 import saveArt from '../../assets/figma/confirm-save.png'
 import logoutArt from '../../assets/figma/confirm-logout.png'
+import discardArt from '../../assets/illustrations/confirm-discard.png'
 
 const variants = {
   delete: {
@@ -19,6 +20,11 @@ const variants = {
     subtitle: 'Essa ação não poderá ser desfeita.',
   },
   logout: { art: logoutArt, question: 'Sair da conta?', subtitle: 'Você poderá entrar novamente' },
+  discard: {
+    art: discardArt,
+    question: 'Descartar alterações?',
+    subtitle: 'Essa ação não poderá ser desfeita.',
+  },
 }
 
 export function ConfirmDialog({

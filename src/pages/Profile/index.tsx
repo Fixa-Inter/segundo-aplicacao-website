@@ -1,4 +1,6 @@
 import { usePreferences } from '../../contexts/usePreferences'
+import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
+import { hasFormChanges } from '../../utils/formChanges'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
@@ -58,10 +60,31 @@ export default function Profile() {
   const [notice, setNotice] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof ManagerProfile, string>>>({})
   const [birthDateText, setBirthDateText] = useState('')
-  const savedProfileRef = useRef<ManagerProfile>(empty)
+  const [savedProfile, setSavedProfile] = useState<ManagerProfile>(empty)
   const editButtonRef = useRef<HTMLButtonElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const wasEditing = useRef(false)
+  const isDirty =
+    editing &&
+    hasFormChanges(
+      { ...profile, birthDateText },
+      {
+        ...savedProfile,
+        birthDateText: savedProfile.birthDate
+          ? formatDateInput(savedProfile.birthDate, { dateStyle: 'short' })
+          : '',
+      },
+    )
+  const requestExit = useUnsavedForm(isDirty, busy)
+
+  function cancel() {
+    requestExit(() => {
+      setProfile({ ...savedProfile })
+      setEditing(false)
+      setFieldErrors({})
+      setError('')
+    })
+  }
 
   useEffect(() => {
     if (editing) formRef.current?.querySelector<HTMLInputElement>('input')?.focus()
@@ -75,7 +98,7 @@ export default function Profile() {
       .then((data) => {
         if (active) {
           setProfile(data)
-          savedProfileRef.current = data
+          setSavedProfile(data)
         }
       })
       .catch(() => {
@@ -122,7 +145,7 @@ export default function Profile() {
         city: profile.city.trim(),
       })
       setProfile(saved)
-      savedProfileRef.current = saved
+      setSavedProfile(saved)
       updateName(saved.name)
       setEditing(false)
       setNotice('Perfil atualizado nesta sessão de demonstração.')
@@ -226,16 +249,7 @@ export default function Profile() {
                 ))}
               </div>
               <div className={common.formActions}>
-                <button
-                  className={common.secondary}
-                  type="button"
-                  onClick={() => {
-                    setProfile({ ...savedProfileRef.current })
-                    setEditing(false)
-                    setFieldErrors({})
-                  }}
-                  disabled={busy}
-                >
+                <button className={common.secondary} type="button" onClick={cancel} disabled={busy}>
                   {t('Cancelar')}
                 </button>
                 <button className={common.primary} type="submit" disabled={busy}>

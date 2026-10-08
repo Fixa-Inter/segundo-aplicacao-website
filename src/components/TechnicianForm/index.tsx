@@ -1,4 +1,6 @@
 import { ConfirmDialog } from '../ConfirmDialog'
+import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
+import { hasFormChanges } from '../../utils/formChanges'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
@@ -55,6 +57,7 @@ export function TechnicianForm({
   const [birthDate, setBirthDate] = useState(
     technician ? formatDate(technician.birthDate, { dateStyle: 'short' }) : '',
   )
+  const [initial] = useState(() => ({ ...form, birthDateText: birthDate, password }))
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [passwordError, setPasswordError] = useState<string | undefined>()
   const [errors, setErrors] = useState<Partial<Record<keyof TechnicianInput, string>>>({})
@@ -62,6 +65,9 @@ export function TechnicianForm({
   const [pending, setPending] = useState<TechnicianInput | null>(null)
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
+  const isDirty = hasFormChanges({ ...form, birthDateText: birthDate, password }, initial)
+  const requestExit = useUnsavedForm(isDirty, busy)
+  const cancel = () => requestExit(onCancel)
 
   function renderField(field: (typeof fields)[number]) {
     const id = `technician-${field.key}`
@@ -142,7 +148,7 @@ export function TechnicianForm({
       <button
         className={styles.back}
         type="button"
-        onClick={onCancel}
+        onClick={cancel}
         disabled={busy}
         aria-label={t('Voltar para equipe')}
       >
@@ -271,7 +277,7 @@ export function TechnicianForm({
           </p>
         )}
         <div className={styles.actions}>
-          <button className={styles.cancel} type="button" onClick={onCancel} disabled={busy}>
+          <button className={styles.cancel} type="button" onClick={cancel} disabled={busy}>
             {t('Cancelar')}
           </button>
           <button className={styles.save} type="submit" disabled={busy}>
