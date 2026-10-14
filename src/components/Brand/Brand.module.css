@@ -1,0 +1,30 @@
+.brand {
+  display: inline-flex;
+  width: 100px;
+  height: 38px;
+  flex: none;
+}
+.brand img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+:global([data-theme='dark']) .brand img {
+  filter: brightness(1.8);
+}
+.compact {
+  width: max-content;
+  height: auto;
+}
+.compact img {
+  width: 100px;
+  height: 116px;
+  transition:
+    width 220ms ease,
+    height 220ms ease;
+}
+.compact img.collapsed {
+  width: 72px;
+  height: 84px;
+}

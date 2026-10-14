@@ -1,0 +1,12 @@
+.icon {
+  display: block;
+  flex: none;
+}
+:global([data-theme='dark']) .icon {
+  filter: brightness(0) saturate(100%) invert(87%) sepia(16%) saturate(745%) hue-rotate(179deg);
+}
+@media (forced-colors: active) {
+  .icon {
+    background: white;
+  }
+}

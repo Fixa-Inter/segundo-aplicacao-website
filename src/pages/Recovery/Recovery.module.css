@@ -1,0 +1,231 @@
+.page {
+  min-height: 100dvh;
+  padding: 72px 24px;
+  background: var(--fixa-bg);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+}
+.back {
+  position: absolute;
+  top: 24px;
+  left: clamp(20px, 4vw, 64px);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--fixa-ink);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+.back:hover {
+  background: var(--fixa-hover);
+}
+.back svg {
+  width: 30px;
+  height: 30px;
+}
+.content {
+  width: min(480px, 100%);
+  min-width: 0;
+  margin-inline: auto;
+  text-align: center;
+  --field-height: 52px;
+  --label-size: 17px;
+  --input-size: 16px;
+  --label-gap: 8px;
+}
+.heading {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.manu {
+  display: block;
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+}
+.content h1 {
+  color: var(--fixa-text-primary);
+  font-size: 32px;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+.content h1:focus {
+  outline: none;
+}
+.description {
+  margin: 0;
+  font-size: 16px;
+  color: var(--fixa-ink);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.form {
+  text-align: left;
+}
+.primary {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  min-height: var(--field-height);
+  padding: 12px 20px;
+  margin-top: 24px;
+  border: 0;
+  border-radius: 999px;
+  background: #578bd6;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+.heading + .primary {
+  margin-top: 0;
+}
+.primary:hover {
+  background: #477bc8;
+}
+.primary:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+.secondary {
+  display: inline-block;
+  font-size: 16px;
+  color: var(--fixa-ink);
+  font-weight: 500;
+  text-decoration: none;
+  margin-top: 20px;
+}
+.secondary:hover {
+  text-decoration: underline;
+}
+.codeLabel {
+  display: block;
+  margin: 0 0 var(--label-gap) 6px;
+  color: var(--fixa-text-primary);
+  font-size: var(--label-size);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.pinRoot {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.pinRoot > div {
+  flex: 1;
+  min-width: 0;
+  height: 64px;
+}
+.pinInput {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: var(--fixa-auth-field);
+  color: var(--fixa-ink);
+  font-size: 24px;
+}
+.pinInput:focus {
+  border-color: var(--fixa-text-primary);
+}
+.pinInput[data-error] {
+  border-color: var(--fixa-danger-text);
+}
+.resend {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 20px 0 0;
+}
+.resend button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--fixa-text-primary);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 600;
+}
+.resend button:hover {
+  text-decoration: underline;
+}
+.demoNote {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--fixa-muted);
+  margin: 12px 0 0;
+}
+.passwordFields {
+  display: grid;
+  gap: 20px;
+}
+.error {
+  color: var(--fixa-danger-text);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 12px 6px 0;
+}
+@media (max-height: 760px), (max-width: 600px) {
+  .manu {
+    width: 180px;
+    height: 180px;
+  }
+  .content h1 {
+    font-size: 28px;
+  }
+  .heading {
+    margin-bottom: 20px;
+  }
+  .passwordFields {
+    gap: 16px;
+  }
+  .primary {
+    margin-top: 20px;
+  }
+  .secondary,
+  .resend {
+    margin-top: 16px;
+  }
+}
+@media (max-height: 760px) and (min-width: 601px) {
+  .page {
+    padding-block: 56px;
+  }
+}
+@media (max-width: 600px) {
+  .page {
+    padding-inline: 20px;
+  }
+  .pinRoot {
+    gap: 8px;
+  }
+  .pinRoot > div {
+    height: 56px;
+  }
+  .pinInput {
+    border-radius: 14px;
+  }
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

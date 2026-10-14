@@ -1,0 +1,233 @@
+.search {
+  position: relative;
+  flex: 1 1 350px;
+}
+.search input {
+  height: 60px;
+  padding-left: 80px;
+  border-color: var(--fixa-border);
+  font-size: 18px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px #8a93a226;
+}
+
+.tablePanel {
+  padding: 0 0 20px;
+  overflow: hidden;
+}
+.tablePanel table th {
+  background: var(--fixa-table-head);
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+}
+.tablePanel table {
+  table-layout: fixed;
+}
+.tablePanel table th:first-child {
+  width: 37%;
+}
+.tablePanel table th:nth-child(2) {
+  width: 24%;
+}
+.tablePanel table th:last-child {
+  width: 172px;
+}
+.tablePanel table td:last-child {
+  padding-right: 0;
+}
+.tablePanel table th:first-child {
+  padding-left: 22px;
+}
+.tablePanel table td:first-child {
+  padding-left: 22px;
+}
+.tablePanel table tbody tr:nth-child(even) {
+  background: var(--fixa-row-alt);
+}
+.tablePanel table tbody tr:nth-child(odd) {
+  background: var(--fixa-neutral-surface);
+}
+.tablePanel table td {
+  border: 0;
+}
+.tablePanel > div:last-child {
+  padding-right: 20px;
+}
+.member {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--fixa-ink);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 5px;
+}
+.iconButton {
+  border: 0;
+  background: transparent;
+  color: var(--fixa-text-primary);
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.iconButton:hover {
+  background: var(--fixa-hover);
+}
+.delete {
+  color: var(--fixa-danger-text);
+}
+@media (max-width: 600px) {
+  .tablePanel {
+    padding: 16px;
+  }
+  .tablePanel table td:first-child {
+    padding-left: 0;
+  }
+  .tablePanel table tbody tr:nth-child(even) {
+    background: var(--fixa-row-alt);
+  }
+  .tablePanel table tr {
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .tablePanel > div:last-child {
+    padding-right: 0;
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  color: white;
+  background: #153d7d;
+  pointer-events: none;
+}
+.initials {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  color: var(--fixa-text-primary);
+  background: var(--fixa-initials-bg);
+  font-weight: 600;
+}
+.member small {
+  display: block;
+  color: var(--fixa-muted);
+  font-size: 12px;
+}
+.tablePanel table td {
+  padding-block: 16px;
+  font-size: 16px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .tablePanel table td {
+    padding-block: 4px;
+    font-size: 14px;
+  }
+}
+@media (min-width: 901px) and (max-height: 950px) {
+  .page {
+    gap: 20px;
+  }
+  .search input,
+  .searchIcon {
+    height: 54px;
+  }
+  .searchIcon {
+    width: 54px;
+  }
+  .search input {
+    padding-left: 72px;
+  }
+  .tablePanel {
+    padding-bottom: 16px;
+  }
+  .tablePanel table td {
+    padding-block: 9px;
+  }
+  .initials {
+    width: 44px;
+    height: 44px;
+  }
+  .member {
+    gap: 14px;
+    padding: 3px;
+  }
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--fixa-border);
+}
+.sectionHeading h2 {
+  margin: 0;
+  padding: 10px 4px 12px;
+  border-bottom: 2px solid var(--fixa-text-primary);
+  color: var(--fixa-text-primary);
+  font-size: 22px;
+  font-weight: 500;
+}
+
+@media (min-width: 901px) and (min-height: 951px) {
+  .tablePanel table th,
+  .tablePanel table td {
+    font-size: 18px;
+  }
+  .sectionHeading {
+    margin-bottom: 16px;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 750px) {
+  .page {
+    gap: 12px;
+  }
+  .tablePanel {
+    padding-bottom: 12px;
+  }
+  .tablePanel table td {
+    padding-block: 7px;
+  }
+  .sectionHeading h2 {
+    padding-block: 6px 8px;
+  }
+}
+
+.iconButton svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.8;
+}
+
+.iconButton {
+  transition:
+    background-color 150ms,
+    color 150ms;
+}
