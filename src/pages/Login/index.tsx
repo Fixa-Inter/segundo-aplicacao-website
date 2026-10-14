@@ -1,5 +1,6 @@
 import { requestRecovery } from '../../services/recoveryService'
-import { validateEmail } from '../../utils/validation'
+import { validateEmail, validateLoginFields } from '../../utils/validation'
+import type { LoginCredentials } from '../../types/auth'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useState, type FormEvent, type MouseEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
@@ -14,24 +15,21 @@ export default function Login() {
   const { t } = usePreferences()
 
   const { user, login, loading, error } = useAuth()
-  const [form, setForm] = useState({ identifier: '', password: '' })
+  const [form, setForm] = useState<LoginCredentials>({ cnpj: '', email: '', password: '' })
   const [submitted, setSubmitted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const [recovering, setRecovering] = useState(false)
   const [recoveryError, setRecoveryError] = useState('')
-  const identifierError =
-    submitted && !form.identifier.trim() ? 'Informe seu e-mail ou CNPJ.' : undefined
-  const passwordError = submitted && !form.password ? 'Informe sua senha.' : undefined
+  const errors = submitted ? validateLoginFields(form) : {}
   if (user) return <Navigate to="/" replace />
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitted(true)
     if (loading || recovering) return
-    if (!form.identifier.trim() || !form.password) {
-      event.currentTarget
-        .querySelector<HTMLInputElement>(form.identifier.trim() ? '#password' : '#identifier')
-        ?.focus()
+    const invalid = Object.keys(validateLoginFields(form))[0]
+    if (invalid) {
+      event.currentTarget.querySelector<HTMLInputElement>(`#login-${invalid}`)?.focus()
       return
     }
     if (await login(form)) navigate('/', { replace: true })
@@ -41,12 +39,12 @@ export default function Login() {
       event.preventDefault()
       return
     }
-    if (validateEmail(form.identifier)) return
+    if (validateEmail(form.email)) return
     event.preventDefault()
     setRecovering(true)
     setRecoveryError('')
     try {
-      const challenge = await requestRecovery(form.identifier)
+      const challenge = await requestRecovery(form.email)
       navigate('/recuperar-senha', { state: { challenge } })
     } catch {
       setRecoveryError('Não foi possível continuar. Tente novamente.')
@@ -65,29 +63,47 @@ export default function Login() {
           <form onSubmit={submit} noValidate aria-busy={loading || recovering}>
             <div className={styles.fields}>
               <AuthField
-                id="identifier"
-                label={t('Email/CNPJ')}
+                id="login-cnpj"
+                label={t('CNPJ')}
                 autoComplete="off"
-                placeholder={t('Coloque seu Email/CNPJ')}
-                maxLength={120}
+                placeholder={t('Digite o CNPJ da empresa')}
+                maxLength={18}
+                required
                 disabled={loading || recovering}
-                value={form.identifier}
-                error={identifierError}
+                value={form.cnpj}
+                error={errors.cnpj}
                 onChange={(event) => {
-                  const value = event.currentTarget.value
-                  setForm((current) => ({ ...current, identifier: value }))
+                  const value = event.currentTarget.value.toUpperCase()
+                  setForm((current) => ({ ...current, cnpj: value }))
                 }}
               />
               <AuthField
-                id="password"
+                id="login-email"
+                label={t('E-mail')}
+                type="email"
+                autoComplete="off"
+                placeholder={t('Digite o seu e-mail')}
+                maxLength={120}
+                required
+                disabled={loading || recovering}
+                value={form.email}
+                error={errors.email}
+                onChange={(event) => {
+                  const value = event.currentTarget.value
+                  setForm((current) => ({ ...current, email: value }))
+                }}
+              />
+              <AuthField
+                id="login-password"
                 label={t('Senha')}
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="off"
                 placeholder={t('Coloque sua senha')}
                 maxLength={128}
+                required
                 disabled={loading || recovering}
                 value={form.password}
-                error={passwordError}
+                error={errors.password}
                 onChange={(event) => {
                   const value = event.currentTarget.value
                   setForm((current) => ({ ...current, password: value }))
@@ -118,7 +134,7 @@ export default function Login() {
               {t(loading ? 'Entrando…' : 'Entrar')}
             </button>
             <p className={styles.demo}>
-              {t('Acesso demonstrativo. Qualquer identificação e senha não vazias abrem a sessão.')}
+              {t('Acesso demonstrativo. Use CNPJ e e-mail em formato válido e uma senha fictícia.')}
             </p>
             <Link className={styles.aboutLink} to="/sobre">
               {t('Conheça o projeto')}

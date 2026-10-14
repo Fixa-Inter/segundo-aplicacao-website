@@ -6,6 +6,8 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 
 ## Fluxos do gestor — Website v2
 
+Atualização de 14/10/2026: Login agora exige CNPJ, e-mail e senha em campos separados; Competências permite avaliar cada técnico nas dez categorias, com notas opcionais de 0 a 10 e modal. As referências antigas nas linhas abaixo são históricas; consulte a [implementação e QA atuais](LOGIN_COMPETENCIAS_2026-10-14.md). Compartilhamento de avaliações com o app depende da API.
+
 Cada linha aponta a implementação, a verificação realizada e um passo de demonstração. A revisão atual, com os frames originais, adaptações e capturas, está em [REVISAO_DESIGN_2026-10-07.md](REVISAO_DESIGN_2026-10-07.md). IDs da cópia abaixo permanecem como referência histórica. [FIDELIDADE_VISUAL.md](FIDELIDADE_VISUAL.md) preserva o histórico.
 
 | Requisito / Figma | Estado | Implementação / arquivo | Teste e forma de demonstrar |
@@ -44,7 +46,7 @@ Cada linha aponta a implementação, a verificação realizada e um passo de dem
 | 20 commits Conventional Commits em quatro semanas reais | Pendente externo | Histórico Git local iniciado nesta entrega | Commits reais em português; não é permitido criar datas ou commits retroativos. Verificar `git log` e duração real antes da avaliação |
 | Extra: Context API, Provider e hook | Validado em código | [`AuthContext.tsx`](../src/contexts/AuthContext.tsx), [`useAuth.ts`](../src/contexts/useAuth.ts) | Build; login demonstrativo no navegador |
 | Extra: `useReducer` com `State` e `Action` union | Validado em código | [`auth.ts`](../src/types/auth.ts), [`AuthContext.tsx`](../src/contexts/AuthContext.tsx) | Build; ordem Tab do login, Enter/Escape do modal de saída e retorno de foco verificados; roteiro integral das demais telas pendente |
-| Extra: hook com loading/erro/AbortController | Pendente | Não implementado | Exige fonte cancelável para evitar abstração artificial no mock |
+| Extra: hook com loading/erro/AbortController | Implementado e validado no mock | [`useTechnicianCompetencies`](../src/hooks/useTechnicianCompetencies.ts), [`managementService`](../src/services/managementService.ts) | Retorno tipado, loading, erro/nova tentativa e cancelamento de carregamento/salvamento ao desmontar. Testes rejeitam operação abortada e gravação de sessão encerrada; QA do modal/navegação. Cancelamento HTTP real depende da API. |
 | Extra: `React.lazy` e `Suspense` por página | Validado em código | [`App.tsx`](../src/App.tsx) | Chunks separados no build; aba Network do DevTools ainda não verificada |
 | Extra: `localStorage` versionado | Pendente | Sessão, perfil e conversas ficam somente em memória | Implementar apenas com decisão de privacidade e necessidade real; não salvar senhas/chats por padrão |
 | Extra: `useCallback`/`useMemo` com perfil de performance | Pendente | Não introduzidos sem medição | Demonstrar no Profiler se houver gargalo real |

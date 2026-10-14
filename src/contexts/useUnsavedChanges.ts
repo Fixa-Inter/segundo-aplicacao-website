@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useLayoutEffect } from 'react'
 import { UnsavedChangesContext } from './unsavedChangesContextValue'
 
 export function useUnsavedChanges() {
@@ -9,6 +9,7 @@ export function useUnsavedChanges() {
 
 export function useUnsavedForm(isDirty: boolean, busy: boolean) {
   const { register, requestExit } = useUnsavedChanges()
-  useEffect(() => register({ isDirty, busy }), [register, isDirty, busy])
+  // Atualiza a proteção antes de uma navegação imediata após digitar.
+  useLayoutEffect(() => register({ isDirty, busy }), [register, isDirty, busy])
   return requestExit
 }

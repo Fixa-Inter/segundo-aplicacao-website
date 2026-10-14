@@ -44,6 +44,7 @@ export function ConfirmDialog({
       opened={opened}
       onClose={onClose}
       centered
+      zIndex={400}
       size={400}
       radius={30}
       padding={0}

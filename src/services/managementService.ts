@@ -21,12 +21,15 @@ import type {
   PerformancePeriod,
   PerformancePoint,
 } from '../types/management'
+import type { CompetencyId, CompetencyInput, TechnicianCompetency } from '../types/competency'
+import { competencyCategories, validateCompetency } from '../utils/competencies.ts'
 
 // Repositório em memória da demonstração, limitado à sessão atual.
 let technicians = initialTechnicians.map((item) => ({ ...item }))
 let events = initialEvents.map((item) => ({ ...item }))
 let profile = { ...initialProfile }
 let sessionVersion = 0
+let competencies: Record<string, Partial<Record<CompetencyId, number>>> = {}
 
 const pause = () => new Promise<void>((resolve) => setTimeout(resolve, 180))
 
@@ -35,6 +38,7 @@ export function clearDemoManagement(): void {
   technicians = initialTechnicians.map((item) => ({ ...item }))
   events = initialEvents.map((item) => ({ ...item }))
   profile = { ...initialProfile }
+  competencies = {}
 }
 
 function assertActiveSession(version: number): void {
@@ -93,6 +97,60 @@ export async function removeTechnician(id: string): Promise<void> {
       'Este técnico possui eventos vinculados. Reatribua ou exclua os eventos primeiro.',
     )
   technicians = technicians.filter((item) => item.id !== id)
+  const { [id]: removed, ...remaining } = competencies
+  void removed
+  competencies = remaining
+}
+
+function competencyPause(signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const abort = () => {
+      clearTimeout(timer)
+      reject(new DOMException('Operação cancelada.', 'AbortError'))
+    }
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', abort)
+      resolve()
+    }, 180)
+    if (signal?.aborted) abort()
+    else signal?.addEventListener('abort', abort, { once: true })
+  })
+}
+
+export async function listTechnicianCompetencies(
+  technicianId: string,
+  signal?: AbortSignal,
+): Promise<TechnicianCompetency[]> {
+  const version = sessionVersion
+  await competencyPause(signal)
+  assertActiveSession(version)
+  if (!technicians.some((item) => item.id === technicianId))
+    throw new Error('Técnico não encontrado.')
+  return competencyCategories.map((item) => ({
+    ...item,
+    rating: competencies[technicianId]?.[item.id] ?? null,
+  }))
+}
+
+export async function saveTechnicianCompetency(
+  technicianId: string,
+  input: CompetencyInput,
+  signal?: AbortSignal,
+): Promise<TechnicianCompetency> {
+  const version = sessionVersion
+  await competencyPause(signal)
+  assertActiveSession(version)
+  if (!technicians.some((item) => item.id === technicianId))
+    throw new Error('Técnico não encontrado.')
+  const error = validateCompetency(input)
+  if (error) throw new Error(error)
+  const category = competencyCategories.find((item) => item.id === input.competencyId)
+  if (!category) throw new Error('Competência inválida.')
+  const next = { ...competencies[technicianId] }
+  if (input.rating === null) delete next[input.competencyId]
+  else next[input.competencyId] = input.rating
+  competencies = { ...competencies, [technicianId]: next }
+  return { ...category, rating: input.rating }
 }
 
 export async function listEvents(): Promise<CalendarEvent[]> {

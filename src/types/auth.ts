@@ -4,12 +4,15 @@ export interface User {
   id: string
   name: string
   identifier: string
+  cnpj: string
   role: AccessType
 }
 export interface LoginCredentials {
-  identifier: string
+  cnpj: string
+  email: string
   password: string
 }
+export type LoginErrors = Partial<Record<keyof LoginCredentials, string>>
 export interface AuthState {
   user: User | null
   loading: boolean

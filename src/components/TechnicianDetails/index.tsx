@@ -1,4 +1,6 @@
 import { FigmaIcon } from '../FigmaIcon'
+import { TechnicianCompetencies } from '../TechnicianCompetencies'
+import { useUnsavedChanges } from '../../contexts/useUnsavedChanges'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef } from 'react'
 import type { PerformancePeriod } from '../../types/management'
@@ -16,6 +18,7 @@ export function TechnicianDetails({
   onPeriodChange,
 }: TechnicianDetailsProps) {
   const { t, formatDate } = usePreferences()
+  const { requestExit } = useUnsavedChanges()
 
   const headingRef = useRef<HTMLHeadingElement>(null)
   useEffect(() => {
@@ -36,7 +39,7 @@ export function TechnicianDetails({
       <button
         type="button"
         className={styles.back}
-        onClick={onBack}
+        onClick={() => requestExit(onBack)}
         aria-label={t('Voltar para equipe')}
       >
         <FigmaIcon name="back" />
@@ -57,7 +60,7 @@ export function TechnicianDetails({
             {t('Técnico ·')} {technician.specialty}
           </p>
         </div>
-        <button type="button" className={styles.edit} onClick={onEdit}>
+        <button type="button" className={styles.edit} onClick={() => requestExit(onEdit)}>
           {t('Editar técnico')}
         </button>
       </div>
@@ -89,6 +92,11 @@ export function TechnicianDetails({
           {t('. Endereço herdado do gestor.')}
         </p>
       </section>
+      <TechnicianCompetencies
+        key={technician.id}
+        technicianId={technician.id}
+        technicianName={technician.name}
+      />
       <section className={styles.performance} aria-labelledby="performance-title">
         <div className={styles.toolbar}>
           <h2 id="performance-title">{t('Desempenho')}</h2>

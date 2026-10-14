@@ -2,6 +2,82 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  CNPJ: ['CNPJ', 'CNPJ', 'CNPJ'],
+  'Digite o CNPJ da empresa': [
+    'Enter the company CNPJ',
+    'Introduce el CNPJ de la empresa',
+    '输入公司 CNPJ',
+  ],
+  'Informe o CNPJ.': ['Enter the CNPJ.', 'Introduce el CNPJ.', '请输入 CNPJ。'],
+  'Digite um CNPJ com 14 posições, com ou sem pontuação.': [
+    'Enter a 14-character CNPJ, with or without punctuation.',
+    'Introduce un CNPJ de 14 caracteres, con o sin puntuación.',
+    '输入 14 位 CNPJ，可包含标点。',
+  ],
+  'A senha deve ter no máximo 128 caracteres.': [
+    'The password must have at most 128 characters.',
+    'La contraseña debe tener como máximo 128 caracteres.',
+    '密码最多 128 个字符。',
+  ],
+  'Acesso demonstrativo. Use CNPJ e e-mail em formato válido e uma senha fictícia.': [
+    'Demo access. Use a valid CNPJ and email format and a fictitious password.',
+    'Acceso de demostración. Usa CNPJ y correo con formato válido y una contraseña ficticia.',
+    '演示访问。请使用格式正确的 CNPJ 和电子邮件及虚构密码。',
+  ],
+  Competências: ['Skills', 'Competencias', '技能'],
+  '{count} de 10 avaliadas': [
+    '{count} of 10 assessed',
+    '{count} de 10 evaluadas',
+    '已评估 {count}/10 项',
+  ],
+  'Ver todas': ['View all', 'Ver todas', '查看全部'],
+  'Ver resumo': ['View summary', 'Ver resumen', '查看摘要'],
+  'Carregando competências…': ['Loading skills…', 'Cargando competencias…', '正在加载技能…'],
+  'Não foi possível carregar as competências.': [
+    'Could not load skills.',
+    'No se pudieron cargar las competencias.',
+    '无法加载技能。',
+  ],
+  'Não foi possível salvar a competência.': [
+    'Could not save the skill.',
+    'No se pudo guardar la competencia.',
+    '无法保存技能。',
+  ],
+  'Sem avaliação': ['Not assessed', 'Sin evaluación', '尚未评估'],
+  'Nota atribuída': ['Rated', 'Calificada', '已评分'],
+  'Editar nota': ['Edit rating', 'Editar nota', '编辑评分'],
+  'Editar competência {name}': [
+    'Edit skill {name}',
+    'Editar competencia {name}',
+    '编辑技能 {name}',
+  ],
+  'Valor antigo': ['Previous value', 'Valor anterior', '原值'],
+  'Novo valor': ['New value', 'Nuevo valor', '新值'],
+  'Competência inválida.': ['Invalid skill.', 'Competencia inválida.', '技能无效。'],
+  'Informe uma nota inteira de 0 a 10.': [
+    'Enter a whole number from 0 to 10.',
+    'Introduce un número entero de 0 a 10.',
+    '请输入 0 到 10 的整数。',
+  ],
+  'Use uma nota inteira de 0 a 10. Deixe em branco para remover a avaliação.': [
+    'Use a whole number from 0 to 10. Leave blank to remove the rating.',
+    'Usa un número entero de 0 a 10. Deja vacío para quitar la evaluación.',
+    '使用 0 到 10 的整数。留空可移除评分。',
+  ],
+  'Competência atualizada.': ['Skill updated.', 'Competencia actualizada.', '技能已更新。'],
+  'Avaliação removida.': ['Rating removed.', 'Evaluación eliminada.', '评分已移除。'],
+  'Aguarde o salvamento da competência.': [
+    'Wait for the skill to finish saving.',
+    'Espera a que termine el guardado.',
+    '请等待技能保存完成。',
+  ],
+  Mecânica: ['Mechanical', 'Mecánica', '机械'],
+  Informática: ['IT', 'Informática', '信息技术'],
+  Mobiliário: ['Furniture', 'Mobiliario', '家具'],
+  'Rede e Conectividade': ['Network and Connectivity', 'Red y Conectividad', '网络与连接'],
+  Segurança: ['Security', 'Seguridad', '安全'],
+  Iluminação: ['Lighting', 'Iluminación', '照明'],
+  'Limpeza e Conservação': ['Cleaning and Upkeep', 'Limpieza y Conservación', '清洁与保养'],
   'Deseja deletar esse registro?': [
     'Delete this record?',
     '¿Eliminar este registro?',
