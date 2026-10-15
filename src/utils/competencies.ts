@@ -15,6 +15,7 @@ export const competencyCategories: readonly CompetencyDefinition[] = [
 
 export function parseCompetencyRating(value: string): number | null | undefined {
   if (!value.trim()) return null
+  if (!/^\d{1,2}$/.test(value.trim())) return undefined
   const rating = Number(value)
   return Number.isInteger(rating) && rating >= 0 && rating <= 10 ? rating : undefined
 }

@@ -1,4 +1,6 @@
-# Login e competências - 14/10/2026
+# Login e competências — 14/10/2026
+
+Registro histórico. Em 15/10/2026, a edição de competências foi transferida para o formulário do técnico, e os detalhes passaram a ser somente leitura. Veja a [implementação e QA atuais](COMPETENCIAS_EDICAO_2026-10-15.md).
 
 Atividade registrada na [Issue #9](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/9) antes da implementação. Branch `feature/login-competencias-tecnicos`, criada a partir de `origin/dev` em `2434a4d`, após o merge da importação. Nenhum novo PR foi aberto nesta etapa, conforme solicitado pelo usuário.
 

@@ -144,7 +144,7 @@ export default function Team() {
       <TechnicianForm
         technician={editing}
         manager={manager}
-        onSubmit={(input) => saveTechnician(input, editing?.id)}
+        onSubmit={(input, competencies) => saveTechnician(input, editing?.id, competencies)}
         onCancel={() => setFormOpen(false)}
         onSaved={(saved) => {
           setItems((current) =>

@@ -27,7 +27,7 @@ Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → 
 
 O Login exige três campos: CNPJ, e-mail e senha. Para demonstrar, use CNPJ `12.345.678/0001-95`, e-mail `demo@fixa.test` e senha fictícia `demo1234`. O mock verifica apenas o formato do CNPJ/e-mail e os campos obrigatórios; não consulta cadastro de empresa nem autentica credenciais reais. A sessão termina ao atualizar a página. Em recuperação, use um e-mail válido e o código `123456`; nenhum e-mail é enviado e nenhuma senha é alterada. Se o e-mail já estiver preenchido no Login, Esqueci minha senha abre diretamente a etapa de código, independentemente do CNPJ.
 
-Nos detalhes do técnico, Competências mostra um resumo e a lista das dez categorias do enum fornecido. O gestor pode atribuir, editar ou remover notas inteiras de 0 a 10; sem avaliação é diferente de nota zero. As notas são opcionais e ficam somente na sessão em memória, isoladas por técnico. Compartilhamento com o app depende da API; não há sincronização entre app e web nesta versão. [Implementação e QA](docs/LOGIN_COMPETENCIAS_2026-10-14.md).
+Nos detalhes do técnico, Competências mostra um resumo e a lista das dez categorias, somente para consulta; notas vazias aparecem como `_`. No formulário de cadastro/edição, o gestor pode atribuir, editar ou remover as dez notas opcionais, inteiras de 0 a 10, e salvá-las junto com o cadastro. Sem avaliação é diferente de nota zero. As notas ficam somente na sessão em memória, isoladas por técnico. Compartilhamento com o app depende da API; não há sincronização entre app e web nesta versão. [Implementação e QA atuais](docs/COMPETENCIAS_EDICAO_2026-10-15.md).
 
 | Rota                         | Fluxo disponível nesta versão                                                                                                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -70,6 +70,7 @@ Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`
 ## Qualidade e evidências
 
 - Em 14/10/2026, [Issue #9](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/9): Login com três campos e competências opcionais por técnico, resumo/lista e modal, limites de notas, remoção, descarte e cancelamento de operações. Verificação em desktop e celular. Build, lint, formatação e **41 testes** aprovados. [Cenários e capturas](docs/LOGIN_COMPETENCIAS_2026-10-14.md). Novo PR adiado por solicitação do usuário.
+- Em 15/10/2026, continuação da Issue #9: competências somente para leitura nos detalhes, `_` nas notas vazias e dez campos no cadastro/edição, com salvamento conjunto e descarte. Build, lint, formatação e **43 testes** aprovados; [QA e capturas atualizados](docs/COMPETENCIAS_EDICAO_2026-10-15.md). Mantida a branch de trabalho, sem novo PR.
 
 - Em 08/10/2026: confirmação de descarte para técnicos, eventos e perfil, incluindo Cancelar, Voltar, navegação entre rotas e saída da conta. Ilustração nova gerada com ImageGen e integrada ao mesmo pop-up das demais confirmações. Build, lint, formatação e **35 testes** aprovados. [Prompt, cenários e capturas](docs/DESCARTE_ALTERACOES_2026-10-08.md).
 

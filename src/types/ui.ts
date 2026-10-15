@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from 'react'
+import type { CompetencyInput, TechnicianCompetency } from './competency'
 import type {
   CalendarEvent,
   CalendarEventInput,
@@ -101,9 +102,18 @@ export interface EventDetailsProps {
 export interface TechnicianFormProps {
   technician: Technician | null
   manager: ManagerProfile
-  onSubmit: (input: TechnicianInput) => Promise<Technician>
+  onSubmit: (input: TechnicianInput, competencies: CompetencyInput[]) => Promise<Technician>
   onSaved: (technician: Technician) => void
   onCancel: () => void
+}
+
+export interface TechnicianFormFieldsProps extends TechnicianFormProps {
+  initialCompetencies: TechnicianCompetency[]
+}
+
+export interface TechnicianSubmission {
+  input: TechnicianInput
+  competencies: CompetencyInput[]
 }
 
 export interface EventFormProps {

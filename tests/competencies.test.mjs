@@ -6,10 +6,65 @@ import {
   saveTechnicianCompetency,
   saveTechnician,
   removeTechnician,
+  listTechnicians,
 } from '../src/services/managementService.ts'
 import { competencyCategories, parseCompetencyRating } from '../src/utils/competencies.ts'
 
 beforeEach(() => clearDemoManagement())
+
+test('cadastro e dez notas são salvos juntos, incluindo zero e remoção de avaliação', async () => {
+  const original = (await listTechnicians())[0]
+  const ratings = competencyCategories.map((item) => ({
+    competencyId: item.id,
+    rating: item.id - 1,
+  }))
+  await saveTechnician({ ...original, name: 'Ana com competências' }, original.id, ratings)
+  assert.equal((await listTechnicians())[0].name, 'Ana com competências')
+  assert.deepEqual(
+    (await listTechnicianCompetencies(original.id)).map((item) => item.rating),
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+  )
+  await saveTechnician(original, original.id, [
+    { competencyId: 10, rating: null },
+    { competencyId: 2, rating: 10 },
+  ])
+  const saved = await listTechnicianCompetencies(original.id)
+  assert.equal(saved[0].rating, 0)
+  assert.equal(saved[1].rating, 10)
+  assert.equal(saved[9].rating, null)
+  assert.ok((await listTechnicianCompetencies('t-2')).every((item) => item.rating === null))
+})
+
+test('lote inválido e falha no cadastro não deixam alterações parciais em cadastro ou notas', async () => {
+  const original = (await listTechnicians())[0]
+  await saveTechnicianCompetency(original.id, { competencyId: 1, rating: 7 })
+  for (const invalid of [
+    { competencyId: 2, rating: 1.5 },
+    { competencyId: 99, rating: 8 },
+  ]) {
+    await assert.rejects(
+      saveTechnician({ ...original, name: 'Não deve salvar' }, original.id, [
+        { competencyId: 1, rating: 0 },
+        invalid,
+      ]),
+    )
+    assert.deepEqual((await listTechnicians())[0], original)
+    assert.equal((await listTechnicianCompetencies(original.id))[0].rating, 7)
+  }
+  await assert.rejects(
+    saveTechnician({ ...original, email: 'inválido' }, original.id, [
+      { competencyId: 1, rating: 10 },
+    ]),
+  )
+  assert.equal((await listTechnicianCompetencies(original.id))[0].rating, 7)
+  const pending = saveTechnician({ ...original, name: 'Sessão antiga' }, original.id, [
+    { competencyId: 1, rating: 10 },
+  ])
+  clearDemoManagement()
+  await assert.rejects(pending, /encerrada/)
+  assert.deepEqual((await listTechnicians())[0], original)
+  assert.ok((await listTechnicianCompetencies(original.id)).every((item) => item.rating === null))
+})
 
 test('as dez categorias preservam IDs do enum; avaliações opcionais não são zero', async () => {
   assert.deepEqual(
@@ -63,7 +118,7 @@ test('notas fora de 0 a 10, fracionárias e categorias inválidas não são grav
   assert.equal(parseCompetencyRating(''), null)
   assert.equal(parseCompetencyRating('0'), 0)
   assert.equal(parseCompetencyRating('10'), 10)
-  for (const value of ['1.5', '11', '-1', 'texto'])
+  for (const value of ['1.5', '11', '-1', 'texto', '1e1', '1.', '+1'])
     assert.equal(parseCompetencyRating(value), undefined)
 })
 

@@ -28,7 +28,7 @@ Este roteiro apresenta o **protótipo local do gestor**. Use a [matriz de requis
 
 ## Conferência visual e acessibilidade
 
-Em 14/10/2026, acrescente a demonstração de Competências nos detalhes do técnico: abra Ver todas, atribua uma nota inteira de 0 a 10, teste zero e ausência de nota, rejeite 11/1,5, cancele com descarte e abra outro técnico para conferir isolamento. As notas são opcionais e permanecem apenas na sessão; veja [QA de login e competências](LOGIN_COMPETENCIAS_2026-10-14.md).
+Atualizado em 15/10/2026: nos detalhes do técnico, abra Ver todas e confira competências somente para leitura, com `_` para notas vazias. Use Editar técnico para definir as dez notas opcionais; teste zero, 10, campo vazio e rejeição de 11/1,5/texto. Salve com a confirmação do cadastro, confira os detalhes e teste Cancelar com descarte e retorno sem alterações. As notas permanecem apenas na sessão; veja [QA atual de competências](COMPETENCIAS_EDICAO_2026-10-15.md).
 
 Compare login, recuperação, Home, Dashboard, Equipe, Calendário, Perfil e Manu com os frames correspondentes da cópia do Figma. Execute a navegação por `Tab`, `Shift+Tab`, `Enter` e `Escape`, observe o foco e leia mensagens de erro e sucesso. Verifique o navegador em celular, desktop, **1340 × 800** e **800 × 1340**; confira imagens, rolagem horizontal e acesso a botões e formulários. Registre separadamente qualquer etapa que não conseguir executar. Um build aprovado não comprova fidelidade visual nem WCAG integral.
 

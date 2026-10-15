@@ -19,21 +19,12 @@ export interface CompetenciesState {
   items: TechnicianCompetency[]
   loading: boolean
   error: string
-  saving: boolean
 }
 
 export interface CompetenciesResult extends CompetenciesState {
   retry: () => void
-  save: (input: CompetencyInput) => Promise<TechnicianCompetency>
 }
 
 export interface TechnicianCompetenciesProps {
   technicianId: string
-  technicianName: string
-}
-
-export interface CompetencyEditor {
-  competency: TechnicianCompetency
-  value: string
-  error: string
 }

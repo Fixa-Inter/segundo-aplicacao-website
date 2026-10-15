@@ -92,11 +92,7 @@ export function TechnicianDetails({
           {t('. Endereço herdado do gestor.')}
         </p>
       </section>
-      <TechnicianCompetencies
-        key={technician.id}
-        technicianId={technician.id}
-        technicianName={technician.name}
-      />
+      <TechnicianCompetencies key={technician.id} technicianId={technician.id} />
       <section className={styles.performance} aria-labelledby="performance-title">
         <div className={styles.toolbar}>
           <h2 id="performance-title">{t('Desempenho')}</h2>

@@ -6,7 +6,14 @@ import { usePreferences } from '../../contexts/usePreferences'
 import { useRef, useState, type FormEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import type { Address, TechnicianInput } from '../../types/management'
-import type { TechnicianFormProps } from '../../types/ui'
+import type {
+  TechnicianFormFieldsProps,
+  TechnicianFormProps,
+  TechnicianSubmission,
+} from '../../types/ui'
+import type { CompetencyInput } from '../../types/competency'
+import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies'
+import { parseCompetencyRating } from '../../utils/competencies'
 import { validateDemoPassword, validateTechnician } from '../../utils/managementValidation'
 import { formatDate, parseDateInput } from '../../utils/calendar'
 import styles from './TechnicianForm.module.css'
@@ -35,13 +42,45 @@ const addressFields: { key: keyof Address; label: string }[] = [
   { key: 'complement', label: 'Complemento' },
 ]
 
-export function TechnicianForm({
+export function TechnicianForm(props: TechnicianFormProps) {
+  const { t } = usePreferences()
+  const { items, loading, error, retry } = useTechnicianCompetencies(props.technician?.id)
+  if (loading || error)
+    return (
+      <div className={styles.page}>
+        <button
+          className={styles.back}
+          type="button"
+          onClick={props.onCancel}
+          aria-label={t('Voltar para equipe')}
+        >
+          <FigmaIcon name="back" />
+        </button>
+        <h1 className={styles.title}>{t('Competências')}</h1>
+        {loading ? (
+          <p role="status">{t('Carregando competências…')}</p>
+        ) : (
+          <div role="alert">
+            <p>{t(error)}</p>
+            <button className={styles.retry} type="button" onClick={retry}>
+              {t('Tentar novamente')}
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  // O formulário só é montado após a leitura, preservando a base real do isDirty.
+  return <TechnicianFormFields {...props} initialCompetencies={items} />
+}
+
+function TechnicianFormFields({
   technician,
   manager,
   onSubmit,
   onSaved,
   onCancel,
-}: TechnicianFormProps) {
+  initialCompetencies,
+}: TechnicianFormFieldsProps) {
   const { t } = usePreferences()
 
   const [form, setForm] = useState<TechnicianInput>({
@@ -57,15 +96,24 @@ export function TechnicianForm({
   const [birthDate, setBirthDate] = useState(
     technician ? formatDate(technician.birthDate, { dateStyle: 'short' }) : '',
   )
+  const [ratings, setRatings] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      initialCompetencies.map((item) => [item.id, item.rating === null ? '' : String(item.rating)]),
+    ),
+  )
+  const [initialRatings] = useState(() => ({ ...ratings }))
+  const [ratingErrors, setRatingErrors] = useState<Record<string, string>>({})
   const [initial] = useState(() => ({ ...form, birthDateText: birthDate, password }))
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [passwordError, setPasswordError] = useState<string | undefined>()
   const [errors, setErrors] = useState<Partial<Record<keyof TechnicianInput, string>>>({})
   const [error, setError] = useState('')
-  const [pending, setPending] = useState<TechnicianInput | null>(null)
+  const [pending, setPending] = useState<TechnicianSubmission | null>(null)
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
-  const isDirty = hasFormChanges({ ...form, birthDateText: birthDate, password }, initial)
+  const isDirty =
+    hasFormChanges({ ...form, birthDateText: birthDate, password }, initial) ||
+    hasFormChanges(ratings, initialRatings)
   const requestExit = useUnsavedForm(isDirty, busy)
   const cancel = () => requestExit(onCancel)
 
@@ -114,25 +162,33 @@ export function TechnicianForm({
     const input = { ...form, birthDate: parseDateInput(birthDate) }
     const validation = validateTechnician(input)
     const invalidPassword = technician ? undefined : validateDemoPassword(password)
+    const competencies: CompetencyInput[] = []
+    const invalidRatings: Record<string, string> = {}
+    for (const item of initialCompetencies) {
+      const rating = parseCompetencyRating(ratings[item.id])
+      if (rating === undefined) invalidRatings[item.id] = 'Informe uma nota inteira de 0 a 10.'
+      else competencies.push({ competencyId: item.id, rating })
+    }
+    setRatingErrors(invalidRatings)
     setErrors(validation)
     setPasswordError(invalidPassword)
     setError('')
-    if (Object.keys(validation).length || invalidPassword) {
+    if (Object.keys(validation).length || invalidPassword || Object.keys(invalidRatings).length) {
       requestAnimationFrame(() => {
         formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus()
       })
       return
     }
-    setPending(input)
+    setPending({ input, competencies })
   }
 
   async function confirmSave() {
     if (!pending || busy) return
-    const input = pending
+    const { input, competencies } = pending
     setBusy(true)
     try {
       // A senha apenas valida o formulário demonstrativo e nunca é enviada ao repositório em memória.
-      const saved = await onSubmit(input)
+      const saved = await onSubmit(input, competencies)
       setPassword('')
       onSaved(saved)
     } catch (reason) {
@@ -269,6 +325,53 @@ export function TechnicianForm({
                 <option value="Inativo">{t('Inativo')}</option>
               </select>
             </div>
+          </div>
+        </fieldset>
+        <fieldset
+          disabled={busy}
+          className={styles.competencies}
+          aria-describedby="technician-competencies-help"
+        >
+          <legend>{t('Competências')}</legend>
+          <p id="technician-competencies-help" className={styles.note}>
+            {t('Use uma nota inteira de 0 a 10. Deixe em branco para remover a avaliação.')}
+          </p>
+          <div className={styles.competencyGrid}>
+            {initialCompetencies.map((item) => {
+              const id = `technician-competency-${item.id}`
+              return (
+                <div className={styles.competencyField} key={item.id}>
+                  <label htmlFor={id}>{t(item.name)}</label>
+                  <div className={styles.scoreInput}>
+                    <input
+                      id={id}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={16}
+                      placeholder="_"
+                      value={ratings[item.id]}
+                      aria-invalid={Boolean(ratingErrors[item.id])}
+                      aria-describedby={
+                        ratingErrors[item.id]
+                          ? `${id}-error technician-competencies-help`
+                          : 'technician-competencies-help'
+                      }
+                      onChange={(event) => {
+                        const value = event.currentTarget.value
+                        setRatings((current) => ({ ...current, [item.id]: value }))
+                        setRatingErrors((current) => ({ ...current, [item.id]: '' }))
+                      }}
+                    />
+                    <span aria-hidden="true">/10</span>
+                  </div>
+                  {ratingErrors[item.id] && (
+                    <p id={`${id}-error`} className={styles.error} role="alert">
+                      {t(ratingErrors[item.id])}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </fieldset>
         {error && (

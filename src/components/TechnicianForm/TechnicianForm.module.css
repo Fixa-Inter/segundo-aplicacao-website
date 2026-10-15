@@ -144,6 +144,77 @@
   color: var(--fixa-danger-text);
   font-size: 13px;
 }
+.form .competencies {
+  margin-top: 36px;
+}
+.competencyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: 24px;
+  background: var(--fixa-neutral-surface);
+}
+.competencyField {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--fixa-surface);
+  box-shadow: 0 2px 5px #153d7d0c;
+}
+.competencyField label {
+  color: var(--fixa-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.scoreInput {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fixa-muted);
+  font-size: 13px;
+}
+.scoreInput input {
+  width: 68px;
+  min-height: 44px;
+  padding: 8px 4px 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--fixa-field-bg);
+  color: var(--fixa-ink);
+  text-align: center;
+  font: inherit;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.scoreInput input::placeholder {
+  color: var(--fixa-muted);
+  opacity: 1;
+}
+.scoreInput input:hover {
+  border-color: var(--fixa-initials-bg);
+}
+.scoreInput input[aria-invalid='true'] {
+  border-color: var(--fixa-danger-text);
+}
+.competencyField .error {
+  grid-column: 1 / -1;
+}
+.retry {
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--fixa-primary);
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -207,6 +278,14 @@
   }
 }
 @media (max-width: 600px) {
+  .competencyGrid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
+  }
+  .competencyField {
+    gap: 8px 10px;
+    padding: 12px;
+  }
   .grid,
   .operational {
     grid-template-columns: minmax(0, 1fr);

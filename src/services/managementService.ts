@@ -50,7 +50,11 @@ export async function listTechnicians(): Promise<Technician[]> {
   return technicians.map((item) => ({ ...item }))
 }
 
-export async function saveTechnician(input: TechnicianInput, id?: string): Promise<Technician> {
+export async function saveTechnician(
+  input: TechnicianInput,
+  id?: string,
+  ratings: CompetencyInput[] = [],
+): Promise<Technician> {
   const version = sessionVersion
   await pause()
   assertActiveSession(version)
@@ -63,6 +67,11 @@ export async function saveTechnician(input: TechnicianInput, id?: string): Promi
   )
     throw new Error('Já existe um técnico com este e-mail.')
   if (id && !technicians.some((item) => item.id === id)) throw new Error('Técnico não encontrado.')
+  // Validar o lote inteiro antes de alterar o cadastro ou qualquer nota.
+  for (const rating of ratings) {
+    const error = validateCompetency(rating)
+    if (error) throw new Error(error)
+  }
   // Tipo e endereço são definidos pelo serviço, nunca por campos editáveis do cadastro.
   const result: Technician = {
     id: id ?? crypto.randomUUID(),
@@ -82,9 +91,15 @@ export async function saveTechnician(input: TechnicianInput, id?: string): Promi
     number: profile.number,
     complement: profile.complement,
   }
+  const nextRatings = { ...competencies[result.id] }
+  for (const { competencyId, rating } of ratings) {
+    if (rating === null) delete nextRatings[competencyId]
+    else nextRatings[competencyId] = rating
+  }
   technicians = id
     ? technicians.map((item) => (item.id === id ? result : item))
     : [...technicians, result]
+  competencies = { ...competencies, [result.id]: nextRatings }
   return { ...result }
 }
 
