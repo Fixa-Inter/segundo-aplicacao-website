@@ -8,6 +8,8 @@ Fonte: **Requisitos por disciplina — Interdisciplinar — 14/05/2026**, 11 pá
 
 Atualização de 15/10/2026: Login exige CNPJ, e-mail e senha separados. Competências nos detalhes é somente leitura; as dez notas opcionais, inteiras de 0 a 10, são definidas no formulário do técnico, com salvamento conjunto e descarte. Consulte a [implementação e QA atuais](COMPETENCIAS_EDICAO_2026-10-15.md); referências antigas abaixo são históricas. Compartilhamento de avaliações com o app depende da API.
 
+Acabamento posterior de 15/10/2026: especialidade automática a partir das notas, estado Sem notas, resumo sem duplicação, expansão vertical e campos de edição sem placeholder. [QA e capturas atuais](COMPETENCIAS_ACABAMENTO_2026-10-15.md).
+
 Cada linha aponta a implementação, a verificação realizada e um passo de demonstração. A revisão atual, com os frames originais, adaptações e capturas, está em [REVISAO_DESIGN_2026-10-07.md](REVISAO_DESIGN_2026-10-07.md). IDs da cópia abaixo permanecem como referência histórica. [FIDELIDADE_VISUAL.md](FIDELIDADE_VISUAL.md) preserva o histórico.
 
 | Requisito / Figma | Estado | Implementação / arquivo | Teste e forma de demonstrar |

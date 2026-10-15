@@ -13,7 +13,7 @@ import type {
 } from '../../types/ui'
 import type { CompetencyInput } from '../../types/competency'
 import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies'
-import { parseCompetencyRating } from '../../utils/competencies'
+import { getCompetencyPresentation, parseCompetencyRating } from '../../utils/competencies'
 import { validateDemoPassword, validateTechnician } from '../../utils/managementValidation'
 import { formatDate, parseDateInput } from '../../utils/calendar'
 import styles from './TechnicianForm.module.css'
@@ -102,6 +102,13 @@ function TechnicianFormFields({
     ),
   )
   const [initialRatings] = useState(() => ({ ...ratings }))
+  const draftSpecialty =
+    getCompetencyPresentation(
+      initialCompetencies.map((item) => ({
+        ...item,
+        rating: parseCompetencyRating(ratings[item.id]) ?? null,
+      })),
+    ).highlights[0]?.name ?? ''
   const [ratingErrors, setRatingErrors] = useState<Record<string, string>>({})
   const [initial] = useState(() => ({ ...form, birthDateText: birthDate, password }))
   const [passwordVisible, setPasswordVisible] = useState(false)
@@ -159,7 +166,7 @@ function TechnicianFormFields({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (busy) return
-    const input = { ...form, birthDate: parseDateInput(birthDate) }
+    const input = { ...form, specialty: draftSpecialty, birthDate: parseDateInput(birthDate) }
     const validation = validateTechnician(input)
     const invalidPassword = technician ? undefined : validateDemoPassword(password)
     const competencies: CompetencyInput[] = []
@@ -308,7 +315,11 @@ function TechnicianFormFields({
         <fieldset disabled={busy}>
           <legend>{t('Informações operacionais da demonstração')}</legend>
           <div className={styles.operational}>
-            {fields.slice(4).map(renderField)}
+            <div className={styles.field}>
+              <label htmlFor="technician-specialty">{t('Especialidade')}</label>
+              <input id="technician-specialty" value={t(draftSpecialty || 'Sem notas')} readOnly />
+            </div>
+            {renderField(fields[5])}
             <div className={styles.field}>
               <label htmlFor="technician-status">{t('Situação')}</label>
               <select
@@ -333,7 +344,7 @@ function TechnicianFormFields({
           aria-describedby="technician-competencies-help"
         >
           <legend>{t('Competências')}</legend>
-          <p id="technician-competencies-help" className={styles.note}>
+          <p id="technician-competencies-help" className={styles.srOnly}>
             {t('Use uma nota inteira de 0 a 10. Deixe em branco para remover a avaliação.')}
           </p>
           <div className={styles.competencyGrid}>
@@ -348,7 +359,6 @@ function TechnicianFormFields({
                       type="text"
                       inputMode="numeric"
                       maxLength={16}
-                      placeholder="_"
                       value={ratings[item.id]}
                       aria-invalid={Boolean(ratingErrors[item.id])}
                       aria-describedby={

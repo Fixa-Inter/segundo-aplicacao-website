@@ -11,8 +11,8 @@ Regras informadas pelo responsável pelo projeto em **26/09/2026**. Ainda não e
 - Senha provisória: de 8 a 128 caracteres, com maiúscula, minúscula e símbolo especial. O mínimo e a composição foram sugeridos pelo grupo; o limite de 128 é uma proteção do formulário demonstrativo. Ambos precisam ser conferidos com a API.
 - A senha é usada apenas para validar o formulário de criação. **Não é enviada ao repositório em memória, não é armazenada e não cria uma credencial real.** A edição não pede senha.
 - A data de nascimento é digitada em `DD/MM/AAAA`, convertida para ISO e validada contra datas impossíveis e futuras.
-- Na demonstração, nome, nascimento, e-mail, telefone com DDD, especialidade e turno são obrigatórios. E-mails duplicados são rejeitados sem diferenciar maiúsculas e espaços externos.
-- Especialidade, turno e situação aparecem em uma seção operacional separada. São necessários para a listagem demonstrativa atual; não constam no frame de cadastro do Figma e seus campos definitivos devem ser acordados com o backend.
+- Na demonstração, nome, nascimento, e-mail, telefone com DDD e turno são obrigatórios. E-mails duplicados são rejeitados sem diferenciar maiúsculas e espaços externos.
+- Desde 15/10/2026, a especialidade exibida é calculada a partir da maior nota de competência (empates pelo menor ID). Sem notas, mostra “Sem notas”, inclusive no campo somente leitura do formulário. As dez notas são opcionais, inteiras de 0 a 10; cadastro sem avaliações é permitido. Especialidade, turno e situação aparecem na seção operacional; o contrato definitivo depende do backend. Veja o [QA atual](COMPETENCIAS_ACABAMENTO_2026-10-15.md).
 - Técnicos vinculados a eventos não podem ser excluídos antes de reatribuir ou excluir esses eventos.
 
 ## Referência e evidências

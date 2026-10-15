@@ -28,3 +28,9 @@ export interface CompetenciesResult extends CompetenciesState {
 export interface TechnicianCompetenciesProps {
   technicianId: string
 }
+
+export interface CompetencyPresentation {
+  highlights: TechnicianCompetency[]
+  remaining: TechnicianCompetency[]
+  assessed: number
+}

@@ -25,6 +25,7 @@ const messages: Record<string, readonly [string, string, string]> = {
     '演示访问。请使用格式正确的 CNPJ 和电子邮件及虚构密码。',
   ],
   Competências: ['Skills', 'Competencias', '技能'],
+  'Sem notas': ['No ratings', 'Sin notas', '暂无评分'],
   '{count} de 10 avaliadas': [
     '{count} of 10 assessed',
     '{count} de 10 evaluadas',

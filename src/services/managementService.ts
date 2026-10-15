@@ -22,7 +22,11 @@ import type {
   PerformancePoint,
 } from '../types/management'
 import type { CompetencyId, CompetencyInput, TechnicianCompetency } from '../types/competency'
-import { competencyCategories, validateCompetency } from '../utils/competencies.ts'
+import {
+  competencyCategories,
+  getCompetencyPresentation,
+  validateCompetency,
+} from '../utils/competencies.ts'
 
 // Repositório em memória da demonstração, limitado à sessão atual.
 let technicians = initialTechnicians.map((item) => ({ ...item }))
@@ -47,7 +51,18 @@ function assertActiveSession(version: number): void {
 
 export async function listTechnicians(): Promise<Technician[]> {
   await pause()
-  return technicians.map((item) => ({ ...item }))
+  return technicians.map(withAssessedSpecialty)
+}
+
+function withAssessedSpecialty(technician: Technician): Technician {
+  const items = competencyCategories.map((item) => ({
+    ...item,
+    rating: competencies[technician.id]?.[item.id] ?? null,
+  }))
+  return {
+    ...technician,
+    assessedSpecialty: getCompetencyPresentation(items).highlights[0]?.name ?? null,
+  }
 }
 
 export async function saveTechnician(
@@ -80,6 +95,7 @@ export async function saveTechnician(
     phone: input.phone.trim(),
     birthDate: input.birthDate,
     specialty: input.specialty.trim(),
+    assessedSpecialty: null,
     shift: input.shift,
     status: input.status,
     accessType: 'TÉCNICO',
@@ -100,7 +116,7 @@ export async function saveTechnician(
     ? technicians.map((item) => (item.id === id ? result : item))
     : [...technicians, result]
   competencies = { ...competencies, [result.id]: nextRatings }
-  return { ...result }
+  return withAssessedSpecialty(result)
 }
 
 export async function removeTechnician(id: string): Promise<void> {

@@ -109,7 +109,7 @@ export default function Team() {
   const filtered = items.filter(
     (item) =>
       (filter === 'Todos' || item.status === filter) &&
-      `${item.name} ${item.email} ${item.specialty}`
+      `${item.name} ${item.email} ${t(item.assessedSpecialty ?? 'Sem notas')}`
         .toLocaleLowerCase('pt-BR')
         .includes(query.toLocaleLowerCase('pt-BR').trim()),
   )
@@ -316,7 +316,9 @@ export default function Team() {
                           </div>
                         </td>
                         <td data-label={t('Turno')}>{item.shift}</td>
-                        <td data-label={t('Especialidade')}>{item.specialty}</td>
+                        <td data-label={t('Especialidade')}>
+                          {t(item.assessedSpecialty ?? 'Sem notas')}
+                        </td>
                         <td data-label={t('Ações')}>
                           <div className={common.actions}>
                             <button

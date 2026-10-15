@@ -36,18 +36,41 @@
   font: inherit;
   font-size: 14px;
   cursor: pointer;
+  transition: background-color 150ms ease;
 }
-.more:hover {
-  background: var(--fixa-initials-bg);
+.more:hover,
+.more[aria-expanded='true'] {
+  background: var(--fixa-hover);
 }
-.more img {
+.more svg {
   width: 18px;
   height: 18px;
+  flex: none;
+  stroke-width: 2.2;
+  transition: transform 180ms ease;
+}
+.more[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.emptyState {
+  margin: 0;
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--fixa-surface);
+  color: var(--fixa-muted);
+  text-align: center;
+  font-size: 15px;
 }
 .summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .more,
+  .more svg {
+    transition: none;
+  }
 }
 .card {
   display: flex;

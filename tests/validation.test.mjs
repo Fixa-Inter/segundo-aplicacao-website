@@ -19,6 +19,7 @@ test('valida técnico antes do cadastro demonstrativo', () => {
     status: 'Ativo',
   }
   assert.deepEqual(validateTechnician(valid), {})
+  assert.deepEqual(validateTechnician({ ...valid, specialty: '' }), {})
   assert.equal(
     validateTechnician({ ...valid, email: 'inválido' }).email,
     'Informe um e-mail válido.',

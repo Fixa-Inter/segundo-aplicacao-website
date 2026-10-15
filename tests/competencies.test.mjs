@@ -8,9 +8,62 @@ import {
   removeTechnician,
   listTechnicians,
 } from '../src/services/managementService.ts'
-import { competencyCategories, parseCompetencyRating } from '../src/utils/competencies.ts'
+import {
+  competencyCategories,
+  parseCompetencyRating,
+  getCompetencyPresentation,
+} from '../src/utils/competencies.ts'
 
 beforeEach(() => clearDemoManagement())
+
+test('resumo destaca somente avaliadas; expansão completa o catálogo sem repetir e desempata por ID', () => {
+  const items = competencyCategories.map((item) => ({ ...item, rating: null }))
+  assert.equal(getCompetencyPresentation(items).highlights.length, 0)
+  assert.equal(getCompetencyPresentation(items).remaining.length, 10)
+  const snapshot = structuredClone(items)
+  items[0].rating = 0
+  let result = getCompetencyPresentation(items)
+  assert.deepEqual(
+    result.highlights.map((item) => item.id),
+    [1],
+  )
+  assert.equal(result.remaining.length, 9)
+  assert.equal(result.assessed, 1)
+  items[1].rating = 10
+  items[2].rating = 10
+  items[3].rating = 9
+  result = getCompetencyPresentation(items)
+  assert.deepEqual(
+    result.highlights.map((item) => item.id),
+    [2, 3, 4],
+  )
+  assert.equal(result.remaining.length, 7)
+  assert.equal(result.assessed, 4)
+  const ids = [...result.highlights, ...result.remaining].map((item) => item.id)
+  assert.equal(new Set(ids).size, 10)
+  assert.deepEqual(
+    items.map((item) => item.id),
+    snapshot.map((item) => item.id),
+  )
+  assert.ok(result.remaining.some((item) => item.id === 1 && item.rating === 0))
+})
+
+test('especialidade exibida depende da maior nota, aceita zero e volta a vazia após remover todas', async () => {
+  let technician = (await listTechnicians())[0]
+  assert.equal(technician.assessedSpecialty, null)
+  technician = await saveTechnician(technician, technician.id, [{ competencyId: 2, rating: 0 }])
+  assert.equal(technician.assessedSpecialty, 'Hidráulica')
+  assert.equal((await listTechnicians())[0].assessedSpecialty, 'Hidráulica')
+  await saveTechnicianCompetency(technician.id, { competencyId: 3, rating: 10 })
+  assert.equal((await listTechnicians())[0].assessedSpecialty, 'Mecânica')
+  technician = await saveTechnician(technician, technician.id, [
+    { competencyId: 2, rating: null },
+    { competencyId: 3, rating: null },
+  ])
+  assert.equal(technician.assessedSpecialty, null)
+  assert.equal((await listTechnicians())[0].assessedSpecialty, null)
+  assert.equal((await listTechnicians())[1].assessedSpecialty, null)
+})
 
 test('cadastro e dez notas são salvos juntos, incluindo zero e remoção de avaliação', async () => {
   const original = (await listTechnicians())[0]
@@ -38,6 +91,7 @@ test('cadastro e dez notas são salvos juntos, incluindo zero e remoção de ava
 test('lote inválido e falha no cadastro não deixam alterações parciais em cadastro ou notas', async () => {
   const original = (await listTechnicians())[0]
   await saveTechnicianCompetency(original.id, { competencyId: 1, rating: 7 })
+  const withRating = (await listTechnicians())[0]
   for (const invalid of [
     { competencyId: 2, rating: 1.5 },
     { competencyId: 99, rating: 8 },
@@ -48,7 +102,7 @@ test('lote inválido e falha no cadastro não deixam alterações parciais em ca
         invalid,
       ]),
     )
-    assert.deepEqual((await listTechnicians())[0], original)
+    assert.deepEqual((await listTechnicians())[0], withRating)
     assert.equal((await listTechnicianCompetencies(original.id))[0].rating, 7)
   }
   await assert.rejects(
@@ -136,7 +190,7 @@ test('cancelamento e fim de sessão impedem gravação pendente; cadastro novo c
     birthDate: '1995-04-18',
     email: 'novo@fixa.test',
     phone: '(11) 99999-1234',
-    specialty: 'Elétrica',
+    specialty: '',
     shift: '08:00 - 16:00',
     status: 'Ativo',
   })

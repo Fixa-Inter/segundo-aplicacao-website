@@ -1,5 +1,7 @@
 # Competências: consulta e edição — 15/10/2026
 
+Registro da primeira revisão desta data. O acabamento posterior ajustou especialidade/Sem notas, removeu repetição no resumo e deixou os campos de edição sem placeholder. Consulte o [estado atual e suas capturas](COMPETENCIAS_ACABAMENTO_2026-10-15.md).
+
 Continuação da [Issue #9](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/9), na branch `feature/login-competencias-tecnicos`, conforme ajuste solicitado pelo usuário. Implementação, testes e conferência de interface feitos com assistência do Codex. Sem novo PR nesta etapa, por solicitação do usuário; sem aprovação, merge ou homologação presumidos.
 
 ## Alterações

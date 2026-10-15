@@ -1,4 +1,9 @@
-import type { CompetencyDefinition, CompetencyInput } from '../types/competency'
+import type {
+  CompetencyDefinition,
+  CompetencyInput,
+  CompetencyPresentation,
+  TechnicianCompetency,
+} from '../types/competency'
 
 export const competencyCategories: readonly CompetencyDefinition[] = [
   { id: 1, code: 'ELETRICA', name: 'Elétrica' },
@@ -12,6 +17,20 @@ export const competencyCategories: readonly CompetencyDefinition[] = [
   { id: 9, code: 'ILUMINACAO', name: 'Iluminação' },
   { id: 10, code: 'LIMPEZA_CONSERVACAO', name: 'Limpeza e Conservação' },
 ]
+
+export function getCompetencyPresentation(
+  items: readonly TechnicianCompetency[],
+): CompetencyPresentation {
+  const ranked = [...items].sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1) || a.id - b.id)
+  const assessed = ranked.filter((item) => item.rating !== null)
+  const highlights = assessed.slice(0, 3)
+  const highlightedIds = new Set(highlights.map((item) => item.id))
+  return {
+    highlights,
+    remaining: ranked.filter((item) => !highlightedIds.has(item.id)),
+    assessed: assessed.length,
+  }
+}
 
 export function parseCompetencyRating(value: string): number | null | undefined {
   if (!value.trim()) return null

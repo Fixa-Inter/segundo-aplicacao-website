@@ -57,7 +57,7 @@ export function TechnicianDetails({
             {technician.name}
           </h1>
           <p>
-            {t('Técnico ·')} {technician.specialty}
+            {t('Técnico ·')} {t(technician.assessedSpecialty ?? 'Sem notas')}
           </p>
         </div>
         <button type="button" className={styles.edit} onClick={() => requestExit(onEdit)}>

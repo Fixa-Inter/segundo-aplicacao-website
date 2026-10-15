@@ -16,11 +16,15 @@ export interface Technician extends Address {
   birthDate: string
   accessType: 'TÉCNICO'
   specialty: string
+  assessedSpecialty: string | null
   shift: string
   status: 'Ativo' | 'Inativo'
 }
 
-export type TechnicianInput = Omit<Technician, 'id' | 'accessType' | keyof Address>
+export type TechnicianInput = Omit<
+  Technician,
+  'id' | 'accessType' | 'assessedSpecialty' | keyof Address
+>
 
 export interface CalendarEvent {
   id: string
