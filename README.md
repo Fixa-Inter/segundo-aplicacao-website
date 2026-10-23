@@ -19,6 +19,8 @@ npm run format:check
 
 O Vite informa a URL local. `npm run preview` serve o build de `dist/`.
 
+Em caminhos do Windows com `&`, como `OneDrive - Instituto J&F`, os scripts executam as ferramentas diretamente pelo Node. Isso evita a [falha dos atalhos `.cmd` do npm](https://github.com/npm/cmd-shim/issues/45). Os comandos acima continuam iguais, inclusive depois de reinstalar as dependências com `npm ci`.
+
 ## Contribuição e integração
 
 Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → PR para `dev` → revisão/CI → `hml` → homologação → `main`. O template de PR é o oficial da organização. A [Issue #7](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/7) registra a importação do histórico local, preservando os 64 commits anteriores e o histórico remoto.
