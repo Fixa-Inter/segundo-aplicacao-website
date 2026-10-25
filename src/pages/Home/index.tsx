@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/useAuth'
 import banner from '../../assets/figma/home-banner.png'
 import { getHomeData } from '../../services/homeService'
 import type { HomeData } from '../../types/home'
-import { monthDays } from '../../utils/calendar'
+import { monthDays, occursOnDate } from '../../utils/calendar'
 import { usePreferences } from '../../contexts/usePreferences'
 import styles from './Home.module.css'
 
@@ -68,7 +68,7 @@ export default function Home() {
   const { taskSummary, monthlyTasks } = data
   const month = selectedDay.slice(0, 7)
   const days = monthDays(month).filter((date) => date.startsWith(month))
-  const events = data.events.filter((event) => event.date === selectedDay)
+  const events = data.events.filter((event) => occursOnDate(event, selectedDay))
 
   function changeMonth(offset: number) {
     const date = new Date(`${selectedDay.slice(0, 7)}-01T12:00:00Z`)
@@ -157,9 +157,9 @@ export default function Home() {
             {events.length ? (
               events.map((event) => (
                 <article key={event.id} className={styles.event}>
-                  <time dateTime={event.date}>
-                    {Number(event.date.slice(-2))}
-                    <small>{formatDate(event.date, { weekday: 'short' }).replace('.', '')}</small>
+                  <time dateTime={selectedDay}>
+                    {Number(selectedDay.slice(-2))}
+                    <small>{formatDate(selectedDay, { weekday: 'short' }).replace('.', '')}</small>
                   </time>
                   <div>
                     <h4>{event.title}</h4>
@@ -168,7 +168,7 @@ export default function Home() {
                   <Link
                     className={styles.eventLink}
                     to="/calendario"
-                    state={{ date: event.date }}
+                    state={{ date: selectedDay }}
                     aria-label={t('Ver evento {name}', { name: event.title })}
                   >
                     <FigmaIcon name="more" />

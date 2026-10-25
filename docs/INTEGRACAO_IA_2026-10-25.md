@@ -11,7 +11,7 @@ A web não depende mais daquele commit, de clone da IA ou de `ia:up`. O bootstra
 ## Endereços e encaminhamento
 
 ```dotenv
-VITE_API_BASE_URL=https://web-api.fixa.solutions
+VITE_API_BASE_URL=http://localhost:8080
 VITE_AI_BASE_URL=/api/ia
 AI_PROXY_TARGET=https://ia-api.fixa.solutions
 VITE_CLOUDINARY_CLOUD_NAME=
@@ -121,3 +121,7 @@ Execução final: **71 testes aprovados**, `format:check`, `lint` e `build` apro
 ## Atualização: API Web local com a dev atual
 
 A web passou a usar `http://localhost:8080`, compilado do commit `9516609` da API Web, com o banco compartilhado fornecido pelo usuário. Login real e leitura de perfil/equipe/calendário passaram. Somente o modo local de execução desativa gestão automática do esquema (`none`) devido à divergência CEP CHAR/VARCHAR encontrada na inicialização. A IA segue na AWS; a integração autenticada entre os dois serviços não foi presumida. Consulte [configuração, validação real e retorno à AWS](API_LOCAL_DEV_2026-10-25.md).
+
+## Revisão posterior: autenticação real da IA
+
+Com login GESTOR válido na API Web local, uma mensagem simples ao serviço da IA retornou HTTP 403, “Usuário sem permissão de acesso”. O responsável deve conferir a API de perfil configurada em `FIXA_API_BASE_URL`, aceitação do token Web e o campo `cnpjUnidade` exigido pela IA. A recusa do chat preserva a sessão Web válida; falha de renovação da própria API Web continua encerrando o acesso. Consulte [correções, evidências e limites da revisão](REVISAO_WEB_2026-10-25.md).

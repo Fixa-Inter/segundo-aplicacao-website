@@ -1,3 +1,7 @@
+export function occursOnDate(event: { date: string; endDate?: string }, date: string): boolean {
+  return event.date <= date && date <= (event.endDate || event.date)
+}
+
 export function shiftDate(isoDate: string, offset: number): string {
   const date = new Date(`${isoDate}T12:00:00Z`)
   date.setUTCDate(date.getUTCDate() + offset)

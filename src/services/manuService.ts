@@ -111,6 +111,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       const links = validateImageLinks(images)
       const data = await client.request<ManuReply>(endpoint(), {
         method: 'POST',
+        expireSessionOnUnauthorized: false,
         timeout: 120000,
         signal,
         data: { mensagem: message, thread_id: threadId, imagens: links },
@@ -160,6 +161,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         resumo?: string | null
       }>(endpoint(`/sessions/${encodeURIComponent(threadId)}`), {
         method: 'DELETE',
+        expireSessionOnUnauthorized: false,
         timeout: 120000,
         signal,
       })

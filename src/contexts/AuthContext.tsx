@@ -24,9 +24,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let active = true
     const unsubscribe = api.onExpired(() => dispatch({ type: 'LOGOUT' }))
-    void restoreSession().then((user) => {
-      if (active) dispatch(user ? { type: 'LOGIN_SUCCESS', user } : { type: 'LOGOUT' })
-    })
+    void restoreSession()
+      .then((user) => {
+        if (active) dispatch(user ? { type: 'LOGIN_SUCCESS', user } : { type: 'LOGOUT' })
+      })
+      .catch((reason: unknown) => {
+        if (active)
+          dispatch({
+            type: 'LOGIN_ERROR',
+            error:
+              reason instanceof Error
+                ? reason.message
+                : 'Não foi possível verificar sua sessão. Tente novamente.',
+          })
+      })
     return () => {
       active = false
       unsubscribe()

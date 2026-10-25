@@ -1,6 +1,7 @@
 import type { LoginCredentials, User } from '../types/auth'
 import { normalizeCnpj, validateLogin } from '../utils/validation.ts'
 import { api } from './api.ts'
+import { ApiError } from './httpClient.ts'
 
 interface LoginResponse {
   usuarioId: number
@@ -88,9 +89,12 @@ export async function restoreSession(): Promise<User | null> {
     user = { ...value.user, name: profile.nomeCompleto }
     persist()
     return user
-  } catch {
-    clearSession()
-    return null
+  } catch (reason) {
+    if (reason instanceof ApiError && [401, 403].includes(reason.status)) {
+      clearSession()
+      return null
+    }
+    throw reason
   }
 }
 export function logout() {

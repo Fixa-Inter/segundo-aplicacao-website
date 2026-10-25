@@ -81,12 +81,15 @@ export function createHttpClient(baseURL?: string, adapter?: AxiosAdapter) {
   }
   async function request<T>(
     url: string,
-    config: AxiosRequestConfig & { anonymous?: boolean } = {},
+    config: AxiosRequestConfig & {
+      anonymous?: boolean
+      expireSessionOnUnauthorized?: boolean
+    } = {},
   ): Promise<T> {
     if (!baseURL)
       throw new ApiError('Configure VITE_API_BASE_URL com o endereço da API para continuar.')
     const expected = version
-    const { anonymous = false, ...options } = config
+    const { anonymous = false, expireSessionOnUnauthorized = true, ...options } = config
     if (!anonymous && !tokens) throw new ApiError('Entre novamente para continuar.', 401)
     const sentToken = tokens?.token
     const send = () =>
@@ -112,17 +115,22 @@ export function createHttpClient(baseURL?: string, adapter?: AxiosAdapter) {
               .post<SessionTokens>('/auth/refresh', { refreshToken })
               .then(({ data }) => {
                 active(expected)
-                if (!data.token || !data.refreshToken)
+                if (
+                  !data ||
+                  typeof data.token !== 'string' ||
+                  !data.token.trim() ||
+                  typeof data.refreshToken !== 'string' ||
+                  !data.refreshToken.trim()
+                )
                   throw new ApiError('Resposta de autenticação inválida.', 401)
                 setTokens({ token: data.token, refreshToken: data.refreshToken })
               })
               .catch((reason: unknown) => {
-                if (
-                  expected === version &&
-                  axios.isAxiosError(reason) &&
-                  reason.response?.status === 401
-                )
-                  expire()
+                const unauthorized =
+                  reason instanceof ApiError
+                    ? reason.status === 401
+                    : axios.isAxiosError(reason) && reason.response?.status === 401
+                if (expected === version && unauthorized) expire()
                 throw reason
               })
               .finally(() => {
@@ -139,6 +147,7 @@ export function createHttpClient(baseURL?: string, adapter?: AxiosAdapter) {
     } catch (error) {
       if (
         !anonymous &&
+        expireSessionOnUnauthorized &&
         expected === version &&
         axios.isAxiosError(error) &&
         error.response?.status === 401

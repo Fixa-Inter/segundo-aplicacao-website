@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { monthWeeks, shiftDate, startOfWeek } from '../src/utils/calendar.ts'
+import { monthWeeks, occursOnDate, shiftDate, startOfWeek } from '../src/utils/calendar.ts'
 
 test('semana inclui sábado e domingo, inclusive nas viradas de mês e ano', () => {
   assert.equal(startOfWeek('2026-03-14'), '2026-03-09')
@@ -47,4 +47,15 @@ test('cálculo de semanas também admite início no domingo', () => {
   )
   assert.equal(leapDays.filter((date) => date.startsWith('2024-02')).length, 29)
   assert.equal(new Set(leapDays).size, leapDays.length)
+})
+
+test('eventos atravessam dias, meses e anos sem desaparecer no calendário ou incluir datas externas', () => {
+  const event = { date: '2026-12-31', endDate: '2027-01-02' }
+  assert.equal(occursOnDate(event, '2026-12-30'), false)
+  for (const date of ['2026-12-31', '2027-01-01', '2027-01-02'])
+    assert.equal(occursOnDate(event, date), true)
+  assert.equal(occursOnDate(event, '2027-01-03'), false)
+  assert.equal(occursOnDate({ date: '2024-02-28', endDate: '2024-03-01' }, '2024-02-29'), true)
+  assert.equal(occursOnDate({ date: '2026-10-25' }, '2026-10-25'), true)
+  assert.equal(occursOnDate({ date: '2026-10-25' }, '2026-10-26'), false)
 })

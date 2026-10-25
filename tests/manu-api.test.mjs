@@ -189,3 +189,58 @@ test('12 emoções, resumo e proxy seguem dados do contrato sem inventar título
     'https://dbc-test.cloud.databricks.com/embed/dashboardsv3/123',
   )
 })
+
+test('recusa persistente da IA preserva sessão Web renovada e o histórico já recebido', async () => {
+  let denied = false
+  const { service, client, calls } = setup((call) => {
+    if (call.url === '/auth/refresh')
+      return { data: { token: 'web-valid', refreshToken: 'web-refresh' } }
+    return denied
+      ? { status: 401, data: { detail: 'Token incompatível com a IA.' } }
+      : { data: reply }
+  })
+  await service.send('Primeira mensagem', null)
+  denied = true
+  let expirations = 0
+  client.onExpired(() => expirations++)
+  await assert.rejects(service.send('Segunda mensagem', 'thread-1'), /Token incompatível/)
+  assert.equal(expirations, 0)
+  assert.equal(client.getTokens()?.token, 'web-valid')
+  assert.equal((await service.history('thread-1')).messages.length, 2)
+  assert.equal(calls.filter((call) => call.url === '/auth/refresh').length, 1)
+  await assert.rejects(service.close('thread-1'), /Token incompatível/)
+  assert.ok(client.getTokens())
+})
+
+test('recusa de renovação pela API Web ainda encerra sessão e histórico da Manu', async () => {
+  let denied = false
+  const { service, client } = setup(() => (denied ? { status: 401 } : { data: reply }))
+  await service.send('Primeira mensagem', null)
+  denied = true
+  let expirations = 0
+  client.onExpired(() => expirations++)
+  await assert.rejects(service.send('Segunda mensagem', 'thread-1'))
+  assert.equal(expirations, 1)
+  assert.equal(client.getTokens(), null)
+  client.setTokens({ token: 'nova-sessao', refreshToken: 'novo-refresh' })
+  assert.deepEqual(await service.list(), [])
+})
+
+test('resposta de renovação sem tokens válidos invalida a sessão uma única vez', async () => {
+  for (const invalid of [
+    null,
+    {},
+    { token: 1, refreshToken: 'refresh' },
+    { token: ' ', refreshToken: 'refresh' },
+    { token: 'token', refreshToken: '' },
+  ]) {
+    const { service, client } = setup((call) =>
+      call.url === '/auth/refresh' ? { data: invalid } : { status: 401 },
+    )
+    let expirations = 0
+    client.onExpired(() => expirations++)
+    await assert.rejects(service.send('Olá', null), /Resposta de autenticação inválida/)
+    assert.equal(client.getTokens(), null)
+    assert.equal(expirations, 1)
+  }
+})

@@ -14,7 +14,7 @@ import {
   saveEvent,
 } from '../../services/managementService'
 import type { CalendarEvent, Technician } from '../../types/management'
-import { monthDays, shiftDate } from '../../utils/calendar'
+import { monthDays, occursOnDate, shiftDate } from '../../utils/calendar'
 import common from '../management.module.css'
 import styles from './Calendar.module.css'
 
@@ -122,7 +122,7 @@ export default function Calendar() {
     }
   }
   const selectedEvents = events
-    .filter((item) => item.date === selectedDay)
+    .filter((item) => occursOnDate(item, selectedDay))
     .sort((a, b) => a.time.localeCompare(b.time))
   const dates = monthDays(month)
 
@@ -226,7 +226,7 @@ export default function Calendar() {
                   tabIndex={date === selectedDay ? 0 : -1}
                   onKeyDown={(event) => moveDay(event, date)}
                   className={`${styles.day} ${date.slice(0, 7) !== month ? styles.outside : ''}`}
-                  aria-label={`${formatDate(date, { dateStyle: 'full' })}${events.some((item) => item.date === date) ? t(', com evento') : ''}`}
+                  aria-label={`${formatDate(date, { dateStyle: 'full' })}${events.some((item) => occursOnDate(item, date)) ? t(', com evento') : ''}`}
                   aria-pressed={date === selectedDay}
                   onClick={() => {
                     setSelectedDay(date)
@@ -235,7 +235,7 @@ export default function Calendar() {
                 >
                   <span className={styles.dayNumber}>
                     {Number(date.slice(-2))}
-                    {events.some((item) => item.date === date) && <i aria-hidden="true" />}
+                    {events.some((item) => occursOnDate(item, date)) && <i aria-hidden="true" />}
                   </span>
                 </button>
               ))}
@@ -255,8 +255,10 @@ export default function Calendar() {
                   <article className={styles.event} key={item.id}>
                     <div className={styles.eventSummary}>
                       <span className={styles.eventDate} aria-hidden="true">
-                        <strong>{Number(item.date.slice(-2))}</strong>
-                        <span>{formatDate(item.date, { weekday: 'short' }).replace('.', '')}</span>
+                        <strong>{Number(selectedDay.slice(-2))}</strong>
+                        <span>
+                          {formatDate(selectedDay, { weekday: 'short' }).replace('.', '')}
+                        </span>
                       </span>
                       <span>
                         <span className={styles.eventTitle}>{item.title}</span>

@@ -10,6 +10,7 @@ export async function getHomeData(): Promise<HomeData> {
       id: item.id,
       title: item.title,
       date: item.date,
+      endDate: item.endDate,
       time: `${item.time}–${item.endTime}h`,
     })),
     weekStart: today,

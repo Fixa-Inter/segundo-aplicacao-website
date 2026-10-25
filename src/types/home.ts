@@ -3,6 +3,7 @@ export interface MonthlyTaskCount {
   value: number
 }
 export interface CalendarPreviewEvent {
+  endDate?: string
   id: string
   date: string
   title: string

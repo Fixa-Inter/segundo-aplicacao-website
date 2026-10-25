@@ -117,3 +117,8 @@ Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → 
 ## Publicação
 
 Na Vercel, use `npm run build`, saída `dist` e a variável pública `VITE_API_BASE_URL` antes do build. `vercel.json` preserva as rotas da SPA. A existência dessa configuração não comprova publicação nem CI aprovado. Configure CORS no backend e execute os fluxos com conta de teste antes da homologação.
+
+
+## Revisão da integração
+
+A [revisão de 25/10/2026](docs/REVISAO_WEB_2026-10-25.md) corrigiu perda indevida de sessão, resposta inválida de renovação e exibição de eventos com vários dias. Login e consultas na API Web local passaram; a chamada real à IA retornou 403 e requer alinhamento de autenticação/perfil no serviço consultado por ela. Não há fallback de resposta simulada na aplicação. As pendências de histórico, Databricks e publicação continuam identificadas no relatório.
