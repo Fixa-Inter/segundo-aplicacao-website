@@ -41,39 +41,39 @@ npm run dev -- --port 5173 --strictPort
 
 O ambiente prepara PostgreSQL, Redis, e-mail local e API, com credenciais somente da máquina. Consulte [dev/README.md](dev/README.md).
 
-## Usar os serviços da AWS
+## Usar a Manu e os serviços da AWS
 
-Em `.env.local`, configure os dois serviços do mesmo ambiente e reinicie o Vite:
+Em `.env.local`, configure a API de autenticação e o encaminhamento da própria web:
 
 ```dotenv
 VITE_API_BASE_URL=https://web-api.fixa.solutions
-VITE_AI_BASE_URL=https://ia-api.fixa.solutions
+VITE_AI_BASE_URL=/api/ia
+AI_PROXY_TARGET=https://ia-api.fixa.solutions
+VITE_CLOUDINARY_CLOUD_NAME=
+VITE_CLOUDINARY_UPLOAD_PRESET=
+VITE_DATABRICKS_DASHBOARD_URL=
 ```
 
-Use um usuário cadastrado nesse ambiente. As chaves dos provedores ficam no servidor; não é necessário copiá-las para a máquina para usar a IA hospedada.
+O Vite encaminha `/api/ia` para o serviço existente; a Vercel tem a regra equivalente em `vercel.json`. Isso permite consumir o contrato publicado sem alterar CORS, agentes, autenticação ou código da IA. As chaves dos modelos, do banco e de assinatura JWT ficam nos servidores. Outros hosts precisam configurar o mesmo reverse proxy antes do fallback da SPA.
 
-Na verificação de 25/10/2026, o serviço da IA estava saudável, mas a versão publicada ainda não expunha o histórico e recusava o preflight CORS. É necessário publicar a compatibilidade da branch `feature/integracao-web-manu` pelo fluxo de revisão e configurar `FIXA_WEB_ORIGINS`. Consulte [o diagnóstico e os requisitos de publicação](docs/INTEGRACAO_IA_2026-10-25.md#serviço-publicado-na-aws).
+As conversas da sessão usam somente respostas reais da API e permanecem em memória até recarregar a página ou sair da conta. O histórico completo aguarda as rotas do responsável pela IA. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
 
-## Executar a Manu localmente
+Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O upload está implementado para preset unsigned autorizado, mas precisa do cloud name e preset; se a equipe escolher assinatura, falta o contrato da rota de assinatura. Não inclua API Secret no frontend. O dashboard recebe a URL de incorporação do Databricks quando ela for fornecida.
 
-```bash
-npm run ia:up
-```
-
-Para esse modo, use `VITE_API_BASE_URL=http://localhost:8080` e `VITE_AI_BASE_URL=http://localhost:8000` em `.env.local`. O serviço da IA e o histórico usam MongoDB/Qdrant locais. Configure as chaves dos provedores somente em `dev.local/ia.env`; sem elas, o histórico pode ser consultado e o chat informa indisponibilidade. Consulte [contrato, configuração e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
+Na verificação atual, o login de exemplo retornou HTTP 500 no serviço da AWS; isso precisa de diagnóstico no backend antes da validação com usuário real. Consulte [contrato, pendências e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
 
 ## Integração atual
 
-| Fluxo                | Comportamento                                                                                                                              |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Login/sessão         | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                |
-| Equipe               | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação                         |
-| Competências         | Dez categorias; notas opcionais de 0 a 10 inteiras na web; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente |
-| Calendário/Home      | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                  |
-| Perfil               | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                      |
-| Senha                | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                     |
-| Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real                                  |
-| Manu                 | Chat autenticado, histórico no servidor, continuidade e confirmação de propostas; depende das chaves e dados do serviço de IA              |
+| Fluxo                | Comportamento                                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Login/sessão         | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                            |
+| Equipe               | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação                                     |
+| Competências         | Dez categorias; notas opcionais de 0 a 10 inteiras na web; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente             |
+| Calendário/Home      | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                              |
+| Perfil               | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                  |
+| Senha                | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                 |
+| Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real                                              |
+| Manu                 | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; conversas desta sessão, sem GETs de histórico ainda indisponíveis |
 
 Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`. A sessão usa `sessionStorage` da aba para os tokens Bearer e a identificação mínima; senhas não são armazenadas. Em erro de renovação por token inválido, a sessão local é encerrada. O backend é responsável por autorização e isolamento entre unidades.
 

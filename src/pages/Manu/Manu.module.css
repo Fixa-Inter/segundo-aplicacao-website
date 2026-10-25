@@ -566,3 +566,261 @@
     max-height: 50dvh;
   }
 }
+
+.sessionNote {
+  margin: 0 0 12px;
+  color: var(--fixa-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.chatHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: min(100%, 1100px);
+  align-self: center;
+}
+.chatHeading h2 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--fixa-text-primary);
+  font-size: 17px;
+  font-weight: 500;
+}
+.messageRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+.userRow {
+  justify-content: flex-end;
+}
+.emotionAvatar {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+.messageRow .bubble {
+  min-width: 0;
+  max-width: min(720px, calc(100% - 84px));
+  margin: 0;
+}
+.userRow .bubble {
+  max-width: 82%;
+}
+.messageRow .bubble p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.messageRow .proposal {
+  width: min(620px, calc(100% - 84px));
+  border: 1px solid var(--fixa-border, #dce4ef);
+  border-radius: 24px;
+  padding: 24px;
+  background: var(--fixa-neutral-surface);
+  box-shadow: 0 3px 12px #153d7d08;
+}
+.proposal > strong {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 22px;
+  line-height: 1.3;
+  color: var(--fixa-text-primary);
+}
+.proposalActions {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--fixa-border, #dce4ef);
+}
+.proposalActions > p {
+  font-weight: 500;
+}
+.decisionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 14px;
+}
+.decisionButtons button {
+  min-width: 92px;
+  min-height: 42px;
+  padding: 9px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--fixa-selected);
+  color: var(--fixa-text-primary);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+.decisionButtons button:hover:not(:disabled) {
+  background: var(--fixa-hover);
+}
+.decisionButtons .acceptProposal {
+  background: #153d7d;
+  color: white;
+}
+.decisionButtons .acceptProposal:hover:not(:disabled) {
+  background: #234f92;
+}
+.decisionButtons button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.correction {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+.correction label {
+  font-size: 14px;
+  font-weight: 500;
+}
+.correction textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 112px;
+  resize: vertical;
+  padding: 14px;
+  border: 1px solid #c9d7e8;
+  border-radius: 15px;
+  background: var(--fixa-surface);
+  color: var(--fixa-text-primary);
+  font: inherit;
+  font-size: 14px;
+}
+.sentImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.sentImages a {
+  display: block;
+  width: 100px;
+  height: 90px;
+}
+.sentImages img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.fileInput {
+  display: none;
+}
+.filePreviews {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+.filePreviews li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--fixa-neutral-surface);
+}
+.filePreviews img {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.filePreviews li > div {
+  min-width: 0;
+  flex: 1;
+}
+.filePreviews span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.filePreviews small {
+  display: block;
+  font-size: 11px;
+  color: var(--fixa-muted);
+}
+@media (max-width: 600px) {
+  .emotionAvatar {
+    width: 44px;
+    height: 44px;
+  }
+  .messageRow {
+    gap: 8px;
+  }
+  .messageRow .bubble {
+    max-width: calc(100% - 52px);
+  }
+  .messageRow .proposal {
+    width: calc(100% - 52px);
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .proposal > strong {
+    font-size: 19px;
+  }
+  .chatHeading {
+    align-items: flex-start;
+  }
+  .chatHeading h2 {
+    font-size: 14px;
+  }
+  .chatHeading .closeChat {
+    flex: none;
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+  .decisionButtons button {
+    padding-inline: 15px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  .withMessages .history {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    max-height: 184px;
+    padding: 12px 20px;
+  }
+  .withMessages .history h1 {
+    margin: 0;
+    font-size: 22px;
+  }
+  .withMessages .history .newChat {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    width: auto;
+    min-height: 38px;
+  }
+  .withMessages .history .search {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .withMessages .history nav,
+  .withMessages .emptyHistory {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .withMessages .historyTitle,
+  .withMessages .sessionNote {
+    display: none;
+  }
+}

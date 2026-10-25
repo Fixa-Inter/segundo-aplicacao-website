@@ -69,67 +69,7 @@ services:
       timeout: 3s
       retries: 30
       start_period: 30s
-  mongo:
-    profiles: [ia]
-    image: mongo:8
-    volumes:
-      - mongo-data:/data/db
-    healthcheck:
-      test: [CMD, mongosh, --quiet, --eval, "db.adminCommand('ping').ok"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-  qdrant:
-    profiles: [ia]
-    image: qdrant/qdrant:v1.19.0
-    environment:
-      QDRANT__SERVICE__API_KEY: ${FIXA_QDRANT_TOKEN:-}
-    volumes:
-      - qdrant-data:/qdrant/storage
-  ia:
-    profiles: [ia]
-    build:
-      context: ../dev.local/ia
-    ports:
-      - '127.0.0.1:8000:8000'
-    env_file:
-      - path: ../dev.local/ia.env
-        required: false
-    environment:
-      FIXA_API_BASE_URL: http://api:8080
-      FIXA_WEB_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
-      MONGO_URI: mongodb://mongo:27017
-      QDRANT_URL: http://qdrant:6333
-      QDRANT_TIMEOUT_SECONDS: 60
-      QDRANT_API_KEY: ${FIXA_QDRANT_TOKEN:-}
-      DATABASE_URL_GESTOR: postgresql+asyncpg://fixa:${FIXA_DB_PASSWORD}@postgres:5432/fixa
-      DATABASE_URL_TECNICO: postgresql+asyncpg://fixa:${FIXA_DB_PASSWORD}@postgres:5432/fixa
-      DATABASE_URL_SOLICITANTE: postgresql+asyncpg://fixa:${FIXA_DB_PASSWORD}@postgres:5432/fixa
-      LANGCHAIN_TRACING: 'false'
-      LANGCHAIN_TRACING_V2: 'false'
-      LANGSMITH_TRACING: 'false'
-    depends_on:
-      api:
-        condition: service_healthy
-      mongo:
-        condition: service_healthy
-      qdrant:
-        condition: service_started
-    healthcheck:
-      test:
-        [
-          CMD,
-          python,
-          -c,
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3)",
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-      start_period: 30s
 
 volumes:
   postgres-data:
   redis-data:
-  mongo-data:
-  qdrant-data:

@@ -2,6 +2,92 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Nesta sessão': ['This session', 'Esta sesión', '本次会话'],
+  'Disponíveis até recarregar a página.': [
+    'Available until the page is reloaded.',
+    'Disponibles hasta recargar la página.',
+    '刷新页面前可用。',
+  ],
+  'Confirme as informações': ['Confirm the details', 'Confirma los datos', '确认信息'],
+  'Você confirma as informações acima?': [
+    'Do you confirm the details above?',
+    '¿Confirmas los datos anteriores?',
+    '确认以上信息吗？',
+  ],
+  'O que precisa ser corrigido?': [
+    'What needs to be corrected?',
+    '¿Qué debe corregirse?',
+    '需要修改什么？',
+  ],
+  'Indique a informação incorreta e como ela deve ficar.': [
+    'Describe the incorrect detail and its correction.',
+    'Indica el dato incorrecto y su corrección.',
+    '说明错误信息及正确内容。',
+  ],
+  'Voltar à proposta': ['Back to proposal', 'Volver a la propuesta', '返回建议'],
+  'Enviar correção': ['Send correction', 'Enviar corrección', '发送修改'],
+  'Revise a proposta acima para continuar.': [
+    'Review the proposal above to continue.',
+    'Revisa la propuesta anterior para continuar.',
+    '请先确认上面的建议。',
+  ],
+  'Conversa finalizada': ['Conversation ended', 'Conversación finalizada', '对话已结束'],
+  'Finalizar conversa': ['End conversation', 'Finalizar conversación', '结束对话'],
+  'Finalizando…': ['Ending…', 'Finalizando…', '正在结束…'],
+  'Anexar imagens': ['Attach images', 'Adjuntar imágenes', '添加图片'],
+  'Enviando imagem…': ['Uploading image…', 'Subiendo imagen…', '正在上传图片…'],
+  'Imagem pronta': ['Image ready', 'Imagen lista', '图片已就绪'],
+  'Imagem {number}': ['Image {number}', 'Imagen {number}', '图片 {number}'],
+  'Falha no envio': ['Upload failed', 'Error al subir', '上传失败'],
+  'O envio de imagens está indisponível no momento.': [
+    'Image uploads are currently unavailable.',
+    'El envío de imágenes no está disponible en este momento.',
+    '暂时无法上传图片。',
+  ],
+  'Escolha uma imagem JPG, PNG, WEBP ou GIF.': [
+    'Choose a JPG, PNG, WEBP or GIF image.',
+    'Selecciona una imagen JPG, PNG, WEBP o GIF.',
+    '请选择 JPG、PNG、WEBP 或 GIF 图片。',
+  ],
+  'Cada imagem deve ter até 5 MB.': [
+    'Each image must be no larger than 5 MB.',
+    'Cada imagen debe tener como máximo 5 MB.',
+    '每张图片不得超过 5 MB。',
+  ],
+  'Use até 3 imagens.': ['Use up to 3 images.', 'Usa hasta 3 imágenes.', '最多可添加 3 张图片。'],
+  'Não foi possível enviar a imagem. Tente novamente.': [
+    'The image could not be uploaded. Try again.',
+    'No se pudo subir la imagen. Inténtalo de nuevo.',
+    '无法上传图片，请重试。',
+  ],
+  'O serviço de imagens retornou uma resposta inválida.': [
+    'The image service returned an invalid response.',
+    'El servicio de imágenes devolvió una respuesta no válida.',
+    '图片服务返回了无效响应。',
+  ],
+  'Não reenviamos automaticamente: o servidor pode ter recebido a mensagem.': [
+    'We do not resend automatically: the server may have received the message.',
+    'No reenviamos automáticamente: el servidor puede haber recibido el mensaje.',
+    '不会自动重发：服务器可能已收到消息。',
+  ],
+  'O acesso segue as permissões do Databricks.': [
+    'Access follows Databricks permissions.',
+    'El acceso sigue los permisos de Databricks.',
+    '访问遵循 Databricks 权限。',
+  ],
+  'Abrir em nova aba': ['Open in a new tab', 'Abrir en otra pestaña', '在新标签页打开'],
+  'Carregando dashboard…': ['Loading dashboard…', 'Cargando dashboard…', '正在加载仪表板…'],
+  'Dashboard de manutenção': ['Maintenance dashboard', 'Dashboard de mantenimiento', '维护仪表板'],
+  'Seus indicadores em um só lugar': [
+    'Your indicators in one place',
+    'Tus indicadores en un solo lugar',
+    '集中查看您的指标',
+  ],
+  'O dashboard estará disponível assim que a integração com o Databricks for liberada.': [
+    'The dashboard will be available once the Databricks integration is enabled.',
+    'El dashboard estará disponible cuando se habilite la integración con Databricks.',
+    'Databricks 集成启用后即可查看仪表板。',
+  ],
   'Atualizar conversas': ['Refresh conversations', 'Actualizar conversaciones', '刷新对话'],
   'Carregando conversa…': ['Loading conversation…', 'Cargando conversación…', '正在加载对话…'],
   Encerrada: ['Closed', 'Cerrada', '已结束'],

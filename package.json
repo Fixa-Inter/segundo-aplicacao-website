@@ -15,12 +15,7 @@
     "local:up": "node scripts/local-api.mjs up",
     "local:down": "node scripts/local-api.mjs down",
     "local:status": "node scripts/local-api.mjs status",
-    "local:logs": "node scripts/local-api.mjs logs",
-    "ia:prepare": "node scripts/local-ia.mjs prepare",
-    "ia:up": "node scripts/local-ia.mjs up",
-    "ia:down": "node scripts/local-ia.mjs down",
-    "ia:logs": "node scripts/local-ia.mjs logs",
-    "ia:status": "node scripts/local-ia.mjs status"
+    "local:logs": "node scripts/local-api.mjs logs"
   },
   "dependencies": {
     "@fontsource/poppins": "^5.3.0",

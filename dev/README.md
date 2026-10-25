@@ -46,4 +46,4 @@ A API usa Redis via HTTP. O [Serverless Redis HTTP](https://github.com/hiett/ser
 - Se `local:up` informar que o motor Docker não respondeu, confira o Docker Desktop. O processo aberto não basta: o motor precisa estar disponível para `docker info`.
 - Consulte `local:logs` para erros da API. Um contêiner iniciado não significa que o servidor esteja saudável.
 - Confira se 8080, 8025 e 5173 estão disponíveis antes de iniciar. O script não encerra processos alheios para liberar portas.
-- Dashboard/BI continua dependendo de contrato próprio. A Manu usa o serviço separado de IA: consulte [a integração da Manu](../docs/INTEGRACAO_IA_2026-10-25.md) e execute `npm run ia:up`.
+- A Manu consome o serviço existente na AWS pelo proxy da própria web; não é necessário clonar, modificar ou iniciar a IA localmente. Consulte [a integração da Manu](../docs/INTEGRACAO_IA_2026-10-25.md). O iframe de BI aguarda a URL de incorporação do Databricks.

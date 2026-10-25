@@ -1,106 +1,113 @@
-# Integração da Manu — 25/10/2026
+# Manu na web — contrato publicado e pendências
 
-Web [#11](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/11), branch `feature/integracao-ia-manu`, criada de `origin/dev` atualizado e avançada por fast-forward para incorporar a dependência da API na Issue #10, preservando seu histórico. Serviço de IA: [Issue #46](https://github.com/Fixa-Inter/segundo-inteligencia-artificial/issues/46), branch `feature/integracao-web-manu`, criada de `origin/dev` do próprio repositório.
+Atividade [web #11](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/11), branch `feature/integracao-ia-manu`. A implementação foi ajustada após o usuário esclarecer que o serviço de IA deve ser consumido sem mudanças no seu código. Novas rotas serão implementadas pelo responsável da IA.
 
-## O que está conectado
+## Escopo corrigido
 
-- Mensagens reais por `POST /api/v1/chat`, até 4000 caracteres; continuidade pelo `thread_id` devolvido pelo servidor.
-- Histórico recente e mensagens consultados no MongoDB pelo serviço autenticado. A web não grava transcrições em localStorage/sessionStorage.
-- Novo chat, busca entre as 50 conversas recentes, retomada, encerramento e consulta de conversa encerrada.
-- Propostas com `confirmacao: "sim"` mostram os botões Confirmar e Cancelar ação. Nenhuma confirmação é enviada automaticamente.
-- Até três links HTTP/HTTPS de imagens, conforme o contrato `imagens: list[str]`. Não há upload de arquivos binários neste contrato.
-- Mensagens de carregamento e falha, bloqueio de envio duplicado, cancelamento de requisições ao sair e proteção contra respostas de uma sessão de autenticação anterior.
-- Respostas renderizadas como texto React, sem executar HTML retornado pelo modelo.
+O commit de compatibilidade que havia sido enviado à branch separada da IA foi integralmente desfeito por [caee852](https://github.com/Fixa-Inter/segundo-inteligencia-artificial/commit/caee8523ba6f41fd393e9ed28098114dbd1ab37e). A árvore voltou à base anterior e a [Issue IA #46](https://github.com/Fixa-Inter/segundo-inteligencia-artificial/issues/46) foi cancelada por estar fora do escopo. Nenhum PR, merge ou deploy da IA foi feito. Os três contêineres que haviam sido criados para essa abordagem foram parados, com volumes preservados.
 
-O transporte compartilha a sessão da API de gestão: Bearer é enviado ao serviço configurado; um 401 renova em `/auth/refresh` da API Java e repete com o novo token. Um 403 não é tratado como expiração. Timeout e falhas 5xx não repetem automaticamente uma mensagem que possa ter provocado uma operação; a interface orienta conferir o histórico.
+A web não depende mais daquele commit, de clone da IA ou de `ia:up`. O bootstrap e o perfil Compose da IA foram retirados. O ambiente isolado da API Java continua disponível para seus próprios testes.
 
-As respostas antigas de demonstração foram movidas para `src/mocks/services/manuService.ts` e continuam somente nos testes históricos. Não existe fallback dessas respostas no chat real.
-
-## Compatibilidade do serviço
-
-A API Java devolve `tipoAcesso` como objeto e não devolve CNPJ no perfil. O serviço de IA foi adaptado para normalizar o enum e resolver o CNPJ no banco a partir do usuário autenticado. Não foi concedida confiança à identidade informada pelo frontend e não foi preciso modificar a API Java.
-
-O serviço também recebeu CORS configurável e os endpoints GET de histórico, no [commit 1ba4ccd](https://github.com/Fixa-Inter/segundo-inteligencia-artificial/commit/1ba4ccdbe7a3cc8280e7b48600c961c36394ceed). Portanto, a web precisa do commit de compatibilidade indicado no bootstrap `scripts/local-ia.mjs`; a versão anterior da main não oferece esse contrato completo. A branch da IA continua pendente de revisão e merge, conforme o fluxo da organização.
-
-Os perfis aceitos pela IA continuam sendo gestor, técnico e solicitante. A web autentica gestores/administradores para gestão; administrador recebe a negação de permissão do serviço de IA, sem conversão automática em gestor.
-
-## Executar localmente
-
-```bash
-npm run ia:prepare
-npm run ia:up
-npm run dev
-```
-
-URLs: web `http://localhost:5173`, IA `http://localhost:8000`, documentação da IA `http://localhost:8000/docs`, API Java `http://localhost:8080`.
-
-`ia:up` prepara a API de gestão e inicia o perfil Compose `ia` com MongoDB, Qdrant e o serviço Python. `ia:down` para somente esses três serviços e preserva os volumes. `local:down` encerra o projeto Compose, também preservando os volumes. `ia:logs` e `ia:status` ajudam no diagnóstico.
-
-Coloque `OPENAI_API_KEY`, `TYPESAFE_API_KEY` e `GEMINI_API_KEY` em **`dev.local/ia.env`**, ignorado pelo Git. Reinicie com `npm run ia:up` após alterar o arquivo. A variável pública `.env.local`/build recebe apenas `VITE_AI_BASE_URL=http://localhost:8000`, sem `/api/v1` no final. Um valor existente não é sobrescrito.
-
-O bootstrap gera o token do Qdrant em `dev.local/stack.env` e preserva credenciais já existentes. Banco relacional, MongoDB e Qdrant não publicam portas no host. O ambiente local usa o banco FIXA isolado; configuração de produção, bancos por perfil e origens HTTPS continuam responsabilidade da implantação.
-
-Collections Qdrant vazias não substituem a ingestão de FAQ e cadastros. Nenhum PDF de FAQ foi fornecido no clone consultado. O modelo e os agentes originais foram preservados; não foi feita validação de respostas dos provedores.
-
-## Evidências e resultados
-
-- Web: formatação, lint, 66 testes e build.
-- IA: 219 testes aprovados e 1 `xfail` preexistente, em contêiner sem rede; não comprova inferência real.
-- Real: login HTTP 200, perfil obtido na API Java, resolução da unidade no PostgreSQL, histórico persistido no MongoDB e recuperado após recarregar. Sem Bearer: 401. Histórico de outro usuário: 404. Dados sintéticos de QA removidos ao final.
-- Real: envio sem credenciais dos provedores retorna 503 antes de criar conversa; a web informa indisponibilidade e conserva o texto.
-- Controlado no navegador: resposta, anexos por link, continuidade, bloqueio de duplo envio, confirmação explícita, recarregamento e encerramento. Texto semelhante a script não é executado. Sem erro JavaScript; 390×844 sem transbordamento horizontal.
-
-Imagens:
-
-- [Histórico no banco real, com conteúdo sintético de QA](evidencias/integracao-ia-2026-10-25/manu-historico-local.png)
-- [Indisponibilidade real sem chaves](evidencias/integracao-ia-2026-10-25/manu-sem-chaves-local.png)
-- [Interação com respostas controladas — desktop](evidencias/integracao-ia-2026-10-25/manu-chat-controlado-desktop.png)
-- [Interação com respostas controladas — celular](evidencias/integracao-ia-2026-10-25/manu-chat-controlado-mobile.png)
-
-## Dependências para concluir a validação funcional
-
-1. Para inferência local, configurar as três chaves no arquivo local. Para usar a AWS, as chaves permanecem no servidor: é necessário publicar a compatibilidade descrita abaixo. Não houve inferência com modelos reais nesta verificação.
-2. Carregar fontes reais de FAQ e sincronizar os índices/cadastros necessários às ferramentas da IA; conferir os fluxos com os dados da equipe.
-3. Homologar as ferramentas que alteram registros, a comunicação com o mobile e a implantação remota. Testes controlados não equivalem a essas verificações.
-4. Revisão/merge dos repositórios e vínculo ao GitHub Projects, cujo acesso segue pendente. Não houve novo PR, aprovação ou promoção presumida.
-
-## Serviço publicado na AWS
-
-Após a implementação local, o usuário informou que a IA já está hospedada na AWS. Portanto, as credenciais de modelos não precisam ser copiadas para o computador para consumir o serviço hospedado. A validação local sem chaves continua sendo somente a evidência daquele ambiente.
-
-O endereço informado com `ai-api` retornou NXDOMAIN no DNS público. Foi identificado e confirmado o serviço FIXA em **`https://ia-api.fixa.solutions`**, com `ia-api`. O registro CNAME aponta ao ALB da FIXA em `us-east-1`; `GET /api/v1/health` retornou HTTP 200 com o identificador `segundo-inteligencia-artificial`.
-
-### Configuração da web
+## Endereços e encaminhamento
 
 ```dotenv
 VITE_API_BASE_URL=https://web-api.fixa.solutions
-VITE_AI_BASE_URL=https://ia-api.fixa.solutions
+VITE_AI_BASE_URL=/api/ia
+AI_PROXY_TARGET=https://ia-api.fixa.solutions
+VITE_CLOUDINARY_CLOUD_NAME=
+VITE_CLOUDINARY_UPLOAD_PRESET=
+VITE_DATABRICKS_DASHBOARD_URL=
 ```
 
-Os valores foram aplicados no `.env.local` desta máquina, ignorado pelo Git. A configuração anterior foi preservada em `dev.local/frontend-antes-aws.env`, também ignorado. O exemplo versionado mantém o modo local como padrão e documenta a alternativa AWS.
+O nome confirmado é `ia-api`, com “ia”. O endereço informado inicialmente com `ai-api` não resolveu no DNS consultado.
 
-Reinicie o Vite após trocar o ambiente e entre com um usuário cadastrado na AWS. Credenciais e tokens do ambiente local não devem ser reutilizados como se fossem credenciais da AWS. Não foram enviadas credenciais, tokens ou mensagens de chat ao serviço remoto nesta verificação.
+O navegador chama a origem da própria web em `/api/ia/api/v1/chat`; o servidor remove `/api/ia` e encaminha a chamada ao serviço existente. O Bearer continua sendo validado pela IA. Isso resolve a conexão do navegador sem mudar o CORS do backend. O [proxy do Vite](https://vite.dev/config/server-options#server-proxy) funciona no desenvolvimento e no preview; o arquivo `vercel.json` prepara a [reescrita externa da Vercel](https://vercel.com/docs/routing/rewrites). Não houve publicação da web nesta etapa. Outro servidor de hospedagem precisa da regra equivalente antes do fallback da SPA.
 
-### Contrato publicado e bloqueios confirmados
+As respostas do proxy usam `Cache-Control: private, no-store`. Tokens não são passados por query string. Timeout de mensagem: 120 segundos. Falhas de mensagem não são repetidas automaticamente, pois o servidor pode ter recebido uma operação antes da falha de rede.
 
-| Verificação sem autenticação                                                                                          | Resultado                                                                  |
-| --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `GET https://ia-api.fixa.solutions/api/v1/health`                                                                     | 200; serviço saudável                                                      |
-| `GET https://ia-api.fixa.solutions/openapi.json`                                                                      | 200; contrato FastAPI da IA                                                |
-| Contrato de mensagens                                                                                                 | `POST /api/v1/chat` e `DELETE /api/v1/chat/sessions/{thread_id}` presentes |
-| `GET /api/v1/chat/sessions`                                                                                           | 404; GETs de lista/detalhe ausentes do OpenAPI publicado                   |
-| Preflight `OPTIONS /api/v1/chat`, origem `http://localhost:5173`, método POST e cabeçalhos Authorization/Content-Type | 405; sem `Access-Control-Allow-Origin`                                     |
-| `GET https://web-api.fixa.solutions/v3/api-docs`                                                                      | 200; API Web, com origem localhost:5173 permitida nessa consulta           |
+## Contrato publicado consultado
 
-O último workflow de deploy da IA consultado concluiu com sucesso para o commit `5acab46a05d22b8b620a8905f5e2b681278e3e3d` da `main`: [execução de deploy](https://github.com/Fixa-Inter/segundo-inteligencia-artificial/actions/runs/40161977052). Essa revisão é anterior à compatibilidade [1ba4ccd](https://github.com/Fixa-Inter/segundo-inteligencia-artificial/commit/1ba4ccdbe7a3cc8280e7b48600c961c36394ceed).
+| Rota da IA                                      | Uso pela web                                            |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| `GET /api/v1/health`                            | Verificação de conexão                                  |
+| `POST /api/v1/chat`                             | Enviar texto, thread e URLs de imagens                  |
+| `DELETE /api/v1/chat/sessions/{thread_id}`      | Finalização explícita conforme contrato publicado       |
+| `POST /api/v1/classificar/classificar-problema` | Existe no contrato; não é necessária para o chat da web |
 
-Saúde HTTP 200 não comprova que o navegador pode conversar com a IA nem que os provedores estão respondendo. O navegador está bloqueado pelo CORS; apontar a variável para a URL não corrige esse bloqueio. O contrato atual também não permite retomar o histórico pela web.
+O POST recebe `mensagem` (1–4000 caracteres), `thread_id` opcional e `imagens`. A resposta contém `thread_id`, `resposta`, `intencao`, `emocao` e `confirmacao`. O ID retornado pelo serviço é reutilizado nas próximas mensagens. Identidade e unidade não são enviadas no corpo pela web.
 
-### Para concluir na AWS
+O Bearer vem da sessão da API Web: `Authorization: Bearer {token}`. Um 401 permite renovar na API de autenticação e repetir com o novo token; um 403 não é tratado como expiração. Logout limpa a memória da Manu e invalida respostas ainda pendentes de uma sessão anterior.
 
-1. Revisar e promover a branch `feature/integracao-web-manu` da IA por `dev` → `hml` → `main`, conforme as regras da organização, e publicar a revisão aprovada. Não houve alteração direta da `main`, disparo de deploy ou configuração da AWS nesta etapa.
-2. Definir `FIXA_WEB_ORIGINS` no serviço para as origens autorizadas da web, incluindo `http://localhost:5173` durante o desenvolvimento e a origem HTTPS real da implantação. O workflow reaproveita a Task Definition existente; alterações de variáveis devem constar da revisão/configuração aprovada.
-3. Conferir `FIXA_API_BASE_URL` e bancos do serviço para a API/identidade/unidade do mesmo ambiente; não pressupor que o token emitido localmente vale na AWS.
-4. Validar login com um gestor do ambiente AWS, preflight, histórico, resposta real dos modelos e confirmação de operações. As fontes/índices de FAQ e os cadastros precisam estar disponíveis nesse ambiente.
+### Finalização e exclusão
 
-A solicitação anterior de chaves locais deixa de ser um requisito para consumir a AWS. A disponibilidade/configuração das chaves no servidor não foi inspecionada. Não houve inferência remota, e os bloqueios de publicação permanecem registrados nas Issues web #11 e IA #46.
+Apesar do verbo DELETE, o OpenAPI atual chama essa operação de **Encerrar Conversa** e o código consultado gera resumo e retorna `status: ENCERRADA`, `mensagem` e `resumo`. Isso não comprova exclusão definitiva do histórico persistido. A web usa o rótulo **Finalizar conversa**, preserva as mensagens desta sessão para consulta e não chama DELETE ao clicar em Novo chat. Não foi realizado DELETE com dados reais da AWS.
+
+A interpretação definitiva de exclusão/finalização e uma eventual rota separada de exclusão precisam ser confirmadas com o autor antes de oferecer “Excluir chat”.
+
+## Propostas de criação
+
+- Somente `confirmacao: "sim"` retornado pelo servidor abre a revisão. Texto comum que menciona confirmação não dispara a interface.
+- A proposta usa o conteúdo real de `resposta` num cartão de revisão. Ele preserva o texto recebido; não deduz nem inventa campos de uma solicitação, OS ou ocorrência.
+- **Sim** envia `mensagem: "sim"` na mesma thread. A criação continua sendo responsabilidade da IA e não é reproduzida por um segundo POST da web na API de gestão.
+- **Não** apenas abre o campo de correção, sem chamada à API nem cancelamento automático. O usuário descreve a mudança e clica em Enviar correção. A mensagem pede ajustar a proposta antes da confirmação; o servidor devolve a nova proposta quando aplicável.
+- Enquanto há correção aberta, o botão Sim fica desabilitado. A interface bloqueia envio duplicado e conserva o texto quando há falha.
+- As respostas são texto React; HTML ou scripts na resposta não são executados.
+
+Para reproduzir todos os campos separados do modelo visual enviado pelo usuário, o responsável pode acrescentar um objeto estruturado de proposta à resposta. Esse contrato ainda não foi fornecido; não há rota fictícia nem parser que trate conteúdo gerado como dados confirmados.
+
+## Emoções
+
+As 12 imagens originais do ZIP fornecido foram importadas em `src/assets/manu-emotions`. Cada resposta usa sua própria emoção ao lado do balão:
+
+`NEUTRO`, `CURIOSO`, `PENSATIVO`, `CONFIRMACAO`, `SUCESSO`, `EMPATICO`, `ALERTA`, `ERRO`, `BLOQUEADO`, `CONSELHEIRO`, `AGUARDANDO`, `CELEBRACAO`.
+
+Valor desconhecido usa NEUTRO. A espera por uma resposta usa AGUARDANDO. Cada imagem permanece associada à mensagem que a originou.
+
+## Arquivos e Cloudinary
+
+O usuário seleciona até três arquivos JPG, PNG, WEBP ou GIF, com até 5 MB por arquivo. A web mostra prévia e estado do upload; erros permitem tentar novamente ou remover a imagem. O envio da mensagem fica bloqueado enquanto há upload pendente ou falha não resolvida.
+
+O fluxo implementado faz multipart para `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload` com arquivo e `upload_preset`, sem Bearer da API FIXA nem API Secret. Só o `secure_url` HTTPS retornado segue em `imagens` no POST da IA. O tipo de autenticação segue o [upload de cliente do Cloudinary](https://cloudinary.com/documentation/client_side_uploading): esta implementação exige um preset unsigned autorizado. Se a equipe usar uploads assinados, falta informar a rota do backend que gera a assinatura e seu contrato.
+
+**Pendência:** cloud name e preset ainda não foram fornecidos na implementação atual. O `.env` de banco/JWT/e-mail não contém esses parâmetros. Nenhum upload real ou assinatura real foi validado. Valores controlados de QA foram usados apenas no processo temporário de testes, sem gravá-los no `.env.local` ou apresentá-los como configuração válida.
+
+## Conversas e histórico
+
+O OpenAPI publicado ainda não expõe GETs para recuperar conversas/mensagens. A web mantém as últimas 50 conversas desta sessão em memória, com apenas mensagens realmente recebidas da API. Elas podem ser retomadas ao navegar dentro da SPA, e são descartadas ao recarregar a página ou sair da conta. Isso está indicado na interface. Não são gravadas transcrições em localStorage/sessionStorage, e não há fallback de respostas demonstrativas.
+
+O título inicial é a primeira mensagem. Quando a finalização retorna um título explícito no resumo, ele substitui o título inicial. Resumo sem título explícito não gera um título inventado.
+
+### Contratos a combinar com o responsável da IA
+
+1. **Listar conversas do usuário autenticado:** thread, título/resumo, datas e estado. Sugestão a combinar: `GET /api/v1/chat/sessions`.
+2. **Recuperar uma conversa:** mensagens com papel/autoria, texto, URLs de imagens, emoção, datas e estado atual da proposta/confirmacao; incluir o resumo e seu título. Sugestão a combinar: `GET /api/v1/chat/sessions/{thread_id}`.
+3. **Definir finalização versus exclusão:** confirmar o significado da rota DELETE atual e o momento de geração do resumo.
+4. **Proposta estruturada, se desejada:** tipo de criação e campos/URLs efetivamente propostos pela IA. Isso permite uma revisão por campos sem extrair valores por suposição do texto.
+
+As sugestões de GET acima não são chamadas pela versão atual da web; o usuário avisará quando as rotas reais estiverem prontas.
+
+## Dashboard Databricks
+
+A página está preparada para o iframe configurado por `VITE_DATABRICKS_DASHBOARD_URL`, com título acessível, altura responsiva e opção de abrir em outra aba. Não são acrescentados tokens à URL. Sem a URL, a interface mostra um estado de espera, sem gráficos ou números fictícios.
+
+A URL ainda será fornecida pelo usuário. O [Databricks documenta o iframe de dashboards publicados](https://docs.databricks.com/aws/en/dashboards/share/embedding), as origens autorizadas e as permissões de leitura. O iframe básico pode pedir login no Databricks; a sessão FIXA não concede acesso ao BI automaticamente. Não houve validação com dashboard real, alteração de conta/plano ou autenticação de service principal.
+
+## API Web e validação real
+
+O login de exemplo autorizado pelo usuário foi enviado ao endpoint publicado `/auth/login` com os três campos do contrato (`email`, `senha`, `cnpj`). A API retornou **HTTP 500**, com mensagem de erro interno. O formato dos campos foi conferido no OpenAPI. Não houve autenticação real bem-sucedida nem chamada autenticada aos modelos nesta etapa; o responsável pela API precisa verificar os logs/configuração da revisão publicada.
+
+O frontend envia a senha pelo transporte HTTPS e não reproduz bcrypt no navegador. Os segredos de banco, JWT, Redis e SMTP fornecidos no chat não foram colocados no frontend, em `.env.local`, em artefatos ou no Git. Sua rotação foi recomendada ao usuário. Não foi usado acesso direto ao banco compartilhado.
+
+Foi confirmada a conexão real pelo proxy da web: saúde HTTP 200 e POST sem token HTTP 401, preservando a autenticação da IA. Isso comprova encaminhamento, não inferência.
+
+## Verificação da interface
+
+Os testes do navegador usam respostas HTTP controladas e credenciais fictícias apenas no processo de QA. Eles verificam multipart, envio somente da URL retornada, bloqueio de duplo envio, Não sem criação, correção seguida de Sim, emoções, texto seguro, finalização explícita, navegação da sessão e iframe. Não equivalem a upload Cloudinary, criação ou inferência real na AWS.
+
+Evidências controladas:
+
+- [Revisão da proposta em desktop](evidencias/manu-web-2026-10-25/proposta-desktop-controlada.png)
+- [Correção em celular](evidencias/manu-web-2026-10-25/correcao-mobile-controlada.png)
+- [Iframe com URL e conteúdo de QA](evidencias/manu-web-2026-10-25/dashboard-iframe-controlado.png)
+
+Execução final: **71 testes aprovados**, `format:check`, `lint` e `build` aprovados. Edge: desktop 1440×960 e celular 390×844, sem erro JavaScript nem transbordamento horizontal. A revisão no celular foi ajustada para reservar o espaço ao cartão e ao campo de correção. Os detalhes da execução são registrados na Issue #11. Aprovação, merge, deploy e vínculo ao GitHub Projects não são presumidos. O escopo desta continuação é somente a web.
