@@ -4,18 +4,24 @@ import { createCloudinaryUploader, maxImageSize } from '../src/services/cloudina
 const image = () => new File(['image-fixture'], 'foto.png', { type: 'image/png' })
 test('upload envia multipart ao Cloudinary sem Bearer da API e devolve somente secure_url', async () => {
   let calls = 0
-  const service = createCloudinaryUploader('fixa-test', 'preset-test', async (url, options) => {
-    calls++
-    assert.equal(url, 'https://api.cloudinary.com/v1_1/fixa-test/image/upload')
-    assert.equal(options.method, 'POST')
-    assert.equal(options.credentials, 'omit')
-    assert.equal(options.headers, undefined)
-    assert.equal(options.body.get('upload_preset'), 'preset-test')
-    assert.equal(options.body.get('file').name, 'foto.png')
-    return Response.json({
-      secure_url: 'https://res.cloudinary.com/fixa-test/image/upload/foto.png',
-    })
-  })
+  const service = createCloudinaryUploader(
+    'fixa-test',
+    'preset-test',
+    async (url, options) => {
+      calls++
+      assert.equal(url, 'https://api.cloudinary.com/v1_1/fixa-test/image/upload')
+      assert.equal(options.method, 'POST')
+      assert.equal(options.credentials, 'omit')
+      assert.equal(options.headers, undefined)
+      assert.equal(options.body.get('upload_preset'), 'preset-test')
+      assert.equal(options.body.get('folder'), 'solicitacoes')
+      assert.equal(options.body.get('file').name, 'foto.png')
+      return Response.json({
+        secure_url: 'https://res.cloudinary.com/fixa-test/image/upload/foto.png',
+      })
+    },
+    'solicitacoes',
+  )
   assert.equal(
     await service.upload(image()),
     'https://res.cloudinary.com/fixa-test/image/upload/foto.png',

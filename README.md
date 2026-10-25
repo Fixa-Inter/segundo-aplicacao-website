@@ -51,6 +51,7 @@ VITE_AI_BASE_URL=/api/ia
 AI_PROXY_TARGET=https://ia-api.fixa.solutions
 VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
+VITE_CLOUDINARY_FOLDER=
 VITE_DATABRICKS_DASHBOARD_URL=
 ```
 
@@ -58,7 +59,7 @@ O Vite encaminha `/api/ia` para o serviço existente; a Vercel tem a regra equiv
 
 As conversas da sessão usam somente respostas reais da API e permanecem em memória até recarregar a página ou sair da conta. O histórico completo aguarda as rotas do responsável pela IA. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
 
-Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O upload está implementado para preset unsigned autorizado, mas precisa do cloud name e preset; se a equipe escolher assinatura, falta o contrato da rota de assinatura. Não inclua API Secret no frontend. O dashboard recebe a URL de incorporação do Databricks quando ela for fornecida.
+Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O cloud name, o preset unsigned e a pasta fornecidos foram configurados no `.env.local` desta máquina; um upload real foi validado no navegador. Outras máquinas/implantação precisam configurar as três variáveis públicas de Cloudinary. Se a equipe escolher assinatura futuramente, será necessário o contrato da rota de assinatura. Não inclua API Secret no frontend. O dashboard recebe a URL de incorporação do Databricks quando ela for fornecida.
 
 Na verificação atual, o login de exemplo retornou HTTP 500 no serviço da AWS; isso precisa de diagnóstico no backend antes da validação com usuário real. Consulte [contrato, pendências e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
 

@@ -16,6 +16,7 @@ VITE_AI_BASE_URL=/api/ia
 AI_PROXY_TARGET=https://ia-api.fixa.solutions
 VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
+VITE_CLOUDINARY_FOLDER=
 VITE_DATABRICKS_DASHBOARD_URL=
 ```
 
@@ -67,9 +68,13 @@ Valor desconhecido usa NEUTRO. A espera por uma resposta usa AGUARDANDO. Cada im
 
 O usuário seleciona até três arquivos JPG, PNG, WEBP ou GIF, com até 5 MB por arquivo. A web mostra prévia e estado do upload; erros permitem tentar novamente ou remover a imagem. O envio da mensagem fica bloqueado enquanto há upload pendente ou falha não resolvida.
 
-O fluxo implementado faz multipart para `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload` com arquivo e `upload_preset`, sem Bearer da API FIXA nem API Secret. Só o `secure_url` HTTPS retornado segue em `imagens` no POST da IA. O tipo de autenticação segue o [upload de cliente do Cloudinary](https://cloudinary.com/documentation/client_side_uploading): esta implementação exige um preset unsigned autorizado. Se a equipe usar uploads assinados, falta informar a rota do backend que gera a assinatura e seu contrato.
+O fluxo implementado faz multipart para `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload` com arquivo, `upload_preset` e a pasta configurada em `VITE_CLOUDINARY_FOLDER`, sem Bearer da API FIXA nem API Secret. Só o `secure_url` HTTPS retornado segue em `imagens` no POST da IA. O tipo de autenticação segue o [upload de cliente do Cloudinary](https://cloudinary.com/documentation/client_side_uploading): esta implementação exige um preset unsigned autorizado. Se a equipe usar uploads assinados, falta informar a rota do backend que gera a assinatura e seu contrato.
 
-**Pendência:** cloud name e preset ainda não foram fornecidos na implementação atual. O `.env` de banco/JWT/e-mail não contém esses parâmetros. Nenhum upload real ou assinatura real foi validado. Valores controlados de QA foram usados apenas no processo temporário de testes, sem gravá-los no `.env.local` ou apresentá-los como configuração válida.
+**Configuração concluída:** após fornecer os parâmetros, o usuário autorizou cloud name, preset e pasta `solicitacoes`. Esses três valores públicos foram aplicados ao `.env.local`, ignorado pelo Git; a chave adicional informada não foi usada nem gravada na web. A implantação/outras máquinas precisam configurar suas variáveis correspondentes.
+
+**Upload real verificado no Edge:** um PNG branco de 1 pixel (89 bytes) foi selecionado na interface, enviado sem Bearer/assinatura e armazenado na pasta `solicitacoes`. O Cloudinary retornou HTTP 200 e `secure_url` HTTPS; a URL retornou HTTP 200 e a interface mostrou Imagem pronta, sem erro JavaScript. Somente o login de acesso à interface foi controlado, pois o login AWS havia retornado 500; o upload Cloudinary não foi interceptado. Nenhuma mensagem ou imagem foi enviada à IA nesta verificação.
+
+O provedor não retornou token de exclusão para esse upload unsigned. O único asset de teste foi preservado, e seu `public_id`/URL estão registrados em `dev.local/cloudinary-upload-check.json`, ignorado pelo Git, para eventual remoção pelo administrador. Nenhuma credencial administrativa foi usada. A validação não comprova criação de registros ou inferência da IA.
 
 ## Conversas e histórico
 
@@ -102,7 +107,7 @@ Foi confirmada a conexão real pelo proxy da web: saúde HTTP 200 e POST sem tok
 
 ## Verificação da interface
 
-Os testes do navegador usam respostas HTTP controladas e credenciais fictícias apenas no processo de QA. Eles verificam multipart, envio somente da URL retornada, bloqueio de duplo envio, Não sem criação, correção seguida de Sim, emoções, texto seguro, finalização explícita, navegação da sessão e iframe. Não equivalem a upload Cloudinary, criação ou inferência real na AWS.
+Os testes do navegador usam respostas HTTP controladas e credenciais fictícias apenas no processo de QA. Eles verificam multipart, envio somente da URL retornada, bloqueio de duplo envio, Não sem criação, correção seguida de Sim, emoções, texto seguro, finalização explícita, navegação da sessão e iframe. A execução controlada não equivale a criação ou inferência real na AWS. A verificação real de Cloudinary posterior está descrita separadamente acima.
 
 Evidências controladas:
 

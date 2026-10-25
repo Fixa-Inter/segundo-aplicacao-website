@@ -15,6 +15,8 @@ import styles from './Manu.module.css'
 const uploader = createCloudinaryUploader(
   import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
   import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
+  fetch,
+  import.meta.env.VITE_CLOUDINARY_FOLDER,
 )
 interface Attachment {
   id: string

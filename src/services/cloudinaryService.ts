@@ -9,6 +9,7 @@ export function createCloudinaryUploader(
   cloudName?: string,
   uploadPreset?: string,
   request: typeof fetch = fetch,
+  folder?: string,
 ) {
   const configured = Boolean(
     cloudName && /^[a-zA-Z0-9_-]+$/.test(cloudName) && uploadPreset?.trim(),
@@ -21,6 +22,7 @@ export function createCloudinaryUploader(
       const body = new FormData()
       body.append('file', file)
       body.append('upload_preset', uploadPreset!)
+      if (folder?.trim()) body.append('folder', folder.trim())
       const response = await request(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: 'POST',
         body,
