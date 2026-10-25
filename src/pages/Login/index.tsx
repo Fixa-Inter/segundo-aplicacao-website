@@ -64,6 +64,7 @@ export default function Login() {
             <div className={styles.fields}>
               <AuthField
                 id="login-cnpj"
+                name="company-cnpj"
                 label={t('CNPJ')}
                 autoComplete="off"
                 placeholder={t('Digite o CNPJ da empresa')}
@@ -79,9 +80,12 @@ export default function Login() {
               />
               <AuthField
                 id="login-email"
+                name="username"
                 label={t('E-mail')}
                 type="email"
-                autoComplete="off"
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
                 placeholder={t('Digite o seu e-mail')}
                 maxLength={100}
                 required
@@ -95,9 +99,10 @@ export default function Login() {
               />
               <AuthField
                 id="login-password"
+                name="password"
                 label={t('Senha')}
                 type={showPassword ? 'text' : 'password'}
-                autoComplete="off"
+                autoComplete="current-password"
                 placeholder={t('Coloque sua senha')}
                 maxLength={128}
                 required

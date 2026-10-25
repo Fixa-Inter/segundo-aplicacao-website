@@ -26,6 +26,8 @@ Entre com CNPJ numérico, e-mail institucional e senha de uma conta real de gest
 
 O servidor precisa permitir a origem da web em `app.cors.allowed-origins`. O contrato consultado permite `http://localhost:5173` por padrão; confira a porta exibida pelo Vite. Em produção, configure a origem HTTPS da web no backend e `VITE_API_BASE_URL` no ambiente de build da hospedagem. Variáveis `VITE_*` são públicas: não coloque senhas de banco, chaves JWT ou credenciais de SMTP nelas.
 
+O servidor de desenvolvimento usa a porta **5173** e encerra com uma mensagem se ela estiver ocupada, em vez de mudar para 5174 e perder a origem permitida pela API. Nesse caso, use a instância já aberta ou encerre-a no terminal antes de iniciar outra. O idioma segue a ordem de `navigator.languages`, com português como alternativa quando nenhum idioma disponível for suportado. Uma escolha explícita nas Configurações prevalece. Na migração das preferências antigas, um idioma diferente do antigo padrão português é preservado como escolha manual; o antigo padrão passa a seguir o navegador. O tema é preservado; não há seletor adicional no login.
+
 Os comandos chamam as ferramentas diretamente pelo Node para funcionar também em caminhos Windows com `&`, como `OneDrive - Instituto J&F`.
 
 ## Executar a API localmente

@@ -753,6 +753,7 @@ const messages: Record<string, readonly [string, string, string]> = {
   Perfil: ['Profile', 'Perfil', '个人资料'],
   Configurações: ['Settings', 'Configuración', '设置'],
   Idioma: ['Language', 'Idioma', '语言'],
+  'Idioma do navegador': ['Browser language', 'Idioma del navegador', '浏览器语言'],
   'Idioma da interface': ['Interface language', 'Idioma de la interfaz', '界面语言'],
   Aparência: ['Appearance', 'Apariencia', '外观'],
   Claro: ['Light', 'Claro', '浅色'],
