@@ -73,7 +73,7 @@ export function TechnicianDetails({
           </p>
           <p>
             <FigmaIcon name="phone" />
-            {technician.phone}
+            {technician.phone || t('Não informado')}
           </p>
           <p>
             <FigmaIcon name="profile-calendar" />

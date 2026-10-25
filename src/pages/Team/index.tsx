@@ -55,8 +55,11 @@ export default function Team() {
       .then((points) => {
         if (active) setPerformance(points)
       })
-      .catch(() => {
-        if (active) setPerformanceError('Não foi possível carregar o desempenho.')
+      .catch((reason) => {
+        if (active)
+          setPerformanceError(
+            reason instanceof Error ? reason.message : 'Não foi possível carregar o desempenho.',
+          )
       })
       .finally(() => {
         if (active) setPerformanceLoading(false)
@@ -128,7 +131,7 @@ export default function Team() {
       await removeTechnician(deleting.id)
       setItems(await listTechnicians())
       setPage(1)
-      setNotice('Técnico excluído nesta sessão de demonstração.')
+      setNotice('Técnico desativado com sucesso.')
       setDeleting(null)
       requestAnimationFrame(() => addButtonRef.current?.focus())
     } catch (reason) {
@@ -144,19 +147,20 @@ export default function Team() {
       <TechnicianForm
         technician={editing}
         manager={manager}
-        onSubmit={(input, competencies) => saveTechnician(input, editing?.id, competencies)}
-        onCancel={() => setFormOpen(false)}
+        onSubmit={(input, competencies, persistedId) =>
+          saveTechnician(input, persistedId ?? editing?.id, competencies)
+        }
+        onCancel={() => {
+          setFormOpen(false)
+          setLoadAttempt((value) => value + 1)
+        }}
         onSaved={(saved) => {
           setItems((current) =>
             editing
               ? current.map((item) => (item.id === saved.id ? saved : item))
               : [...current, saved],
           )
-          setNotice(
-            editing
-              ? 'Técnico atualizado nesta sessão de demonstração.'
-              : 'Técnico cadastrado nesta sessão de demonstração. Nenhuma conta real foi criada.',
-          )
+          setNotice(editing ? 'Técnico atualizado com sucesso.' : 'Técnico cadastrado com sucesso.')
           setPage(1)
           setFormOpen(false)
         }}
@@ -341,7 +345,8 @@ export default function Team() {
                             <button
                               type="button"
                               className={`${styles.iconButton} ${styles.delete}`}
-                              aria-label={t('Excluir {name}', { name: item.name })}
+                              aria-label={t('Desativar {name}', { name: item.name })}
+                              disabled={item.status === 'Inativo'}
                               onClick={() => setDeleting(item)}
                             >
                               <FigmaIcon name="trash" />
@@ -365,9 +370,9 @@ export default function Team() {
       <ConfirmDialog
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}
-        variant="delete"
+        variant="deactivate"
         subject={deleting?.name}
-        confirmLabel="Excluir"
+        confirmLabel="Desativar"
         busy={busy}
         onConfirm={confirmDelete}
       />

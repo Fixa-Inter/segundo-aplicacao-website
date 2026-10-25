@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { validateCnpj, validateLoginFields } from '../src/utils/validation.ts'
-import { loginMock } from '../src/services/authService.ts'
+import { loginMock } from '../src/mocks/services/authService.ts'
 
 const credentials = { cnpj: '12.345.678/0001-95', email: 'demo@fixa.test', password: 'demo1234' }
 

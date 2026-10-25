@@ -9,7 +9,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { getProfile, saveProfile } from '../../services/managementService'
 import { useAuth } from '../../contexts/useAuth'
 import type { ManagerProfile } from '../../types/management'
-import { validateProfile } from '../../utils/managementValidation'
+import { validateProfile } from '../../utils/apiValidation'
 import { formatDate as formatDateInput, parseDateInput } from '../../utils/calendar'
 import avatar from '../../assets/figma/avatar.png'
 import common from '../management.module.css'
@@ -117,6 +117,8 @@ export default function Profile() {
     if (busy) return
     const input = { ...profile, birthDate: parseDateInput(birthDateText) }
     const errors = validateProfile(input)
+    if (savedProfile.birthDate && !birthDateText)
+      errors.birthDate = 'A data de nascimento cadastrada não pode ser removida.'
     if (birthDateText && !input.birthDate)
       errors.birthDate = 'Informe a data no formato DD/MM/AAAA.'
     setFieldErrors(errors)
@@ -148,9 +150,9 @@ export default function Profile() {
       setSavedProfile(saved)
       updateName(saved.name)
       setEditing(false)
-      setNotice('Perfil atualizado nesta sessão de demonstração.')
-    } catch {
-      setError('Não foi possível atualizar o perfil.')
+      setNotice('Perfil atualizado com sucesso.')
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Não foi possível atualizar o perfil.')
     } finally {
       setPending(null)
       setBusy(false)
@@ -220,7 +222,7 @@ export default function Profile() {
                     <label htmlFor={`profile-${field.key}`}>{t(field.label)}</label>
                     <input
                       id={`profile-${field.key}`}
-                      disabled={busy}
+                      disabled={busy || !['name', 'email', 'birthDate'].includes(field.key)}
                       type={field.type ?? 'text'}
                       maxLength={field.maxLength}
                       value={field.key === 'birthDate' ? birthDateText : profile[field.key]}
@@ -267,7 +269,7 @@ export default function Profile() {
                 </p>
                 <p>
                   <FigmaIcon name="phone" />
-                  {profile.phone}
+                  {profile.phone || t('Não informado')}
                 </p>
                 <p>
                   <FigmaIcon name="profile-calendar" />

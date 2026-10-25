@@ -8,7 +8,21 @@ export interface Address {
   complement: string
 }
 
+export interface ShiftOption {
+  id: string
+  name: string
+}
+export interface LocationOption {
+  id: string
+  name: string
+}
+
 export interface Technician extends Address {
+  unitId?: string
+  jobTitle?: string
+  shiftId?: string
+  shiftIds?: string[]
+  password?: string
   id: string
   name: string
   email: string
@@ -27,6 +41,8 @@ export type TechnicianInput = Omit<
 >
 
 export interface CalendarEvent {
+  locationId?: string
+  endDate?: string
   id: string
   title: string
   date: string

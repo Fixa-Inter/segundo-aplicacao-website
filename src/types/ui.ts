@@ -77,7 +77,7 @@ export interface FigmaIconProps {
 }
 export interface ConfirmDialogProps {
   opened: boolean
-  variant: 'delete' | 'save' | 'logout' | 'discard'
+  variant: 'delete' | 'save' | 'logout' | 'discard' | 'deactivate'
   subject?: string
   confirmLabel: string
   busy?: boolean
@@ -102,7 +102,11 @@ export interface EventDetailsProps {
 export interface TechnicianFormProps {
   technician: Technician | null
   manager: ManagerProfile
-  onSubmit: (input: TechnicianInput, competencies: CompetencyInput[]) => Promise<Technician>
+  onSubmit: (
+    input: TechnicianInput,
+    competencies: CompetencyInput[],
+    persistedId?: string,
+  ) => Promise<Technician>
   onSaved: (technician: Technician) => void
   onCancel: () => void
 }

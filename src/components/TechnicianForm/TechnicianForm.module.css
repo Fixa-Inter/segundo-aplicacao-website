@@ -50,6 +50,7 @@
 }
 .birthDate,
 .phone,
+.jobTitle,
 .access,
 .postalCode,
 .district,
@@ -301,4 +302,20 @@
   .actions button {
     min-width: 120px;
   }
+}
+
+.shiftInput {
+  min-height: 60px;
+  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: 30px;
+  background: var(--fixa-field-bg, #f3f4f9);
+}
+.shiftSelect input {
+  min-height: 24px;
+  width: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }

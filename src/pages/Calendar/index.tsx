@@ -25,7 +25,7 @@ export default function Calendar() {
   const linkedDate =
     typeof state?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(state.date)
       ? state.date
-      : '2026-03-11'
+      : new Date().toLocaleDateString('sv-SE')
   const [month, setMonth] = useState(linkedDate.slice(0, 7))
   const [selectedDay, setSelectedDay] = useState(linkedDate)
   const [details, setDetails] = useState<CalendarEvent | null>(null)
@@ -108,7 +108,7 @@ export default function Calendar() {
       await removeEvent(deleting.id)
       setEvents(await listEvents())
       setDeleting(null)
-      setNotice('Evento excluído nesta sessão de demonstração.')
+      setNotice('Evento excluído com sucesso.')
       requestAnimationFrame(() =>
         calendarRef.current
           ?.querySelector<HTMLButtonElement>(`[data-date="${selectedDay}"]`)
@@ -142,11 +142,7 @@ export default function Calendar() {
           )
           setSelectedDay(saved.date)
           setMonth(saved.date.slice(0, 7))
-          setNotice(
-            editing
-              ? 'Evento atualizado nesta sessão de demonstração.'
-              : 'Evento criado nesta sessão de demonstração.',
-          )
+          setNotice(editing ? 'Evento atualizado com sucesso.' : 'Evento criado com sucesso.')
           setFormOpen(false)
         }}
       />

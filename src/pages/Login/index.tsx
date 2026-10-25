@@ -83,7 +83,7 @@ export default function Login() {
                 type="email"
                 autoComplete="off"
                 placeholder={t('Digite o seu e-mail')}
-                maxLength={120}
+                maxLength={100}
                 required
                 disabled={loading || recovering}
                 value={form.email}
@@ -134,7 +134,7 @@ export default function Login() {
               {t(loading ? 'Entrando…' : 'Entrar')}
             </button>
             <p className={styles.demo}>
-              {t('Acesso demonstrativo. Use CNPJ e e-mail em formato válido e uma senha fictícia.')}
+              {t('Entre com o CNPJ da unidade e suas credenciais de acesso.')}
             </p>
             <Link className={styles.aboutLink} to="/sobre">
               {t('Conheça o projeto')}

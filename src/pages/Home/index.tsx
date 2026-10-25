@@ -106,18 +106,23 @@ export default function Home() {
               <FigmaIcon name="arrow-up-right" />
             </Link>
           </div>
-          <DataChart
-            fill
-            softBars
-            data={monthlyTasks.map((item) => ({
-              label: t(item.month),
-              value: item.value,
-              accent: item.month === 'Mar',
-            }))}
-            label={t('Tarefas por mês. {name}.', {
-              name: monthlyTasks.map((item) => `${t(item.month)}: ${item.value}`).join('; '),
-            })}
-          />
+          {!monthlyTasks.length && (
+            <p>{t('Os indicadores aguardam a conexão com a API de Dashboard/BI.')}</p>
+          )}
+          {monthlyTasks.length > 0 && (
+            <DataChart
+              fill
+              softBars
+              data={monthlyTasks.map((item) => ({
+                label: t(item.month),
+                value: item.value,
+                accent: item.month === 'Mar',
+              }))}
+              label={t('Tarefas por mês. {name}.', {
+                name: monthlyTasks.map((item) => `${t(item.month)}: ${item.value}`).join('; '),
+              })}
+            />
+          )}
         </section>
         <section className={styles.eventPanel} aria-label={t('Calendário resumido')}>
           <div className={styles.monthHeader}>

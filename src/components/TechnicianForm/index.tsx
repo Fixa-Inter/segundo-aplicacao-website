@@ -1,10 +1,13 @@
+import { MultiSelect } from '@mantine/core'
 import { ConfirmDialog } from '../ConfirmDialog'
 import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
 import { hasFormChanges } from '../../utils/formChanges'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
+import { listShifts, PartialSaveError } from '../../services/managementService'
+import type { ShiftOption } from '../../types/management'
 import type { Address, TechnicianInput } from '../../types/management'
 import type {
   TechnicianFormFieldsProps,
@@ -14,7 +17,7 @@ import type {
 import type { CompetencyInput } from '../../types/competency'
 import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies'
 import { getCompetencyPresentation, parseCompetencyRating } from '../../utils/competencies'
-import { validateDemoPassword, validateTechnician } from '../../utils/managementValidation'
+import { validatePassword, validateTechnician } from '../../utils/apiValidation'
 import { formatDate, parseDateInput } from '../../utils/calendar'
 import styles from './TechnicianForm.module.css'
 
@@ -27,7 +30,7 @@ const fields: {
   { key: 'name', label: 'Nome completo', maxLength: 80 },
   { key: 'birthDate', label: 'Data de nascimento', maxLength: 10 },
   { key: 'email', label: 'E-mail', type: 'email', maxLength: 120 },
-  { key: 'phone', label: 'Telefone', type: 'tel', maxLength: 20 },
+  { key: 'jobTitle', label: 'Cargo', maxLength: 100 },
   { key: 'specialty', label: 'Especialidade', maxLength: 60 },
   { key: 'shift', label: 'Turno', maxLength: 13 },
 ]
@@ -87,11 +90,37 @@ function TechnicianFormFields({
     name: technician?.name ?? '',
     birthDate: technician?.birthDate ?? '',
     email: technician?.email ?? '',
-    phone: technician?.phone ?? '',
+    phone: '',
+    jobTitle: technician?.jobTitle ?? 'Técnico de manutenção',
+    shiftId: technician?.shiftId ?? '',
+    shiftIds: technician?.shiftIds ?? [],
     specialty: technician?.specialty ?? '',
     shift: technician?.shift ?? '08:00 - 16:00',
     status: technician?.status ?? 'Ativo',
   })
+  const [persistedId, setPersistedId] = useState<string | undefined>(technician?.id)
+  const [shifts, setShifts] = useState<ShiftOption[]>([])
+  const [shiftError, setShiftError] = useState('')
+  const [shiftAttempt, setShiftAttempt] = useState(0)
+  useEffect(() => {
+    let active = true
+    listShifts()
+      .then((items) => {
+        if (active) {
+          setShifts(items)
+          setShiftError('')
+        }
+      })
+      .catch((reason) => {
+        if (active)
+          setShiftError(
+            reason instanceof Error ? reason.message : 'Não foi possível carregar os turnos.',
+          )
+      })
+    return () => {
+      active = false
+    }
+  }, [shiftAttempt])
   const [password, setPassword] = useState('')
   const [birthDate, setBirthDate] = useState(
     technician ? formatDate(technician.birthDate, { dateStyle: 'short' }) : '',
@@ -110,7 +139,11 @@ function TechnicianFormFields({
       })),
     ).highlights[0]?.name ?? ''
   const [ratingErrors, setRatingErrors] = useState<Record<string, string>>({})
-  const [initial] = useState(() => ({ ...form, birthDateText: birthDate, password }))
+  const [initial] = useState(() => ({
+    form: JSON.stringify(form),
+    birthDateText: birthDate,
+    password,
+  }))
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [passwordError, setPasswordError] = useState<string | undefined>()
   const [errors, setErrors] = useState<Partial<Record<keyof TechnicianInput, string>>>({})
@@ -119,7 +152,7 @@ function TechnicianFormFields({
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const isDirty =
-    hasFormChanges({ ...form, birthDateText: birthDate, password }, initial) ||
+    hasFormChanges({ form: JSON.stringify(form), birthDateText: birthDate, password }, initial) ||
     hasFormChanges(ratings, initialRatings)
   const requestExit = useUnsavedForm(isDirty, busy)
   const cancel = () => requestExit(onCancel)
@@ -132,7 +165,7 @@ function TechnicianFormFields({
         <input
           id={id}
           type={field.type ?? 'text'}
-          value={field.key === 'birthDate' ? birthDate : form[field.key]}
+          value={field.key === 'birthDate' ? birthDate : String(form[field.key] ?? '')}
           autoComplete="off"
           autoFocus={field.key === 'name'}
           required
@@ -166,9 +199,14 @@ function TechnicianFormFields({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (busy) return
-    const input = { ...form, specialty: draftSpecialty, birthDate: parseDateInput(birthDate) }
+    const input = {
+      ...form,
+      specialty: draftSpecialty,
+      birthDate: parseDateInput(birthDate),
+      password: persistedId ? undefined : password,
+    }
     const validation = validateTechnician(input)
-    const invalidPassword = technician ? undefined : validateDemoPassword(password)
+    const invalidPassword = persistedId ? undefined : validatePassword(password)
     const competencies: CompetencyInput[] = []
     const invalidRatings: Record<string, string> = {}
     for (const item of initialCompetencies) {
@@ -194,11 +232,14 @@ function TechnicianFormFields({
     const { input, competencies } = pending
     setBusy(true)
     try {
-      // A senha apenas valida o formulário demonstrativo e nunca é enviada ao repositório em memória.
-      const saved = await onSubmit(input, competencies)
+      const saved = await onSubmit(input, competencies, persistedId)
       setPassword('')
       onSaved(saved)
     } catch (reason) {
+      if (reason instanceof PartialSaveError) {
+        setPersistedId(reason.resourceId)
+        setPassword('')
+      }
       setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o técnico.')
     } finally {
       setPending(null)
@@ -223,21 +264,19 @@ function TechnicianFormFields({
       </h1>
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
         <fieldset disabled={busy}>
-          <legend className={styles.srOnly}>
-            {t('Informações do técnico e endereço herdado do gestor')}
-          </legend>
+          <legend className={styles.srOnly}>{t('Informações do técnico')}</legend>
           <div className={`${styles.grid} ${technician ? styles.edit : ''}`}>
             {fields.slice(0, 3).map(renderField)}
             {!technician && (
               <div className={`${styles.field} ${styles.password}`}>
-                <label htmlFor="technician-password">{t('Senha de demonstração *')}</label>
+                <label htmlFor="technician-password">{t('Senha inicial *')}</label>
                 <span className={styles.passwordField}>
                   <input
                     id="technician-password"
                     type={passwordVisible ? 'text' : 'password'}
                     value={password}
                     autoComplete="off"
-                    maxLength={128}
+                    maxLength={100}
                     required
                     aria-invalid={Boolean(passwordError)}
                     aria-describedby="technician-password-rule technician-password-error"
@@ -248,11 +287,7 @@ function TechnicianFormFields({
                   />
                   <button
                     type="button"
-                    aria-label={t(
-                      passwordVisible
-                        ? 'Ocultar senha de demonstração'
-                        : 'Mostrar senha de demonstração',
-                    )}
+                    aria-label={t(passwordVisible ? 'Ocultar senha' : 'Mostrar senha')}
                     aria-pressed={passwordVisible}
                     onClick={() => setPasswordVisible((current) => !current)}
                   >
@@ -278,7 +313,7 @@ function TechnicianFormFields({
                 aria-describedby="technician-access-note"
               />
             </div>
-            {addressFields.map((field) => (
+            {(manager.address ? addressFields : []).map((field) => (
               <div className={`${styles.field} ${styles[field.key]}`} key={field.key}>
                 <label htmlFor={`technician-${field.key}`}>{t(field.label)}</label>
                 <input
@@ -293,33 +328,62 @@ function TechnicianFormFields({
         </fieldset>
         <div className={styles.rules}>
           <p className={styles.note}>
-            {t(
-              'Use dados fictícios. Nenhuma conta ou senha real será criada. Os campos com * são obrigatórios nesta demonstração.',
-            )}
+            {t('Os campos com * são obrigatórios. As notas de competências são opcionais.')}
           </p>
           {!technician && (
             <p id="technician-password-rule" className={styles.note}>
-              {t(
-                'Senha: regra provisória de no mínimo 8 caracteres, maiúscula, minúscula e símbolo especial. A senha não é armazenada.',
-              )}
+              {t('Senha inicial: de 8 a 100 caracteres.')}
             </p>
           )}
           <p id="technician-access-note" className={styles.note}>
             {t('O tipo TÉCNICO é definido automaticamente pelo cadastro do gestor.')}
           </p>
           <p id="technician-address-note" className={styles.note}>
-            {t('O endereço de')}
-            {manager.name} {t('será aplicado ao salvar e não pode ser alterado neste cadastro.')}
+            {t('O técnico será vinculado à unidade do turno selecionado.')}
           </p>
         </div>
         <fieldset disabled={busy}>
-          <legend>{t('Informações operacionais da demonstração')}</legend>
+          <legend>{t('Informações operacionais')}</legend>
           <div className={styles.operational}>
             <div className={styles.field}>
               <label htmlFor="technician-specialty">{t('Especialidade')}</label>
               <input id="technician-specialty" value={t(draftSpecialty || 'Sem notas')} readOnly />
             </div>
-            {renderField(fields[5])}
+            <div className={styles.field}>
+              <label htmlFor="technician-shift">{t('Turnos')} *</label>
+              <MultiSelect
+                id="technician-shift"
+                className={styles.shiftSelect}
+                classNames={{ input: styles.shiftInput }}
+                data={shifts.map((shift) => ({ value: shift.id, label: shift.name }))}
+                value={form.shiftIds ?? []}
+                placeholder={t('Selecione os turnos')}
+                disabled={busy}
+                searchable
+                clearable
+                aria-invalid={Boolean(errors.shiftId)}
+                onChange={(shiftIds) => {
+                  setForm((current) => ({ ...current, shiftIds, shiftId: shiftIds[0] ?? '' }))
+                  setErrors((current) => ({ ...current, shiftId: undefined }))
+                }}
+              />
+              {!shifts.length && !shiftError && (
+                <p>{t('Nenhum turno ativo cadastrado na unidade.')}</p>
+              )}
+              {shiftError && (
+                <div role="alert">
+                  <p>{shiftError}</p>
+                  <button type="button" onClick={() => setShiftAttempt((value) => value + 1)}>
+                    {t('Tentar novamente')}
+                  </button>
+                </div>
+              )}
+              {errors.shiftId && (
+                <p role="alert" className={styles.error}>
+                  {t(errors.shiftId)}
+                </p>
+              )}
+            </div>
             <div className={styles.field}>
               <label htmlFor="technician-status">{t('Situação')}</label>
               <select

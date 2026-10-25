@@ -1,107 +1,76 @@
 # FIXA Web
 
-Repositório da organização FIXA para as entregas de Desenvolvimento de Aplicações Dinâmicas do segundo ano: [Fixa-Inter/segundo-aplicacao-website](https://github.com/Fixa-Inter/segundo-aplicacao-website).
+Frontend de gestão de manutenção em React 19, TypeScript e Vite. Repositório: [segundo-aplicacao-website](https://github.com/Fixa-Inter/segundo-aplicacao-website).
 
-Aplicação de gestão de manutenção para o perfil gestor, em **React 19, TypeScript e Vite**. A interface segue os frames **Website v2** do [Figma acadêmico](https://www.figma.com/design/VeZNU2w9BMTKBpa3z24BxL/Fixa?node-id=3665-79544). O projeto está em fase de **demonstração local**: a API e a base analítica ainda não foram entregues.
+## Executar
 
-## Executar e verificar
-
-Requer Node.js 22.18+ (os testes importam TypeScript pelo suporte nativo do Node). Verificado com Node **24.11.1**. Dentro de `fixa-web`:
+Use Node.js 24 e um servidor da [API Web FIXA](https://github.com/Fixa-Inter/segundo-api-web) em execução.
 
 ```bash
 npm ci
-npm run dev
-npm run build
-npm run lint
-npm test
-npm run format:check
 ```
 
-O Vite informa a URL local. `npm run preview` serve o build de `dist/`.
+Copie `.env.example` para `.env.local` e informe a URL **do servidor**, sem `/api/v1` no final:
 
-Em caminhos do Windows com `&`, como `OneDrive - Instituto J&F`, os scripts executam as ferramentas diretamente pelo Node. Isso evita a [falha dos atalhos `.cmd` do npm](https://github.com/npm/cmd-shim/issues/45). Os comandos acima continuam iguais, inclusive depois de reinstalar as dependências com `npm ci`.
+```dotenv
+VITE_API_BASE_URL=http://localhost:8080
+```
 
-## Contribuição e integração
+O endereço acima é um exemplo local. O link do repositório GitHub não é o endereço de execução da API. Reinicie o Vite depois de alterar a configuração.
 
-Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → PR para `dev` → revisão/CI → `hml` → homologação → `main`. O template de PR é o oficial da organização. A [Issue #7](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/7) registra a importação do histórico local, preservando os 64 commits anteriores e o histórico remoto.
+```bash
+npm run dev
+```
 
-## Demonstração
+Entre com CNPJ numérico, e-mail institucional e senha de uma conta real de gestor/administrador cadastrada na API. O acesso demonstrativo e o código fixo `123456` não funcionam nos serviços reais. Sem URL configurada, a web informa a configuração necessária; não substitui uma falha da API por dados fictícios.
 
-O Login exige três campos: CNPJ, e-mail e senha. Para demonstrar, use CNPJ `12.345.678/0001-95`, e-mail `demo@fixa.test` e senha fictícia `demo1234`. O mock verifica apenas o formato do CNPJ/e-mail e os campos obrigatórios; não consulta cadastro de empresa nem autentica credenciais reais. A sessão termina ao atualizar a página. Em recuperação, use um e-mail válido e o código `123456`; nenhum e-mail é enviado e nenhuma senha é alterada. Se o e-mail já estiver preenchido no Login, Esqueci minha senha abre diretamente a etapa de código, independentemente do CNPJ.
+O servidor precisa permitir a origem da web em `app.cors.allowed-origins`. O contrato consultado permite `http://localhost:5173` por padrão; confira a porta exibida pelo Vite. Em produção, configure a origem HTTPS da web no backend e `VITE_API_BASE_URL` no ambiente de build da hospedagem. Variáveis `VITE_*` são públicas: não coloque senhas de banco, chaves JWT ou credenciais de SMTP nelas.
 
-Nos detalhes do técnico, Competências destaca até três categorias avaliadas e permite expandir as restantes sem repetição; notas vazias aparecem como `_` na consulta. Sem avaliações, mostra “Sem notas”. A especialidade exibida acompanha a maior nota, com desempate pelo ID da categoria. No formulário, a especialidade é automática e os dez campos de nota são opcionais, sem placeholder. O gestor pode atribuir, editar ou remover inteiros de 0 a 10 e salvar junto com o cadastro. Sem avaliação é diferente de zero. As notas ficam somente na sessão em memória, isoladas por técnico. Compartilhamento com o app depende da API; não há sincronização entre app e web nesta versão. [Implementação e QA atuais](docs/COMPETENCIAS_ACABAMENTO_2026-10-15.md).
+Os comandos chamam as ferramentas diretamente pelo Node para funcionar também em caminhos Windows com `&`, como `OneDrive - Instituto J&F`.
 
-| Rota                         | Fluxo disponível nesta versão                                                                                                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/sobre`                     | Página pública de apresentação do projeto e acesso à demonstração                                                                                                               |
-| `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback                                                                                                         |
-| `/`                          | Home com banner original, indicadores, gráfico e resumo do calendário com todos os dias do mês em uma faixa horizontal rolável, setas de mês e links para o Calendário completo |
-| `/dashboard`                 | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos                                     |
-| `/equipe`                    | Busca, botão Filtrar, paginação numerada, detalhes com desempenho semanal/mensal, cadastro, edição e confirmação de exclusão **em memória** de técnicos                         |
-| `/calendario`                | Grade mensal, seleção de dia, modal de informações e criação, edição e confirmação de exclusão **em memória** de eventos com local, descrição, observação e horários            |
-| `/perfil`, `/alterar-senha`  | Dados do gestor editáveis **em memória**, confirmação de salvamento e página de troca de senha demonstrativa com senha antiga e nova                                            |
-| `/configuracoes`             | Português, inglês, espanhol e mandarim (chinês simplificado); temas claro e escuro, aplicados na hora                                                                           |
-| `/manu`                      | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente                                                                       |
+## Integração atual
 
-As ações em memória são perdidas ao sair, entrar novamente ou recarregar. Uma gravação iniciada antes do logout não altera a sessão seguinte. Não há endpoints inventados nem afirmação de persistência real. Os dados de exemplo estão em `src/mocks`; páginas acessam os services tipados de `src/services`. O cliente Axios em `src/services/api.ts` ficará disponível para integrar o contrato real quando existir. `.env.example` deixa `VITE_API_BASE_URL` comentada e sem URL presumida; variáveis `VITE_` são públicas e não devem conter segredos.
+| Fluxo | Comportamento |
+| --- | --- |
+| Login/sessão | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor |
+| Equipe | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação |
+| Competências | Dez categorias; notas opcionais de 0 a 10 inteiras na web; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente |
+| Calendário/Home | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão |
+| Perfil | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato |
+| Senha | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual |
+| Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real |
+| Manu | Interface informa indisponibilidade enquanto não houver API de conversas |
 
-O cadastro do gestor define acesso **TÉCNICO** automaticamente e copia seu endereço ao salvar. Os campos de endereço são somente para leitura. A senha de criação segue uma regra provisória e não é armazenada. Veja as [regras e decisões do cadastro](docs/REGRAS_CADASTRO_TECNICOS.md), incluindo os pontos a confirmar com a API.
+Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`. A sessão usa `sessionStorage` da aba para os tokens Bearer e a identificação mínima; senhas não são armazenadas. Em erro de renovação por token inválido, a sessão local é encerrada. O backend é responsável por autorização e isolamento entre unidades.
 
-A Manu preserva conversas entre rotas, inclusive respostas que terminem durante a navegação; login, logout e recarregamento limpam o histórico. Anexos guardam somente nome e tamanho: nenhum conteúdo é lido, enviado ou analisado. Use `Enter` para enviar a mensagem; `Shift + Enter` insere uma nova linha. O campo não possui alça de redimensionamento; textos longos continuam acessíveis pela rolagem interna.
+O cadastro, os turnos e as notas usam endpoints separados. Uma falha pode deixar uma parte salva. A web informa isso e conserva o ID retornado para completar a operação ao tentar novamente, sem reenviar a criação do usuário. Não há promessa de transação conjunta no frontend.
 
-A Equipe do gestor mostra apenas técnicos. A administração de gestores pertence ao escopo de Administração/RH, ainda sem interface e contrato nesta aplicação. As notificações e os selos repetidos de dados demonstrativos foram removidos por decisão do usuário; os limites dos mocks continuam descritos nesta documentação.
+Há diferenças relevantes entre o protótipo e a API: técnicos são desativados; o responsável de um evento não pode ser trocado na edição; turnos e locais precisam existir na unidade; o perfil de gestor não recebe dados de endereço/telefone. Consulte o [mapeamento e a verificação da integração](docs/INTEGRACAO_API_2026-10-25.md).
 
-No desktop, o botão no topo da navegação lateral recolhe e expande o menu em qualquer rota. Em telas menores, o botão do cabeçalho abre o menu móvel. Na Manu, a saudação permanece visível durante a conversa e “Novo chat” só fica disponível depois que a conversa atual recebe uma mensagem.
+## Verificar
 
-Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos criados. No Dashboard, a distribuição demonstrativa entre os seis técnicos iniciais preserva os totais e amostras de cada mês. Técnicos novos mostram indicadores vazios. Isto não representa produtividade real nem conexão com Data Mart.
+```bash
+npm run format:check
+npm run lint
+npm test
+npm run build
+```
 
-## Estrutura
+`tests/api-contract.test.mjs` verifica o transporte e os adaptadores usados em produção com respostas HTTP controladas. As suítes antigas continuam utilizando fixtures de demonstração explicitamente isoladas em `src/mocks/services`; não comprovam persistência real. Não há importação dessas fixtures pelos serviços de produção.
 
-- `src/pages`: telas com `index.tsx` e CSS Modules.
-- `src/components`: marca, campos, cards e layout reutilizáveis.
-- `src/contexts`: sessão demonstrativa e preferências de idioma/tema com Context e hooks.
-- `src/types`: contratos das entidades e props.
-- `src/services`: interface de dados da demonstração, preparada para substituição por API.
-- `src/mocks`: massa inicial e indicadores.
-- `src/utils`: validação, datas, semanas e leitura segura de preferências.
-- `src/i18n`: traduções da interface; nomes e conteúdo cadastrados são preservados.
-- `src/assets/figma`: imagens locais exportadas do protótipo, sem URLs temporárias em runtime.
+Em 25/10/2026, os fluxos foram conferidos em navegador isolado em 1280×720 e 390×844, com respostas controladas compatíveis com os DTOs e permissões do repositório. **A validação ponta a ponta com servidor/banco reais ainda depende da URL de execução e de uma conta de teste.** Não há alegação de sincronização mobile/web verificada enquanto essa etapa estiver pendente.
 
-Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`; são preservados ao recarregar e sair da conta. Valores inválidos retornam ao português e tema claro. Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
+## Organização
 
-## Qualidade e evidências
+- `src/services/httpClient.ts`: transporte, renovação e isolamento de sessão.
+- `src/services/apiManagement.ts`: adaptação entre DTOs Java e entidades da interface.
+- `src/services/authService.ts` e `recoveryService.ts`: autenticação e senha.
+- `src/utils/apiValidation.ts`: validação alinhada aos DTOs.
+- `src/components`, `src/pages`, `src/contexts`, `src/types`: interface e estado tipados.
+- `docs`: mapeamento atual, QA e registros históricos do protótipo.
 
-- Em 14/10/2026, [Issue #9](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/9): Login com três campos e competências opcionais por técnico, resumo/lista e modal, limites de notas, remoção, descarte e cancelamento de operações. Verificação em desktop e celular. Build, lint, formatação e **41 testes** aprovados. [Cenários e capturas](docs/LOGIN_COMPETENCIAS_2026-10-14.md). Novo PR adiado por solicitação do usuário.
-- Em 15/10/2026, continuação da Issue #9: competências somente para leitura nos detalhes, `_` nas notas vazias e dez campos no cadastro/edição, com salvamento conjunto e descarte. Build, lint, formatação e **43 testes** aprovados; [QA e capturas atualizados](docs/COMPETENCIAS_EDICAO_2026-10-15.md). Mantida a branch de trabalho, sem novo PR.
-- Em 15/10/2026, acabamento da mesma Issue #9: especialidade automática/Sem notas, destaque sem duplicação, expansão vertical e campos de edição vazios sem placeholder. Build, lint, formatação e **45 testes** aprovados; [QA e capturas](docs/COMPETENCIAS_ACABAMENTO_2026-10-15.md). Sem novo PR.
+Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → revisão/CI → `dev` → `hml` → `main`. A integração com API está na [Issue #10](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/10); preserva as alterações da [Issue #9](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/9). Aprovação, merge e homologação dependem da equipe.
 
-- Em 08/10/2026: confirmação de descarte para técnicos, eventos e perfil, incluindo Cancelar, Voltar, navegação entre rotas e saída da conta. Ilustração nova gerada com ImageGen e integrada ao mesmo pop-up das demais confirmações. Build, lint, formatação e **35 testes** aprovados. [Prompt, cenários e capturas](docs/DESCARTE_ALTERACOES_2026-10-08.md).
+## Publicação
 
-- Telas de senha alinhadas em 07/10/2026: coluna central compartilhada, campos e botões com a mesma largura, ilustrações proporcionais e seis dígitos igualmente espaçados. Recuperação e troca demonstrativas percorridas no navegador; desktop, notebook e celular conferidos. Build, lint, formatação e **32 testes** aprovados. [Verificação e capturas](docs/ALINHAMENTO_SENHA_2026-10-07.md).
-
-- Complemento de legibilidade em 07/10/2026: gráficos com escalas, linhas e valores; menu Técnico com seta animada e hover; legendas das cores; ações de visualizar; confirmações maiores e evento mais compacto; histórico da Manu no topo; ícones estáveis ao recolher a sidebar e logo corrigida. Build, lint, formatação e **32 testes** aprovados. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--leitura-dos-gráficos-e-ações-de-visualizar).
-
-- Complemento de 07/10/2026: resumo mensal da Home rolável, seta do Dashboard como SVG proporcional, destaque dos técnicos sem sublinhado e botões Adicionar compartilhando formato arredondado com “+”. Home sem rolagem vertical em 1280 × 720 e 1340 × 800; faixa mensal percorrida pelo mouse e teclado. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--faixa-mensal-e-controles). Build, lint, formatação e **30 testes** aprovados.
-
-- Revisão de 07/10/2026: pop-ups compactos com as três ilustrações originais enviadas pelo usuário, sobreposição corrigida, confirmação de salvar, Home com sete dias e Manu inteira, filtros com limpeza, Adicionar à direita da main e sidebar recolhida mais espaçosa. Recuperação usa e-mail preenchido no Login e troca autenticada abre página própria. Build, lint, Prettier e **30/30 testes** aprovados. [Revisão atual e capturas](docs/REVISAO_DESIGN_2026-10-07.md). Os registros anteriores abaixo são históricos.
-
-- Revisão após feedback da designer em 06/10/2026: ícones e logos vetoriais originais do Website v2, cores/tipografia, header alinhado, filtros, paginação e modais de exclusão/saída/informações corrigidos. A Home voltou ao resumo de cinco dias do Figma; o seletor mensal detalhado foi retirado. Build, lint, Prettier e **27/27 testes** aprovados; revisão em desktop, notebook, tablet e celular registrada na [auditoria de design](docs/REVISAO_DESIGN_2026-10-06.md), com capturas e adaptações preservadas. Os registros abaixo descrevem versões anteriores.
-
-- Em 06/10/2026: **27 testes Node**, build, lint e formatação aprovados. Calendário da Home mais espaçoso, com grade de meses/ano, seleção por dia e semana de domingo a sábado; Novo chat ocupa a largura do histórico e a alça acima de Enviar foi removida. Revisão visual em notebook, tablet e celular registrada no [QA](docs/QA_NAVEGADOR.md). O botão nativo de senha do Edge foi ocultado somente em campos com controle próprio; confirmação visual no Edge ainda pendente.
-
-- Em 05/10/2026, nesta revisão: **26 testes Node**, build, lint e formatação aprovados. A revisão no navegador validou os quatro idiomas, tema escuro, preferências após recarregar, evento de sábado na Home e semanas entre meses/anos. Home e Equipe continuam cabendo em notebook; tablet e celular foram conferidos. Veja os cenários e limites em [QA](docs/QA_NAVEGADOR.md).
-
-- Em 28/09/2026: build TypeScript/Vite, lint, formatação e **20 testes Node** aprovados. Os testes cobrem validação, cópias independentes, eventos compartilhados, distribuição analítica, recuperação, histórico da Manu e isolamento da sessão demonstrativa.
-- Em 05/10/2026: a Home foi refinada para preservar as proporções do Figma em diferentes alturas, com sidebar maior. Home, Equipe, Calendário e Perfil cabem sem rolagem em 1280 × 720 e 1340 × 800 no estado inicial. Quando necessária, a rolagem ocorre na área abaixo do cabeçalho, evitando sobreposição; as setas dos campos de seleção têm posição e espaçamento consistentes. O símbolo da FIXA foi adicionado à aba. As medidas e os limites dessa checagem estão no [QA do navegador](docs/QA_NAVEGADOR.md).
-- O código usa Prettier com indentação de dois espaços, configurado em `.prettierrc.json`. Execute `npm run format` para aplicar o estilo.
-- [`.github/workflows/qualidade.yml`](.github/workflows/qualidade.yml) verifica build, lint, testes e formatação em PRs e nas branches `dev`, `hml` e `main`. O [template oficial de PR](.github/PULL_REQUEST_TEMPLATE.md) registra evidências e uso de IA. O workflow remoto de releases foi preservado em [criar-releases.yaml](.github/workflows/criar-releases.yaml). A configuração não equivale a CI aprovado ou release publicada; confira o resultado no PR de integração.
-- Login → Home, cadastro de técnico, CRUD de eventos, edição de perfil, Manu, navegação móvel, página pública e 404 foram percorridos no navegador local. Veja a [evidência de QA](docs/QA_NAVEGADOR.md) e seus limites.
-- A [revisão visual](docs/FIDELIDADE_VISUAL.md) registra os IDs da cópia do Figma, comparações diretas de Login, Recuperação, Home, Dashboard, Equipe, Calendário, Perfil e Manu, além das diferenças conhecidas. Ela não aprova todos os frames e estados. A Home recebeu o banner e o avatar originais; a Manu recebeu sua arte original.
-- A [matriz de requisitos](docs/MATRIZ_REQUISITOS.md) registra critério, estado, arquivo, teste e demonstração. Os [critérios externos](docs/CRITERIOS_EXTERNOS.md) detalham as entregas das demais disciplinas. O [roteiro DAD](docs/ROTEIRO_DAD.md) contém os passos de apresentação e o que ainda precisa ser validado.
-- `docs/REVISAO_INICIAL.md` descreve a revisão anterior e permanece como registro histórico, **não como estado atual**.
-
-## Pendências de integração e publicação
-
-O backend de autenticação, CRUD, autorização e Manu ainda não possui contrato. O Dashboard não está conectado ao Data Mart. A rubrica do PDF também exige artefatos de outras disciplinas, hospedagem e histórico Git distribuído por quatro semanas reais; este frontend não comprova essas entregas. Consulte a matriz para cada dependência.
-
-Para publicar na Vercel, use build `npm run build` e diretório de saída `dist`. [`vercel.json`](vercel.json) redireciona rotas da SPA para `index.html`. **Ainda não há URL pública da aplicação**; após publicar, registre aqui a URL e execute o roteiro no ambiente publicado. O repositório remoto está identificado no início deste documento. O tablet físico, leitor de tela e todos os estados do Figma devem ser verificados antes de chamar a versão integrada de final.
+Na Vercel, use `npm run build`, saída `dist` e a variável pública `VITE_API_BASE_URL` antes do build. `vercel.json` preserva as rotas da SPA. A existência dessa configuração não comprova publicação nem CI aprovado. Configure CORS no backend e execute os fluxos com conta de teste antes da homologação.

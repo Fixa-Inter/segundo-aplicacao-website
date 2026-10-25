@@ -1,48 +1,53 @@
-import { useReducer } from 'react'
+import { useEffect, useReducer } from 'react'
 import type { AuthProviderProps } from '../types/ui'
-import { loginMock } from '../services/authService'
-import { clearDemoManagement } from '../services/managementService'
-import { clearDemoConversations } from '../services/manuService'
+import { login as loginApi, logout as logoutApi, restoreSession } from '../services/authService'
+import { api } from '../services/api'
 import type { AuthAction, AuthState, LoginCredentials } from '../types/auth'
-
 import { AuthContext } from './authContextValue'
-const initialState: AuthState = { user: null, loading: false, error: null }
-
-function authReducer(state: AuthState, action: AuthAction): AuthState {
+const empty: AuthState = { user: null, loading: false, error: null }
+function reducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'LOGIN_START':
       return { ...state, loading: true, error: null }
     case 'LOGIN_SUCCESS':
       return { user: action.user, loading: false, error: null }
     case 'LOGIN_ERROR':
-      return { ...state, loading: false, error: action.error }
+      return { user: null, loading: false, error: action.error }
     case 'LOGOUT':
-      return initialState
+      return empty
     case 'UPDATE_NAME':
       return { ...state, user: state.user ? { ...state.user, name: action.name } : null }
   }
 }
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, dispatch] = useReducer(authReducer, initialState)
+  const [state, dispatch] = useReducer(reducer, { ...empty, loading: true })
+  useEffect(() => {
+    let active = true
+    const unsubscribe = api.onExpired(() => dispatch({ type: 'LOGOUT' }))
+    void restoreSession().then((user) => {
+      if (active) dispatch(user ? { type: 'LOGIN_SUCCESS', user } : { type: 'LOGOUT' })
+    })
+    return () => {
+      active = false
+      unsubscribe()
+    }
+  }, [])
   async function login(credentials: LoginCredentials): Promise<boolean> {
     dispatch({ type: 'LOGIN_START' })
     try {
-      const user = await loginMock(credentials)
-      clearDemoManagement()
-      clearDemoConversations()
+      const user = await loginApi(credentials)
       dispatch({ type: 'LOGIN_SUCCESS', user })
       return true
-    } catch (error) {
+    } catch (reason) {
       dispatch({
         type: 'LOGIN_ERROR',
-        error: error instanceof Error ? error.message : 'Não foi possível entrar.',
+        error: reason instanceof Error ? reason.message : 'Não foi possível entrar.',
       })
       return false
     }
   }
   function logout() {
-    clearDemoManagement()
-    clearDemoConversations()
+    logoutApi()
     dispatch({ type: 'LOGOUT' })
   }
   function updateName(name: string) {

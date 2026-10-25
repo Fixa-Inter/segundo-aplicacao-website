@@ -3,12 +3,15 @@ import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
 import { hasFormChanges } from '../../utils/formChanges'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { AuthField } from '../AuthField'
+import { listLocations } from '../../services/managementService'
+import { useAuth } from '../../contexts/useAuth'
+import type { LocationOption } from '../../types/management'
 import type { CalendarEventInput } from '../../types/management'
 import type { EventFormProps } from '../../types/ui'
 import { formatDate, parseDateInput } from '../../utils/calendar'
-import { validateEvent } from '../../utils/managementValidation'
+import { validateEvent } from '../../utils/apiValidation'
 import styles from './EventForm.module.css'
 
 export function EventForm({
@@ -20,8 +23,33 @@ export function EventForm({
   onCancel,
 }: EventFormProps) {
   const { t } = usePreferences()
+  const { user } = useAuth()
+  const [locations, setLocations] = useState<LocationOption[]>([])
+  const [locationError, setLocationError] = useState('')
+  const [locationAttempt, setLocationAttempt] = useState(0)
+  useEffect(() => {
+    let active = true
+    listLocations()
+      .then((items) => {
+        if (active) {
+          setLocations(items)
+          setLocationError('')
+        }
+      })
+      .catch((reason) => {
+        if (active)
+          setLocationError(
+            reason instanceof Error ? reason.message : 'Não foi possível carregar os locais.',
+          )
+      })
+    return () => {
+      active = false
+    }
+  }, [locationAttempt])
 
   const [form, setForm] = useState<CalendarEventInput>({
+    locationId: event?.locationId ?? '',
+    endDate: event?.endDate ?? event?.date ?? selectedDay,
     title: event?.title ?? '',
     location: event?.location ?? '',
     description: event?.description ?? '',
@@ -106,9 +134,44 @@ export function EventForm({
             error={errors.title}
             onChange={(e) => update('title', e.currentTarget.value)}
           />
+          <div className={styles.field}>
+            <label htmlFor="event-location-id">{t('Local cadastrado')} *</label>
+            <select
+              id="event-location-id"
+              value={form.locationId ?? ''}
+              aria-invalid={Boolean(errors.locationId)}
+              onChange={(e) => update('locationId', e.currentTarget.value)}
+            >
+              <option value="">{t('Selecione um local')}</option>
+              {event?.locationId && !locations.some((item) => item.id === event.locationId) && (
+                <option value={event.locationId}>{event.location}</option>
+              )}
+              {locations.map((item) => (
+                <option value={item.id} key={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+            {errors.locationId && (
+              <p role="alert" className={styles.error}>
+                {t(errors.locationId)}
+              </p>
+            )}
+            {locationError && (
+              <div role="alert">
+                <p>{locationError}</p>
+                <button type="button" onClick={() => setLocationAttempt((value) => value + 1)}>
+                  {t('Tentar novamente')}
+                </button>
+              </div>
+            )}
+            {!locations.length && !locationError && (
+              <p>{t('Nenhum local ativo cadastrado na unidade.')}</p>
+            )}
+          </div>
           <AuthField
             id="event-location"
-            label={t('Local do evento')}
+            label={t('Descrição do local *')}
             value={form.location}
             placeholder={t('Informe o local')}
             maxLength={100}
@@ -123,7 +186,7 @@ export function EventForm({
               <textarea
                 id={`event-${key}`}
                 value={form[key]}
-                maxLength={300}
+                maxLength={255}
                 placeholder={t('Adicione uma breve descrição…')}
                 aria-invalid={Boolean(errors[key])}
                 aria-describedby={errors[key] ? `event-${key}-error` : undefined}
@@ -162,6 +225,15 @@ export function EventForm({
             onChange={(e) => update('time', e.currentTarget.value)}
           />
           <AuthField
+            id="event-end-date"
+            label={t('Data de término *')}
+            type="date"
+            value={form.endDate ?? form.date}
+            required
+            error={errors.endDate}
+            onChange={(e) => update('endDate', e.currentTarget.value)}
+          />
+          <AuthField
             id="event-end"
             label={t('Horário de término *')}
             value={form.endTime}
@@ -175,11 +247,20 @@ export function EventForm({
           <div className={`${styles.field} ${styles.full}`}>
             <label htmlFor="event-technician">{t('Técnico responsável')}</label>
             <select
+              disabled={Boolean(event)}
               id="event-technician"
               value={form.technicianId}
               onChange={(e) => update('technicianId', e.currentTarget.value)}
             >
-              <option value="">{t('Não atribuído')}</option>
+              <option value="">{t('Meu usuário')}</option>
+              <option value={user?.id ?? ''}>{user?.name}</option>
+              {event &&
+                event.technicianId !== user?.id &&
+                !technicians.some((item) => item.id === event.technicianId) && (
+                  <option value={event.technicianId}>
+                    {t('Responsável')} #{event.technicianId}
+                  </option>
+                )}
               {technicians
                 .filter(
                   (technician) =>
@@ -195,7 +276,7 @@ export function EventForm({
         </fieldset>
         <p className={styles.note}>
           {t(
-            'Use dados fictícios. Campos com * são obrigatórios. Data em DD/MM/AAAA e horários em HH:MM; o término deve ser após o início no mesmo dia.',
+            'Campos com * são obrigatórios. Selecione um local da unidade. O responsável de um evento existente não pode ser alterado.',
           )}
         </p>
         {error && (

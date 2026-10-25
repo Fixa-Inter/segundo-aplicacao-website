@@ -14,13 +14,12 @@ import manuPassword from '../../assets/figma/manu-recovery-password.png'
 import manuSuccess from '../../assets/figma/manu-recovery-success.png'
 import {
   changePassword,
-  DEMO_RECOVERY_CODE,
   requestRecovery,
   resetPassword,
   verifyRecoveryCode,
 } from '../../services/recoveryService'
 import { validateEmail } from '../../utils/validation'
-import { validateDemoPassword } from '../../utils/managementValidation'
+import { validatePassword } from '../../utils/apiValidation'
 import type { RecoveryChallenge, RecoveryStep } from '../../types/recovery'
 import styles from './Recovery.module.css'
 
@@ -29,7 +28,7 @@ const titles: Record<RecoveryStep, string> = {
   code: 'Verifique seu e-mail',
   password: 'Defina uma nova senha',
   change: 'Troque sua senha',
-  success: 'Senha validada!',
+  success: 'Senha alterada!',
 }
 const artByStep: Record<RecoveryStep, string> = {
   email: manu,
@@ -42,7 +41,7 @@ export default function Recovery() {
   const { t } = usePreferences()
 
   const { pathname, state } = useLocation()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const changing = pathname === '/alterar-senha'
   const returnTo = user ? '/perfil' : '/login'
   const [entry] = useState(() => readRecoveryChallenge(state))
@@ -97,7 +96,7 @@ export default function Recovery() {
       return
     }
     if (step === 'password' || step === 'change') {
-      const passwordError = validateDemoPassword(form.password)
+      const passwordError = validatePassword(form.password)
       if (passwordError) {
         setError(passwordError)
         return
@@ -120,7 +119,7 @@ export default function Recovery() {
         await verifyRecoveryCode(challenge, form.code)
         setStep('password')
       } else if (step === 'password' && challenge) {
-        await resetPassword(challenge, form.password)
+        await resetPassword(challenge, form.password, form.code)
         setForm((current) => ({ ...current, password: '', confirmation: '' }))
         setStep('success')
       }
@@ -138,7 +137,7 @@ export default function Recovery() {
     setError(null)
     try {
       setChallenge(await requestRecovery(form.email))
-      setNotice('Código de demonstração: 123456. Nenhum e-mail real é enviado.')
+      setNotice('Se o e-mail estiver cadastrado, um novo código será enviado.')
     } catch {
       setError('Não foi possível reenviar. Tente novamente.')
     } finally {
@@ -147,12 +146,12 @@ export default function Recovery() {
   }
   const description =
     step === 'email'
-      ? 'Insira seu e-mail para simular o envio de um código de recuperação'
+      ? 'Insira seu e-mail para receber um código de recuperação'
       : step === 'code'
         ? t('Código de validação para {email}', { email: maskRecoveryEmail(form.email) })
         : step === 'password' || step === 'change'
           ? ''
-          : 'Fluxo validado. Nenhuma senha real foi alterada.'
+          : 'Sua senha foi alterada com sucesso.'
   return (
     <main className={styles.page}>
       {step !== 'success' &&
@@ -191,8 +190,12 @@ export default function Recovery() {
         </header>
         {step === 'success' ? (
           <>
-            <Link className={styles.primary} to={returnTo}>
-              {t(user ? 'Voltar ao perfil' : 'Ir para o login')}
+            <Link
+              className={styles.primary}
+              to={changing ? '/login' : returnTo}
+              onClick={changing ? logout : undefined}
+            >
+              {t(changing ? 'Ir para o login' : user ? 'Voltar ao perfil' : 'Ir para o login')}
             </Link>
           </>
         ) : (
@@ -266,7 +269,7 @@ export default function Recovery() {
                       label={t('Senha antiga')}
                       type="password"
                       autoComplete="off"
-                      maxLength={128}
+                      maxLength={100}
                       value={form.current}
                       disabled={busy}
                       onChange={(event) => {
@@ -282,7 +285,7 @@ export default function Recovery() {
                     type={visible ? 'text' : 'password'}
                     autoComplete="off"
                     placeholder={t('Digite sua nova senha')}
-                    maxLength={128}
+                    maxLength={100}
                     disabled={busy}
                     value={form.password}
                     onChange={(event) => {
@@ -306,7 +309,7 @@ export default function Recovery() {
                       type={visible ? 'text' : 'password'}
                       autoComplete="off"
                       placeholder={t('Repita sua nova senha')}
-                      maxLength={128}
+                      maxLength={100}
                       disabled={busy}
                       value={form.confirmation}
                       onChange={(event) => {
@@ -318,11 +321,7 @@ export default function Recovery() {
                 </div>
               )}
               {(step === 'password' || step === 'change') && (
-                <p className={styles.demoNote}>
-                  {t(
-                    'Use uma senha fictícia. Regra provisória: mínimo de 8 caracteres, maiúscula, minúscula e símbolo especial. A senha não é armazenada.',
-                  )}
-                </p>
+                <p className={styles.demoNote}>{t('Use uma senha de 8 a 100 caracteres.')}</p>
               )}
               {step !== 'email' && error && (
                 <p className={styles.error} role="alert">
@@ -336,7 +335,7 @@ export default function Recovery() {
                     : step === 'email'
                       ? 'Enviar e-mail'
                       : step === 'code'
-                        ? 'Confirmar código'
+                        ? 'Continuar'
                         : step === 'change'
                           ? 'Alterar'
                           : 'Continuar',
@@ -354,7 +353,9 @@ export default function Recovery() {
               </Link>
             )}
             {step === 'email' && (
-              <p className={styles.demoNote}>{t('Demonstração: nenhum e-mail será enviado.')}</p>
+              <p className={styles.demoNote}>
+                {t('Se o e-mail estiver cadastrado, você receberá um código de recuperação.')}
+              </p>
             )}
             {step === 'code' && (
               <p className={styles.resend}>
@@ -366,7 +367,7 @@ export default function Recovery() {
             )}
             {step === 'code' && (
               <p className={styles.demoNote}>
-                {t('Código de demonstração:')} {DEMO_RECOVERY_CODE}
+                {t('O código será validado ao salvar a nova senha.')}
               </p>
             )}
             {notice && (

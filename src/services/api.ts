@@ -1,7 +1,4 @@
-import axios from 'axios'
+import { createHttpClient } from './httpClient.ts'
 
-// Pronto para o contrato real da API. Nunca coloque secrets em variáveis VITE_*.
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || undefined,
-  timeout: 10000,
-})
+// Apenas o endereço público. Senhas e chaves do servidor nunca pertencem a VITE_*.
+export const api = createHttpClient(import.meta.env?.VITE_API_BASE_URL?.replace(/\/$/, ''))

@@ -33,8 +33,11 @@ export default function Dashboard() {
           setTechnicians(team)
         }
       })
-      .catch(() => {
-        if (active) setError('Não foi possível carregar o dashboard.')
+      .catch((reason) => {
+        if (active)
+          setError(
+            reason instanceof Error ? reason.message : 'Não foi possível carregar o dashboard.',
+          )
       })
       .finally(() => {
         if (active) setLoading(false)

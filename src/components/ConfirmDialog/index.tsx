@@ -14,6 +14,11 @@ const variants = {
     question: 'Deseja deletar esse registro?',
     subtitle: 'Essa ação não poderá ser desfeita.',
   },
+  deactivate: {
+    art: deleteArt,
+    question: 'Desativar este técnico?',
+    subtitle: 'O cadastro será preservado e poderá ser reativado na edição.',
+  },
   save: {
     art: saveArt,
     question: 'Salvar alterações?',
