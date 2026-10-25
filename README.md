@@ -41,13 +41,26 @@ npm run dev -- --port 5173 --strictPort
 
 O ambiente prepara PostgreSQL, Redis, e-mail local e API, com credenciais somente da máquina. Consulte [dev/README.md](dev/README.md).
 
+## Usar os serviços da AWS
+
+Em `.env.local`, configure os dois serviços do mesmo ambiente e reinicie o Vite:
+
+```dotenv
+VITE_API_BASE_URL=https://web-api.fixa.solutions
+VITE_AI_BASE_URL=https://ia-api.fixa.solutions
+```
+
+Use um usuário cadastrado nesse ambiente. As chaves dos provedores ficam no servidor; não é necessário copiá-las para a máquina para usar a IA hospedada.
+
+Na verificação de 25/10/2026, o serviço da IA estava saudável, mas a versão publicada ainda não expunha o histórico e recusava o preflight CORS. É necessário publicar a compatibilidade da branch `feature/integracao-web-manu` pelo fluxo de revisão e configurar `FIXA_WEB_ORIGINS`. Consulte [o diagnóstico e os requisitos de publicação](docs/INTEGRACAO_IA_2026-10-25.md#serviço-publicado-na-aws).
+
 ## Executar a Manu localmente
 
 ```bash
 npm run ia:up
 ```
 
-O serviço da IA e o histórico usam MongoDB/Qdrant locais. Configure as chaves dos provedores somente em `dev.local/ia.env`; sem elas, o histórico pode ser consultado e o chat informa indisponibilidade. Consulte [contrato, configuração e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
+Para esse modo, use `VITE_API_BASE_URL=http://localhost:8080` e `VITE_AI_BASE_URL=http://localhost:8000` em `.env.local`. O serviço da IA e o histórico usam MongoDB/Qdrant locais. Configure as chaves dos provedores somente em `dev.local/ia.env`; sem elas, o histórico pode ser consultado e o chat informa indisponibilidade. Consulte [contrato, configuração e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
 
 ## Integração atual
 

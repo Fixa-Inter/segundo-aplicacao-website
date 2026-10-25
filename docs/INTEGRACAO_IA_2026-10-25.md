@@ -59,7 +59,48 @@ Imagens:
 
 ## Dependências para concluir a validação funcional
 
-1. Fornecer/configurar as três chaves no arquivo local. Até esse momento, não foram fornecidas e não houve inferência com modelos reais.
+1. Para inferência local, configurar as três chaves no arquivo local. Para usar a AWS, as chaves permanecem no servidor: é necessário publicar a compatibilidade descrita abaixo. Não houve inferência com modelos reais nesta verificação.
 2. Carregar fontes reais de FAQ e sincronizar os índices/cadastros necessários às ferramentas da IA; conferir os fluxos com os dados da equipe.
 3. Homologar as ferramentas que alteram registros, a comunicação com o mobile e a implantação remota. Testes controlados não equivalem a essas verificações.
 4. Revisão/merge dos repositórios e vínculo ao GitHub Projects, cujo acesso segue pendente. Não houve novo PR, aprovação ou promoção presumida.
+
+## Serviço publicado na AWS
+
+Após a implementação local, o usuário informou que a IA já está hospedada na AWS. Portanto, as credenciais de modelos não precisam ser copiadas para o computador para consumir o serviço hospedado. A validação local sem chaves continua sendo somente a evidência daquele ambiente.
+
+O endereço informado com `ai-api` retornou NXDOMAIN no DNS público. Foi identificado e confirmado o serviço FIXA em **`https://ia-api.fixa.solutions`**, com `ia-api`. O registro CNAME aponta ao ALB da FIXA em `us-east-1`; `GET /api/v1/health` retornou HTTP 200 com o identificador `segundo-inteligencia-artificial`.
+
+### Configuração da web
+
+```dotenv
+VITE_API_BASE_URL=https://web-api.fixa.solutions
+VITE_AI_BASE_URL=https://ia-api.fixa.solutions
+```
+
+Os valores foram aplicados no `.env.local` desta máquina, ignorado pelo Git. A configuração anterior foi preservada em `dev.local/frontend-antes-aws.env`, também ignorado. O exemplo versionado mantém o modo local como padrão e documenta a alternativa AWS.
+
+Reinicie o Vite após trocar o ambiente e entre com um usuário cadastrado na AWS. Credenciais e tokens do ambiente local não devem ser reutilizados como se fossem credenciais da AWS. Não foram enviadas credenciais, tokens ou mensagens de chat ao serviço remoto nesta verificação.
+
+### Contrato publicado e bloqueios confirmados
+
+| Verificação sem autenticação                                                                                          | Resultado                                                                  |
+| --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `GET https://ia-api.fixa.solutions/api/v1/health`                                                                     | 200; serviço saudável                                                      |
+| `GET https://ia-api.fixa.solutions/openapi.json`                                                                      | 200; contrato FastAPI da IA                                                |
+| Contrato de mensagens                                                                                                 | `POST /api/v1/chat` e `DELETE /api/v1/chat/sessions/{thread_id}` presentes |
+| `GET /api/v1/chat/sessions`                                                                                           | 404; GETs de lista/detalhe ausentes do OpenAPI publicado                   |
+| Preflight `OPTIONS /api/v1/chat`, origem `http://localhost:5173`, método POST e cabeçalhos Authorization/Content-Type | 405; sem `Access-Control-Allow-Origin`                                     |
+| `GET https://web-api.fixa.solutions/v3/api-docs`                                                                      | 200; API Web, com origem localhost:5173 permitida nessa consulta           |
+
+O último workflow de deploy da IA consultado concluiu com sucesso para o commit `5acab46a05d22b8b620a8905f5e2b681278e3e3d` da `main`: [execução de deploy](https://github.com/Fixa-Inter/segundo-inteligencia-artificial/actions/runs/40161977052). Essa revisão é anterior à compatibilidade [1ba4ccd](https://github.com/Fixa-Inter/segundo-inteligencia-artificial/commit/1ba4ccdbe7a3cc8280e7b48600c961c36394ceed).
+
+Saúde HTTP 200 não comprova que o navegador pode conversar com a IA nem que os provedores estão respondendo. O navegador está bloqueado pelo CORS; apontar a variável para a URL não corrige esse bloqueio. O contrato atual também não permite retomar o histórico pela web.
+
+### Para concluir na AWS
+
+1. Revisar e promover a branch `feature/integracao-web-manu` da IA por `dev` → `hml` → `main`, conforme as regras da organização, e publicar a revisão aprovada. Não houve alteração direta da `main`, disparo de deploy ou configuração da AWS nesta etapa.
+2. Definir `FIXA_WEB_ORIGINS` no serviço para as origens autorizadas da web, incluindo `http://localhost:5173` durante o desenvolvimento e a origem HTTPS real da implantação. O workflow reaproveita a Task Definition existente; alterações de variáveis devem constar da revisão/configuração aprovada.
+3. Conferir `FIXA_API_BASE_URL` e bancos do serviço para a API/identidade/unidade do mesmo ambiente; não pressupor que o token emitido localmente vale na AWS.
+4. Validar login com um gestor do ambiente AWS, preflight, histórico, resposta real dos modelos e confirmação de operações. As fontes/índices de FAQ e os cadastros precisam estar disponíveis nesse ambiente.
+
+A solicitação anterior de chaves locais deixa de ser um requisito para consumir a AWS. A disponibilidade/configuração das chaves no servidor não foi inspecionada. Não houve inferência remota, e os bloqueios de publicação permanecem registrados nas Issues web #11 e IA #46.
