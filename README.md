@@ -41,6 +41,14 @@ npm run dev -- --port 5173 --strictPort
 
 O ambiente prepara PostgreSQL, Redis, e-mail local e API, com credenciais somente da máquina. Consulte [dev/README.md](dev/README.md).
 
+## Executar a Manu localmente
+
+```bash
+npm run ia:up
+```
+
+O serviço da IA e o histórico usam MongoDB/Qdrant locais. Configure as chaves dos provedores somente em `dev.local/ia.env`; sem elas, o histórico pode ser consultado e o chat informa indisponibilidade. Consulte [contrato, configuração e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
+
 ## Integração atual
 
 | Fluxo                | Comportamento                                                                                                                              |
@@ -52,7 +60,7 @@ O ambiente prepara PostgreSQL, Redis, e-mail local e API, com credenciais soment
 | Perfil               | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                      |
 | Senha                | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                     |
 | Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real                                  |
-| Manu                 | Interface informa indisponibilidade enquanto não houver API de conversas                                                                   |
+| Manu                 | Chat autenticado, histórico no servidor, continuidade e confirmação de propostas; depende das chaves e dados do serviço de IA              |
 
 Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`. A sessão usa `sessionStorage` da aba para os tokens Bearer e a identificação mínima; senhas não são armazenadas. Em erro de renovação por token inválido, a sessão local é encerrada. O backend é responsável por autorização e isolamento entre unidades.
 

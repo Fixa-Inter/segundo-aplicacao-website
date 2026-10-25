@@ -52,7 +52,12 @@ export function createHttpClient(baseURL?: string, adapter?: AxiosAdapter) {
               ? 'Não foi possível conectar à API. Confira o endereço do servidor e sua conexão.'
               : 'Não foi possível concluir a operação.'
     if (data && typeof data === 'object') {
-      const body = data as { erro?: unknown; campos?: Record<string, unknown>; mensagem?: unknown }
+      const body = data as {
+        erro?: unknown
+        campos?: Record<string, unknown>
+        mensagem?: unknown
+        detail?: unknown
+      }
       const fields = body.campos
         ? Object.values(body.campos).filter((item) => typeof item === 'string')
         : []
@@ -63,7 +68,9 @@ export function createHttpClient(baseURL?: string, adapter?: AxiosAdapter) {
             ? body.erro
             : typeof body.mensagem === 'string'
               ? body.mensagem
-              : fallback,
+              : typeof body.detail === 'string'
+                ? body.detail
+                : fallback,
         status,
       )
     }

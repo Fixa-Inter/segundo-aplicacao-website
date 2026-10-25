@@ -2,6 +2,65 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Atualizar conversas': ['Refresh conversations', 'Actualizar conversaciones', '刷新对话'],
+  'Carregando conversa…': ['Loading conversation…', 'Cargando conversación…', '正在加载对话…'],
+  Encerrada: ['Closed', 'Cerrada', '已结束'],
+  'Encerrar conversa': ['End conversation', 'Finalizar conversación', '结束对话'],
+  'Encerrando…': ['Ending…', 'Finalizando…', '正在结束…'],
+  'Conversa encerrada': ['Conversation closed', 'Conversación finalizada', '对话已结束'],
+  'Confirmação da ação proposta': [
+    'Proposed action confirmation',
+    'Confirmación de la acción propuesta',
+    '确认建议的操作',
+  ],
+  'Revise a proposta acima antes de confirmar.': [
+    'Review the proposal above before confirming.',
+    'Revisa la propuesta anterior antes de confirmar.',
+    '确认前请检查上述建议。',
+  ],
+  'Cancelar ação': ['Cancel action', 'Cancelar acción', '取消操作'],
+  'Link da imagem': ['Image link', 'Enlace de la imagen', '图片链接'],
+  'Adicionar link de imagem': ['Add image link', 'Añadir enlace de imagen', '添加图片链接'],
+  'Remover imagem {number}': [
+    'Remove image {number}',
+    'Eliminar imagen {number}',
+    '移除图片 {number}',
+  ],
+  'Inicie uma nova conversa para continuar.': [
+    'Start a new conversation to continue.',
+    'Inicia una nueva conversación para continuar.',
+    '请开始新对话以继续。',
+  ],
+  'A Manu está temporariamente indisponível. Tente novamente mais tarde.': [
+    'Manu is temporarily unavailable. Please try again later.',
+    'Manu no está disponible temporalmente. Inténtalo más tarde.',
+    'Manu 暂时不可用，请稍后重试。',
+  ],
+  'O serviço da Manu ainda não foi configurado.': [
+    'Manu is not configured yet.',
+    'Manu aún no está configurada.',
+    'Manu 服务尚未配置。',
+  ],
+  'Confira o histórico antes de reenviar: o servidor pode ter recebido a mensagem.': [
+    'Check the history before sending again: the server may have received the message.',
+    'Revisa el historial antes de reenviar: el servidor puede haber recibido el mensaje.',
+    '重新发送前请检查历史记录，服务器可能已收到消息。',
+  ],
+  'A mensagem deve ter de 1 a 4000 caracteres.': [
+    'The message must contain 1 to 4000 characters.',
+    'El mensaje debe contener de 1 a 4000 caracteres.',
+    '消息必须包含 1 至 4000 个字符。',
+  ],
+  'Use até 3 links de imagem.': [
+    'Use up to 3 image links.',
+    'Usa hasta 3 enlaces de imagen.',
+    '最多使用 3 个图片链接。',
+  ],
+  'Informe um link HTTP ou HTTPS válido para a imagem.': [
+    'Enter a valid HTTP or HTTPS image link.',
+    'Introduce un enlace HTTP o HTTPS válido para la imagen.',
+    '请输入有效的 HTTP 或 HTTPS 图片链接。',
+  ],
   CNPJ: ['CNPJ', 'CNPJ', 'CNPJ'],
   'Digite o CNPJ da empresa': [
     'Enter the company CNPJ',

@@ -7,7 +7,7 @@ import {
   getDemoReply,
   listDemoConversations,
   subscribeDemoConversations,
-} from '../src/services/manuService.ts'
+} from '../src/mocks/services/manuService.ts'
 
 test('respostas guiadas reconhecem perguntas sugeridas nos quatro idiomas', async () => {
   for (const question of [
