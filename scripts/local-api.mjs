@@ -8,10 +8,13 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const local = path.join(root, 'dev.local')
 const source = path.join(local, 'api')
 const envFile = path.join(local, 'stack.env')
+const sharedEnvFile = path.join(local, 'api-shared.env')
+const sharedComposeFile = path.join(root, 'dev', 'compose.shared.yml')
+let useSharedApi = false
 const composeFile = path.join(root, 'dev', 'compose.yml')
 const docker = process.env.FIXA_DOCKER_BINARY || 'docker'
 const apiRepo = 'https://github.com/Fixa-Inter/segundo-api-web.git'
-const apiRef = '1927e92cb36c335744b599e11d024593326d0265'
+const apiRef = '9516609b5c09436cf6b095659a946dad3519c518'
 function run(program, args, options = {}) {
   const result = spawnSync(program, args, {
     cwd: root,
@@ -36,15 +39,17 @@ const compose = (args, options) =>
       'fixa-web-local',
       '--env-file',
       envFile,
+      ...(useSharedApi ? ['--env-file', sharedEnvFile] : []),
       '-f',
       composeFile,
+      ...(useSharedApi ? ['-f', sharedComposeFile] : []),
       ...args,
     ],
     options,
   )
-function environment() {
+function environment(file = envFile) {
   const values = {}
-  for (const line of fs.readFileSync(envFile, 'utf8').split(/\r?\n/)) {
+  for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
     const separator = line.indexOf('=')
     if (separator > 0) values[line.slice(0, separator)] = line.slice(separator + 1)
   }
@@ -84,16 +89,30 @@ function prepare() {
     path.join(local, 'acesso.txt'),
     `AMBIENTE LOCAL FIXA\nWeb: http://localhost:5173\nAPI: http://localhost:8080\nE-mails locais: http://localhost:8025\nCNPJ: 12.345.678/0001-95\nE-mail: gestor@fixa.test\nSenha inicial: ${env.FIXA_LOCAL_PASSWORD}\n\nA senha não é redefinida ao reiniciar. Se alterada na web, use a senha atual.\n`,
   )
-  if (!fs.existsSync(source)) {
-    run('git', ['clone', '--depth', '1', apiRepo, source])
-    const current = run('git', ['-C', source, 'rev-parse', 'HEAD'], {
+  if (!fs.existsSync(source)) run('git', ['clone', '--depth', '1', apiRepo, source])
+  if (!fs.existsSync(path.join(source, '.git')))
+    throw new Error(
+      'dev.local/api já existe, mas não contém um clone Git da API. Preserve esse diretório e confira sua origem antes de executar local:prepare.',
+    )
+  const current = run('git', ['-C', source, 'rev-parse', 'HEAD'], {
+    stdio: 'pipe',
+    encoding: 'utf8',
+  }).stdout.trim()
+  if (current !== apiRef) {
+    const changes = run('git', ['-C', source, 'status', '--porcelain', '--untracked-files=all'], {
       stdio: 'pipe',
       encoding: 'utf8',
     }).stdout.trim()
-    if (current !== apiRef) {
+    if (changes)
+      throw new Error(
+        `O clone em dev.local/api precisa mudar para ${apiRef}, mas contém alterações locais. Guarde essas alterações antes de executar local:prepare novamente; nenhum arquivo da API foi alterado.`,
+      )
+    try {
+      run('git', ['-C', source, 'cat-file', '-e', `${apiRef}^{commit}`], { stdio: 'pipe' })
+    } catch {
       run('git', ['-C', source, 'fetch', '--depth', '1', 'origin', apiRef])
-      run('git', ['-C', source, 'checkout', '--detach', apiRef])
     }
+    run('git', ['-C', source, 'checkout', '--detach', apiRef])
   }
   console.log('Configuração preparada em dev.local; credenciais em dev.local/acesso.txt.')
 }
@@ -136,15 +155,32 @@ async function seed() {
 }
 try {
   const command = process.argv[2] || 'up'
-  if (!['up', 'prepare', 'down', 'status', 'logs', 'seed'].includes(command))
+  if (!['up', 'shared', 'prepare', 'down', 'status', 'logs', 'seed'].includes(command))
     throw new Error('Comando local desconhecido.')
-  if (command === 'up' || command === 'prepare') prepare()
+  if (command === 'shared') {
+    if (!fs.existsSync(sharedEnvFile))
+      throw new Error(
+        'Configuração do banco compartilhado ausente. Crie dev.local/api-shared.env com DB_URL, DB_USERNAME, DB_PASSWORD e JWT_SECRET autorizados para esse ambiente antes de executar local:shared.',
+      )
+    const shared = environment(sharedEnvFile)
+    if (!['DB_URL', 'DB_USERNAME', 'DB_PASSWORD', 'JWT_SECRET'].every((key) => shared[key]))
+      throw new Error(
+        'Configuração incompleta em dev.local/api-shared.env: DB_URL, DB_USERNAME, DB_PASSWORD e JWT_SECRET são obrigatórios.',
+      )
+    useSharedApi = true
+  }
+  if (['up', 'shared', 'prepare'].includes(command)) prepare()
   if (command !== 'prepare') {
     if (!fs.existsSync(envFile)) throw new Error('Execute npm run local:prepare primeiro.')
     dockerReady()
-    if (command === 'up') {
+    if (command === 'up' || command === 'shared') {
+      if (useSharedApi)
+        console.log(
+          'Iniciando a API local com banco compartilhado: gestão automática de esquema desativada (none), sem bootstrap de dados. Alterações feitas pela aplicação serão gravadas nesse banco.',
+        )
       compose(['up', '-d', '--build'])
-      await seed()
+      if (useSharedApi) await waitForApi()
+      else await seed()
       console.log('API: http://localhost:8080 | E-mails: http://localhost:8025 | Web: npm run dev')
     } else if (command === 'seed') await seed()
     else if (command === 'status') compose(['ps'])

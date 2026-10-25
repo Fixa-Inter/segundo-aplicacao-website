@@ -116,3 +116,8 @@ Evidências controladas:
 - [Iframe com URL e conteúdo de QA](evidencias/manu-web-2026-10-25/dashboard-iframe-controlado.png)
 
 Execução final: **71 testes aprovados**, `format:check`, `lint` e `build` aprovados. Edge: desktop 1440×960 e celular 390×844, sem erro JavaScript nem transbordamento horizontal. A revisão no celular foi ajustada para reservar o espaço ao cartão e ao campo de correção. Os detalhes da execução são registrados na Issue #11. Aprovação, merge, deploy e vínculo ao GitHub Projects não são presumidos. O escopo desta continuação é somente a web.
+
+
+## Atualização: API Web local com a dev atual
+
+A web passou a usar `http://localhost:8080`, compilado do commit `9516609` da API Web, com o banco compartilhado fornecido pelo usuário. Login real e leitura de perfil/equipe/calendário passaram. Somente o modo local de execução desativa gestão automática do esquema (`none`) devido à divergência CEP CHAR/VARCHAR encontrada na inicialização. A IA segue na AWS; a integração autenticada entre os dois serviços não foi presumida. Consulte [configuração, validação real e retorno à AWS](API_LOCAL_DEV_2026-10-25.md).

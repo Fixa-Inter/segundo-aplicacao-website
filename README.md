@@ -39,14 +39,20 @@ npm run local:up
 npm run dev -- --port 5173 --strictPort
 ```
 
-O ambiente prepara PostgreSQL, Redis, e-mail local e API, com credenciais somente da máquina. Consulte [dev/README.md](dev/README.md).
+Esse comando usa PostgreSQL, Redis, e-mail local e uma conta exclusiva da máquina. Para executar a API local com uma conta já cadastrada no banco compartilhado da equipe, use:
 
-## Usar a Manu e os serviços da AWS
+```bash
+npm run local:shared
+```
 
-Em `.env.local`, configure a API de autenticação e o encaminhamento da própria web:
+O segundo modo exige `dev.local/api-shared.env`, ignorado pelo Git, com as credenciais de servidor autorizadas. Ele desativa a gestão automática de esquema (`none`) e não executa o seed; edições feitas pela aplicação persistem no banco compartilhado. Redis e e-mail continuam locais. Consulte [dev/README.md](dev/README.md).
+
+## Configurar a API Web e a Manu
+
+Em `.env.local`, use a API Web local e o encaminhamento da própria web para a IA publicada:
 
 ```dotenv
-VITE_API_BASE_URL=https://web-api.fixa.solutions
+VITE_API_BASE_URL=http://localhost:8080
 VITE_AI_BASE_URL=/api/ia
 AI_PROXY_TARGET=https://ia-api.fixa.solutions
 VITE_CLOUDINARY_CLOUD_NAME=
@@ -55,13 +61,15 @@ VITE_CLOUDINARY_FOLDER=
 VITE_DATABRICKS_DASHBOARD_URL=
 ```
 
+Para voltar à API Web da AWS, altere somente `VITE_API_BASE_URL` para `https://web-api.fixa.solutions` e reinicie o Vite. Em produção, configure a variável na hospedagem e gere uma nova versão da web. A URL da IA permanece independente. Antes da troca, valide o login e o CORS do serviço publicado.
+
 O Vite encaminha `/api/ia` para o serviço existente; a Vercel tem a regra equivalente em `vercel.json`. Isso permite consumir o contrato publicado sem alterar CORS, agentes, autenticação ou código da IA. As chaves dos modelos, do banco e de assinatura JWT ficam nos servidores. Outros hosts precisam configurar o mesmo reverse proxy antes do fallback da SPA.
 
 As conversas da sessão usam somente respostas reais da API e permanecem em memória até recarregar a página ou sair da conta. O histórico completo aguarda as rotas do responsável pela IA. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
 
 Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O cloud name, o preset unsigned e a pasta fornecidos foram configurados no `.env.local` desta máquina; um upload real foi validado no navegador. Outras máquinas/implantação precisam configurar as três variáveis públicas de Cloudinary. Se a equipe escolher assinatura futuramente, será necessário o contrato da rota de assinatura. Não inclua API Secret no frontend. O dashboard recebe a URL de incorporação do Databricks quando ela for fornecida.
 
-Na verificação atual, o login de exemplo retornou HTTP 500 no serviço da AWS; isso precisa de diagnóstico no backend antes da validação com usuário real. Consulte [contrato, pendências e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
+Na última verificação do serviço da AWS, o login de exemplo retornou HTTP 500. A configuração de teste agora aponta para a API Web local compilada do commit `9516609` da `dev`, com login real aprovado. Consulte [o teste e o retorno futuro à AWS](docs/API_LOCAL_DEV_2026-10-25.md). Atualizar o clone local não atualiza a implantação da AWS. Consulte [contrato, pendências e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
 
 ## Integração atual
 
