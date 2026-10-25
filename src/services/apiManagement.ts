@@ -328,7 +328,7 @@ export function createManagementService(
           data: { ...data, unidadeId: unitId, tipoAcesso: 'TECNICO', senha: input.password },
         })
     try {
-      if (!saved.estaAtivo && input.status === 'Ativo')
+      if (!saved.estaAtivo && (input.status === 'Ativo' || !id))
         saved = await request<ApiUser>(`/api/v1/usuarios/${saved.id}/ativar`, { method: 'PATCH' })
       const links = await request<ApiLink[]>(`/api/v1/usuarios/${saved.id}/turnos`)
       // Vincular primeiro: se falhar, nenhum vínculo antigo é removido.

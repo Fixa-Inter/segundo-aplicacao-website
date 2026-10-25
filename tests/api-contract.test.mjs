@@ -318,3 +318,36 @@ test('administrador usa a unidade do CNPJ; gestor nunca depende do endpoint excl
   await assert.rejects(createManagementService(restricted.client, () => user).listShifts())
   assert.equal(restricted.calls[0].url, '/api/v1/turnos')
 })
+
+test('cadastro inicialmente inativo vincula turno enquanto ativo e termina no estado solicitado', async () => {
+  let active = false
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/turnos') return { data: [shift] }
+    if (call.url === '/api/v1/usuarios') return { data: { ...tech, estaAtivo: false } }
+    if (call.url === '/api/v1/usuarios/22/ativar') {
+      active = true
+      return { data: { ...tech, estaAtivo: true } }
+    }
+    if (call.url === '/api/v1/usuarios/22/desativar') {
+      active = false
+      return { data: { ...tech, estaAtivo: false } }
+    }
+    if (call.url === '/api/v1/usuarios/22/turnos') return { data: [] }
+    if (call.url === '/api/v1/turnos/4/usuarios/22') {
+      assert.equal(active, true)
+      return { data: {} }
+    }
+    if (call.url === '/api/v1/aptidoes') return { data: [] }
+    throw Error('Endpoint inesperado: ' + call.url)
+  })
+  const result = await createManagementService(client, () => user).saveTechnician({
+    ...input,
+    status: 'Inativo',
+  })
+  assert.equal(result.status, 'Inativo')
+  assert.equal(active, false)
+  assert.ok(
+    calls.findIndex((call) => call.url.endsWith('/ativar')) <
+      calls.findIndex((call) => call.url === '/api/v1/turnos/4/usuarios/22'),
+  )
+})

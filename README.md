@@ -28,18 +28,29 @@ O servidor precisa permitir a origem da web em `app.cors.allowed-origins`. O con
 
 Os comandos chamam as ferramentas diretamente pelo Node para funcionar também em caminhos Windows com `&`, como `OneDrive - Instituto J&F`.
 
+## Executar a API localmente
+
+Com Docker Desktop em execução:
+
+```bash
+npm run local:up
+npm run dev -- --port 5173 --strictPort
+```
+
+O ambiente prepara PostgreSQL, Redis, e-mail local e API, com credenciais somente da máquina. Consulte [dev/README.md](dev/README.md).
+
 ## Integração atual
 
-| Fluxo | Comportamento |
-| --- | --- |
-| Login/sessão | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor |
-| Equipe | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação |
-| Competências | Dez categorias; notas opcionais de 0 a 10 inteiras na web; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente |
-| Calendário/Home | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão |
-| Perfil | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato |
-| Senha | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual |
-| Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real |
-| Manu | Interface informa indisponibilidade enquanto não houver API de conversas |
+| Fluxo                | Comportamento                                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Login/sessão         | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                |
+| Equipe               | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação                         |
+| Competências         | Dez categorias; notas opcionais de 0 a 10 inteiras na web; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente |
+| Calendário/Home      | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                  |
+| Perfil               | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                      |
+| Senha                | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                     |
+| Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real                                  |
+| Manu                 | Interface informa indisponibilidade enquanto não houver API de conversas                                                                   |
 
 Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`. A sessão usa `sessionStorage` da aba para os tokens Bearer e a identificação mínima; senhas não são armazenadas. Em erro de renovação por token inválido, a sessão local é encerrada. O backend é responsável por autorização e isolamento entre unidades.
 
@@ -58,7 +69,7 @@ npm run build
 
 `tests/api-contract.test.mjs` verifica o transporte e os adaptadores usados em produção com respostas HTTP controladas. As suítes antigas continuam utilizando fixtures de demonstração explicitamente isoladas em `src/mocks/services`; não comprovam persistência real. Não há importação dessas fixtures pelos serviços de produção.
 
-Em 25/10/2026, os fluxos foram conferidos em navegador isolado em 1280×720 e 390×844, com respostas controladas compatíveis com os DTOs e permissões do repositório. **A validação ponta a ponta com servidor/banco reais ainda depende da URL de execução e de uma conta de teste.** Não há alegação de sincronização mobile/web verificada enquanto essa etapa estiver pendente.
+Em 25/10/2026, além dos cenários controlados em 1280×720 e 390×844, os fluxos de login, equipe, competências, eventos, perfil e recuperação de senha foram validados no Edge com API Spring Boot, PostgreSQL, Redis e SMTP locais reais. Houve confirmação por consultas independentes à API e recarregamento das páginas. Consulte as [evidências da execução local](docs/API_LOCAL_2026-10-25.md). A sincronização com o aplicativo mobile e a implantação em produção ainda não foram verificadas.
 
 ## Organização
 
