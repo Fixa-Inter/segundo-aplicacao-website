@@ -43,3 +43,7 @@ Regressões cobrem a separação de URLs, preservação de parâmetros e rejeiç
 - O Edge do usuário ainda solicitou login; orientado a entrar na conta Databricks e recarregar a prévia.
 - O teste automatizado conferiu que o iframe mantém /embed/... e Abrir em nova aba usa /dashboardsv3/<id>/published com o parâmetro o preservado.
 - A prévia local respondeu 200 sem depender do login da API Web. Nenhuma alteração na autenticação ou nas permissões da aplicação.
+
+## Acesso pela aplicação após corrigir o login AWS
+
+Em 25/10/2026 às 23h39, o login real da Web e a restauração da sessão foram aprovados no navegador. A rota /dashboard abriu no fluxo autenticado normal e apontou o iframe para a URL fornecida. A prévia temporária deixa de ser necessária para contornar a indisponibilidade anterior da API Web; pode continuar sendo usada somente como teste local. Os gráficos do iframe foram confirmados pelo usuário no Edge.

@@ -1,5 +1,23 @@
 # Interface e serviços AWS — Issue #12
 
+## Atualização: login AWS aprovado em 25/10/2026 às 23h39
+
+A correção do serviço publicado foi confirmada com a conta de teste autorizada. Login retornou 200, perfil 200 e turnos 200. No Edge automatizado, sem respostas controladas da API Web, foram aprovados:
+
+- Login e carregamento da Home.
+- Equipe com dois técnicos na página, informações do técnico, turnos formatados e leitura das dez competências.
+- Calendário, locais e três responsáveis disponíveis no formulário de evento.
+- Leitura do perfil e abertura dos três campos editáveis suportados.
+- Dashboard acessível pelo fluxo normal autenticado; iframe oficial e link da visualização publicada conferidos.
+- Restauração da sessão após recarregar, validando o perfil na AWS.
+- Histórico da IA retornou 403, sem derrubar a sessão válida da Web; foi possível voltar à Equipe normalmente.
+
+Nenhuma alteração de técnico, perfil, nota ou evento foi salva. A sessão de teste foi encerrada com logout 204. Não houve erros JavaScript nem tentativas inesperadas de escrita. Os gráficos autenticados do Databricks já haviam sido confirmados pelo usuário no Edge; o navegador automatizado possui sessão Databricks separada.
+
+A pendência de autenticação da API Web foi resolvida. A IA permanece com 403 em GET /api/v1/sessoes usando o token real da AWS; seu health check responde 200. O responsável deve conferir a consulta de perfil e a configuração FIXA_API_BASE_URL da implantação da IA. A causa do 403 ainda não foi confirmada. Nenhuma modificação no backend foi feita pela web.
+
+Os registros de HTTP 500 abaixo correspondem às verificações anteriores à correção da implantação. O código não mudou nesta verificação; a última execução dos gates da implementação teve 88 testes, formatação, lint e build aprovados.
+
 ## Implementação
 
 - API Web padrão: https://web-api.fixa.solutions. Configuração desta máquina e exemplo atualizados. IA pelo proxy /api/ia para https://ia-api.fixa.solutions.
