@@ -103,63 +103,34 @@
   gap: 16px;
   padding: calc(var(--header-height) + 12px) clamp(20px, 3vw, 48px) 20px;
 }
-.welcome {
+.greeting {
   flex: 1;
-  min-height: 180px;
+  min-height: 120px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.welcome img {
-  object-fit: contain;
-  width: 240px;
-  height: 240px;
-  flex: none;
-}
-.welcome h2 {
-  position: relative;
-  padding: 26px 28px;
-  margin: 0;
-  max-width: 320px;
-  border-radius: 24px;
-  background: var(--fixa-neutral-surface);
-  color: var(--fixa-muted);
-  box-shadow: 0 2px 3px #0003;
-  font-size: 18px;
-  font-weight: 400;
-}
-.welcome h2::after {
-  content: '';
-  position: absolute;
-  bottom: -9px;
-  left: 40px;
-  width: 20px;
-  height: 20px;
-  transform: rotate(45deg);
-  background: var(--fixa-neutral-surface);
-  border-radius: 4px;
-}
-.welcomeCompact {
-  flex: none;
-  min-height: 96px;
-  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: clamp(24px, 5dvh, 48px);
   width: min(100%, 1100px);
   align-self: center;
 }
-.welcomeCompact img {
-  width: 88px;
-  height: 88px;
+.greeting img {
+  object-fit: contain;
+  width: 72px;
+  height: 72px;
+  flex: none;
 }
-.welcomeCompact h2 {
-  padding: 12px 18px;
-  max-width: 400px;
-  font-size: 14px;
-}
-.welcomeCompact h2::after {
-  bottom: -6px;
-  width: 14px;
-  height: 14px;
+.greeting h2 {
+  min-width: 0;
+  max-width: 540px;
+  padding: 16px 20px;
+  margin: 0;
+  border-radius: 20px 20px 20px 4px;
+  background: var(--fixa-assistant-bg);
+  color: var(--fixa-ink);
+  font-size: clamp(16px, 1.4vw, 20px);
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 .messages {
   flex: 1;
@@ -312,14 +283,6 @@
   border: 0;
 }
 @media (max-width: 900px) {
-  .welcome:not(.welcomeCompact) {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .welcome:not(.welcomeCompact) img {
-    width: 180px;
-    height: 180px;
-  }
   .page {
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, 1fr);
@@ -354,49 +317,11 @@
     min-height: 440px;
     padding: 16px 20px 28px;
   }
-  .welcome {
-    min-height: 0;
-  }
-  .welcome img {
-    width: 140px;
-    height: 140px;
-  }
-  .welcome h2 {
-    font-size: 16px;
-    padding: 18px;
-  }
-  .welcomeCompact {
-    min-height: 76px;
-    flex-direction: row;
-  }
-  .welcomeCompact img {
-    width: 64px;
-    height: 64px;
-  }
-  .welcomeCompact h2 {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
   .composer {
     padding: 20px 18px 12px;
   }
   .composer textarea {
     font-size: 16px;
-  }
-}
-
-@media (max-width: 600px) {
-  .welcome:not(.welcomeCompact) {
-    flex-direction: row;
-    gap: 8px;
-  }
-  .welcome:not(.welcomeCompact) img {
-    width: 110px;
-    height: 110px;
-  }
-  .welcome:not(.welcomeCompact) h2 {
-    font-size: 14px;
-    padding: 14px;
   }
 }
 
@@ -460,9 +385,6 @@
   color: var(--fixa-danger-text);
   font-size: 13px;
   overflow-wrap: anywhere;
-}
-.welcomeCompact {
-  flex-wrap: wrap;
 }
 .closeChat {
   margin-left: auto;
@@ -551,10 +473,6 @@
   background: var(--fixa-surface);
 }
 @media (max-width: 600px) {
-  .welcomeCompact h2 {
-    flex: 1;
-    min-width: 140px;
-  }
   .closeChat {
     margin-left: 72px;
   }
@@ -838,4 +756,19 @@
   color: var(--fixa-text-primary);
   font: inherit;
   cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .greeting {
+    gap: 8px;
+    min-height: 0;
+    padding-top: 20px;
+  }
+  .greeting img {
+    width: 56px;
+    height: 56px;
+  }
+  .greeting h2 {
+    padding: 12px 16px;
+  }
 }

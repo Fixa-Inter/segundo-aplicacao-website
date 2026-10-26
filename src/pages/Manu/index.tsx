@@ -9,7 +9,6 @@ import { createCloudinaryUploader, validateImageFile } from '../../services/clou
 import type { ManuConversation, ManuHistory, ManuMessage } from '../../services/manuService'
 import { manuEmotionImage } from '../../assets/manuEmotions'
 import { normalizeManuEmotion } from '../../utils/manu'
-import welcomeArt from '../../assets/figma/manu-chat.png'
 import styles from './Manu.module.css'
 
 const uploader = createCloudinaryUploader(
@@ -358,8 +357,8 @@ export default function Manu() {
       </aside>
       <section className={styles.chat} aria-label={t('Manu')}>
         {!messages.length ? (
-          <div className={styles.welcome}>
-            <img src={welcomeArt} alt="" width="240" height="240" />
+          <div className={styles.greeting}>
+            <img src={manuEmotionImage('EMPATICO')} alt={t('Manu')} width="72" height="72" />
             <h2>
               {t('Olá {name}, como posso te ajudar hoje?', {
                 name: user?.name.split(' ')[0] ?? '',
