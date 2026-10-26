@@ -18,13 +18,6 @@
   font-size: 24px;
   font-weight: 500;
 }
-.toolbar a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--fixa-text-primary);
-  font-size: 13px;
-}
 .frame {
   display: block;
   width: 100%;

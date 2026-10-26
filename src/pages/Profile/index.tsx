@@ -217,7 +217,7 @@ export default function Profile() {
             <form ref={formRef} className={styles.form} onSubmit={save} noValidate aria-busy={busy}>
               <div className={styles.profileGrid}>
                 {fields.map((field) => (
-                  <div className={`${common.field} ${styles[field.key]}`} key={field.key}>
+                  <div className={common.field} key={field.key}>
                     <label htmlFor={`profile-${field.key}`}>{t(field.label)}</label>
                     <input
                       id={`profile-${field.key}`}
@@ -268,6 +268,11 @@ export default function Profile() {
               <h3>{t('Informações')}</h3>
               <div>
                 <InformationItem
+                  icon={<FigmaIcon name="profile" />}
+                  label={t('Nome')}
+                  value={profile.name || t('Não informado')}
+                />
+                <InformationItem
                   icon={<FigmaIcon name="mail" />}
                   label={t('E-mail')}
                   value={profile.email || t('Não informado')}
@@ -281,11 +286,13 @@ export default function Profile() {
                       : t('Não informado')
                   }
                 />
-                <InformationItem
-                  icon={<FigmaIcon name="location" />}
-                  label={t('Localização')}
-                  value={address || t('Não informado')}
-                />
+                <div className={styles.location}>
+                  <InformationItem
+                    icon={<FigmaIcon name="location" />}
+                    label={t('Localização')}
+                    value={address || t('Não informado')}
+                  />
+                </div>
               </div>
               <button
                 ref={editButtonRef}

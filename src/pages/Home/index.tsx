@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { useAuth } from '../../contexts/useAuth'
@@ -9,7 +8,7 @@ import type { HomeData } from '../../types/home'
 import { monthDays, occursOnDate } from '../../utils/calendar'
 import { usePreferences } from '../../contexts/usePreferences'
 import { truncateText } from '../../utils/presentation'
-import { dashboardWidgetURL, dashboardViewURL } from '../../utils/dashboardEmbed'
+import { dashboardWidgetURL } from '../../utils/dashboardEmbed'
 import styles from './Home.module.css'
 
 export default function Home() {
@@ -19,7 +18,6 @@ export default function Home() {
     import.meta.env.VITE_DATABRICKS_DASHBOARD_URL,
     import.meta.env.VITE_DATABRICKS_HOME_WIDGET,
   )
-  const dashboardView = dashboardViewURL(dashboardUrl ?? undefined)
   const [frameLoaded, setFrameLoaded] = useState(false)
   const [data, setData] = useState<HomeData | null>(null)
   const [error, setError] = useState('')
@@ -111,17 +109,6 @@ export default function Home() {
                 allowFullScreen
                 onLoad={() => setFrameLoaded(true)}
               />
-              {dashboardView && (
-                <a
-                  className={styles.dashboardExternal}
-                  href={dashboardView}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t('Abrir no Databricks')}
-                  <ExternalLink size={15} aria-hidden="true" />
-                </a>
-              )}
             </>
           ) : (
             <p className={styles.calendarState}>

@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { ExternalLink } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
-import { dashboardFilteredWidgetURL, dashboardViewURL } from '../../utils/dashboardEmbed'
+import { dashboardFilteredWidgetURL } from '../../utils/dashboardEmbed'
 import styles from './TechnicianPerformance.module.css'
 
 export function TechnicianPerformance({ name }: { name: string }) {
@@ -17,11 +16,6 @@ export function TechnicianPerformance({ name }: { name: string }) {
     <section className={styles.panel} aria-labelledby="performance-title">
       <div className={styles.toolbar}>
         <h2 id="performance-title">{t('Desempenho')}</h2>
-        {url && (
-          <a href={dashboardViewURL(url) ?? url} target="_blank" rel="noopener noreferrer">
-            {t('Abrir no Databricks')} <ExternalLink size={16} aria-hidden="true" />
-          </a>
-        )}
       </div>
       {url ? (
         <>
