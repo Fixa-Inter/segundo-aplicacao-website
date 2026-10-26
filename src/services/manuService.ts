@@ -71,15 +71,17 @@ function decodeHistory(value: RemoteConversation): ManuHistory {
   )
     throw new ApiError('O serviço da Manu retornou um histórico inválido.')
   const summary = value.resumo.trim()
+  // O histórico separa a primeira linha do resumo em titulo; o restante pode estar vazio.
+  const title = value.titulo.trim()
   return {
     thread_id: value.session_id,
     title:
-      value.titulo.trim() ||
+      title ||
       getSummaryTitle(summary) ||
       value.mensagens.find((item) => item.role === 'human')?.mensagem.slice(0, 80) ||
       'Conversa sem título',
     updated_at: new Date(value.atualizada_em).toISOString(),
-    closed: Boolean(summary),
+    closed: Boolean(title || summary),
     summary: summary || null,
     confirmacao: 'nao',
     messages: value.mensagens.map((item, index) => ({

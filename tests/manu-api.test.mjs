@@ -278,7 +278,9 @@ test('histórico AWS restaura título, resumo e emoções ao criar uma nova inst
 })
 test('conversa fora do cache usa POST por session_id e rejeita resposta com outra identidade', async () => {
   const { service, calls } = setup(
-    () => ({ data: { status: 'SUCESSO', conversa: { ...remoteConversation, resumo: '' } } }),
+    () => ({
+      data: { status: 'SUCESSO', conversa: { ...remoteConversation, titulo: '', resumo: '' } },
+    }),
     true,
   )
   const history = await service.history('persisted-1')
@@ -342,4 +344,23 @@ test('erro 500 no encerramento preserva conversa, mensagens e autenticação, se
   assert.equal(client.getTokens().token, 'token-1')
   assert.equal(calls.filter((call) => call.method === 'delete').length, 1)
   assert.equal(calls.length, 2)
+})
+
+test('resumo de uma linha vira título no histórico AWS e continua encerrado após recarregar', async () => {
+  const titled = { ...remoteConversation, titulo: 'Saudação inicial', resumo: '' }
+  const listing = setup(() => ({ data: { status: 'SUCESSO', conversas: [titled] } }), true)
+  assert.equal((await listing.service.list())[0].closed, true)
+  const history = await listing.service.history('persisted-1')
+  assert.equal(history.title, 'Saudação inicial')
+  assert.equal(history.summary, null)
+  assert.equal(history.messages.length, 2)
+  await assert.rejects(listing.service.send('Continuar', 'persisted-1'), /finalizada/)
+  assert.equal(listing.calls.length, 1)
+  const specific = setup(() => ({ data: { status: 'SUCESSO', conversa: titled } }), true)
+  assert.equal((await specific.service.history('persisted-1')).closed, true)
+  const open = setup(
+    () => ({ data: { status: 'SUCESSO', conversa: { ...titled, titulo: ' ' } } }),
+    true,
+  )
+  assert.equal((await open.service.history('persisted-1')).closed, false)
 })

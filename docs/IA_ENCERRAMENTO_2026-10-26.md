@@ -1,5 +1,7 @@
 # Manu: controles e falha ao encerrar conversa
 
+> Atualização às 13h04: o encerramento publicado retornou 200/ENCERRADA. A Web foi adaptada ao título separado do resumo no histórico. Consulte [a validação da correção AWS](IA_AWS_RETESTE_2026-10-26.md). Os erros abaixo são registros anteriores.
+
 Continuação da [Issue #12](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12), em 26/10/2026. Alterações restritas à Web; nenhum código ou ambiente da IA foi alterado.
 
 ## Interface
