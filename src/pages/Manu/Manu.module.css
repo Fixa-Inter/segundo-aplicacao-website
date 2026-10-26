@@ -80,16 +80,24 @@
   gap: 8px;
   padding: 4px 2px;
 }
+.conversationRow {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border-radius: 15px;
+  transition: background-color 150ms;
+}
 .conversation {
   display: block;
-  width: 100%;
+  min-width: 0;
+  flex: 1;
   min-height: 48px;
   text-align: left;
   border: 0;
   border-radius: 15px;
   background: transparent;
   color: var(--fixa-muted);
-  padding: 12px 14px;
+  padding: 12px 10px 12px 14px;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -97,8 +105,9 @@
   font: inherit;
   font-size: 14px;
 }
-.conversation:hover,
-.conversation[aria-current='page'] {
+.conversationRow:hover,
+.conversationRow:focus-within,
+.conversationRow[data-active='true'] {
   background: var(--fixa-history-selected);
 }
 .chat {
@@ -314,8 +323,8 @@
     flex-direction: row;
     overflow-x: auto;
   }
-  .conversation {
-    width: 180px;
+  .conversationRow {
+    width: 210px;
     flex: none;
   }
   .chat {
@@ -392,26 +401,6 @@
   font-size: 13px;
   overflow-wrap: anywhere;
 }
-.closeChat {
-  margin-left: auto;
-  flex: none;
-  min-height: 38px;
-  padding: 8px 16px;
-  border: 1px solid var(--fixa-border);
-  border-radius: 24px;
-  color: var(--fixa-text-primary);
-  background: var(--fixa-surface);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-.closeChat:hover:not(:disabled) {
-  background: var(--fixa-selected);
-}
-.closeChat:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
 .bubble a {
   color: inherit;
 }
@@ -479,9 +468,6 @@
   background: var(--fixa-surface);
 }
 @media (max-width: 600px) {
-  .closeChat {
-    margin-left: 72px;
-  }
   .imageLink input {
     grid-column: 1 / -1;
   }
@@ -703,11 +689,6 @@
   .chatHeading h2 {
     font-size: 14px;
   }
-  .chatHeading .closeChat {
-    flex: none;
-    font-size: 11px;
-    padding: 8px 10px;
-  }
   .decisionButtons button {
     padding-inline: 15px;
     font-size: 12px;
@@ -776,5 +757,41 @@
   }
   .greeting h2 {
     padding: 12px 16px;
+  }
+}
+
+.closedChat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  color: var(--fixa-muted);
+  font-size: 12px;
+}
+.deleteConversation {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  margin-right: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--fixa-muted);
+  cursor: pointer;
+}
+.deleteConversation:hover:not(:disabled) {
+  color: var(--fixa-danger-text);
+  background: var(--fixa-error-bg);
+}
+.deleteConversation:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+@media (max-width: 600px) {
+  .closedChat {
+    font-size: 11px;
   }
 }

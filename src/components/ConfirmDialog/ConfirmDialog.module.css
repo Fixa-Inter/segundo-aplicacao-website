@@ -104,3 +104,11 @@
     font-size: 14px;
   }
 }
+
+.error {
+  margin: 12px 0 0;
+  color: var(--fixa-danger-text);
+  font-size: 13px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}

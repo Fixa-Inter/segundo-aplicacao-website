@@ -14,6 +14,11 @@ const variants = {
     question: 'Deseja deletar esse registro?',
     subtitle: 'Essa ação não poderá ser desfeita.',
   },
+  deleteConversation: {
+    art: deleteArt,
+    question: 'Excluir esta conversa?',
+    subtitle: 'A conversa será removida do seu histórico.',
+  },
   deactivate: {
     art: deleteArt,
     question: 'Desativar este técnico?',
@@ -37,6 +42,7 @@ export function ConfirmDialog({
   variant,
   subject,
   confirmLabel,
+  error,
   busy = false,
   onClose,
   onConfirm,
@@ -67,6 +73,11 @@ export function ConfirmDialog({
             <img className={styles.art} src={art} width="240" height="240" alt="" />
             <h2>{t(question)}</h2>
             <p className={styles.subtitle}>{t(subtitle)}</p>
+            {error && (
+              <p className={styles.error} role="alert">
+                {t(error)}
+              </p>
+            )}
             {subject && (
               <p id={subjectId} className={styles.srOnly}>
                 {subject}

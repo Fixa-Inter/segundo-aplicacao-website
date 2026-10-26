@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
-import { ArrowUp, Check, Paperclip, Plus, RotateCcw, X } from 'lucide-react'
+import { ArrowUp, Check, Paperclip, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useAuth } from '../../contexts/useAuth'
 import { FigmaIcon } from '../../components/FigmaIcon'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { ApiError } from '../../services/httpClient'
 import { manuApi } from '../../services/manuApi'
 import { createCloudinaryUploader, validateImageFile } from '../../services/cloudinaryService'
@@ -50,6 +51,9 @@ export default function Manu() {
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [sending, setSending] = useState(false)
   const [closing, setClosing] = useState(false)
+  const [removing, setRemoving] = useState(false)
+  const [deleting, setDeleting] = useState<ManuConversation | null>(null)
+  const [deleteError, setDeleteError] = useState('')
   const [error, setError] = useState('')
   const [historyError, setHistoryError] = useState('')
   const [historyLoading, setHistoryLoading] = useState(manuApi.configured)
@@ -60,9 +64,10 @@ export default function Manu() {
   const generation = useRef(0)
   const busyRef = useRef(false)
   const fileInput = useRef<HTMLInputElement>(null)
+  const newChatButton = useRef<HTMLButtonElement>(null)
   const end = useRef<HTMLDivElement>(null)
   const uploading = attachments.some((item) => item.status === 'uploading')
-  const busy = sending || closing || uploading
+  const busy = sending || closing || removing || uploading
   const pendingConfirmation = current?.confirmacao === 'sim' && !current.closed
   const lastReply = messages.findLast((item) => item.author === 'manu')
 
@@ -118,8 +123,7 @@ export default function Manu() {
     uploads.current.clear()
     setAttachments([])
   }
-  function newChat() {
-    if (busyRef.current || uploading) return
+  function resetChat() {
     generation.current++
     setCurrent(null)
     setMessages([])
@@ -273,8 +277,12 @@ export default function Manu() {
       }
     }
   }
-  async function closeConversation() {
-    if (!current || busy || busyRef.current || pendingConfirmation) return
+  async function newChat() {
+    if (busyRef.current || uploading) return
+    if (!current || current.closed) {
+      resetChat()
+      return
+    }
     busyRef.current = true
     setClosing(true)
     setError('')
@@ -284,7 +292,7 @@ export default function Manu() {
     try {
       await manuApi.close(current.thread_id, controller.signal)
       if (controller.signal.aborted || expected !== generation.current) return
-      setCurrent(await manuApi.history(current.thread_id))
+      resetChat()
       await refreshConversations()
     } catch (reason) {
       if (!controller.signal.aborted)
@@ -296,6 +304,35 @@ export default function Manu() {
     } finally {
       busyRef.current = false
       setClosing(false)
+    }
+  }
+  async function deleteConversation() {
+    if (!deleting || busyRef.current || uploading) return
+    const targetId = deleting.thread_id
+    const expected = generation.current
+    const controller = new AbortController()
+    request.current = controller
+    busyRef.current = true
+    setRemoving(true)
+    setDeleteError('')
+    try {
+      await manuApi.remove(targetId, controller.signal)
+      if (controller.signal.aborted || expected !== generation.current) return
+      setConversations((values) => values.filter((item) => item.thread_id !== targetId))
+      if (current?.thread_id === targetId) resetChat()
+      setDeleting(null)
+      await refreshConversations()
+      requestAnimationFrame(() => newChatButton.current?.focus())
+    } catch (reason) {
+      if (!controller.signal.aborted)
+        setDeleteError(
+          reason instanceof ApiError && (reason.status === 0 || reason.status >= 500)
+            ? 'Não foi possível excluir a conversa. Tente novamente.'
+            : errorMessage(reason),
+        )
+    } finally {
+      busyRef.current = false
+      setRemoving(false)
     }
   }
   const filtered = conversations.filter((item) =>
@@ -315,9 +352,15 @@ export default function Manu() {
             onChange={(event) => setSearch(event.target.value)}
           />
         </label>
-        <button className={styles.newChat} type="button" onClick={newChat} disabled={busy}>
+        <button
+          ref={newChatButton}
+          className={styles.newChat}
+          type="button"
+          onClick={() => void newChat()}
+          disabled={busy}
+        >
           <Plus size={22} aria-hidden="true" />
-          {t('Novo chat')}
+          {t(closing ? 'Finalizando…' : 'Novo chat')}
         </button>
         <div className={styles.historyTitle}>
           <h2>{t('Conversas')}</h2>
@@ -346,17 +389,35 @@ export default function Manu() {
         )}
         <nav aria-label={t('Conversas recentes')}>
           {filtered.map((item) => (
-            <button
+            <div
               key={item.thread_id}
-              type="button"
-              className={styles.conversation}
-              aria-current={current?.thread_id === item.thread_id ? 'page' : undefined}
-              disabled={busy}
-              onClick={() => void selectConversation(item.thread_id)}
-              title={item.title}
+              className={styles.conversationRow}
+              data-active={current?.thread_id === item.thread_id}
             >
-              {item.closed && <Check size={13} aria-label={t('Encerrada')} />} {item.title}
-            </button>
+              <button
+                type="button"
+                className={styles.conversation}
+                aria-current={current?.thread_id === item.thread_id ? 'page' : undefined}
+                disabled={busy}
+                onClick={() => void selectConversation(item.thread_id)}
+                title={item.title}
+              >
+                {item.closed && <Check size={13} aria-label={t('Encerrada')} />} {item.title}
+              </button>
+              <button
+                type="button"
+                className={styles.deleteConversation}
+                disabled={busy}
+                aria-label={t('Excluir conversa: {title}', { title: item.title })}
+                title={t('Excluir conversa')}
+                onClick={() => {
+                  setDeleteError('')
+                  setDeleting(item)
+                }}
+              >
+                <Trash2 size={17} aria-hidden="true" />
+              </button>
+            </div>
           ))}
         </nav>
       </aside>
@@ -373,21 +434,11 @@ export default function Manu() {
         ) : (
           <div className={styles.chatHeading}>
             <h2>{current?.title ?? t('Nova conversa')}</h2>
-            {current && (
-              <button
-                type="button"
-                className={styles.closeChat}
-                disabled={busy || current.closed || pendingConfirmation}
-                onClick={() => void closeConversation()}
-              >
-                {t(
-                  current.closed
-                    ? 'Conversa finalizada'
-                    : closing
-                      ? 'Finalizando…'
-                      : 'Finalizar conversa',
-                )}
-              </button>
+            {current?.closed && (
+              <span className={styles.closedChat}>
+                <Check size={15} aria-hidden="true" />
+                {t('Conversa finalizada')}
+              </span>
             )}
           </div>
         )}
@@ -659,6 +710,21 @@ export default function Manu() {
           </p>
         )}
       </section>
+      <ConfirmDialog
+        opened={Boolean(deleting)}
+        variant="deleteConversation"
+        subject={deleting?.title}
+        confirmLabel="Excluir"
+        busy={removing}
+        error={deleteError}
+        onClose={() => {
+          if (!busyRef.current) {
+            setDeleting(null)
+            setDeleteError('')
+          }
+        }}
+        onConfirm={() => void deleteConversation()}
+      />
     </div>
   )
 }

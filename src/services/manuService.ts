@@ -109,8 +109,12 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     /* Configuração validada antes do envio de credenciais. */
   }
   const conversations = new Map<string, ManuHistory>()
+  const removedThreadIds = new Set<string>()
   client.onTokens((tokens) => {
-    if (!tokens) conversations.clear()
+    if (!tokens) {
+      conversations.clear()
+      removedThreadIds.clear()
+    }
   })
   function endpoint(route = '') {
     if (!base) throw new ApiError('Configure VITE_AI_BASE_URL com o endereço do serviço da Manu.')
@@ -122,6 +126,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     if (!client.getTokens()) throw new ApiError('Entre novamente para continuar.', 401)
   }
   function remember(value: ManuHistory) {
+    if (removedThreadIds.has(value.thread_id)) return
     conversations.delete(value.thread_id)
     conversations.set(value.thread_id, value)
     if (conversations.size > 50) conversations.delete(conversations.keys().next().value!)
@@ -168,7 +173,10 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         !Array.isArray(result.conversas)
       )
         throw new ApiError('O serviço da Manu retornou um histórico inválido.')
-      const loaded = result.conversas.map(decodeHistory).map(mergeHistory)
+      const loaded = result.conversas
+        .map(decodeHistory)
+        .filter((item) => !removedThreadIds.has(item.thread_id))
+        .map(mergeHistory)
       const all = new Map(loaded.map((item) => [item.thread_id, item]))
       for (const item of conversations.values()) {
         if (!all.has(item.thread_id)) {
@@ -188,6 +196,8 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     },
     async history(threadId: string, signal?: AbortSignal): Promise<ManuHistory> {
       check(signal)
+      if (removedThreadIds.has(threadId))
+        throw new ApiError('Esta conversa foi removida do histórico.', 404)
       const cached = conversations.get(threadId)
       if (cached) return structuredClone(cached)
       if (!threadId || threadId.length > 100) throw new ApiError('Conversa inválida.')
@@ -203,6 +213,8 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       signal?.throwIfAborted()
       if (!result || result.status !== 'SUCESSO')
         throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+      if (removedThreadIds.has(threadId))
+        throw new ApiError('Esta conversa foi removida do histórico.', 404)
       const value = decodeHistory(result.conversa)
       if (value.thread_id !== threadId)
         throw new ApiError('O serviço da Manu retornou um histórico inválido.')
@@ -218,6 +230,8 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       const message = text.trim()
       if (!message || message.length > 4000)
         throw new ApiError('A mensagem deve ter de 1 a 4000 caracteres.')
+      if (threadId && removedThreadIds.has(threadId))
+        throw new ApiError('Esta conversa foi removida do histórico.', 404)
       if (threadId && conversations.get(threadId)?.closed)
         throw new ApiError('Esta conversa foi finalizada. Inicie uma nova conversa.', 409)
       const links = validateImageLinks(images)
@@ -266,6 +280,8 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       return result
     },
     async close(threadId: string, signal?: AbortSignal) {
+      check(signal)
+      if (!threadId || threadId.length > 100) throw new ApiError('Conversa inválida.')
       const result = await client.request<{
         thread_id: string
         status: string
@@ -278,7 +294,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         signal,
       })
       signal?.throwIfAborted()
-      if (result.status !== 'ENCERRADA')
+      if (!result || result.thread_id !== threadId || result.status !== 'ENCERRADA')
         throw new ApiError('Não foi possível confirmar a finalização da conversa.')
       const previous = conversations.get(threadId)
       if (previous)
@@ -289,6 +305,20 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
           closed: true,
           confirmacao: 'nao',
         })
+      return result
+    },
+    async remove(threadId: string, signal?: AbortSignal) {
+      check(signal)
+      if (!threadId || threadId.length > 100) throw new ApiError('Conversa inválida.')
+      const result = await client.request<{ session_id: string; status: string; mensagem: string }>(
+        base + '/api/v1/sessoes/conversa/' + encodeURIComponent(threadId),
+        { method: 'DELETE', expireSessionOnUnauthorized: false, timeout: 120000, signal },
+      )
+      signal?.throwIfAborted()
+      if (!result || result.session_id !== threadId || result.status !== 'EXCLUIDA')
+        throw new ApiError('Não foi possível confirmar a exclusão da conversa.')
+      removedThreadIds.add(threadId)
+      conversations.delete(threadId)
       return result
     },
   }

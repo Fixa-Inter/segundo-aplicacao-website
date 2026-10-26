@@ -32,6 +32,37 @@ const messages: Record<string, readonly [string, string, string]> = {
     '请先确认上面的建议。',
   ],
   'Conversa finalizada': ['Conversation ended', 'Conversación finalizada', '对话已结束'],
+  'Excluir esta conversa?': [
+    'Delete this conversation?',
+    '¿Eliminar esta conversación?',
+    '删除此对话？',
+  ],
+  'A conversa será removida do seu histórico.': [
+    'The conversation will be removed from your history.',
+    'La conversación se eliminará de tu historial.',
+    '此对话将从您的历史记录中移除。',
+  ],
+  'Excluir conversa': ['Delete conversation', 'Eliminar conversación', '删除对话'],
+  'Excluir conversa: {title}': [
+    'Delete conversation: {title}',
+    'Eliminar conversación: {title}',
+    '删除对话：{title}',
+  ],
+  'Não foi possível excluir a conversa. Tente novamente.': [
+    'The conversation could not be deleted. Try again.',
+    'No se pudo eliminar la conversación. Inténtalo de nuevo.',
+    '无法删除对话，请重试。',
+  ],
+  'Não foi possível confirmar a exclusão da conversa.': [
+    'The conversation deletion could not be confirmed.',
+    'No se pudo confirmar la eliminación de la conversación.',
+    '无法确认对话已删除。',
+  ],
+  'Esta conversa foi removida do histórico.': [
+    'This conversation was removed from history.',
+    'Esta conversación se eliminó del historial.',
+    '此对话已从历史记录中移除。',
+  ],
   'Finalizar conversa': ['End conversation', 'Finalizar conversación', '结束对话'],
   'Finalizando…': ['Ending…', 'Finalizando…', '正在结束…'],
   'Não foi possível confirmar o encerramento da conversa. Suas mensagens continuam disponíveis.': [

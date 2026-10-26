@@ -1,5 +1,7 @@
 # Manu: validação da correção publicada na AWS
 
+> Fluxo atualizado posteriormente: [Novo chat com encerramento e lixeira com confirmação](MANU_SESSOES_2026-10-26.md).
+
 Continuação da [Issue #12](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12), em 26/10/2026, após o usuário informar uma nova publicação da IA. Nenhum código, branch ou ambiente do backend da IA foi alterado pela Web.
 
 ## Conexão e contrato

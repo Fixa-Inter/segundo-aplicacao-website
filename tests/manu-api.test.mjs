@@ -364,3 +364,98 @@ test('resumo de uma linha vira título no histórico AWS e continua encerrado ap
   )
   assert.equal((await open.service.history('persisted-1')).closed, false)
 })
+
+test('remover conversa usa DELETE do histórico, Bearer e nenhum corpo, preservando as demais', async () => {
+  const other = { ...remoteConversation, session_id: 'outra-conversa' }
+  const { service, calls } = setup(
+    (call) => ({
+      data:
+        call.method === 'delete'
+          ? { session_id: 'persisted-1', status: 'EXCLUIDA', mensagem: 'Removida' }
+          : { status: 'SUCESSO', conversas: [remoteConversation, other] },
+    }),
+    true,
+  )
+  await service.list()
+  await service.remove('persisted-1')
+  assert.equal(calls[1].url, 'https://web.fixa.test/api/ia/api/v1/sessoes/conversa/persisted-1')
+  assert.equal(calls[1].auth, 'Bearer token-1')
+  assert.equal(calls[1].data, undefined)
+  assert.deepEqual(
+    service.cachedList().map((item) => item.thread_id),
+    ['outra-conversa'],
+  )
+  await assert.rejects(service.history('persisted-1'), /removida do histórico/)
+  await assert.rejects(service.send('Continuar', 'persisted-1'), /removida do histórico/)
+  assert.equal((await service.list()).length, 1)
+  assert.equal(calls.filter((call) => call.method === 'delete').length, 1)
+})
+
+test('falhas de exclusão não apagam mensagens ou autenticação e não repetem DELETE', async () => {
+  for (const status of [403, 500]) {
+    const { service, client, calls } = setup((call) =>
+      call.method === 'delete'
+        ? { status, data: { detail: 'Falha de exclusão' } }
+        : { data: reply },
+    )
+    await service.send('Olá', null)
+    const before = await service.history('thread-1')
+    await assert.rejects(service.remove('thread-1'), (error) => error.status === status)
+    assert.deepEqual(await service.history('thread-1'), before)
+    assert.equal(client.getTokens().token, 'token-1')
+    assert.equal(calls.length, 2)
+  }
+})
+
+test('remoção e encerramento rejeitam confirmação de outra conversa antes de alterar estado', async () => {
+  for (const action of ['remove', 'close']) {
+    const { service } = setup((call) => ({
+      data:
+        call.method === 'delete'
+          ? {
+              session_id: 'outra',
+              thread_id: 'outra',
+              status: action === 'remove' ? 'EXCLUIDA' : 'ENCERRADA',
+            }
+          : reply,
+    }))
+    await service.send('Olá', null)
+    const before = await service.history('thread-1')
+    await assert.rejects(service[action]('thread-1'), /Não foi possível confirmar/)
+    assert.deepEqual(await service.history('thread-1'), before)
+  }
+})
+
+test('leitura iniciada antes da exclusão não restaura a conversa removida', async () => {
+  let release
+  const gate = new Promise((resolve) => {
+    release = resolve
+  })
+  const { service } = setup(async (call) => {
+    if (call.method === 'delete') return { data: { session_id: 'persisted-1', status: 'EXCLUIDA' } }
+    await gate
+    return { data: { status: 'SUCESSO', conversas: [remoteConversation] } }
+  }, true)
+  const pending = service.list()
+  await service.remove('persisted-1')
+  release()
+  assert.deepEqual(await pending, [])
+  assert.deepEqual(service.cachedList(), [])
+})
+
+test('resposta de exclusão após logout não altera a sessão seguinte', async () => {
+  let release
+  const gate = new Promise((resolve) => {
+    release = resolve
+  })
+  const { service, client } = setup(async () => {
+    await gate
+    return { data: { session_id: 'persisted-1', status: 'EXCLUIDA' } }
+  })
+  const pending = service.remove('persisted-1')
+  client.clear()
+  client.setTokens({ token: 'outra-conta', refreshToken: 'outra-renovacao' })
+  release()
+  await assert.rejects(pending, /sessão foi encerrada/)
+  assert.equal(client.getTokens().token, 'outra-conta')
+})
