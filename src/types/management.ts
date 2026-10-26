@@ -12,6 +12,12 @@ export interface ShiftOption {
   id: string
   name: string
 }
+export interface EventResponsibleOption {
+  id: string
+  name: string
+  status: 'Ativo' | 'Inativo'
+}
+
 export interface LocationOption {
   id: string
   name: string

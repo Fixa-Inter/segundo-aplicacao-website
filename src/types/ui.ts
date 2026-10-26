@@ -3,6 +3,7 @@ import type { CompetencyInput, TechnicianCompetency } from './competency'
 import type {
   CalendarEvent,
   CalendarEventInput,
+  EventResponsibleOption,
   ManagerProfile,
   PerformancePeriod,
   PerformancePoint,
@@ -123,7 +124,7 @@ export interface TechnicianSubmission {
 export interface EventFormProps {
   event: CalendarEvent | null
   selectedDay: string
-  technicians: Technician[]
+  responsibles: EventResponsibleOption[]
   onSubmit: (input: CalendarEventInput) => Promise<CalendarEvent>
   onSaved: (event: CalendarEvent) => void
   onCancel: () => void

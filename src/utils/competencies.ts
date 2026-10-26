@@ -34,9 +34,10 @@ export function getCompetencyPresentation(
 
 export function parseCompetencyRating(value: string): number | null | undefined {
   if (!value.trim()) return null
-  if (!/^\d{1,2}$/.test(value.trim())) return undefined
-  const rating = Number(value)
-  return Number.isInteger(rating) && rating >= 0 && rating <= 10 ? rating : undefined
+  const normalized = value.trim().replace(',', '.')
+  if (!/^\d{1,2}(?:\.\d{1,2})?$/.test(normalized)) return undefined
+  const rating = Number(normalized)
+  return Number.isFinite(rating) && rating >= 0 && rating <= 10 ? rating : undefined
 }
 
 export function validateCompetency(input: CompetencyInput): string | null {
@@ -44,8 +45,11 @@ export function validateCompetency(input: CompetencyInput): string | null {
     return 'Competência inválida.'
   if (
     input.rating !== null &&
-    (!Number.isInteger(input.rating) || input.rating < 0 || input.rating > 10)
+    (!Number.isFinite(input.rating) ||
+      input.rating < 0 ||
+      input.rating > 10 ||
+      Math.abs(input.rating * 100 - Math.round(input.rating * 100)) > 1e-8)
   )
-    return 'Informe uma nota inteira de 0 a 10.'
+    return 'Informe uma nota de 0 a 10, com até duas casas decimais.'
   return null
 }

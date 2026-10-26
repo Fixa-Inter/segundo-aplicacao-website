@@ -45,6 +45,9 @@
   gap: 26px 20px;
 }
 .name,
+.email {
+  grid-column: span 6;
+}
 .address {
   grid-column: span 8;
 }
@@ -57,9 +60,7 @@
 .city {
   grid-column: span 4;
 }
-.email {
-  grid-column: span 7;
-}
+
 .password,
 .complement {
   grid-column: span 5;
@@ -70,12 +71,10 @@
 .number {
   grid-column: span 2;
 }
-.edit .email {
-  grid-column: span 12;
-}
+
 .operational {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
   align-items: start;
   gap: 20px;
 }
@@ -181,7 +180,7 @@
   font-size: 13px;
 }
 .scoreInput input {
-  width: 68px;
+  width: 80px;
   min-height: 44px;
   padding: 8px 4px 8px 10px;
   border: 1px solid transparent;
@@ -318,4 +317,28 @@
   border: 0;
   border-radius: 0;
   background: transparent;
+}
+
+.shiftSelect :global(.mantine-Pill-root) {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 30px;
+  padding: 4px 10px;
+  background: var(--fixa-initials-bg);
+  color: var(--fixa-text-primary);
+  font-size: 14px;
+}
+.shiftSelect :global(.mantine-Pill-label) {
+  white-space: normal;
+  line-height: 1.5;
+}
+.shiftSelect :global(.mantine-PillsInputField-field) {
+  font-family: inherit;
+  font-size: 14px;
+}
+@media (max-width: 600px) {
+  .shiftInput {
+    border-radius: 20px;
+    min-height: 52px;
+  }
 }

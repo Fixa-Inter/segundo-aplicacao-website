@@ -7,6 +7,7 @@ import type {
   TechnicianInput,
   ShiftOption,
   LocationOption,
+  EventResponsibleOption,
 } from '../types/management'
 import type { CompetencyInput, TechnicianCompetency } from '../types/competency'
 import {
@@ -21,6 +22,7 @@ import {
   validatePassword,
 } from '../utils/apiValidation.ts'
 import type { createHttpClient } from './httpClient.ts'
+import { formatShiftLabel } from '../utils/presentation.ts'
 
 type EnumValue = string | { id: number; nome: string }
 interface ApiUnit {
@@ -106,7 +108,6 @@ const categoryId = (value: EnumValue) =>
 const isTechnician = (value: EnumValue) =>
   typeof value === 'object' ? value.id === 3 : value === 'TECNICO'
 const digits = (value: string) => value.replace(/\D/g, '')
-const clock = (value: number) => `${String(value).padStart(2, '0')}:00`
 const check = (errors: object) => {
   const first = Object.values(errors)[0]
   if (first) throw new Error(String(first))
@@ -184,9 +185,7 @@ export function createManagementService(
       accessType: 'TÉCNICO',
       status: item.estaAtivo ? 'Ativo' : 'Inativo',
       shiftId: activeShifts[0] ? String(activeShifts[0].id) : '',
-      shift: activeShifts
-        .map((shift) => `${clock(shift.horaInicio)} - ${clock(shift.horaFim)}`)
-        .join(', '),
+      shift: activeShifts.map(formatShiftLabel).join(', '),
       shiftIds: activeShifts.map((shift) => String(shift.id)),
     }
   }
@@ -210,6 +209,29 @@ export function createManagementService(
         }),
     )
   }
+  async function listEventResponsibles(): Promise<EventResponsibleOption[]> {
+    const unit = await scope()
+    const items = await request<ApiUser[]>('/api/v1/usuarios', {
+      params: unit ? { unidadeId: unit.id } : undefined,
+    })
+    const result = new Map<string, EventResponsibleOption>()
+    for (const item of items) {
+      const allowed =
+        typeof item.tipoAcesso === 'string'
+          ? ['GESTOR', 'TECNICO'].includes(item.tipoAcesso)
+          : [2, 3].includes(item.tipoAcesso.id)
+      if (allowed)
+        result.set(String(item.id), {
+          id: String(item.id),
+          name: item.nomeCompleto,
+          status: item.estaAtivo ? 'Ativo' : 'Inativo',
+        })
+    }
+    const current = user()
+    if (current.role === 'GESTOR')
+      result.set(current.id, { id: current.id, name: current.name, status: 'Ativo' })
+    return [...result.values()].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+  }
   async function listShifts(): Promise<ShiftOption[]> {
     const unit = await scope()
     return (
@@ -220,7 +242,7 @@ export function createManagementService(
       .filter((item) => item.estaAtivo)
       .map((item) => ({
         id: String(item.id),
-        name: `${item.nome} · ${clock(item.horaInicio)} - ${clock(item.horaFim)}`,
+        name: formatShiftLabel(item),
       }))
   }
   async function listLocations(): Promise<LocationOption[]> {
@@ -439,6 +461,7 @@ export function createManagementService(
     getProfile,
     saveProfile,
     listShifts,
+    listEventResponsibles,
     listLocations,
   }
 }

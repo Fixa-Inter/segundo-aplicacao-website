@@ -21,6 +21,7 @@ import type {
   PerformancePoint,
   Technician,
 } from '../../types/management'
+import { truncateText } from '../../utils/presentation'
 import common from '../management.module.css'
 import styles from './Team.module.css'
 
@@ -313,8 +314,14 @@ export default function Team() {
                                 .slice(0, 2)
                                 .join('')}
                             </span>
-                            <span>
-                              {item.name}
+                            <span className={styles.memberText}>
+                              <span
+                                className={styles.memberName}
+                                title={item.name}
+                                aria-label={item.name}
+                              >
+                                {truncateText(item.name, 40)}
+                              </span>
                               <small>{t(item.status)}</small>
                             </span>
                           </div>

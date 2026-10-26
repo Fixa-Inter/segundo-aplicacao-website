@@ -45,6 +45,52 @@ export function validateImageLinks(images: string[]): string[] {
     return url.href
   })
 }
+interface RemoteConversation {
+  session_id: string
+  iniciada_em: string
+  atualizada_em: string
+  titulo: string
+  resumo: string
+  mensagens: { role: 'human' | 'assistant'; mensagem: string; emocao?: string | null }[]
+}
+function decodeHistory(value: RemoteConversation): ManuHistory {
+  if (
+    !value ||
+    typeof value.session_id !== 'string' ||
+    !value.session_id ||
+    value.session_id.length > 100 ||
+    typeof value.titulo !== 'string' ||
+    typeof value.resumo !== 'string' ||
+    typeof value.atualizada_em !== 'string' ||
+    Number.isNaN(Date.parse(value.atualizada_em)) ||
+    !Array.isArray(value.mensagens) ||
+    value.mensagens.some(
+      (item) =>
+        !item || !['human', 'assistant'].includes(item.role) || typeof item.mensagem !== 'string',
+    )
+  )
+    throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+  const summary = value.resumo.trim()
+  return {
+    thread_id: value.session_id,
+    title:
+      value.titulo.trim() ||
+      getSummaryTitle(summary) ||
+      value.mensagens.find((item) => item.role === 'human')?.mensagem.slice(0, 80) ||
+      'Conversa sem título',
+    updated_at: new Date(value.atualizada_em).toISOString(),
+    closed: Boolean(summary),
+    summary: summary || null,
+    confirmacao: 'nao',
+    messages: value.mensagens.map((item, index) => ({
+      id: value.session_id + ':' + index,
+      author: item.role === 'human' ? 'user' : 'manu',
+      text: item.mensagem,
+      images: [],
+      ...(item.role === 'assistant' ? { emotion: normalizeManuEmotion(item.emocao) } : {}),
+    })),
+  }
+}
 export function createManuService(client: ReturnType<typeof createHttpClient>, baseURL?: string) {
   let base: string | null = null
   try {
@@ -78,12 +124,59 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     conversations.set(value.thread_id, value)
     if (conversations.size > 50) conversations.delete(conversations.keys().next().value!)
   }
+  const cachedList = () =>
+    [...conversations.values()]
+      .map(({ thread_id, title, updated_at, closed }) => ({ thread_id, title, updated_at, closed }))
+      .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+  function mergeHistory(remote: ManuHistory): ManuHistory {
+    const local = conversations.get(remote.thread_id)
+    if (!local) return remote
+    // A leitura pode chegar antes da persistência da última resposta. Preserva anexos e confirmações que ainda existem na sessão.
+    if (local.messages.length > remote.messages.length || (local.closed && !remote.closed))
+      return local
+    const sameLast = local.messages.at(-1)?.text === remote.messages.at(-1)?.text
+    return {
+      ...remote,
+      confirmacao: !remote.closed && sameLast ? local.confirmacao : 'nao',
+      messages: remote.messages.map((item, index) => {
+        const previous = local.messages[index]
+        return previous?.author === item.author && previous.text === item.text
+          ? {
+              ...item,
+              images: [...previous.images],
+              confirmation: remote.closed ? false : previous.confirmation,
+            }
+          : item
+      }),
+    }
+  }
   return {
     configured: Boolean(base),
+    cachedList,
     async list(signal?: AbortSignal): Promise<ManuConversation[]> {
       check(signal)
-      return [...conversations.values()]
-        .reverse()
+      const result = await client.request<{
+        status: 'SUCESSO' | 'SEM_DADOS'
+        conversas: RemoteConversation[]
+      }>(base + '/api/v1/sessoes', { expireSessionOnUnauthorized: false, signal })
+      signal?.throwIfAborted()
+      if (
+        !result ||
+        !['SUCESSO', 'SEM_DADOS'].includes(result.status) ||
+        !Array.isArray(result.conversas)
+      )
+        throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+      const loaded = result.conversas.map(decodeHistory).map(mergeHistory)
+      const all = new Map(loaded.map((item) => [item.thread_id, item]))
+      for (const item of conversations.values()) {
+        if (!all.has(item.thread_id)) {
+          if (!item.closed) all.set(item.thread_id, item)
+          else conversations.delete(item.thread_id)
+        }
+      }
+      for (const item of loaded) remember(item)
+      return [...all.values()]
+        .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
         .map(({ thread_id, title, updated_at, closed }) => ({
           thread_id,
           title,
@@ -93,8 +186,25 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     },
     async history(threadId: string, signal?: AbortSignal): Promise<ManuHistory> {
       check(signal)
-      const value = conversations.get(threadId)
-      if (!value) throw new ApiError('Esta conversa não está disponível nesta sessão.', 404)
+      const cached = conversations.get(threadId)
+      if (cached) return structuredClone(cached)
+      if (!threadId || threadId.length > 100) throw new ApiError('Conversa inválida.')
+      const result = await client.request<{ status: 'SUCESSO'; conversa: RemoteConversation }>(
+        base + '/api/v1/sessoes/conversa',
+        {
+          method: 'POST',
+          expireSessionOnUnauthorized: false,
+          signal,
+          data: { session_id: threadId },
+        },
+      )
+      signal?.throwIfAborted()
+      if (!result || result.status !== 'SUCESSO')
+        throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+      const value = decodeHistory(result.conversa)
+      if (value.thread_id !== threadId)
+        throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+      remember(value)
       return structuredClone(value)
     },
     async send(

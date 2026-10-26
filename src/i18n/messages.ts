@@ -200,16 +200,40 @@ const messages: Record<string, readonly [string, string, string]> = {
   'Valor antigo': ['Previous value', 'Valor anterior', '原值'],
   'Novo valor': ['New value', 'Nuevo valor', '新值'],
   'Competência inválida.': ['Invalid skill.', 'Competencia inválida.', '技能无效。'],
-  'Informe uma nota inteira de 0 a 10.': [
-    'Enter a whole number from 0 to 10.',
-    'Introduce un número entero de 0 a 10.',
-    '请输入 0 到 10 的整数。',
+  'Não foi possível carregar as conversas.': [
+    'Could not load conversations.',
+    'No se pudieron cargar las conversaciones.',
+    '无法加载对话。',
   ],
-  'Use uma nota inteira de 0 a 10. Deixe em branco para remover a avaliação.': [
-    'Use a whole number from 0 to 10. Leave blank to remove the rating.',
-    'Usa un número entero de 0 a 10. Deja vacío para quitar la evaluación.',
-    '使用 0 到 10 的整数。留空可移除评分。',
+  Conversas: ['Conversations', 'Conversaciones', '对话'],
+  'Carregando conversas…': ['Loading conversations…', 'Cargando conversaciones…', '正在加载对话…'],
+  'O serviço da Manu retornou um histórico inválido.': [
+    'Manu returned invalid conversation history.',
+    'Manu devolvió un historial inválido.',
+    'Manu 返回了无效的对话历史。',
   ],
+  'Conversa sem título': ['Untitled conversation', 'Conversación sin título', '无标题对话'],
+  'Conversa inválida.': ['Invalid conversation.', 'Conversación inválida.', '无效对话。'],
+  'Responsável pelo evento': ['Event owner', 'Responsable del evento', '活动负责人'],
+  'Selecione um responsável': ['Select an owner', 'Selecciona un responsable', '选择负责人'],
+  'Selecione um responsável.': ['Select an owner.', 'Selecciona un responsable.', '请选择负责人。'],
+  Localização: ['Location', 'Ubicación', '位置'],
+  'A localização é gerenciada pelo administrador da unidade.': [
+    'The unit administrator manages this location.',
+    'El administrador de la unidad gestiona esta ubicación.',
+    '此位置由单位管理员管理。',
+  ],
+  'Informe uma nota de 0 a 10, com até duas casas decimais.': [
+    'Enter a rating from 0 to 10 with up to two decimal places.',
+    'Introduce una nota de 0 a 10 con hasta dos decimales.',
+    '请输入 0 到 10 的评分，最多保留两位小数。',
+  ],
+  'Use uma nota de 0 a 10, com até duas casas decimais. Deixe em branco para remover a avaliação.':
+    [
+      'Use a rating from 0 to 10 with up to two decimal places. Leave blank to remove it.',
+      'Usa una nota de 0 a 10 con hasta dos decimales. Deja vacío para quitarla.',
+      '使用 0 到 10 的评分，最多保留两位小数。留空可移除评分。',
+    ],
   'Competência atualizada.': ['Skill updated.', 'Competencia actualizada.', '技能已更新。'],
   'Avaliação removida.': ['Rating removed.', 'Evaluación eliminada.', '评分已移除。'],
   'Aguarde o salvamento da competência.': [

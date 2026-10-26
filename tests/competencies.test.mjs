@@ -93,7 +93,7 @@ test('lote inválido e falha no cadastro não deixam alterações parciais em ca
   await saveTechnicianCompetency(original.id, { competencyId: 1, rating: 7 })
   const withRating = (await listTechnicians())[0]
   for (const invalid of [
-    { competencyId: 2, rating: 1.5 },
+    { competencyId: 2, rating: 1.555 },
     { competencyId: 99, rating: 8 },
   ]) {
     await assert.rejects(
@@ -163,16 +163,19 @@ test('salvar, editar e remover notas preserva outros técnicos e categorias; edi
   assert.equal((await listTechnicianCompetencies('t-1'))[1].rating, 10)
 })
 
-test('notas fora de 0 a 10, fracionárias e categorias inválidas não são gravadas', async () => {
-  for (const rating of [-1, 11, 3.5, NaN, Infinity, '9'])
-    await assert.rejects(saveTechnicianCompetency('t-1', { competencyId: 1, rating }), /inteira/)
+test('notas inválidas e categorias inexistentes não são gravadas', async () => {
+  for (const rating of [-1, 11, 3.555, NaN, Infinity, '9'])
+    await assert.rejects(
+      saveTechnicianCompetency('t-1', { competencyId: 1, rating }),
+      /casas decimais/,
+    )
   await assert.rejects(saveTechnicianCompetency('t-1', { competencyId: 99, rating: 9 }), /inválida/)
   await assert.rejects(listTechnicianCompetencies('inexistente'), /não encontrado/)
   assert.equal((await listTechnicianCompetencies('t-1'))[0].rating, null)
   assert.equal(parseCompetencyRating(''), null)
   assert.equal(parseCompetencyRating('0'), 0)
   assert.equal(parseCompetencyRating('10'), 10)
-  for (const value of ['1.5', '11', '-1', 'texto', '1e1', '1.', '+1'])
+  for (const value of ['1.555', '10.01', '11', '-1', 'texto', '1e1', '1.', '+1'])
     assert.equal(parseCompetencyRating(value), undefined)
 })
 
@@ -199,5 +202,19 @@ test('cancelamento e fim de sessão impedem gravação pendente; cadastro novo c
   await removeTechnician(created.id)
   await assert.rejects(listTechnicianCompetencies(created.id), /não encontrado/)
   clearDemoManagement()
+  assert.equal((await listTechnicianCompetencies('t-1'))[0].rating, null)
+})
+
+test('notas opcionais aceitam decimais com ponto ou vírgula sem arredondar', async () => {
+  assert.equal(parseCompetencyRating('7.6'), 7.6)
+  assert.equal(parseCompetencyRating('8,7'), 8.7)
+  assert.equal(parseCompetencyRating('9,25'), 9.25)
+  assert.equal(parseCompetencyRating('10.00'), 10)
+  assert.equal(parseCompetencyRating('   '), null)
+  await saveTechnicianCompetency('t-1', { competencyId: 1, rating: 7.6 })
+  assert.equal((await listTechnicianCompetencies('t-1'))[0].rating, 7.6)
+  await saveTechnicianCompetency('t-1', { competencyId: 1, rating: 0 })
+  assert.equal((await listTechnicianCompetencies('t-1'))[0].rating, 0)
+  await saveTechnicianCompetency('t-1', { competencyId: 1, rating: null })
   assert.equal((await listTechnicianCompetencies('t-1'))[0].rating, null)
 })

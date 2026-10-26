@@ -52,7 +52,14 @@ const tech = {
   dataNascimento: '1990-01-01',
   estaAtivo: true,
 }
-const shift = { id: 4, unidadeId: 5, nome: 'Diurno', horaInicio: 8, horaFim: 16, estaAtivo: true }
+const shift = {
+  id: 4,
+  unidadeId: 5,
+  nome: 'Diurno',
+  horaInicio: 28800,
+  horaFim: 57600,
+  estaAtivo: true,
+}
 const grade = {
   id: 70,
   usuarioId: 22,
@@ -143,7 +150,7 @@ test('técnicos usam filtros da unidade, enums objeto e notas zero, sem inventar
   const service = createManagementService(client, () => user)
   const items = await service.listTechnicians()
   assert.equal(items[0].assessedSpecialty, 'Elétrica')
-  assert.equal(items[0].shift, '08:00 - 16:00')
+  assert.equal(items[0].shift, 'Diurno · 08:00 – 16:00')
   assert.equal(items[0].phone, '')
   assert.deepEqual(calls.find((call) => call.url === '/api/v1/usuarios').params, {
     tipoAcesso: 'TECNICO',
@@ -350,4 +357,46 @@ test('cadastro inicialmente inativo vincula turno enquanto ativo e termina no es
     calls.findIndex((call) => call.url.endsWith('/ativar')) <
       calls.findIndex((call) => call.url === '/api/v1/turnos/4/usuarios/22'),
   )
+})
+
+test('responsáveis usam nomes reais sem duplicar gestor e respeitam o escopo do servidor', async () => {
+  const manager = { ...tech, id: 10, nomeCompleto: 'Gestor', tipoAcesso: { id: 2, nome: 'Gestor' } }
+  const { client, calls } = setup((call) => {
+    assert.equal(call.url, '/api/v1/usuarios')
+    return {
+      data: [
+        manager,
+        tech,
+        { ...tech, id: 23, tipoAcesso: 'SOLICITANTE' },
+        { ...tech, id: 24, tipoAcesso: 'ADMINISTRADOR' },
+        { ...tech, id: 22 },
+      ],
+    }
+  })
+  const options = await createManagementService(client, () => user).listEventResponsibles()
+  assert.deepEqual(options.map((item) => item.id).sort(), ['10', '22'])
+  assert.equal(options.find((item) => item.id === '10').name, 'Gestor')
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].params, undefined)
+  const administrator = setup((call) =>
+    call.url === '/api/v1/unidades' ? { data: [unit] } : { data: [manager, tech] },
+  )
+  await createManagementService(administrator.client, () => ({
+    ...user,
+    role: 'ADMINISTRADOR',
+  })).listEventResponsibles()
+  assert.deepEqual(administrator.calls.at(-1).params, { unidadeId: 5 })
+})
+test('a API recebe nota decimal sem conversão para inteiro e a leitura preserva o valor', async () => {
+  let current = { ...grade }
+  const { client, calls } = setup((call) => {
+    if (call.method === 'patch') current = { ...current, ...call.data }
+    return { data: call.method === 'get' ? [current] : current }
+  })
+  const service = createManagementService(client, () => user)
+  assert.equal(
+    (await service.saveTechnicianCompetency('22', { competencyId: 1, rating: 8.7 })).rating,
+    8.7,
+  )
+  assert.equal(calls.find((call) => call.method === 'patch').data.nota, 8.7)
 })

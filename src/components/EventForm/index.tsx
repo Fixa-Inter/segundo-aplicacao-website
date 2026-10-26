@@ -12,12 +12,13 @@ import type { CalendarEventInput } from '../../types/management'
 import type { EventFormProps } from '../../types/ui'
 import { formatDate, parseDateInput } from '../../utils/calendar'
 import { validateEvent } from '../../utils/apiValidation'
+import { truncateText } from '../../utils/presentation'
 import styles from './EventForm.module.css'
 
 export function EventForm({
   event,
   selectedDay,
-  technicians,
+  responsibles,
   onSubmit,
   onSaved,
   onCancel,
@@ -57,16 +58,20 @@ export function EventForm({
     date: event?.date ?? selectedDay,
     time: event?.time ?? '09:00',
     endTime: event?.endTime ?? '10:00',
-    technicianId: event?.technicianId ?? '',
+    technicianId:
+      event?.technicianId ?? (responsibles.some((item) => item.id === user?.id) ? user!.id : ''),
   })
   const [date, setDate] = useState(formatDate(form.date, { dateStyle: 'short' }))
-  const [initial] = useState(() => ({ ...form, dateText: date }))
+  const [endDate, setEndDate] = useState(
+    formatDate(form.endDate ?? form.date, { dateStyle: 'short' }),
+  )
+  const [initial] = useState(() => ({ ...form, dateText: date, endDateText: endDate }))
   const [errors, setErrors] = useState<Partial<Record<keyof CalendarEventInput, string>>>({})
   const [error, setError] = useState('')
   const [pending, setPending] = useState<CalendarEventInput | null>(null)
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
-  const isDirty = hasFormChanges({ ...form, dateText: date }, initial)
+  const isDirty = hasFormChanges({ ...form, dateText: date, endDateText: endDate }, initial)
   const requestExit = useUnsavedForm(isDirty, busy)
   const cancel = () => requestExit(onCancel)
 
@@ -78,8 +83,9 @@ export function EventForm({
   async function submit(submitEvent: FormEvent<HTMLFormElement>) {
     submitEvent.preventDefault()
     if (busy) return
-    const input = { ...form, date: parseDateInput(date) }
+    const input = { ...form, date: parseDateInput(date), endDate: parseDateInput(endDate) }
     const validation = validateEvent(input)
+    if (!/^\d+$/.test(form.technicianId)) validation.technicianId = 'Selecione um responsável.'
     setErrors(validation)
     setError('')
     if (Object.keys(validation).length) {
@@ -116,14 +122,14 @@ export function EventForm({
       >
         <FigmaIcon name="back" />
       </button>
-      <h1 className={styles.title}>
-        <span>{t(event ? 'Edite' : 'Agende')}</span> {event ? event.title : t('um evento')}
+      <h1 className={styles.title} title={event?.title}>
+        <span>{t(event ? 'Edite' : 'Agende')}</span>{' '}
+        {event ? truncateText(event.title, 48) : t('um evento')}
       </h1>
       <form ref={formRef} onSubmit={submit} noValidate aria-busy={busy} className={styles.form}>
         <fieldset disabled={busy} className={styles.grid}>
           <legend className={styles.srOnly}>{t('Dados do evento')}</legend>
           <AuthField
-            className={styles.name}
             id="event-title"
             label={t('Nome do evento *')}
             value={form.title}
@@ -199,79 +205,90 @@ export function EventForm({
               )}
             </div>
           ))}
-          <AuthField
-            id="event-date"
-            label={t('Data *')}
-            value={date}
-            placeholder={t('DD/MM/AAAA')}
-            inputMode="numeric"
-            maxLength={10}
-            required
-            error={errors.date}
-            onChange={(e) => {
-              setDate(e.currentTarget.value)
-              setErrors((current) => ({ ...current, date: undefined }))
-            }}
-          />
-          <AuthField
-            id="event-start"
-            label={t('Horário de início *')}
-            value={form.time}
-            placeholder={t('09:00')}
-            inputMode="numeric"
-            maxLength={5}
-            required
-            error={errors.time}
-            onChange={(e) => update('time', e.currentTarget.value)}
-          />
-          <AuthField
-            id="event-end-date"
-            label={t('Data de término *')}
-            type="date"
-            value={form.endDate ?? form.date}
-            required
-            error={errors.endDate}
-            onChange={(e) => update('endDate', e.currentTarget.value)}
-          />
-          <AuthField
-            id="event-end"
-            label={t('Horário de término *')}
-            value={form.endTime}
-            placeholder={t('10:00')}
-            inputMode="numeric"
-            maxLength={5}
-            required
-            error={errors.endTime}
-            onChange={(e) => update('endTime', e.currentTarget.value)}
-          />
+          <div className={styles.schedule}>
+            <AuthField
+              id="event-date"
+              label={t('Data *')}
+              value={date}
+              placeholder={t('DD/MM/AAAA')}
+              inputMode="numeric"
+              maxLength={10}
+              required
+              error={errors.date}
+              onChange={(e) => {
+                setDate(e.currentTarget.value)
+                setErrors((current) => ({ ...current, date: undefined }))
+              }}
+            />
+            <AuthField
+              id="event-end-date"
+              label={t('Data de término *')}
+              value={endDate}
+              placeholder={t('DD/MM/AAAA')}
+              inputMode="numeric"
+              maxLength={10}
+              required
+              error={errors.endDate}
+              onChange={(e) => {
+                setEndDate(e.currentTarget.value)
+                setErrors((current) => ({ ...current, endDate: undefined }))
+              }}
+            />
+            <AuthField
+              id="event-start"
+              label={t('Horário de início *')}
+              value={form.time}
+              placeholder={t('09:00')}
+              inputMode="numeric"
+              maxLength={5}
+              required
+              error={errors.time}
+              onChange={(e) => update('time', e.currentTarget.value)}
+            />
+            <AuthField
+              id="event-end"
+              label={t('Horário de término *')}
+              value={form.endTime}
+              placeholder={t('10:00')}
+              inputMode="numeric"
+              maxLength={5}
+              required
+              error={errors.endTime}
+              onChange={(e) => update('endTime', e.currentTarget.value)}
+            />
+          </div>
           <div className={`${styles.field} ${styles.full}`}>
-            <label htmlFor="event-technician">{t('Técnico responsável')}</label>
+            <label htmlFor="event-technician">{t('Responsável pelo evento')}</label>
             <select
               disabled={Boolean(event)}
+              required
+              aria-invalid={Boolean(errors.technicianId)}
+              aria-describedby={errors.technicianId ? 'event-technician-error' : undefined}
               id="event-technician"
               value={form.technicianId}
               onChange={(e) => update('technicianId', e.currentTarget.value)}
             >
-              <option value="">{t('Meu usuário')}</option>
-              <option value={user?.id ?? ''}>{user?.name}</option>
-              {event &&
-                event.technicianId !== user?.id &&
-                !technicians.some((item) => item.id === event.technicianId) && (
-                  <option value={event.technicianId}>
-                    {t('Responsável')} #{event.technicianId}
-                  </option>
-                )}
-              {technicians
-                .filter(
-                  (technician) =>
-                    technician.status === 'Ativo' || technician.id === form.technicianId,
-                )
-                .map((technician) => (
-                  <option key={technician.id} value={technician.id}>
-                    {technician.name}
+              <option value="" disabled>
+                {t('Selecione um responsável')}
+              </option>
+              {event && !responsibles.some((item) => item.id === event.technicianId) && (
+                <option value={event.technicianId}>
+                  {t('Responsável')} #{event.technicianId}
+                </option>
+              )}
+              {responsibles
+                .filter((item) => item.status === 'Ativo' || item.id === form.technicianId)
+                .map((item) => (
+                  <option key={item.id} value={item.id} title={item.name}>
+                    {truncateText(item.name, 48)}
                   </option>
                 ))}
             </select>
+            {errors.technicianId && (
+              <p id="event-technician-error" className={styles.error} role="alert">
+                {t(errors.technicianId)}
+              </p>
+            )}
           </div>
         </fieldset>
         <p className={styles.note}>

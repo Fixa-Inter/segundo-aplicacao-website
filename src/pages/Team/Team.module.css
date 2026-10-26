@@ -231,3 +231,14 @@
     background-color 150ms,
     color 150ms;
 }
+
+.memberText {
+  min-width: 0;
+}
+.memberName {
+  display: block;
+  max-width: 36ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

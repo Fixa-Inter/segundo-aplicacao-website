@@ -13,10 +13,10 @@ npm ci
 Copie `.env.example` para `.env.local` e informe a URL **do servidor**, sem `/api/v1` no final:
 
 ```dotenv
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_BASE_URL=https://web-api.fixa.solutions
 ```
 
-O endereço acima é um exemplo local. O link do repositório GitHub não é o endereço de execução da API. Reinicie o Vite depois de alterar a configuração.
+O endereço acima é a API Web publicada na AWS. Para testes locais, use `http://localhost:8080`. O link do repositório GitHub não é o endereço de execução da API. Reinicie o Vite depois de alterar a configuração.
 
 ```bash
 npm run dev
@@ -49,10 +49,10 @@ O segundo modo exige `dev.local/api-shared.env`, ignorado pelo Git, com as crede
 
 ## Configurar a API Web e a Manu
 
-Em `.env.local`, use a API Web local e o encaminhamento da própria web para a IA publicada:
+Em `.env.local`, use a API Web publicada e o encaminhamento da própria web para a IA publicada:
 
 ```dotenv
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_BASE_URL=https://web-api.fixa.solutions
 VITE_AI_BASE_URL=/api/ia
 AI_PROXY_TARGET=https://ia-api.fixa.solutions
 VITE_CLOUDINARY_CLOUD_NAME=
@@ -61,28 +61,28 @@ VITE_CLOUDINARY_FOLDER=
 VITE_DATABRICKS_DASHBOARD_URL=
 ```
 
-Para voltar à API Web da AWS, altere somente `VITE_API_BASE_URL` para `https://web-api.fixa.solutions` e reinicie o Vite. Em produção, configure a variável na hospedagem e gere uma nova versão da web. A URL da IA permanece independente. Antes da troca, valide o login e o CORS do serviço publicado.
+Para testar a API local, altere somente `VITE_API_BASE_URL` para `http://localhost:8080` e reinicie o Vite. O padrão atual é a AWS. Em produção, configure a variável na hospedagem e gere uma nova versão da web. A URL da IA permanece independente. Antes da troca, valide o login e o CORS do serviço publicado.
 
 O Vite encaminha `/api/ia` para o serviço existente; a Vercel tem a regra equivalente em `vercel.json`. Isso permite consumir o contrato publicado sem alterar CORS, agentes, autenticação ou código da IA. As chaves dos modelos, do banco e de assinatura JWT ficam nos servidores. Outros hosts precisam configurar o mesmo reverse proxy antes do fallback da SPA.
 
-As conversas da sessão usam somente respostas reais da API e permanecem em memória até recarregar a página ou sair da conta. O histórico completo aguarda as rotas do responsável pela IA. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
+As conversas são recuperadas da IA publicada por `GET /api/v1/sessoes`; a leitura de uma conversa fora do cache usa `POST /api/v1/sessoes/conversa`. Títulos, resumo e emoções vêm do servidor. Mensagens ativas e URLs de anexos são mantidas em memória durante a sessão; o contrato de histórico ainda não devolve anexos nem a confirmação pendente. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
 
 Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O cloud name, o preset unsigned e a pasta fornecidos foram configurados no `.env.local` desta máquina; um upload real foi validado no navegador. Outras máquinas/implantação precisam configurar as três variáveis públicas de Cloudinary. Se a equipe escolher assinatura futuramente, será necessário o contrato da rota de assinatura. Não inclua API Secret no frontend. O dashboard recebe a URL de incorporação do Databricks quando ela for fornecida.
 
-Na última verificação do serviço da AWS, o login de exemplo retornou HTTP 500. A configuração de teste agora aponta para a API Web local compilada do commit `9516609` da `dev`, com login real aprovado. Consulte [o teste e o retorno futuro à AWS](docs/API_LOCAL_DEV_2026-10-25.md). Atualizar o clone local não atualiza a implantação da AWS. Consulte [contrato, pendências e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
+A configuração atual aponta para a AWS. Na verificação de 25/10/2026 às 22h43 (São Paulo), o login de exemplo ainda retornou HTTP 500; o CORS permitiu `http://localhost:5173`, e o health check da IA retornou 200. A falha precisa ser investigada no servidor Web. Consulte [a revisão atual da interface e da AWS](docs/INTERFACE_AWS_2026-10-25.md). O [teste anterior com API local](docs/API_LOCAL_DEV_2026-10-25.md) é um registro histórico. Consulte [contrato, pendências e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
 
 ## Integração atual
 
-| Fluxo                | Comportamento                                                                                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Login/sessão         | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                            |
-| Equipe               | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação                                     |
-| Competências         | Dez categorias; notas opcionais de 0 a 10 inteiras na web; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente             |
-| Calendário/Home      | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                              |
-| Perfil               | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                  |
-| Senha                | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                 |
-| Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real                                              |
-| Manu                 | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; conversas desta sessão, sem GETs de histórico ainda indisponíveis |
+| Fluxo                | Comportamento                                                                                                                                                                          |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Login/sessão         | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                                                            |
+| Equipe               | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação                                                                     |
+| Competências         | Dez categorias; notas opcionais de 0 a 10, com até duas casas decimais e entrada com ponto ou vírgula; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente |
+| Calendário/Home      | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                                                              |
+| Perfil               | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                                                  |
+| Senha                | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                                                 |
+| Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real                                                                              |
+| Manu                 | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; histórico remoto, títulos do servidor e cache de conversas ativas                                 |
 
 Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`. A sessão usa `sessionStorage` da aba para os tokens Bearer e a identificação mínima; senhas não são armazenadas. Em erro de renovação por token inválido, a sessão local é encerrada. O backend é responsável por autorização e isolamento entre unidades.
 
@@ -117,7 +117,6 @@ Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → 
 ## Publicação
 
 Na Vercel, use `npm run build`, saída `dist` e a variável pública `VITE_API_BASE_URL` antes do build. `vercel.json` preserva as rotas da SPA. A existência dessa configuração não comprova publicação nem CI aprovado. Configure CORS no backend e execute os fluxos com conta de teste antes da homologação.
-
 
 ## Revisão da integração
 

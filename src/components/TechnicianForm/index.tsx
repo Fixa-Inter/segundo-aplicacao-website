@@ -19,6 +19,7 @@ import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies
 import { getCompetencyPresentation, parseCompetencyRating } from '../../utils/competencies'
 import { validatePassword, validateTechnician } from '../../utils/apiValidation'
 import { formatDate, parseDateInput } from '../../utils/calendar'
+import { truncateText } from '../../utils/presentation'
 import styles from './TechnicianForm.module.css'
 
 const fields: {
@@ -27,9 +28,9 @@ const fields: {
   type?: 'text' | 'email' | 'tel'
   maxLength?: number
 }[] = [
-  { key: 'name', label: 'Nome completo', maxLength: 80 },
+  { key: 'name', label: 'Nome completo', maxLength: 100 },
+  { key: 'email', label: 'E-mail', type: 'email', maxLength: 100 },
   { key: 'birthDate', label: 'Data de nascimento', maxLength: 10 },
-  { key: 'email', label: 'E-mail', type: 'email', maxLength: 120 },
   { key: 'jobTitle', label: 'Cargo', maxLength: 100 },
   { key: 'specialty', label: 'Especialidade', maxLength: 60 },
   { key: 'shift', label: 'Turno', maxLength: 13 },
@@ -211,7 +212,8 @@ function TechnicianFormFields({
     const invalidRatings: Record<string, string> = {}
     for (const item of initialCompetencies) {
       const rating = parseCompetencyRating(ratings[item.id])
-      if (rating === undefined) invalidRatings[item.id] = 'Informe uma nota inteira de 0 a 10.'
+      if (rating === undefined)
+        invalidRatings[item.id] = 'Informe uma nota de 0 a 10, com até duas casas decimais.'
       else competencies.push({ competencyId: item.id, rating })
     }
     setRatingErrors(invalidRatings)
@@ -258,15 +260,20 @@ function TechnicianFormFields({
       >
         <FigmaIcon name="back" />
       </button>
-      <h1 className={styles.title}>
+      <h1 className={styles.title} title={technician?.name}>
         <span>{t(technician ? 'Edite' : 'Adicione um novo')}</span>{' '}
-        {technician ? technician.name : t('funcionário')}
+        {technician ? truncateText(technician.name) : t('funcionário')}
       </h1>
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
         <fieldset disabled={busy}>
           <legend className={styles.srOnly}>{t('Informações do técnico')}</legend>
-          <div className={`${styles.grid} ${technician ? styles.edit : ''}`}>
+          <div className={styles.grid}>
             {fields.slice(0, 3).map(renderField)}
+            {renderField(fields[3])}
+            <div className={`${styles.field} ${styles.access}`}>
+              <label htmlFor="technician-access">{t('Tipo de acesso')}</label>
+              <input id="technician-access" value={t('TÉCNICO')} readOnly />
+            </div>
             {!technician && (
               <div className={`${styles.field} ${styles.password}`}>
                 <label htmlFor="technician-password">{t('Senha inicial *')}</label>
@@ -303,45 +310,19 @@ function TechnicianFormFields({
                 </span>
               </div>
             )}
-            {renderField(fields[3])}
-            <div className={`${styles.field} ${styles.access}`}>
-              <label htmlFor="technician-access">{t('Tipo de acesso')}</label>
-              <input
-                id="technician-access"
-                value={t('TÉCNICO')}
-                readOnly
-                aria-describedby="technician-access-note"
-              />
-            </div>
             {(manager.address ? addressFields : []).map((field) => (
               <div className={`${styles.field} ${styles[field.key]}`} key={field.key}>
                 <label htmlFor={`technician-${field.key}`}>{t(field.label)}</label>
-                <input
-                  id={`technician-${field.key}`}
-                  value={manager[field.key]}
-                  readOnly
-                  aria-describedby="technician-address-note"
-                />
+                <input id={`technician-${field.key}`} value={manager[field.key]} readOnly />
               </div>
             ))}
           </div>
         </fieldset>
-        <div className={styles.rules}>
-          <p className={styles.note}>
-            {t('Os campos com * são obrigatórios. As notas de competências são opcionais.')}
+        {!technician && (
+          <p id="technician-password-rule" className={styles.note}>
+            {t('Senha inicial: de 8 a 100 caracteres.')}
           </p>
-          {!technician && (
-            <p id="technician-password-rule" className={styles.note}>
-              {t('Senha inicial: de 8 a 100 caracteres.')}
-            </p>
-          )}
-          <p id="technician-access-note" className={styles.note}>
-            {t('O tipo TÉCNICO é definido automaticamente pelo cadastro do gestor.')}
-          </p>
-          <p id="technician-address-note" className={styles.note}>
-            {t('O técnico será vinculado à unidade do turno selecionado.')}
-          </p>
-        </div>
+        )}
         <fieldset disabled={busy}>
           <legend>{t('Informações operacionais')}</legend>
           <div className={styles.operational}>
@@ -357,7 +338,7 @@ function TechnicianFormFields({
                 classNames={{ input: styles.shiftInput }}
                 data={shifts.map((shift) => ({ value: shift.id, label: shift.name }))}
                 value={form.shiftIds ?? []}
-                placeholder={t('Selecione os turnos')}
+                placeholder={form.shiftIds?.length ? undefined : t('Selecione os turnos')}
                 disabled={busy}
                 searchable
                 clearable
@@ -409,7 +390,9 @@ function TechnicianFormFields({
         >
           <legend>{t('Competências')}</legend>
           <p id="technician-competencies-help" className={styles.srOnly}>
-            {t('Use uma nota inteira de 0 a 10. Deixe em branco para remover a avaliação.')}
+            {t(
+              'Use uma nota de 0 a 10, com até duas casas decimais. Deixe em branco para remover a avaliação.',
+            )}
           </p>
           <div className={styles.competencyGrid}>
             {initialCompetencies.map((item) => {
@@ -421,8 +404,8 @@ function TechnicianFormFields({
                     <input
                       id={id}
                       type="text"
-                      inputMode="numeric"
-                      maxLength={16}
+                      inputMode="decimal"
+                      maxLength={5}
                       value={ratings[item.id]}
                       aria-invalid={Boolean(ratingErrors[item.id])}
                       aria-describedby={

@@ -9,6 +9,7 @@ import { getHomeData } from '../../services/homeService'
 import type { HomeData } from '../../types/home'
 import { monthDays, occursOnDate } from '../../utils/calendar'
 import { usePreferences } from '../../contexts/usePreferences'
+import { truncateText } from '../../utils/presentation'
 import styles from './Home.module.css'
 
 export default function Home() {
@@ -90,7 +91,9 @@ export default function Home() {
   return (
     <div className={styles.home}>
       <section className={styles.welcome} aria-labelledby="home-title">
-        <h1 id="home-title">{t('Bem-vinda {name}!', { name: user?.name ?? 'Rapha' })}</h1>
+        <h1 id="home-title" title={user?.name}>
+          {t('Bem-vinda {name}!', { name: truncateText(user?.name ?? '', 32) })}
+        </h1>
         <img src={banner} width="2172" height="724" alt="" />
       </section>
       <section className={styles.stats} aria-label={t('Resumo de tarefas')}>

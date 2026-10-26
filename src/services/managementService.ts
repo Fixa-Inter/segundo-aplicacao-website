@@ -15,6 +15,7 @@ export const {
   getProfile,
   saveProfile,
   listShifts,
+  listEventResponsibles,
   listLocations,
 } = createManagementService(api, currentUser)
 

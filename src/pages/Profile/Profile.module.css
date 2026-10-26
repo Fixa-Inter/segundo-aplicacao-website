@@ -13,7 +13,14 @@
   border-radius: 50%;
   object-fit: cover;
 }
+.identityText {
+  flex: 1;
+  min-width: 0;
+}
 .identity h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0;
   font-size: clamp(24px, 2.36vw, 34px);
   font-weight: 500;
@@ -92,7 +99,7 @@
   grid-column: span 6;
 }
 .email {
-  grid-column: span 7;
+  grid-column: span 6;
 }
 .phone,
 .complement {
@@ -174,4 +181,16 @@
   border: 0;
   padding-left: 0;
   background: transparent;
+}
+
+.locationInfo {
+  margin-top: 28px;
+  padding: 18px 24px;
+  border-radius: 20px;
+  background: var(--fixa-neutral-surface);
+}
+.locationInfo p {
+  margin: 8px 0 0 40px;
+  color: var(--fixa-muted);
+  font-size: 13px;
 }

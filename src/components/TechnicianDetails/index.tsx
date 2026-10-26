@@ -5,6 +5,9 @@ import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef } from 'react'
 import type { PerformancePeriod } from '../../types/management'
 import type { TechnicianDetailsProps } from '../../types/ui'
+import { BadgeCheck, Clock3, ShieldUser, BriefcaseBusiness } from 'lucide-react'
+import { InformationItem } from '../InformationItem'
+import { formatAddress, truncateText } from '../../utils/presentation'
 import styles from './TechnicianDetails.module.css'
 
 export function TechnicianDetails({
@@ -25,15 +28,7 @@ export function TechnicianDetails({
     headingRef.current?.focus()
   }, [])
   const max = Math.max(1, ...points.map((point) => point.completed + point.active + point.late))
-  const address = [
-    technician.address,
-    technician.number,
-    technician.district,
-    technician.city,
-    technician.state,
-  ]
-    .filter(Boolean)
-    .join(', ')
+  const address = formatAddress(technician)
   return (
     <div className={styles.page}>
       <button
@@ -52,9 +47,9 @@ export function TechnicianDetails({
             .slice(0, 2)
             .join('')}
         </span>
-        <div>
-          <h1 ref={headingRef} tabIndex={-1}>
-            {technician.name}
+        <div className={styles.identityText}>
+          <h1 ref={headingRef} tabIndex={-1} title={technician.name} aria-label={technician.name}>
+            {truncateText(technician.name)}
           </h1>
           <p>
             {t('Técnico ·')} {t(technician.assessedSpecialty ?? 'Sem notas')}
@@ -67,30 +62,47 @@ export function TechnicianDetails({
       <section className={styles.information} aria-label={t('Informações do técnico')}>
         <h2>{t('Informações')}</h2>
         <div>
-          <p>
-            <FigmaIcon name="mail" />
-            {technician.email}
-          </p>
-          <p>
-            <FigmaIcon name="phone" />
-            {technician.phone || t('Não informado')}
-          </p>
-          <p>
-            <FigmaIcon name="profile-calendar" />
-            {formatDate(technician.birthDate, { dateStyle: 'long' })}
-          </p>
-          <p>
-            <FigmaIcon name="location" />
-            {address} {t('· CEP')} {technician.postalCode}
-            {technician.complement && ` · ${technician.complement}`}
-          </p>
+          <InformationItem
+            icon={<FigmaIcon name="mail" />}
+            label={t('E-mail')}
+            value={technician.email || t('Não informado')}
+          />
+          <InformationItem
+            icon={<FigmaIcon name="phone" />}
+            label={t('Telefone')}
+            value={technician.phone || t('Não informado')}
+          />
+          <InformationItem
+            icon={<FigmaIcon name="profile-calendar" />}
+            label={t('Data de nascimento')}
+            value={
+              technician.birthDate
+                ? formatDate(technician.birthDate, { dateStyle: 'long' })
+                : t('Não informado')
+            }
+          />
+          <InformationItem
+            icon={<FigmaIcon name="location" />}
+            label={t('Localização')}
+            value={address || t('Não informado')}
+          />
+          <InformationItem
+            icon={<BriefcaseBusiness />}
+            label={t('Cargo')}
+            value={technician.jobTitle || t('Não informado')}
+          />
+          <InformationItem icon={<ShieldUser />} label={t('Tipo de acesso')} value={t('Técnico')} />
+          <InformationItem
+            icon={<Clock3 />}
+            label={t('Turnos')}
+            value={technician.shift || t('Não informado')}
+          />
+          <InformationItem
+            icon={<BadgeCheck />}
+            label={t('Situação')}
+            value={t(technician.status)}
+          />
         </div>
-        <p className={styles.note}>
-          {t('Acesso:')}
-          {t(technician.accessType)} {t('· Turno:')} {technician.shift} {t('· Situação:')}{' '}
-          {t(technician.status)}
-          {t('. Endereço herdado do gestor.')}
-        </p>
       </section>
       <TechnicianCompetencies key={technician.id} technicianId={technician.id} />
       <section className={styles.performance} aria-labelledby="performance-title">

@@ -11,7 +11,7 @@ import {
 } from '../src/utils/manu.ts'
 import { dashboardEmbedURL } from '../src/utils/dashboardEmbed.ts'
 
-function setup(handler) {
+function setup(handler, remoteHistory = false) {
   const calls = []
   const client = createHttpClient('https://api.fixa.test', async (config) => {
     const call = {
@@ -23,7 +23,10 @@ function setup(handler) {
       timeout: config.timeout,
     }
     calls.push(call)
-    const { status = 200, data = null } = await handler(call)
+    const { status = 200, data = null } =
+      !remoteHistory && call.url.endsWith('/api/v1/sessoes')
+        ? { data: { status: 'SEM_DADOS', conversas: [] } }
+        : await handler(call)
     const response = { data, status, statusText: '', config, headers: {} }
     if (status >= 400)
       throw new AxiosError('HTTP error', 'ERR_BAD_RESPONSE', config, null, response)
@@ -52,7 +55,7 @@ test('Manu usa POST publicado via proxy, Bearer, thread e URLs sem identidade en
   assert.equal(calls[1].data.thread_id, 'thread-1')
   assert.equal(calls[1].data.imagens[0], 'https://res.cloudinary.com/fixa/image/upload/foto.png')
 })
-test('conversas da sessão preservam cópias, emoções e confirmação sem chamar GETs inexistentes', async () => {
+test('histórico remoto e conversas da sessão preservam cópias, emoções e confirmação', async () => {
   const { service, calls } = setup(() => ({
     data: { ...reply, emocao: 'CONFIRMACAO', confirmacao: 'sim' },
   }))
@@ -65,10 +68,10 @@ test('conversas da sessão preservam cópias, emoções e confirmação sem cham
   history.messages[0].text = 'mudança externa'
   assert.equal((await service.history('thread-1')).messages[0].text, 'Uma proposta')
   assert.equal((await service.list())[0].title, 'Uma proposta')
-  await assert.rejects(service.history('outra-thread'), /não está disponível/)
+  await assert.rejects(service.history('outra-thread'), /histórico inválido/)
   assert.deepEqual(
     calls.map((call) => call.method),
-    ['post'],
+    ['get', 'post', 'get', 'post'],
   )
 })
 test('finalização usa DELETE publicado e preserva título explícito do resumo, sem apagar histórico da sessão', async () => {
@@ -147,7 +150,7 @@ test('falhas de resposta não inventam mensagens nem repetem operações', async
   }))
   await assert.rejects(service.send('Uma proposta', null), /Serviço não configurado/)
   assert.equal(calls.length, 1)
-  assert.deepEqual(await service.list(), [])
+  assert.deepEqual(service.cachedList(), [])
   const invalid = setup(() => ({ data: { ...reply, confirmacao: 'talvez' } }))
   await assert.rejects(invalid.service.send('Olá', null), /resposta inválida/)
 })
@@ -243,4 +246,86 @@ test('resposta de renovação sem tokens válidos invalida a sessão uma única 
     assert.equal(client.getTokens(), null)
     assert.equal(expirations, 1)
   }
+})
+
+const remoteConversation = {
+  session_id: 'persisted-1',
+  iniciada_em: '2026-10-20T10:00:00Z',
+  atualizada_em: '2026-10-20T10:10:00Z',
+  titulo: 'Manutenção elétrica',
+  resumo: 'Resumo real retornado pela IA.',
+  mensagens: [
+    { role: 'human', mensagem: 'Verificar a iluminação' },
+    { role: 'assistant', mensagem: 'Conversa finalizada.', emocao: 'SUCESSO' },
+  ],
+}
+test('histórico AWS restaura título, resumo e emoções ao criar uma nova instância da web', async () => {
+  const { service, calls } = setup(
+    () => ({ data: { status: 'SUCESSO', conversas: [remoteConversation] } }),
+    true,
+  )
+  const list = await service.list()
+  assert.equal(list[0].title, 'Manutenção elétrica')
+  assert.equal(list[0].closed, true)
+  assert.equal(calls[0].url, 'https://web.fixa.test/api/ia/api/v1/sessoes')
+  assert.equal(calls[0].auth, 'Bearer token-1')
+  const history = await service.history('persisted-1')
+  assert.equal(history.summary, remoteConversation.resumo)
+  assert.equal(history.messages[1].emotion, 'SUCESSO')
+  assert.equal(history.messages[1].confirmation, undefined)
+  assert.deepEqual(history.messages[0].images, [])
+  await assert.rejects(service.send('continuar', 'persisted-1'), /finalizada/)
+})
+test('conversa fora do cache usa POST por session_id e rejeita resposta com outra identidade', async () => {
+  const { service, calls } = setup(
+    () => ({ data: { status: 'SUCESSO', conversa: { ...remoteConversation, resumo: '' } } }),
+    true,
+  )
+  const history = await service.history('persisted-1')
+  assert.equal(history.closed, false)
+  assert.equal(calls[0].method, 'post')
+  assert.deepEqual(calls[0].data, { session_id: 'persisted-1' })
+  assert.equal(calls[0].url, 'https://web.fixa.test/api/ia/api/v1/sessoes/conversa')
+  const invalid = setup(() => ({ data: { status: 'SUCESSO', conversa: remoteConversation } }), true)
+  await assert.rejects(invalid.service.history('outra'), /histórico inválido/)
+  assert.deepEqual(invalid.service.cachedList(), [])
+})
+test('falha de leitura do histórico não apaga resposta já enviada nem expira sessão Web válida', async () => {
+  const { service, client } = setup(
+    (call) => (call.method === 'get' ? { status: 503 } : { data: reply }),
+    true,
+  )
+  await service.send('Mensagem enviada', null)
+  await assert.rejects(service.list())
+  assert.equal(service.cachedList().length, 1)
+  assert.equal((await service.history('thread-1')).messages[0].text, 'Mensagem enviada')
+  assert.equal(client.getTokens().token, 'token-1')
+})
+test('resposta pendente de histórico não contamina outra conta após logout', async () => {
+  let release
+  const gate = new Promise((resolve) => {
+    release = resolve
+  })
+  const { service, client } = setup(async () => {
+    await gate
+    return { data: { status: 'SUCESSO', conversas: [remoteConversation] } }
+  }, true)
+  const pending = service.list()
+  client.clear()
+  client.setTokens({ token: 'outra', refreshToken: 'outro' })
+  release()
+  await assert.rejects(pending, /sessão foi encerrada/)
+  assert.deepEqual(service.cachedList(), [])
+})
+
+test('listagem deixa de exibir conversa encerrada removida no servidor', async () => {
+  let items = [remoteConversation]
+  const { service } = setup(
+    () => ({ data: { status: items.length ? 'SUCESSO' : 'SEM_DADOS', conversas: items } }),
+    true,
+  )
+  assert.equal((await service.list()).length, 1)
+  items = []
+  assert.deepEqual(await service.list(), [])
+  assert.deepEqual(service.cachedList(), [])
 })

@@ -35,6 +35,11 @@ function errorMessage(error: unknown) {
     return 'A Manu está temporariamente indisponível. Tente novamente mais tarde.'
   return error instanceof Error ? error.message : 'Não foi possível conectar à Manu.'
 }
+function historyErrorMessage(reason: unknown) {
+  return reason instanceof ApiError && [0, 503].includes(reason.status)
+    ? 'Não foi possível carregar as conversas.'
+    : errorMessage(reason)
+}
 export default function Manu() {
   const { t } = usePreferences()
   const { user } = useAuth()
@@ -47,6 +52,8 @@ export default function Manu() {
   const [sending, setSending] = useState(false)
   const [closing, setClosing] = useState(false)
   const [error, setError] = useState('')
+  const [historyError, setHistoryError] = useState('')
+  const [historyLoading, setHistoryLoading] = useState(manuApi.configured)
   const [correcting, setCorrecting] = useState(false)
   const [correction, setCorrection] = useState('')
   const request = useRef<AbortController | null>(null)
@@ -63,13 +70,22 @@ export default function Manu() {
   useEffect(() => {
     const controller = new AbortController()
     const activeUploads = uploads.current
+    if (!manuApi.configured) return () => controller.abort()
     if (manuApi.configured)
       void manuApi
         .list(controller.signal)
         .then((data) => {
-          if (!controller.signal.aborted) setConversations(data)
+          if (!controller.signal.aborted) {
+            setConversations(data)
+            setHistoryError('')
+          }
         })
-        .catch(() => {})
+        .catch((reason) => {
+          if (!controller.signal.aborted) setHistoryError(historyErrorMessage(reason))
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setHistoryLoading(false)
+        })
     return () => {
       controller.abort()
       request.current?.abort()
@@ -84,7 +100,16 @@ export default function Manu() {
     end.current?.scrollIntoView({ block: 'nearest' })
   }, [messages, sending, correcting])
   async function refreshConversations() {
-    setConversations(await manuApi.list())
+    setHistoryLoading(true)
+    try {
+      setConversations(await manuApi.list())
+      setHistoryError('')
+    } catch (reason) {
+      setConversations(manuApi.cachedList())
+      setHistoryError(historyErrorMessage(reason))
+    } finally {
+      setHistoryLoading(false)
+    }
   }
   function clearAttachments() {
     uploads.current.forEach((item) => {
@@ -291,12 +316,28 @@ export default function Manu() {
           {t('Novo chat')}
         </button>
         <div className={styles.historyTitle}>
-          <h2>{t('Nesta sessão')}</h2>
+          <h2>{t('Conversas')}</h2>
         </div>
-        <p className={styles.sessionNote}>{t('Disponíveis até recarregar a página.')}</p>
-        {!filtered.length && (
+        {historyLoading && (
+          <p className={styles.sessionNote} role="status">
+            {t('Carregando conversas…')}
+          </p>
+        )}
+        {historyError && (
+          <div className={styles.historyError} role="alert">
+            <p>{t(historyError)}</p>
+            <button
+              type="button"
+              onClick={() => void refreshConversations()}
+              disabled={historyLoading}
+            >
+              {t('Tentar novamente')}
+            </button>
+          </div>
+        )}
+        {!historyLoading && !historyError && !filtered.length && (
           <p className={styles.emptyHistory}>
-            {t(search ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa nesta sessão.')}
+            {t(search ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa encontrada.')}
           </p>
         )}
         <nav aria-label={t('Conversas recentes')}>

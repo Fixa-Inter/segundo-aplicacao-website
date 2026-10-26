@@ -824,3 +824,18 @@
     display: none;
   }
 }
+
+.historyError {
+  color: var(--fixa-danger-text);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.historyError button {
+  padding: 8px 12px;
+  border: 1px solid var(--fixa-border);
+  border-radius: 12px;
+  background: var(--fixa-surface);
+  color: var(--fixa-text-primary);
+  font: inherit;
+  cursor: pointer;
+}

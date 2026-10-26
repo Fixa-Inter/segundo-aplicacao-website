@@ -9,11 +9,11 @@ import { EventForm } from '../../components/EventForm'
 import { PageHeader } from '../../components/PageHeader'
 import {
   listEvents,
-  listTechnicians,
+  listEventResponsibles,
   removeEvent,
   saveEvent,
 } from '../../services/managementService'
-import type { CalendarEvent, Technician } from '../../types/management'
+import type { CalendarEvent, EventResponsibleOption } from '../../types/management'
 import { monthDays, occursOnDate, shiftDate } from '../../utils/calendar'
 import common from '../management.module.css'
 import styles from './Calendar.module.css'
@@ -30,7 +30,7 @@ export default function Calendar() {
   const [selectedDay, setSelectedDay] = useState(linkedDate)
   const [details, setDetails] = useState<CalendarEvent | null>(null)
   const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [technicians, setTechnicians] = useState<Technician[]>([])
+  const [responsibles, setResponsibles] = useState<EventResponsibleOption[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [loadAttempt, setLoadAttempt] = useState(0)
@@ -51,11 +51,11 @@ export default function Calendar() {
 
   useEffect(() => {
     let active = true
-    Promise.all([listEvents(), listTechnicians()])
-      .then(([loadedEvents, loadedTechnicians]) => {
+    Promise.all([listEvents(), listEventResponsibles()])
+      .then(([loadedEvents, loadedResponsibles]) => {
         if (active) {
           setEvents(loadedEvents)
-          setTechnicians(loadedTechnicians)
+          setResponsibles(loadedResponsibles)
         }
       })
       .catch(() => {
@@ -131,7 +131,7 @@ export default function Calendar() {
       <EventForm
         event={editing}
         selectedDay={selectedDay}
-        technicians={technicians}
+        responsibles={responsibles}
         onSubmit={(input) => saveEvent(input, editing?.id)}
         onCancel={() => setFormOpen(false)}
         onSaved={(saved) => {
