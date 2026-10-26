@@ -41,6 +41,11 @@ export interface Technician extends Address {
   status: 'Ativo' | 'Inativo'
 }
 
+export interface TeamMember extends Omit<Technician, 'accessType'> {
+  accessType: 'GESTOR' | 'TÉCNICO'
+  unitName?: string
+}
+
 export type TechnicianInput = Omit<
   Technician,
   'id' | 'accessType' | 'assessedSpecialty' | keyof Address

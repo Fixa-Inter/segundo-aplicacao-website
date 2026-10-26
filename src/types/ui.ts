@@ -8,6 +8,7 @@ import type {
   PerformancePeriod,
   PerformancePoint,
   Technician,
+  TeamMember,
   TechnicianInput,
 } from './management'
 export interface AppAppearanceProps {
@@ -135,9 +136,9 @@ export interface AuthProviderProps {
 }
 
 export interface TechnicianDetailsProps {
-  technician: Technician
+  technician: TeamMember
   onBack: () => void
-  onEdit: () => void
+  onEdit?: () => void
   period: PerformancePeriod
   points: PerformancePoint[]
   loading: boolean

@@ -159,6 +159,201 @@ test('técnicos usam filtros da unidade, enums objeto e notas zero, sem inventar
   assert.equal(skills[0].rating, 0)
   assert.equal(skills[1].rating, null)
 })
+test('RH lista gestores e técnicos de todas as unidades da instituição vinculada à identidade real', async () => {
+  const institutionUnits = [5, 6, 7].map((id) => ({
+    ...unit,
+    id,
+    instituicaoId: 8,
+    nome: `Unidade ${id}`,
+    cnpj: id === 5 ? unit.cnpj : `${id}`.repeat(14),
+    logradouro: `Rua da unidade ${id}`,
+  }))
+  const foreignUnit = { ...unit, id: 99, instituicaoId: 9, cnpj: '99999999000199' }
+  const managers = institutionUnits.map((item) => ({
+    ...tech,
+    id: 100 + item.id,
+    unidadeId: item.id,
+    nomeCompleto: `Gestor ${item.id}`,
+    tipoAcesso: item.id === 5 ? 'GESTOR' : { id: 2, nome: 'Gestor' },
+    estaAtivo: item.id !== 6,
+  }))
+  const technicians = institutionUnits.flatMap((item) =>
+    [0, 1].map((index) => ({
+      ...tech,
+      id: 200 + item.id * 10 + index,
+      unidadeId: item.id,
+      tipoAcesso: index ? 'TECNICO' : { id: 3, nome: 'Técnico' },
+    })),
+  )
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/unidades')
+      return {
+        data: [...institutionUnits, foreignUnit, { ...foreignUnit, id: 98, instituicaoId: 10 }],
+      }
+    if (call.url === '/api/v1/usuarios/10')
+      return { data: { ...tech, id: 10, unidadeId: 5, tipoAcesso: 'ADMINISTRADOR' } }
+    if (call.url === '/api/v1/usuarios') {
+      assert.deepEqual(Object.keys(call.params), ['unidadeId'])
+      assert.ok(institutionUnits.some((item) => item.id === call.params.unidadeId))
+      return {
+        data: [
+          ...managers.filter((item) => item.unidadeId === call.params.unidadeId),
+          ...technicians.filter((item) => item.unidadeId === call.params.unidadeId),
+          { ...tech, id: 990, unidadeId: call.params.unidadeId, tipoAcesso: 'ADMINISTRADOR' },
+          {
+            ...tech,
+            id: 991,
+            unidadeId: call.params.unidadeId,
+            tipoAcesso: { id: 4, nome: 'Solicitante' },
+          },
+          { ...tech, id: 992, unidadeId: call.params.unidadeId, tipoAcesso: 'DESCONHECIDO' },
+          { ...tech, id: 993, unidadeId: 99, tipoAcesso: 'GESTOR' },
+        ],
+      }
+    }
+    if (call.url === '/api/v1/turnos')
+      return {
+        data: [{ ...shift, id: call.params.unidadeId * 10, unidadeId: call.params.unidadeId }],
+      }
+    const linked = call.url.match(/^\/api\/v1\/usuarios\/(\d+)\/turnos$/)
+    if (linked) {
+      const technician = technicians.find((item) => item.id === Number(linked[1]))
+      assert.ok(technician, 'somente técnicos consultam vínculos de turno')
+      return { data: [{ id: technician.id, turnoId: technician.unidadeId * 10, estaAtivo: true }] }
+    }
+    if (call.url === '/api/v1/aptidoes') {
+      const technician = technicians.find((item) => String(item.id) === call.params.usuarioId)
+      assert.ok(technician, 'somente técnicos consultam aptidões')
+      return { data: [{ ...grade, usuarioId: technician.id }] }
+    }
+    throw Error(`Endpoint inesperado: ${call.url}`)
+  })
+  const service = createManagementService(client, () => ({
+    ...user,
+    role: 'ADMINISTRADOR',
+    cnpj: foreignUnit.cnpj,
+  }))
+  const members = await service.listTeamMembers()
+  assert.equal(members.length, 9)
+  assert.equal(members.filter((item) => item.accessType === 'GESTOR').length, 3)
+  assert.equal(members.filter((item) => item.accessType === 'TÉCNICO').length, 6)
+  for (const member of members) {
+    const memberUnit = institutionUnits.find((item) => String(item.id) === member.unitId)
+    assert.ok(memberUnit)
+    assert.equal(member.unitName, memberUnit.nome)
+    assert.equal(member.address, memberUnit.logradouro)
+    if (member.accessType === 'GESTOR') {
+      assert.equal(member.shift, '')
+      assert.equal(member.assessedSpecialty, null)
+    } else {
+      assert.equal(member.shift, 'Diurno · 08:00 – 16:00')
+      assert.equal(member.assessedSpecialty, 'Elétrica')
+    }
+  }
+  assert.equal(members.find((item) => item.id === '106').status, 'Inativo')
+  assert.deepEqual(
+    calls
+      .filter((call) => call.url === '/api/v1/usuarios')
+      .map((call) => call.params.unidadeId)
+      .sort(),
+    [5, 6, 7],
+  )
+  assert.equal(calls.filter((call) => call.url === '/api/v1/aptidoes').length, 6)
+})
+
+test('equipe contendo apenas gestores não consulta turnos nem aptidões', async () => {
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/unidades') return { data: [{ ...unit, instituicaoId: 8 }] }
+    if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
+    if (call.url === '/api/v1/usuarios')
+      return {
+        data: [
+          { ...tech, id: 11, tipoAcesso: 'GESTOR' },
+          { ...tech, id: 12, tipoAcesso: { id: 2, nome: 'Gestor' } },
+        ],
+      }
+    throw Error(`Gestores não devem consultar dados técnicos: ${call.url}`)
+  })
+  const members = await createManagementService(client, () => ({
+    ...user,
+    role: 'ADMINISTRADOR',
+  })).listTeamMembers()
+  assert.deepEqual(
+    members.map((item) => item.accessType),
+    ['GESTOR', 'GESTOR'],
+  )
+  assert.equal(calls.length, 3)
+})
+
+test('RH falha sem consultar equipe quando a instituição ou a identidade não pode ser confirmada', async () => {
+  const cases = [
+    ...[undefined, null, 0, -1, 1.5, '8'].map((instituicaoId) => ({
+      units: [{ ...unit, instituicaoId }],
+      identity: { ...tech, id: 10 },
+    })),
+    { units: [{ ...unit, instituicaoId: 8 }], identity: { ...tech, id: 10, unidadeId: 99 } },
+    { units: [{ ...unit, instituicaoId: 8 }], identity: { ...tech, id: 11 } },
+  ]
+  for (const scenario of cases) {
+    const { client, calls } = setup((call) => {
+      if (call.url === '/api/v1/unidades') return { data: scenario.units }
+      if (call.url === '/api/v1/usuarios/10') return { data: scenario.identity }
+      throw Error('Uma instituição inválida não pode consultar a equipe')
+    })
+    const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+    await assert.rejects(service.listTeamMembers(), /identificar a instituição/)
+    assert.equal(calls.length, 2)
+    assert.equal(
+      calls.some((call) => call.url === '/api/v1/usuarios'),
+      false,
+    )
+  }
+})
+
+test('listagem de equipe preserva o fluxo de técnicos do gestor sem consultar unidades ou sua identidade', async () => {
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/usuarios')
+      return { data: [tech, { ...tech, id: 11, tipoAcesso: 'GESTOR' }] }
+    if (call.url === '/api/v1/turnos') return { data: [shift] }
+    if (call.url === '/api/v1/usuarios/22/turnos') return { data: [] }
+    if (call.url === '/api/v1/aptidoes') return { data: [] }
+    throw Error(`GESTOR não deve consultar ${call.url}`)
+  })
+  const service = createManagementService(client, () => user)
+  const existing = await service.listTechnicians()
+  calls.length = 0
+  assert.deepEqual(await service.listTeamMembers(), existing)
+  assert.deepEqual(calls.find((call) => call.url === '/api/v1/usuarios').params, {
+    tipoAcesso: 'TECNICO',
+  })
+})
+
+test('RH não amplia o escopo após recusa da API e outros papéis não consultam a equipe', async () => {
+  const restricted = setup((call) =>
+    call.url === '/api/v1/unidades' ? { status: 403 } : { data: { ...tech, id: 10 } },
+  )
+  await assert.rejects(
+    createManagementService(restricted.client, () => ({
+      ...user,
+      role: 'ADMINISTRADOR',
+    })).listTeamMembers(),
+    /permissão/,
+  )
+  assert.equal(
+    restricted.calls.some((call) => call.url === '/api/v1/usuarios'),
+    false,
+  )
+  for (const role of ['SOLICITANTE', 'TÉCNICO']) {
+    const denied = setup(() => {
+      throw Error('O papel não pode consultar a equipe')
+    })
+    await assert.rejects(
+      createManagementService(denied.client, () => ({ ...user, role })).listTeamMembers(),
+      /permissão/,
+    )
+    assert.equal(denied.calls.length, 0)
+  }
+})
 test('remover e restaurar avaliação desativa/reativa o registro existente sem duplicar categoria', async () => {
   let current = { ...grade }
   const { client, calls } = setup((call) => {
@@ -208,7 +403,7 @@ test('salvamento parcial revela o ID e permite concluir sem criar outro técnico
   })
   const service = createManagementService(client, () => user)
   await assert.rejects(
-    service.saveTechnician(input),
+    service.saveTechnician({ ...input, accessType: 'GESTOR' }),
     (error) => error instanceof PartialSaveError && error.resourceId === '22',
   )
   await service.saveTechnician({ ...input, password: undefined }, '22')
@@ -311,10 +506,16 @@ test('refresh pendente não restaura tokens após logout; indisponibilidade temp
   assert.equal(temporary.client.getTokens().token, 'old-token')
 })
 
-test('administrador usa a unidade do CNPJ; gestor nunca depende do endpoint exclusivo de administrador', async () => {
+test('administrador usa a unidade da identidade real; gestor nunca depende do endpoint exclusivo de administrador', async () => {
   const { client, calls } = setup((call) => {
     if (call.url === '/api/v1/unidades')
-      return { data: [unit, { ...unit, id: 99, cnpj: '99999999000199' }] }
+      return {
+        data: [
+          { ...unit, instituicaoId: 8 },
+          { ...unit, id: 99, cnpj: '99999999000199', instituicaoId: 9 },
+        ],
+      }
+    if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
     if (call.url === '/api/v1/turnos') return { data: [shift] }
     throw Error('Endpoint inesperado')
   })
@@ -399,4 +600,89 @@ test('a API recebe nota decimal sem conversão para inteiro e a leitura preserva
     8.7,
   )
   assert.equal(calls.find((call) => call.method === 'patch').data.nota, 8.7)
+})
+
+test('RH consulta turnos de outra unidade da mesma instituição e rejeita unidades externas', async () => {
+  const sibling = { ...unit, id: 6, instituicaoId: 8 }
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/unidades')
+      return {
+        data: [{ ...unit, instituicaoId: 8 }, sibling, { ...unit, id: 99, instituicaoId: 9 }],
+      }
+    if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
+    if (call.url === '/api/v1/turnos')
+      return {
+        data: [
+          { ...shift, unidadeId: 6 },
+          { ...shift, id: 9, unidadeId: 99 },
+        ],
+      }
+    throw Error(`Endpoint inesperado: ${call.url}`)
+  })
+  const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+  assert.deepEqual(await service.listShifts('6'), [{ id: '4', name: 'Diurno · 08:00 – 16:00' }])
+  assert.deepEqual(calls.at(-1).params, { unidadeId: 6 })
+  const previous = calls.length
+  await assert.rejects(service.listShifts('99'), /não pertence à instituição/)
+  assert.equal(
+    calls.slice(previous).some((call) => call.url === '/api/v1/turnos'),
+    false,
+  )
+  const scoped = setup((call) => {
+    assert.equal(call.url, '/api/v1/turnos')
+    assert.equal(call.params, undefined)
+    return { data: [shift] }
+  })
+  await createManagementService(scoped.client, () => user).listShifts('99')
+  assert.equal(scoped.calls.length, 1)
+})
+
+test('RH edita técnico de outra unidade da instituição preservando vínculo e endereço reais', async () => {
+  const sibling = { ...unit, id: 6, instituicaoId: 8, logradouro: 'Rua da outra unidade' }
+  const existing = { ...tech, unidadeId: 6 }
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/unidades') return { data: [{ ...unit, instituicaoId: 8 }, sibling] }
+    if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
+    if (call.url === '/api/v1/usuarios/22') return { data: existing }
+    if (call.url === '/api/v1/turnos') {
+      assert.deepEqual(call.params, { unidadeId: 6 })
+      return { data: [{ ...shift, unidadeId: 6 }] }
+    }
+    if (call.url === '/api/v1/usuarios/22/turnos')
+      return { data: [{ id: 8, turnoId: 4, estaAtivo: true }] }
+    if (call.url === '/api/v1/aptidoes') return { data: [] }
+    throw Error(`Endpoint inesperado: ${call.url}`)
+  })
+  const saved = await createManagementService(client, () => ({
+    ...user,
+    role: 'ADMINISTRADOR',
+  })).saveTechnician(input, '22')
+  assert.equal(saved.unitId, '6')
+  assert.equal(saved.address, sibling.logradouro)
+  const updates = calls.filter((call) => call.method === 'patch')
+  assert.equal(updates.length, 1)
+  assert.equal('unidadeId' in updates[0].data, false)
+  const outside = setup((call) => {
+    if (call.url === '/api/v1/unidades')
+      return {
+        data: [
+          { ...unit, instituicaoId: 8 },
+          { ...unit, id: 99, instituicaoId: 9 },
+        ],
+      }
+    if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
+    if (call.url === '/api/v1/usuarios/22') return { data: { ...existing, unidadeId: 99 } }
+    throw Error('Não pode gravar técnico de outra instituição')
+  })
+  await assert.rejects(
+    createManagementService(outside.client, () => ({
+      ...user,
+      role: 'ADMINISTRADOR',
+    })).saveTechnician(input, '22'),
+    /não pertence à instituição/,
+  )
+  assert.equal(
+    outside.calls.some((call) => call.method !== 'get'),
+    false,
+  )
 })

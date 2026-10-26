@@ -47,7 +47,7 @@ export default function Profile() {
 
   const navigate = useNavigate()
   const [pending, setPending] = useState<ManagerProfile | null>(null)
-  const { updateName } = useAuth()
+  const { updateName, user } = useAuth()
   const [profile, setProfile] = useState<ManagerProfile>(empty)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -197,7 +197,8 @@ export default function Profile() {
                 {truncateText(profile.name) || t('Não informado')}
               </h2>
               <p>
-                {t('Gestor')} · {profile.company || t('Não informado')}
+                {t(user?.role === 'ADMINISTRADOR' ? 'Administrador' : 'Gestor')} ·{' '}
+                {profile.company || t('Não informado')}
               </p>
             </div>
             {!editing && (

@@ -232,6 +232,16 @@
     color 150ms;
 }
 
+.institutionTable table th:first-child {
+  width: 30%;
+}
+.institutionTable table th:nth-child(2) {
+  width: 17%;
+}
+.institutionTable table th:nth-child(3) {
+  width: 22%;
+}
+
 .memberText {
   min-width: 0;
 }

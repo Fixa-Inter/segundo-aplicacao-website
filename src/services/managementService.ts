@@ -5,6 +5,7 @@ import type { DashboardRecord, PerformancePoint } from '../types/management'
 export { PartialSaveError } from './apiManagement.ts'
 export const {
   listTechnicians,
+  listTeamMembers,
   saveTechnician,
   removeTechnician,
   listTechnicianCompetencies,

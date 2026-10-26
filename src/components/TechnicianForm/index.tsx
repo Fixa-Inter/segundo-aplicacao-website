@@ -99,13 +99,14 @@ function TechnicianFormFields({
     shift: technician?.shift ?? '08:00 - 16:00',
     status: technician?.status ?? 'Ativo',
   })
+  const addressSource = technician ?? manager
   const [persistedId, setPersistedId] = useState<string | undefined>(technician?.id)
   const [shifts, setShifts] = useState<ShiftOption[]>([])
   const [shiftError, setShiftError] = useState('')
   const [shiftAttempt, setShiftAttempt] = useState(0)
   useEffect(() => {
     let active = true
-    listShifts()
+    listShifts(technician?.unitId)
       .then((items) => {
         if (active) {
           setShifts(items)
@@ -121,7 +122,7 @@ function TechnicianFormFields({
     return () => {
       active = false
     }
-  }, [shiftAttempt])
+  }, [shiftAttempt, technician?.unitId])
   const [password, setPassword] = useState('')
   const [birthDate, setBirthDate] = useState(
     technician ? formatDate(technician.birthDate, { dateStyle: 'short' }) : '',
@@ -310,10 +311,10 @@ function TechnicianFormFields({
                 </span>
               </div>
             )}
-            {(manager.address ? addressFields : []).map((field) => (
+            {(addressSource.address ? addressFields : []).map((field) => (
               <div className={`${styles.field} ${styles[field.key]}`} key={field.key}>
                 <label htmlFor={`technician-${field.key}`}>{t(field.label)}</label>
-                <input id={`technician-${field.key}`} value={manager[field.key]} readOnly />
+                <input id={`technician-${field.key}`} value={addressSource[field.key]} readOnly />
               </div>
             ))}
           </div>

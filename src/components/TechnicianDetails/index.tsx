@@ -29,6 +29,7 @@ export function TechnicianDetails({
   }, [])
   const max = Math.max(1, ...points.map((point) => point.completed + point.active + point.late))
   const address = formatAddress(technician)
+  const technical = technician.accessType === 'TÉCNICO'
   return (
     <div className={styles.page}>
       <button
@@ -52,14 +53,25 @@ export function TechnicianDetails({
             {truncateText(technician.name)}
           </h1>
           <p>
-            {t('Técnico ·')} {t(technician.assessedSpecialty ?? 'Sem notas')}
+            {technical ? (
+              <>
+                {t('Técnico ·')} {t(technician.assessedSpecialty ?? 'Sem notas')}
+              </>
+            ) : (
+              t('Gestor')
+            )}
           </p>
         </div>
-        <button type="button" className={styles.edit} onClick={() => requestExit(onEdit)}>
-          {t('Editar técnico')}
-        </button>
+        {onEdit && (
+          <button type="button" className={styles.edit} onClick={() => requestExit(onEdit)}>
+            {t('Editar técnico')}
+          </button>
+        )}
       </div>
-      <section className={styles.information} aria-label={t('Informações do técnico')}>
+      <section
+        className={styles.information}
+        aria-label={t(technical ? 'Informações do técnico' : 'Informações do gestor')}
+      >
         <h2>{t('Informações')}</h2>
         <div>
           <InformationItem
@@ -91,12 +103,25 @@ export function TechnicianDetails({
             label={t('Cargo')}
             value={technician.jobTitle || t('Não informado')}
           />
-          <InformationItem icon={<ShieldUser />} label={t('Tipo de acesso')} value={t('Técnico')} />
           <InformationItem
-            icon={<Clock3 />}
-            label={t('Turnos')}
-            value={technician.shift || t('Não informado')}
+            icon={<ShieldUser />}
+            label={t('Tipo de acesso')}
+            value={t(technical ? 'Técnico' : 'Gestor')}
           />
+          {technician.unitName && (
+            <InformationItem
+              icon={<FigmaIcon name="location" />}
+              label={t('Unidade')}
+              value={technician.unitName}
+            />
+          )}
+          {technical && (
+            <InformationItem
+              icon={<Clock3 />}
+              label={t('Turnos')}
+              value={technician.shift || t('Não informado')}
+            />
+          )}
           <InformationItem
             icon={<BadgeCheck />}
             label={t('Situação')}
@@ -104,81 +129,85 @@ export function TechnicianDetails({
           />
         </div>
       </section>
-      <TechnicianCompetencies key={technician.id} technicianId={technician.id} />
-      <section className={styles.performance} aria-labelledby="performance-title">
-        <div className={styles.toolbar}>
-          <h2 id="performance-title">{t('Desempenho')}</h2>
-          <label htmlFor="technician-performance-period">
-            {t('Período')}
-            <select
-              id="technician-performance-period"
-              value={period}
-              onChange={(event) => {
-                onPeriodChange(event.currentTarget.value as PerformancePeriod)
-              }}
-            >
-              <option value="week">{t('Última semana')}</option>
-              <option value="month">{t('Último mês')}</option>
-            </select>
-          </label>
-        </div>
-        {loading ? (
-          <p role="status">{t('Carregando desempenho…')}</p>
-        ) : error ? (
-          <p role="alert">{t(error)}</p>
-        ) : points.length ? (
-          <>
-            <div
-              className={styles.chart}
-              role="img"
-              aria-label={points
-                .map(
-                  (point) =>
-                    `${t(point.label)}: ${point.completed} concluídas, ${point.active} em andamento e ${point.late} atrasadas`,
-                )
-                .join('; ')}
-            >
-              {points.map((point) => (
-                <div className={styles.column} key={t(point.label)}>
-                  <span className={styles.total}>
-                    {point.completed + point.active + point.late}
-                  </span>
-                  <div
-                    className={styles.stack}
-                    style={{
-                      height: `${((point.completed + point.active + point.late) / max) * 200}px`,
-                    }}
-                  >
-                    <div className={styles.late} style={{ flex: point.late }} />
-                    <div className={styles.active} style={{ flex: point.active }} />
-                    <div className={styles.completed} style={{ flex: point.completed }} />
-                  </div>
-                  <span>{t(point.label)}</span>
+      {technical && (
+        <>
+          <TechnicianCompetencies key={technician.id} technicianId={technician.id} />
+          <section className={styles.performance} aria-labelledby="performance-title">
+            <div className={styles.toolbar}>
+              <h2 id="performance-title">{t('Desempenho')}</h2>
+              <label htmlFor="technician-performance-period">
+                {t('Período')}
+                <select
+                  id="technician-performance-period"
+                  value={period}
+                  onChange={(event) => {
+                    onPeriodChange(event.currentTarget.value as PerformancePeriod)
+                  }}
+                >
+                  <option value="week">{t('Última semana')}</option>
+                  <option value="month">{t('Último mês')}</option>
+                </select>
+              </label>
+            </div>
+            {loading ? (
+              <p role="status">{t('Carregando desempenho…')}</p>
+            ) : error ? (
+              <p role="alert">{t(error)}</p>
+            ) : points.length ? (
+              <>
+                <div
+                  className={styles.chart}
+                  role="img"
+                  aria-label={points
+                    .map(
+                      (point) =>
+                        `${t(point.label)}: ${point.completed} concluídas, ${point.active} em andamento e ${point.late} atrasadas`,
+                    )
+                    .join('; ')}
+                >
+                  {points.map((point) => (
+                    <div className={styles.column} key={t(point.label)}>
+                      <span className={styles.total}>
+                        {point.completed + point.active + point.late}
+                      </span>
+                      <div
+                        className={styles.stack}
+                        style={{
+                          height: `${((point.completed + point.active + point.late) / max) * 200}px`,
+                        }}
+                      >
+                        <div className={styles.late} style={{ flex: point.late }} />
+                        <div className={styles.active} style={{ flex: point.active }} />
+                        <div className={styles.completed} style={{ flex: point.completed }} />
+                      </div>
+                      <span>{t(point.label)}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className={styles.legend}>
-              <span>
-                <i className={styles.completed} />
-                {t('Concluídas')}
-              </span>
-              <span>
-                <i className={styles.active} />
-                {t('Em andamento')}
-              </span>
-              <span>
-                <i className={styles.late} />
-                {t('Atrasadas')}
-              </span>
-            </div>
-            <p className={styles.note}>
-              {t('Fixture sintética, sem vínculo com chamados reais ou eventos do calendário.')}
-            </p>
-          </>
-        ) : (
-          <p>{t('Nenhum registro de desempenho neste período.')}</p>
-        )}
-      </section>
+                <div className={styles.legend}>
+                  <span>
+                    <i className={styles.completed} />
+                    {t('Concluídas')}
+                  </span>
+                  <span>
+                    <i className={styles.active} />
+                    {t('Em andamento')}
+                  </span>
+                  <span>
+                    <i className={styles.late} />
+                    {t('Atrasadas')}
+                  </span>
+                </div>
+                <p className={styles.note}>
+                  {t('Fixture sintética, sem vínculo com chamados reais ou eventos do calendário.')}
+                </p>
+              </>
+            ) : (
+              <p>{t('Nenhum registro de desempenho neste período.')}</p>
+            )}
+          </section>
+        </>
+      )}
     </div>
   )
 }

@@ -4,6 +4,7 @@ import type {
   CalendarEventInput,
   ManagerProfile,
   Technician,
+  TeamMember,
   TechnicianInput,
   ShiftOption,
   LocationOption,
@@ -27,6 +28,7 @@ import { formatShiftLabel } from '../utils/presentation.ts'
 type EnumValue = string | { id: number; nome: string }
 interface ApiUnit {
   id: number
+  instituicaoId?: number
   nome: string
   cnpj: string
   logradouro: string
@@ -107,6 +109,12 @@ const categoryId = (value: EnumValue) =>
   typeof value === 'object' ? value.id : categoryNames.indexOf(value) + 1
 const isTechnician = (value: EnumValue) =>
   typeof value === 'object' ? value.id === 3 : value === 'TECNICO'
+const teamAccessType = (value: EnumValue): TeamMember['accessType'] | null => {
+  const role = typeof value === 'object' ? value?.id : value
+  if (role === 2 || role === 'GESTOR') return 'GESTOR'
+  if (role === 3 || role === 'TECNICO') return 'TÉCNICO'
+  return null
+}
 const digits = (value: string) => value.replace(/\D/g, '')
 const check = (errors: object) => {
   const first = Object.values(errors)[0]
@@ -136,6 +144,27 @@ export function createManagementService(
     const found = (await units()).find((unit) => digits(unit.cnpj) === digits(user().cnpj))
     if (!found) throw new Error('A unidade deste CNPJ não está disponível para sua conta.')
     return found
+  }
+  async function institutionScope() {
+    const current = user()
+    const [availableUnits, identity] = await Promise.all([
+      units(),
+      request<ApiUser>(`/api/v1/usuarios/${current.id}`),
+    ])
+    const linkedUnit = availableUnits.find((unit) => unit.id === identity.unidadeId)
+    const institutionId = linkedUnit?.instituicaoId
+    if (
+      String(identity.id) !== current.id ||
+      typeof institutionId !== 'number' ||
+      !Number.isInteger(institutionId) ||
+      institutionId <= 0 ||
+      !linkedUnit
+    )
+      throw new Error('Não foi possível identificar a instituição da sua conta.')
+    return {
+      currentUnit: linkedUnit,
+      units: availableUnits.filter((unit) => unit.instituicaoId === institutionId),
+    }
   }
   // A listagem de unidades é exclusiva de ADMINISTRADOR. Para GESTOR, os demais endpoints já aplicam o escopo da unidade no servidor.
   const scope = () => (user().role === 'ADMINISTRADOR' ? currentUnit() : Promise.resolve(undefined))
@@ -209,6 +238,50 @@ export function createManagementService(
         }),
     )
   }
+  async function listTeamMembers(): Promise<TeamMember[]> {
+    const current = user()
+    if (current.role === 'GESTOR') return listTechnicians()
+    if (current.role !== 'ADMINISTRADOR')
+      throw new Error('Sua conta não tem permissão para consultar esta equipe.')
+    const institution = await institutionScope()
+    const teams = await Promise.all(
+      institution.units.map(async (unit) => {
+        const items = await request<ApiUser[]>('/api/v1/usuarios', {
+          params: { unidadeId: unit.id },
+        })
+        const members = items.flatMap((item) => {
+          const accessType = teamAccessType(item.tipoAcesso)
+          return item.unidadeId === unit.id && accessType ? [{ item, accessType }] : []
+        })
+        const shifts = members.some((member) => member.accessType === 'TÉCNICO')
+          ? await request<ApiShift[]>('/api/v1/turnos', { params: { unidadeId: unit.id } })
+          : []
+        return Promise.all(
+          members.map(async ({ item, accessType }): Promise<TeamMember> => {
+            const [links, ratings] =
+              accessType === 'TÉCNICO'
+                ? await Promise.all([
+                    request<ApiLink[]>(`/api/v1/usuarios/${item.id}/turnos`),
+                    rawGrades(String(item.id)),
+                  ])
+                : [[], []]
+            return {
+              ...technician(
+                item,
+                unit,
+                shifts.filter((shift) => shift.unidadeId === unit.id),
+                links,
+                ratings,
+              ),
+              accessType,
+              unitName: unit.nome,
+            }
+          }),
+        )
+      }),
+    )
+    return teams.flat()
+  }
   async function listEventResponsibles(): Promise<EventResponsibleOption[]> {
     const unit = await scope()
     const items = await request<ApiUser[]>('/api/v1/usuarios', {
@@ -232,14 +305,21 @@ export function createManagementService(
       result.set(current.id, { id: current.id, name: current.name, status: 'Ativo' })
     return [...result.values()].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
   }
-  async function listShifts(): Promise<ShiftOption[]> {
-    const unit = await scope()
+  async function listShifts(requestedUnitId?: string): Promise<ShiftOption[]> {
+    const institution = user().role === 'ADMINISTRADOR' ? await institutionScope() : null
+    const unit = institution
+      ? requestedUnitId
+        ? institution.units.find((item) => String(item.id) === requestedUnitId)
+        : institution.currentUnit
+      : await scope()
+    if (institution && !unit)
+      throw new Error('A unidade selecionada não pertence à instituição da sua conta.')
     return (
       await request<ApiShift[]>('/api/v1/turnos', {
         params: unit ? { unidadeId: unit.id } : undefined,
       })
     )
-      .filter((item) => item.estaAtivo)
+      .filter((item) => item.estaAtivo && (!unit || item.unidadeId === unit.id))
       .map((item) => ({
         id: String(item.id),
         name: formatShiftLabel(item),
@@ -316,8 +396,17 @@ export function createManagementService(
       const error = validatePassword(input.password ?? '')
       if (error) throw new Error(error)
     }
-    const unit = await scope()
-    const old = id ? await request<ApiUser>(`/api/v1/usuarios/${id}`) : null
+    const [old, institution] = await Promise.all([
+      id ? request<ApiUser>(`/api/v1/usuarios/${id}`) : Promise.resolve(null),
+      user().role === 'ADMINISTRADOR' ? institutionScope() : Promise.resolve(null),
+    ])
+    const unit = institution
+      ? old
+        ? institution.units.find((item) => item.id === old.unidadeId)
+        : institution.currentUnit
+      : await scope()
+    if (institution && !unit)
+      throw new Error('A unidade selecionada não pertence à instituição da sua conta.')
     const shifts = await request<ApiShift[]>('/api/v1/turnos', {
       params: old ? { unidadeId: old.unidadeId } : unit ? { unidadeId: unit.id } : undefined,
     })
@@ -451,6 +540,7 @@ export function createManagementService(
   }
   return {
     listTechnicians,
+    listTeamMembers,
     saveTechnician,
     removeTechnician,
     listTechnicianCompetencies,
