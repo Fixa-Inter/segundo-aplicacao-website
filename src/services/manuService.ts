@@ -189,7 +189,9 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
           else conversations.delete(item.thread_id)
         }
       }
-      for (const item of loaded) remember(item)
+      // Reinsere das mais antigas às mais recentes para preservar as 50 mais recentes no cache.
+      for (const item of [...all.values()].sort((a, b) => a.updated_at.localeCompare(b.updated_at)))
+        remember(item)
       return [...all.values()]
         .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
         .map(({ thread_id, title, updated_at, closed }) => ({

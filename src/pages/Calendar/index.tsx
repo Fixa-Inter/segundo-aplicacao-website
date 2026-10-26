@@ -101,12 +101,12 @@ export default function Calendar() {
     )
   }
   async function confirmDelete() {
-    if (!deleting) return
+    if (!deleting || busy) return
     setBusy(true)
     setError('')
     try {
       await removeEvent(deleting.id)
-      setEvents(await listEvents())
+      setEvents((values) => values.filter((item) => item.id !== deleting.id))
       setDeleting(null)
       setNotice('Evento excluído com sucesso.')
       requestAnimationFrame(() =>
@@ -114,6 +114,11 @@ export default function Calendar() {
           ?.querySelector<HTMLButtonElement>(`[data-date="${selectedDay}"]`)
           ?.focus(),
       )
+      try {
+        setEvents(await listEvents())
+      } catch {
+        setError('O evento foi excluído, mas não foi possível atualizar a lista.')
+      }
     } catch {
       setError('Não foi possível excluir o evento.')
       setDeleting(null)

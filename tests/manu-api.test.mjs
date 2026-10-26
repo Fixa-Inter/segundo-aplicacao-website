@@ -502,3 +502,26 @@ test('título descritivo antigo não vira cabeçalho; título real curto ou estr
   )
   assert.equal((await structured.service.list())[0].title, 'Ar-condicionado')
 })
+
+test('cache de histórico longo preserva conversas recentes em vez de expulsá-las pelas antigas', async () => {
+  const records = Array.from({ length: 60 }, (_, index) => ({
+    ...remoteConversation,
+    session_id: 'long-' + index,
+    atualizada_em: new Date(Date.UTC(2026, 9, 26, 12, 0, 0) - index * 1000).toISOString(),
+  }))
+  const { service, calls } = setup(
+    (call) => ({
+      data:
+        call.method === 'get'
+          ? { status: 'SUCESSO', conversas: records }
+          : { status: 'SUCESSO', conversa: records[59] },
+    }),
+    true,
+  )
+  assert.equal((await service.list()).length, 60)
+  assert.equal(service.cachedList().length, 50)
+  assert.equal((await service.history('long-0')).thread_id, 'long-0')
+  assert.equal(calls.length, 1)
+  assert.equal((await service.history('long-59')).thread_id, 'long-59')
+  assert.equal(calls.length, 2)
+})

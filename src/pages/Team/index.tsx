@@ -94,16 +94,23 @@ export default function Team() {
     setFormOpen(true)
   }
   async function confirmDelete() {
-    if (!deleting) return
+    if (!deleting || busy) return
     setBusy(true)
     setError('')
     try {
       await removeTechnician(deleting.id)
-      setItems(await listTeamMembers())
+      setItems((values) =>
+        values.map((item) => (item.id === deleting.id ? { ...item, status: 'Inativo' } : item)),
+      )
       setPage(1)
       setNotice('Técnico desativado com sucesso.')
       setDeleting(null)
       requestAnimationFrame(() => addButtonRef.current?.focus())
+      try {
+        setItems(await listTeamMembers())
+      } catch {
+        setError('O técnico foi desativado, mas não foi possível atualizar a lista.')
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Não foi possível excluir o técnico.')
       setDeleting(null)

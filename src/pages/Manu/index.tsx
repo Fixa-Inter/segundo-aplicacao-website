@@ -50,6 +50,7 @@ export default function Manu() {
   const [search, setSearch] = useState('')
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [sending, setSending] = useState(false)
+  const [loadingConversation, setLoadingConversation] = useState(false)
   const [closing, setClosing] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [deleting, setDeleting] = useState<ManuConversation | null>(null)
@@ -67,7 +68,7 @@ export default function Manu() {
   const newChatButton = useRef<HTMLButtonElement>(null)
   const end = useRef<HTMLDivElement>(null)
   const uploading = attachments.some((item) => item.status === 'uploading')
-  const busy = sending || closing || removing || uploading
+  const busy = sending || loadingConversation || closing || removing || uploading
   const pendingConfirmation = current?.confirmacao === 'sim' && !current.closed
   const lastReply = messages.findLast((item) => item.author === 'manu')
 
@@ -136,9 +137,14 @@ export default function Manu() {
   async function selectConversation(id: string) {
     if (busyRef.current || uploading) return
     const expected = ++generation.current
+    const controller = new AbortController()
+    request.current = controller
+    busyRef.current = true
+    setLoadingConversation(true)
+    setError('')
     try {
-      const data = await manuApi.history(id)
-      if (expected !== generation.current) return
+      const data = await manuApi.history(id, controller.signal)
+      if (controller.signal.aborted || expected !== generation.current) return
       setCurrent(data)
       setMessages(data.messages)
       setQuestion('')
@@ -147,7 +153,13 @@ export default function Manu() {
       setCorrection('')
       clearAttachments()
     } catch (reason) {
-      setError(errorMessage(reason))
+      if (!controller.signal.aborted && expected === generation.current)
+        setError(errorMessage(reason))
+    } finally {
+      if (expected === generation.current) {
+        busyRef.current = false
+        setLoadingConversation(false)
+      }
     }
   }
   async function uploadAttachment(item: Attachment) {
@@ -429,6 +441,11 @@ export default function Manu() {
         </nav>
       </aside>
       <section className={styles.chat} aria-label={t('Manu')}>
+        {loadingConversation && (
+          <p className={styles.sessionNote} role="status">
+            {t('Carregando conversa…')}
+          </p>
+        )}
         {!messages.length ? (
           <div className={styles.greeting}>
             <img src={manuEmotionImage('EMPATICO')} alt={t('Manu')} width="72" height="72" />
@@ -452,7 +469,7 @@ export default function Manu() {
             role="log"
             aria-label={t('Mensagens da conversa')}
             aria-live="polite"
-            aria-busy={sending}
+            aria-busy={sending || loadingConversation}
           >
             {messages.map((message) => (
               <div

@@ -87,8 +87,13 @@
 }
 @media (max-width: 600px) {
   .identity {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
     gap: 18px;
+  }
+  .edit {
+    grid-column: 1 / -1;
+    justify-self: start;
   }
   .avatar {
     width: 80px;

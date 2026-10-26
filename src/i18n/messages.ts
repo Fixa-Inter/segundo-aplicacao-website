@@ -40,6 +40,16 @@ const messages: Record<string, readonly [string, string, string]> = {
     'CNPJ {cnpj} 的单位',
   ],
   'Definida pelo RH': ['Assigned by HR', 'Definida por RR. HH.', '由人力资源部门指定'],
+  'O técnico foi desativado, mas não foi possível atualizar a lista.': [
+    'The technician was deactivated, but the list could not be refreshed.',
+    'El técnico fue desactivado, pero no se pudo actualizar la lista.',
+    '技术人员已停用，但无法刷新列表。',
+  ],
+  'O evento foi excluído, mas não foi possível atualizar a lista.': [
+    'The event was deleted, but the list could not be refreshed.',
+    'El evento fue eliminado, pero no se pudo actualizar la lista.',
+    '活动已删除，但无法刷新列表。',
+  ],
   'Nesta sessão': ['This session', 'Esta sesión', '本次会话'],
   'Disponíveis até recarregar a página.': [
     'Available until the page is reloaded.',
