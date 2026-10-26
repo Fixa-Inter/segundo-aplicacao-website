@@ -329,3 +329,17 @@ test('listagem deixa de exibir conversa encerrada removida no servidor', async (
   assert.deepEqual(await service.list(), [])
   assert.deepEqual(service.cachedList(), [])
 })
+
+test('erro 500 no encerramento preserva conversa, mensagens e autenticação, sem repetir DELETE', async () => {
+  const { service, client, calls } = setup((call) =>
+    call.method === 'delete' ? { status: 500, data: 'Internal Server Error' } : { data: reply },
+  )
+  await service.send('Olá', null)
+  const before = await service.history('thread-1')
+  await assert.rejects(service.close('thread-1'), (error) => error.status === 500)
+  assert.deepEqual(await service.history('thread-1'), before)
+  assert.equal(service.cachedList()[0].closed, false)
+  assert.equal(client.getTokens().token, 'token-1')
+  assert.equal(calls.filter((call) => call.method === 'delete').length, 1)
+  assert.equal(calls.length, 2)
+})

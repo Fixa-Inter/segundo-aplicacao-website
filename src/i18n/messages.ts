@@ -34,6 +34,11 @@ const messages: Record<string, readonly [string, string, string]> = {
   'Conversa finalizada': ['Conversation ended', 'Conversación finalizada', '对话已结束'],
   'Finalizar conversa': ['End conversation', 'Finalizar conversación', '结束对话'],
   'Finalizando…': ['Ending…', 'Finalizando…', '正在结束…'],
+  'Não foi possível confirmar o encerramento da conversa. Suas mensagens continuam disponíveis.': [
+    'The conversation could not be confirmed as ended. Your messages are still available.',
+    'No se pudo confirmar el cierre de la conversación. Tus mensajes siguen disponibles.',
+    '无法确认对话已结束。您的消息仍然可用。',
+  ],
   'Anexar imagens': ['Attach images', 'Adjuntar imágenes', '添加图片'],
   'Enviando imagem…': ['Uploading image…', 'Subiendo imagen…', '正在上传图片…'],
   'Imagem pronta': ['Image ready', 'Imagen lista', '图片已就绪'],

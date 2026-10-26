@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
-import { ArrowUp, Check, Paperclip, RotateCcw, X } from 'lucide-react'
+import { ArrowUp, Check, Paperclip, Plus, RotateCcw, X } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useAuth } from '../../contexts/useAuth'
 import { FigmaIcon } from '../../components/FigmaIcon'
@@ -287,7 +287,12 @@ export default function Manu() {
       setCurrent(await manuApi.history(current.thread_id))
       await refreshConversations()
     } catch (reason) {
-      if (!controller.signal.aborted) setError(errorMessage(reason))
+      if (!controller.signal.aborted)
+        setError(
+          reason instanceof ApiError && (reason.status === 0 || reason.status >= 500)
+            ? 'Não foi possível confirmar o encerramento da conversa. Suas mensagens continuam disponíveis.'
+            : errorMessage(reason),
+        )
     } finally {
       busyRef.current = false
       setClosing(false)
@@ -311,7 +316,7 @@ export default function Manu() {
           />
         </label>
         <button className={styles.newChat} type="button" onClick={newChat} disabled={busy}>
-          <FigmaIcon name="edit" />
+          <Plus size={22} aria-hidden="true" />
           {t('Novo chat')}
         </button>
         <div className={styles.historyTitle}>

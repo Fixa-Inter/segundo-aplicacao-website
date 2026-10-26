@@ -74,16 +74,22 @@
   color: #9ba5b4;
   cursor: default;
 }
+.history nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 2px;
+}
 .conversation {
   display: block;
   width: 100%;
-  min-height: 44px;
+  min-height: 48px;
   text-align: left;
   border: 0;
   border-radius: 15px;
   background: transparent;
   color: var(--fixa-muted);
-  padding: 10px;
+  padding: 12px 14px;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -305,7 +311,7 @@
     margin-top: 16px;
   }
   .history nav {
-    display: flex;
+    flex-direction: row;
     overflow-x: auto;
   }
   .conversation {
