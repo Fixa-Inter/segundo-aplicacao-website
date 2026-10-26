@@ -2,6 +2,44 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Conversa salva no histórico': [
+    'Conversation saved to history',
+    'Conversación guardada en el historial',
+    '对话已保存到历史记录',
+  ],
+  'Conversa em andamento': ['Conversation in progress', 'Conversación en curso', '对话进行中'],
+  'Unidade de trabalho': ['Work location', 'Unidad de trabajo', '工作单位'],
+  'Selecione uma unidade de trabalho': [
+    'Select a work location',
+    'Selecciona una unidad de trabajo',
+    '选择工作单位',
+  ],
+  'Selecione uma unidade de trabalho.': [
+    'Select a work location.',
+    'Selecciona una unidad de trabajo.',
+    '请选择工作单位。',
+  ],
+  'Não foi possível carregar as unidades de trabalho.': [
+    'Work locations could not be loaded.',
+    'No se pudieron cargar las unidades de trabajo.',
+    '无法加载工作单位。',
+  ],
+  'Selecione uma unidade ativa.': [
+    'Select an active location.',
+    'Selecciona una unidad activa.',
+    '请选择启用的单位。',
+  ],
+  'Sua conta não pode alterar a unidade de trabalho.': [
+    'Your account cannot change the work location.',
+    'Tu cuenta no puede cambiar la unidad de trabajo.',
+    '您的帐户无法更改工作单位。',
+  ],
+  'Unidade do CNPJ {cnpj}': [
+    'Location for CNPJ {cnpj}',
+    'Unidad del CNPJ {cnpj}',
+    'CNPJ {cnpj} 的单位',
+  ],
+  'Definida pelo RH': ['Assigned by HR', 'Definida por RR. HH.', '由人力资源部门指定'],
   'Nesta sessão': ['This session', 'Esta sesión', '本次会话'],
   'Disponíveis até recarregar a página.': [
     'Available until the page is reloaded.',

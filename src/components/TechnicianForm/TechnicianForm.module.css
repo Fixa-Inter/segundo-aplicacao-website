@@ -302,3 +302,7 @@
     min-width: 120px;
   }
 }
+
+.workUnit {
+  grid-column: 1 / -1;
+}

@@ -234,25 +234,13 @@
   flex-direction: column;
   min-height: calc(100dvh - var(--header-height));
 }
-.embedToolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.embedToolbar p {
-  margin: 0;
-  color: var(--fixa-muted);
-  font-size: 13px;
-}
-.embedToolbar a {
+.openDashboard {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   color: var(--fixa-text-primary);
   font-size: 13px;
+  min-height: 44px;
 }
 .embedFrame {
   flex: 1;

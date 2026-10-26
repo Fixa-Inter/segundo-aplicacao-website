@@ -12,16 +12,24 @@ export default function Dashboard() {
   const [loaded, setLoaded] = useState(false)
   return (
     <div className={`${common.page} ${styles.embedPage}`}>
-      <PageHeader title={t('Dashboard')} />
+      <PageHeader
+        title={t('Dashboard')}
+        action={
+          url ? (
+            <a
+              className={styles.openDashboard}
+              href={viewUrl ?? url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('Abrir em nova aba')}
+              <ExternalLink size={16} aria-hidden="true" />
+            </a>
+          ) : undefined
+        }
+      />
       {url ? (
         <>
-          <div className={styles.embedToolbar}>
-            <p>{t('O acesso segue as permissões do Databricks.')}</p>
-            <a href={viewUrl ?? url} target="_blank" rel="noopener noreferrer">
-              {t('Abrir em nova aba')}
-              <ExternalLink size={16} />
-            </a>
-          </div>
           {!loaded && <p role="status">{t('Carregando dashboard…')}</p>}
           <iframe
             className={styles.embedFrame}

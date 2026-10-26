@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
-import { ArrowUp, Check, Paperclip, Plus, RotateCcw, Trash2, X } from 'lucide-react'
+import { ArrowUp, Paperclip, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useAuth } from '../../contexts/useAuth'
 import { FigmaIcon } from '../../components/FigmaIcon'
@@ -402,7 +402,14 @@ export default function Manu() {
                 onClick={() => void selectConversation(item.thread_id)}
                 title={item.title}
               >
-                {item.closed && <Check size={13} aria-label={t('Encerrada')} />} {item.title}
+                {!item.closed && current?.thread_id === item.thread_id && (
+                  <span
+                    className={styles.newConversationDot}
+                    role="img"
+                    aria-label={t('Conversa em andamento')}
+                  />
+                )}
+                {item.title}
               </button>
               <button
                 type="button"
@@ -435,10 +442,7 @@ export default function Manu() {
           <div className={styles.chatHeading}>
             <h2>{current?.title ?? t('Nova conversa')}</h2>
             {current?.closed && (
-              <span className={styles.closedChat}>
-                <Check size={15} aria-hidden="true" />
-                {t('Conversa finalizada')}
-              </span>
+              <span className={styles.closedChat}>{t('Conversa salva no histórico')}</span>
             )}
           </div>
         )}

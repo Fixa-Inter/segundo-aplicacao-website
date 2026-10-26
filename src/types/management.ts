@@ -23,7 +23,14 @@ export interface LocationOption {
   name: string
 }
 
+export interface WorkUnitOption extends Address {
+  id: string
+  name: string
+  active: boolean
+}
+
 export interface Technician extends Address {
+  unitName?: string
   unitId?: string
   jobTitle?: string
   shiftId?: string
@@ -48,7 +55,7 @@ export interface TeamMember extends Omit<Technician, 'accessType'> {
 
 export type TechnicianInput = Omit<
   Technician,
-  'id' | 'accessType' | 'assessedSpecialty' | keyof Address
+  'id' | 'accessType' | 'assessedSpecialty' | 'unitName' | keyof Address
 >
 
 export interface CalendarEvent {

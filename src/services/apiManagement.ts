@@ -7,6 +7,7 @@ import type {
   TeamMember,
   TechnicianInput,
   ShiftOption,
+  WorkUnitOption,
   LocationOption,
   EventResponsibleOption,
 } from '../types/management'
@@ -204,6 +205,7 @@ export function createManagementService(
       ...address(unit),
       id: String(item.id),
       unitId: String(item.unidadeId),
+      unitName: unit?.nome,
       name: item.nomeCompleto,
       email: item.email,
       birthDate: item.dataNascimento,
@@ -325,6 +327,16 @@ export function createManagementService(
         name: formatShiftLabel(item),
       }))
   }
+  async function listWorkUnits(): Promise<WorkUnitOption[]> {
+    if (user().role !== 'ADMINISTRADOR') return []
+    const institution = await institutionScope()
+    return institution.units.map((unit) => ({
+      ...address(unit),
+      id: String(unit.id),
+      name: unit.nome,
+      active: unit.estaAtivo,
+    }))
+  }
   async function listLocations(): Promise<LocationOption[]> {
     const unit = await scope()
     return (
@@ -400,20 +412,26 @@ export function createManagementService(
       id ? request<ApiUser>(`/api/v1/usuarios/${id}`) : Promise.resolve(null),
       user().role === 'ADMINISTRADOR' ? institutionScope() : Promise.resolve(null),
     ])
-    const unit = institution
+    const previousUnit = institution
       ? old
         ? institution.units.find((item) => item.id === old.unidadeId)
         : institution.currentUnit
       : await scope()
-    if (institution && !unit)
+    const unit =
+      institution && input.unitId
+        ? institution.units.find((item) => String(item.id) === input.unitId)
+        : previousUnit
+    if (institution && (!previousUnit || !unit))
       throw new Error('A unidade selecionada não pertence à instituição da sua conta.')
+    if (unit && !unit.estaAtivo && unit.id !== old?.unidadeId)
+      throw new Error('Selecione uma unidade ativa.')
     const shifts = await request<ApiShift[]>('/api/v1/turnos', {
-      params: old ? { unidadeId: old.unidadeId } : unit ? { unidadeId: unit.id } : undefined,
+      params: unit ? { unidadeId: unit.id } : old ? { unidadeId: old.unidadeId } : undefined,
     })
     const selected = input.shiftIds ?? (input.shiftId ? [input.shiftId] : [])
     const unitId =
-      old?.unidadeId ??
       unit?.id ??
+      old?.unidadeId ??
       shifts.find((shift) => String(shift.id) === selected[0])?.unidadeId
     if (
       !unitId ||
@@ -426,7 +444,10 @@ export function createManagementService(
       )
     )
       throw new Error('Selecione um turno ativo da unidade.')
+    if (input.unitId && input.unitId !== String(unitId))
+      throw new Error('Sua conta não pode alterar a unidade de trabalho.')
     const data = {
+      ...(old && unitId !== old.unidadeId ? { unidadeId: unitId } : {}),
       nomeCompleto: input.name.trim(),
       email: input.email.trim(),
       cargo: input.jobTitle?.trim(),
@@ -551,6 +572,7 @@ export function createManagementService(
     getProfile,
     saveProfile,
     listShifts,
+    listWorkUnits,
     listEventResponsibles,
     listLocations,
   }

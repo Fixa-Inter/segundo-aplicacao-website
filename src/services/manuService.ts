@@ -1,5 +1,10 @@
 import { ApiError, type createHttpClient } from './httpClient.ts'
-import { getSummaryTitle, normalizeManuEmotion, type ManuEmotion } from '../utils/manu.ts'
+import {
+  getSummaryTitle,
+  getConversationTitle,
+  normalizeManuEmotion,
+  type ManuEmotion,
+} from '../utils/manu.ts'
 export interface ManuMessage {
   id: string
   author: 'user' | 'manu'
@@ -75,11 +80,11 @@ function decodeHistory(value: RemoteConversation): ManuHistory {
   const title = value.titulo.trim()
   return {
     thread_id: value.session_id,
-    title:
-      title ||
-      getSummaryTitle(summary) ||
-      value.mensagens.find((item) => item.role === 'human')?.mensagem.slice(0, 80) ||
-      'Conversa sem título',
+    title: getConversationTitle(
+      title,
+      summary,
+      value.mensagens.find((item) => item.role === 'human')?.mensagem,
+    ),
     updated_at: new Date(value.atualizada_em).toISOString(),
     closed: Boolean(title || summary),
     summary: summary || null,

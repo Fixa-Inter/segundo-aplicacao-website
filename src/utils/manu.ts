@@ -50,3 +50,18 @@ export function getSummaryTitle(summary: unknown): string | null {
   const match = summary.match(/^(?:#{1,3}\s+|T[ií]tulo:\s*)([^\n]+)/im)
   return match?.[1].trim().slice(0, 100) || null
 }
+
+export function getConversationTitle(title: unknown, summary: unknown, firstMessage = ''): string {
+  const explicit = getSummaryTitle(title) ?? getSummaryTitle(summary)
+  if (explicit) return explicit
+  const candidate = typeof title === 'string' ? title.trim() : ''
+  // A API antiga usa a primeira linha do resumo como título, mesmo quando é um parágrafo.
+  if (
+    candidate &&
+    candidate.length <= 80 &&
+    !/[\r\n]/.test(candidate) &&
+    candidate.split(/\s+/).length <= 12
+  )
+    return candidate
+  return firstMessage.trim().slice(0, 80) || 'Conversa sem título'
+}

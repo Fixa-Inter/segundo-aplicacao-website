@@ -3,10 +3,11 @@ import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
 import { hasFormChanges } from '../../utils/formChanges'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
+import { useAuth } from '../../contexts/useAuth'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
-import { listShifts, PartialSaveError } from '../../services/managementService'
-import type { ShiftOption } from '../../types/management'
+import { listShifts, listWorkUnits, PartialSaveError } from '../../services/managementService'
+import type { ShiftOption, WorkUnitOption } from '../../types/management'
 import type { Address, TechnicianInput } from '../../types/management'
 import type {
   TechnicianFormFieldsProps,
@@ -86,6 +87,8 @@ function TechnicianFormFields({
 }: TechnicianFormFieldsProps) {
   const { t } = usePreferences()
 
+  const { user } = useAuth()
+  const institutional = user?.role === 'ADMINISTRADOR'
   const linkedShiftIds = [
     ...new Set(technician?.shiftIds ?? (technician?.shiftId ? [technician.shiftId] : [])),
   ]
@@ -94,7 +97,8 @@ function TechnicianFormFields({
     name: technician?.name ?? '',
     birthDate: technician?.birthDate ?? '',
     email: technician?.email ?? '',
-    phone: '',
+    phone: technician?.phone ?? '',
+    unitId: technician?.unitId ?? '',
     jobTitle: technician?.jobTitle ?? 'Técnico de manutenção',
     shiftId: selectedShiftId,
     shiftIds: linkedShiftIds,
@@ -102,14 +106,34 @@ function TechnicianFormFields({
     shift: technician?.shift ?? '08:00 - 16:00',
     status: technician?.status ?? 'Ativo',
   })
-  const addressSource = technician ?? manager
+  const [workUnits, setWorkUnits] = useState<WorkUnitOption[]>([])
+  const [unitError, setUnitError] = useState('')
+  const [unitAttempt, setUnitAttempt] = useState(0)
+  useEffect(() => {
+    if (!institutional) return
+    let active = true
+    listWorkUnits()
+      .then((items) => {
+        if (active) {
+          setWorkUnits(items)
+          setUnitError('')
+        }
+      })
+      .catch(() => {
+        if (active) setUnitError('Não foi possível carregar as unidades de trabalho.')
+      })
+    return () => {
+      active = false
+    }
+  }, [institutional, unitAttempt])
+  const addressSource = workUnits.find((unit) => unit.id === form.unitId) ?? technician ?? manager
   const [persistedId, setPersistedId] = useState<string | undefined>(technician?.id)
   const [shifts, setShifts] = useState<ShiftOption[]>([])
   const [shiftError, setShiftError] = useState('')
   const [shiftAttempt, setShiftAttempt] = useState(0)
   useEffect(() => {
     let active = true
-    listShifts(technician?.unitId)
+    listShifts(form.unitId || technician?.unitId)
       .then((items) => {
         if (active) {
           setShifts(items)
@@ -125,7 +149,7 @@ function TechnicianFormFields({
     return () => {
       active = false
     }
-  }, [shiftAttempt, technician?.unitId])
+  }, [shiftAttempt, technician?.unitId, form.unitId])
   const [password, setPassword] = useState('')
   const [birthDate, setBirthDate] = useState(
     technician ? formatDate(technician.birthDate, { dateStyle: 'short' }) : '',
@@ -211,6 +235,7 @@ function TechnicianFormFields({
       password: persistedId ? undefined : password,
     }
     const validation = validateTechnician(input)
+    if (institutional && !input.unitId) validation.unitId = 'Selecione uma unidade de trabalho.'
     const invalidPassword = persistedId ? undefined : validatePassword(password)
     const competencies: CompetencyInput[] = []
     const invalidRatings: Record<string, string> = {}
@@ -278,7 +303,70 @@ function TechnicianFormFields({
               <label htmlFor="technician-access">{t('Cargo')}</label>
               <input id="technician-access" value={t('Técnico')} readOnly />
             </div>
-            <div className={`${styles.field} ${styles.specialty}`}>
+            <div className={[styles.field, styles.workUnit].join(' ')}>
+              <label htmlFor="technician-unit">
+                {t('Unidade de trabalho')}
+                {institutional ? ' *' : ''}
+              </label>
+              {institutional ? (
+                <select
+                  id="technician-unit"
+                  value={form.unitId ?? ''}
+                  disabled={busy || !workUnits.length}
+                  aria-invalid={Boolean(errors.unitId)}
+                  aria-describedby={errors.unitId ? 'technician-unit-error' : undefined}
+                  onChange={(event) => {
+                    const unitId = event.currentTarget.value
+                    setForm((value) => ({ ...value, unitId, shiftId: '', shiftIds: [] }))
+                    setShifts([])
+                    setShiftError('')
+                    setErrors((value) => ({ ...value, unitId: undefined, shiftId: undefined }))
+                  }}
+                >
+                  <option value="" disabled>
+                    {t('Selecione uma unidade de trabalho')}
+                  </option>
+                  {workUnits.map((unit) => (
+                    <option
+                      key={unit.id}
+                      value={unit.id}
+                      disabled={!unit.active && unit.id !== technician?.unitId}
+                    >
+                      {unit.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  id="technician-unit"
+                  value={
+                    technician?.unitName ||
+                    manager.company ||
+                    t('Unidade do CNPJ {cnpj}', { cnpj: user?.cnpj ?? '' })
+                  }
+                  readOnly
+                  title={t('Definida pelo RH')}
+                />
+              )}
+              {errors.unitId && (
+                <span id="technician-unit-error" className={styles.error} role="alert">
+                  {t(errors.unitId)}
+                </span>
+              )}
+              {unitError && (
+                <div role="alert">
+                  <p>{t(unitError)}</p>
+                  <button
+                    type="button"
+                    className={styles.retry}
+                    onClick={() => setUnitAttempt((value) => value + 1)}
+                  >
+                    {t('Tentar novamente')}
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className={[styles.field, styles.specialty].join(' ')}>
               <label htmlFor="technician-specialty">{t('Especialidade')}</label>
               <input id="technician-specialty" value={t(draftSpecialty || 'Sem notas')} readOnly />
             </div>
@@ -288,7 +376,7 @@ function TechnicianFormFields({
                 id="technician-shift"
                 value={form.shiftId ?? ''}
                 required
-                disabled={busy || !shifts.length}
+                disabled={busy || !shifts.length || (institutional && !form.unitId)}
                 aria-invalid={Boolean(errors.shiftId)}
                 aria-describedby={errors.shiftId ? 'technician-shift-error' : undefined}
                 onChange={(event) => {

@@ -3,6 +3,7 @@ import { TechnicianCompetencies } from '../TechnicianCompetencies'
 import { TechnicianPerformance } from '../TechnicianPerformance'
 import { useUnsavedChanges } from '../../contexts/useUnsavedChanges'
 import { usePreferences } from '../../contexts/usePreferences'
+import { useAuth } from '../../contexts/useAuth'
 import { useEffect, useRef } from 'react'
 import type { TechnicianDetailsProps } from '../../types/ui'
 import { BadgeCheck, Clock3, ShieldUser, BriefcaseBusiness } from 'lucide-react'
@@ -12,6 +13,7 @@ import styles from './TechnicianDetails.module.css'
 
 export function TechnicianDetails({ technician, onBack, onEdit }: TechnicianDetailsProps) {
   const { t, formatDate } = usePreferences()
+  const { user } = useAuth()
   const { requestExit } = useUnsavedChanges()
 
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -86,7 +88,13 @@ export function TechnicianDetails({ technician, onBack, onEdit }: TechnicianDeta
           <InformationItem
             icon={<FigmaIcon name="location" />}
             label={t('Localização')}
-            value={address || t('Não informado')}
+            value={
+              address ||
+              technician.unitName ||
+              (user?.role === 'GESTOR'
+                ? t('Unidade do CNPJ {cnpj}', { cnpj: user.cnpj })
+                : t('Não informado'))
+            }
           />
           <InformationItem
             icon={<BriefcaseBusiness />}
@@ -98,7 +106,7 @@ export function TechnicianDetails({ technician, onBack, onEdit }: TechnicianDeta
             label={t('Cargo')}
             value={t(technical ? 'Técnico' : 'Gestor')}
           />
-          {technician.unitName && (
+          {technician.unitName && address && (
             <InformationItem
               icon={<FigmaIcon name="location" />}
               label={t('Unidade')}

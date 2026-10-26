@@ -754,3 +754,149 @@ test('troca para um turno vincula o escolhido antes de remover antigos e preserv
     }
   }
 })
+
+test('unidades de trabalho do RH ficam na instituição; gestor não consulta endpoint exclusivo', async () => {
+  const { client } = setup((call) => {
+    if (call.url === '/api/v1/unidades')
+      return {
+        data: [
+          { ...unit, instituicaoId: 8 },
+          { ...unit, id: 6, instituicaoId: 8 },
+          { ...unit, id: 99, instituicaoId: 9 },
+        ],
+      }
+    if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
+    throw Error('Rota inesperada')
+  })
+  const units = await createManagementService(client, () => ({
+    ...user,
+    role: 'ADMINISTRADOR',
+  })).listWorkUnits()
+  assert.deepEqual(
+    units.map((item) => item.id),
+    ['5', '6'],
+  )
+  assert.equal(units[0].address, unit.logradouro)
+  const denied = setup(() => {
+    throw Error('Gestor não consulta unidades')
+  })
+  assert.deepEqual(await createManagementService(denied.client, () => user).listWorkUnits(), [])
+  assert.equal(denied.calls.length, 0)
+})
+
+test('RH transfere unidade e vincula turno novo antes de remover antigo, herdando localização', async () => {
+  const sibling = { ...unit, id: 6, instituicaoId: 8, nome: 'Unidade Sul', logradouro: 'Rua Sul' }
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/unidades') return { data: [{ ...unit, instituicaoId: 8 }, sibling] }
+    if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
+    if (call.url === '/api/v1/usuarios/22')
+      return { data: call.method === 'patch' ? { ...tech, ...call.data } : tech }
+    if (call.url === '/api/v1/turnos') {
+      assert.deepEqual(call.params, { unidadeId: 6 })
+      return { data: [{ ...shift, id: 9, unidadeId: 6 }] }
+    }
+    if (call.url === '/api/v1/usuarios/22/turnos')
+      return { data: [{ id: 8, turnoId: 4, estaAtivo: true }] }
+    if (
+      call.url === '/api/v1/turnos/9/usuarios/22' ||
+      call.url === '/api/v1/turnos-usuarios/8/desativar'
+    )
+      return { data: {} }
+    if (call.url === '/api/v1/aptidoes') return { data: [] }
+    throw Error('Rota inesperada: ' + call.url)
+  })
+  const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+  const saved = await service.saveTechnician(
+    { ...input, unitId: '6', shiftId: '9', shiftIds: ['9'] },
+    '22',
+  )
+  assert.equal(saved.unitId, '6')
+  assert.equal(saved.unitName, 'Unidade Sul')
+  assert.equal(saved.address, 'Rua Sul')
+  assert.equal(
+    calls.find((call) => call.url === '/api/v1/usuarios/22' && call.method === 'patch').data
+      .unidadeId,
+    6,
+  )
+  assert(
+    calls.findIndex((call) => call.url === '/api/v1/turnos/9/usuarios/22') <
+      calls.findIndex((call) => call.url === '/api/v1/turnos-usuarios/8/desativar'),
+  )
+})
+
+test('troca de unidade fora da instituição ou pelo gestor é rejeitada antes de gravar', async () => {
+  for (const role of ['ADMINISTRADOR', 'GESTOR']) {
+    const { client, calls } = setup((call) => {
+      if (call.url === '/api/v1/unidades')
+        return {
+          data: [
+            { ...unit, instituicaoId: 8 },
+            { ...unit, id: 99, instituicaoId: 9 },
+          ],
+        }
+      if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
+      if (call.url === '/api/v1/usuarios/22') return { data: tech }
+      if (call.url === '/api/v1/turnos') return { data: [shift] }
+      throw Error('Não pode gravar')
+    })
+    await assert.rejects(
+      createManagementService(client, () => ({ ...user, role })).saveTechnician(
+        { ...input, unitId: '99' },
+        '22',
+      ),
+      /instituição|não pode alterar/,
+    )
+    assert.equal(
+      calls.some((call) => call.method !== 'get'),
+      false,
+    )
+  }
+})
+
+test('troca parcial de unidade pode ser concluída sem duplicar técnico ou perder turno antigo antes do novo', async () => {
+  let current = { ...tech },
+    fail = true
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/unidades')
+      return {
+        data: [
+          { ...unit, instituicaoId: 8 },
+          { ...unit, id: 6, instituicaoId: 8 },
+        ],
+      }
+    if (call.url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10 } }
+    if (call.url === '/api/v1/usuarios/22') {
+      if (call.method === 'patch') current = { ...current, ...call.data }
+      return { data: current }
+    }
+    if (call.url === '/api/v1/turnos') return { data: [{ ...shift, id: 9, unidadeId: 6 }] }
+    if (call.url === '/api/v1/usuarios/22/turnos')
+      return { data: [{ id: 8, turnoId: 4, estaAtivo: true }] }
+    if (call.url === '/api/v1/turnos/9/usuarios/22') {
+      if (fail) {
+        fail = false
+        return { status: 500 }
+      }
+      return { data: {} }
+    }
+    if (call.url === '/api/v1/turnos-usuarios/8/desativar') return { data: {} }
+    if (call.url === '/api/v1/aptidoes') return { data: [] }
+    throw Error('Rota inesperada: ' + call.url)
+  })
+  const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+  const changed = { ...input, unitId: '6', shiftId: '9', shiftIds: ['9'] }
+  await assert.rejects(
+    service.saveTechnician(changed, '22'),
+    (error) => error instanceof PartialSaveError && error.resourceId === '22',
+  )
+  assert.equal(
+    calls.some((call) => call.url === '/api/v1/turnos-usuarios/8/desativar'),
+    false,
+  )
+  assert.equal((await service.saveTechnician(changed, '22')).unitId, '6')
+  assert.equal(
+    calls.some((call) => call.url === '/api/v1/usuarios' && call.method === 'post'),
+    false,
+  )
+  assert.equal(calls.filter((call) => call.url === '/api/v1/turnos-usuarios/8/desativar').length, 1)
+})

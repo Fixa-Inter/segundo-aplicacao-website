@@ -459,3 +459,46 @@ test('resposta de exclusão após logout não altera a sessão seguinte', async 
   await assert.rejects(pending, /sessão foi encerrada/)
   assert.equal(client.getTokens().token, 'outra-conta')
 })
+
+test('título descritivo antigo não vira cabeçalho; título real curto ou estruturado é preservado', async () => {
+  const paragraph =
+    'O usuário apenas cumprimentou a Manu e recebeu uma orientação geral sobre como consultar seus registros antes de repetir o envio.'
+  const { service } = setup(
+    () => ({
+      data: {
+        status: 'SUCESSO',
+        conversas: [{ ...remoteConversation, titulo: paragraph, resumo: '' }],
+      },
+    }),
+    true,
+  )
+  const list = await service.list()
+  assert.equal(list[0].title, 'Verificar a iluminação')
+  assert.equal(list[0].closed, true)
+  const compact = setup(
+    () => ({
+      data: {
+        status: 'SUCESSO',
+        conversas: [{ ...remoteConversation, titulo: 'Manutenção do ar-condicionado' }],
+      },
+    }),
+    true,
+  )
+  assert.equal((await compact.service.list())[0].title, 'Manutenção do ar-condicionado')
+  const structured = setup(
+    () => ({
+      data: {
+        status: 'SUCESSO',
+        conversas: [
+          {
+            ...remoteConversation,
+            titulo: '',
+            resumo: JSON.stringify({ titulo: 'Ar-condicionado', resumo: paragraph }),
+          },
+        ],
+      },
+    }),
+    true,
+  )
+  assert.equal((await structured.service.list())[0].title, 'Ar-condicionado')
+})

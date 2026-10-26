@@ -795,3 +795,22 @@
     font-size: 11px;
   }
 }
+
+.newConversationDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--fixa-text-primary);
+  vertical-align: middle;
+}
+@media (max-width: 600px) {
+  .chatHeading {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .chatHeading h2 {
+    max-width: 100%;
+  }
+}
