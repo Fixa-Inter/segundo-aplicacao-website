@@ -1,7 +1,7 @@
 import { Eye } from 'lucide-react'
 import { useAuth } from '../../contexts/useAuth'
 import { usePreferences } from '../../contexts/usePreferences'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { FilterButton } from '../../components/FilterButton'
@@ -21,12 +21,22 @@ import common from '../management.module.css'
 import styles from './Team.module.css'
 
 const pageSize = 4
+const teamTabs = [
+  { accessType: 'GESTOR', label: 'Gestores', id: 'managers' },
+  { accessType: 'TÉCNICO', label: 'Técnicos', id: 'technicians' },
+] as const
 
 export default function Team() {
   const { t } = usePreferences()
   const { user } = useAuth()
   const institutional = user?.role === 'ADMINISTRADOR'
-  const teamTitle = t(institutional ? 'Técnicos e gestores' : 'Técnicos')
+  const [selectedAccess, setSelectedAccess] = useState<TeamMember['accessType']>(
+    institutional ? 'GESTOR' : 'TÉCNICO',
+  )
+  const activeAccess = institutional ? selectedAccess : 'TÉCNICO'
+  const activeTab = teamTabs.find((tab) => tab.accessType === activeAccess)!
+  const technical = activeAccess === 'TÉCNICO'
+  const teamTitle = t(activeTab.label)
 
   const [items, setItems] = useState<TeamMember[]>([])
   const [manager, setManager] = useState<ManagerProfile | null>(null)
@@ -38,7 +48,6 @@ export default function Team() {
   const [notice, setNotice] = useState('')
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('Todos')
-  const [accessFilter, setAccessFilter] = useState('Todos')
   const [unitFilter, setUnitFilter] = useState('Todos')
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState<Technician | null>(null)
@@ -79,7 +88,7 @@ export default function Team() {
   const filtered = items.filter(
     (item) =>
       (filter === 'Todos' || item.status === filter) &&
-      (accessFilter === 'Todos' || item.accessType === accessFilter) &&
+      item.accessType === activeAccess &&
       (unitFilter === 'Todos' || item.unitId === unitFilter) &&
       `${item.name} ${item.email} ${item.unitName ?? ''} ${t(item.accessType === 'TÉCNICO' ? 'Técnico' : 'Gestor')} ${item.accessType === 'TÉCNICO' ? t(item.assessedSpecialty ?? 'Sem notas') : ''}`
         .toLocaleLowerCase('pt-BR')
@@ -87,6 +96,23 @@ export default function Team() {
   )
   const lastPage = Math.max(1, Math.ceil(filtered.length / pageSize))
   const shown = filtered.slice((page - 1) * pageSize, page * pageSize)
+  function selectTab(accessType: TeamMember['accessType']) {
+    setSelectedAccess(accessType)
+    setPage(1)
+  }
+  function moveTab(event: KeyboardEvent<HTMLDivElement>) {
+    const index = teamTabs.findIndex((tab) => tab.accessType === activeAccess)
+    const next = {
+      ArrowRight: (index + 1) % teamTabs.length,
+      ArrowLeft: (index + teamTabs.length - 1) % teamTabs.length,
+      Home: 0,
+      End: teamTabs.length - 1,
+    }[event.key]
+    if (next === undefined) return
+    event.preventDefault()
+    selectTab(teamTabs[next].accessType)
+    document.getElementById('team-tab-' + teamTabs[next].id)?.focus()
+  }
   function openForm(item?: TeamMember) {
     if (item && item.accessType !== 'TÉCNICO') return
     setEditing(item ? { ...item, accessType: 'TÉCNICO' } : null)
@@ -167,16 +193,18 @@ export default function Team() {
       <PageHeader
         title={t('Minha equipe')}
         action={
-          <button
-            ref={addButtonRef}
-            className={`${common.primary} ${common.addButton}`}
-            type="button"
-            onClick={() => openForm()}
-            disabled={loading || Boolean(loadError) || !manager}
-          >
-            <FigmaIcon name="plus" />
-            {t('Adicionar técnico')}
-          </button>
+          technical && (
+            <button
+              ref={addButtonRef}
+              className={`${common.primary} ${common.addButton}`}
+              type="button"
+              onClick={() => openForm()}
+              disabled={loading || Boolean(loadError) || !manager}
+            >
+              <FigmaIcon name="plus" />
+              {t('Adicionar técnico')}
+            </button>
+          )
         }
       />
       <div className={common.toolbar}>
@@ -199,17 +227,36 @@ export default function Team() {
         </label>
       </div>
       <div className={styles.sectionHeading}>
-        <h2>{teamTitle}</h2>
+        {institutional ? (
+          <div
+            className={styles.tabs}
+            role="tablist"
+            aria-label={t('Minha equipe')}
+            onKeyDown={moveTab}
+          >
+            {teamTabs.map((tab) => (
+              <button
+                key={tab.id}
+                id={'team-tab-' + tab.id}
+                className={styles.tab}
+                type="button"
+                role="tab"
+                aria-selected={activeAccess === tab.accessType}
+                aria-controls="team-content"
+                tabIndex={activeAccess === tab.accessType ? 0 : -1}
+                onClick={() => selectTab(tab.accessType)}
+              >
+                {t(tab.label)}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <h2>{teamTitle}</h2>
+        )}
         <FilterButton
-          active={
-            filter !== 'Todos' ||
-            accessFilter !== 'Todos' ||
-            unitFilter !== 'Todos' ||
-            Boolean(query)
-          }
+          active={filter !== 'Todos' || unitFilter !== 'Todos' || Boolean(query)}
           onClear={() => {
             setFilter('Todos')
-            setAccessFilter('Todos')
             setUnitFilter('Todos')
             setQuery('')
             setPage(1)
@@ -217,21 +264,6 @@ export default function Team() {
         >
           {institutional && (
             <>
-              <label htmlFor="team-access" className={common.field}>
-                {t('Tipo de acesso')}
-                <select
-                  id="team-access"
-                  value={accessFilter}
-                  onChange={(event) => {
-                    setAccessFilter(event.target.value)
-                    setPage(1)
-                  }}
-                >
-                  <option value="Todos">{t('Todos')}</option>
-                  <option value="TÉCNICO">{t('Técnicos')}</option>
-                  <option value="GESTOR">{t('Gestores')}</option>
-                </select>
-              </label>
               <label htmlFor="team-unit" className={common.field}>
                 {t('Unidade')}
                 <select
@@ -285,142 +317,149 @@ export default function Team() {
           {t(error)}
         </p>
       )}
-      {loading ? (
-        <p role="status">{t('Carregando equipe…')}</p>
-      ) : loadError ? (
-        <section aria-label={teamTitle}>
-          <div role="alert" className={common.error}>
-            <p>{t(loadError)}</p>
-            <button
-              className={common.secondary}
-              type="button"
-              onClick={() => {
-                setLoadError('')
-                setLoading(true)
-                setLoadAttempt((current) => current + 1)
-              }}
-            >
-              {t('Tentar novamente')}
-            </button>
-          </div>
-        </section>
-      ) : (
-        <section
-          id="team-panel-tech"
-          className={`${common.panel} ${styles.tablePanel} ${institutional ? styles.institutionTable : ''}`}
-          aria-label={teamTitle}
-        >
-          {filtered.length ? (
-            <>
-              <div className={common.tableWrap}>
-                <table className={common.table}>
-                  <thead>
-                    <tr>
-                      <th>{t('Nome')}</th>
-                      {institutional && <th>{t('Unidade')}</th>}
-                      <th>{t('Turno')}</th>
-                      <th>{t('Especialidade')}</th>
-                      <th>{t('Ações')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {shown.map((item) => (
-                      <tr key={item.id}>
-                        <td data-label={t('Nome')}>
-                          <div className={styles.member}>
-                            <span className={styles.initials} aria-hidden="true">
-                              {item.name
-                                .split(' ')
-                                .map((part) => part[0])
-                                .slice(0, 2)
-                                .join('')}
-                            </span>
-                            <span className={styles.memberText}>
-                              <span
-                                className={styles.memberName}
-                                title={item.name}
-                                aria-label={item.name}
-                              >
-                                {truncateText(item.name, 40)}
-                              </span>
-                              <small>
-                                {institutional && (
-                                  <>{t(item.accessType === 'TÉCNICO' ? 'Técnico' : 'Gestor')} · </>
-                                )}
-                                {t(item.status)}
-                              </small>
-                            </span>
-                          </div>
-                        </td>
-                        {institutional && (
-                          <td data-label={t('Unidade')} title={item.unitName}>
-                            {truncateText(item.unitName || t('Não informado'), 28)}
-                          </td>
-                        )}
-                        <td data-label={t('Turno')}>
-                          {item.accessType === 'TÉCNICO'
-                            ? item.shift || t('Não informado')
-                            : t('Não se aplica')}
-                        </td>
-                        <td data-label={t('Especialidade')}>
-                          {t(
-                            item.accessType === 'TÉCNICO'
-                              ? (item.assessedSpecialty ?? 'Sem notas')
-                              : 'Não se aplica',
-                          )}
-                        </td>
-                        <td data-label={t('Ações')}>
-                          <div className={common.actions}>
-                            <button
-                              type="button"
-                              className={styles.iconButton}
-                              id={`tech-details-${item.id}`}
-                              aria-label={t('Ver detalhes de {name}', { name: item.name })}
-                              onClick={() => showDetails(item)}
-                            >
-                              <Eye aria-hidden="true" />
-                            </button>
-                            {item.accessType === 'TÉCNICO' && (
-                              <>
-                                <button
-                                  type="button"
-                                  className={styles.iconButton}
-                                  aria-label={t('Editar {name}', { name: item.name })}
-                                  onClick={() => openForm(item)}
-                                >
-                                  <FigmaIcon name="edit" />
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`${styles.iconButton} ${styles.delete}`}
-                                  aria-label={t('Desativar {name}', { name: item.name })}
-                                  disabled={item.status === 'Inativo'}
-                                  onClick={() => setDeleting({ ...item, accessType: 'TÉCNICO' })}
-                                >
-                                  <FigmaIcon name="trash" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
+      <div
+        id="team-content"
+        className={styles.teamContent}
+        role={institutional ? 'tabpanel' : undefined}
+        aria-labelledby={institutional ? 'team-tab-' + activeTab.id : undefined}
+        tabIndex={institutional ? 0 : undefined}
+      >
+        {loading ? (
+          <p role="status">{t('Carregando equipe…')}</p>
+        ) : loadError ? (
+          <section aria-label={teamTitle}>
+            <div role="alert" className={common.error}>
+              <p>{t(loadError)}</p>
+              <button
+                className={common.secondary}
+                type="button"
+                onClick={() => {
+                  setLoadError('')
+                  setLoading(true)
+                  setLoadAttempt((current) => current + 1)
+                }}
+              >
+                {t('Tentar novamente')}
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section
+            id="team-panel-tech"
+            className={`${common.panel} ${styles.tablePanel} ${institutional ? (technical ? styles.institutionTable : styles.managersTable) : ''}`}
+            aria-label={teamTitle}
+          >
+            {filtered.length ? (
+              <>
+                <div className={common.tableWrap}>
+                  <table className={common.table}>
+                    <thead>
+                      <tr>
+                        <th>{t('Nome')}</th>
+                        {institutional && <th>{t('Unidade')}</th>}
+                        {technical && <th>{t('Turno')}</th>}
+                        {technical && <th>{t('Especialidade')}</th>}
+                        <th>{t('Ações')}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <Pagination page={page} total={lastPage} onChange={setPage} />
-            </>
-          ) : (
-            <p className={common.empty}>
-              {t(
-                institutional
-                  ? 'Nenhum funcionário encontrado para os filtros escolhidos.'
-                  : 'Nenhum técnico encontrado para os filtros escolhidos.',
-              )}
-            </p>
-          )}
-        </section>
-      )}
+                    </thead>
+                    <tbody>
+                      {shown.map((item) => (
+                        <tr key={item.id}>
+                          <td data-label={t('Nome')}>
+                            <div className={styles.member}>
+                              <span className={styles.initials} aria-hidden="true">
+                                {item.name
+                                  .split(' ')
+                                  .map((part) => part[0])
+                                  .slice(0, 2)
+                                  .join('')}
+                              </span>
+                              <span className={styles.memberText}>
+                                <span
+                                  className={styles.memberName}
+                                  title={item.name}
+                                  aria-label={item.name}
+                                >
+                                  {truncateText(item.name, 40)}
+                                </span>
+                                <small>
+                                  {institutional && (
+                                    <>
+                                      {t(item.accessType === 'TÉCNICO' ? 'Técnico' : 'Gestor')}{' '}
+                                      ·{' '}
+                                    </>
+                                  )}
+                                  {t(item.status)}
+                                </small>
+                              </span>
+                            </div>
+                          </td>
+                          {institutional && (
+                            <td data-label={t('Unidade')} title={item.unitName}>
+                              {truncateText(item.unitName || t('Não informado'), 28)}
+                            </td>
+                          )}
+                          {technical && (
+                            <>
+                              <td data-label={t('Turno')}>{item.shift || t('Não informado')}</td>
+                              <td data-label={t('Especialidade')}>
+                                {t(item.assessedSpecialty ?? 'Sem notas')}
+                              </td>
+                            </>
+                          )}
+                          <td data-label={t('Ações')}>
+                            <div className={common.actions}>
+                              <button
+                                type="button"
+                                className={styles.iconButton}
+                                id={`tech-details-${item.id}`}
+                                aria-label={t('Ver detalhes de {name}', { name: item.name })}
+                                onClick={() => showDetails(item)}
+                              >
+                                <Eye aria-hidden="true" />
+                              </button>
+                              {item.accessType === 'TÉCNICO' && (
+                                <>
+                                  <button
+                                    type="button"
+                                    className={styles.iconButton}
+                                    aria-label={t('Editar {name}', { name: item.name })}
+                                    onClick={() => openForm(item)}
+                                  >
+                                    <FigmaIcon name="edit" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className={`${styles.iconButton} ${styles.delete}`}
+                                    aria-label={t('Desativar {name}', { name: item.name })}
+                                    disabled={item.status === 'Inativo'}
+                                    onClick={() => setDeleting({ ...item, accessType: 'TÉCNICO' })}
+                                  >
+                                    <FigmaIcon name="trash" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <Pagination page={page} total={lastPage} onChange={setPage} />
+              </>
+            ) : (
+              <p className={common.empty}>
+                {t(
+                  technical
+                    ? 'Nenhum técnico encontrado para os filtros escolhidos.'
+                    : 'Nenhum gestor encontrado para os filtros escolhidos.',
+                )}
+              </p>
+            )}
+          </section>
+        )}
+      </div>
       <ConfirmDialog
         opened={Boolean(deleting)}
         onClose={() => setDeleting(null)}

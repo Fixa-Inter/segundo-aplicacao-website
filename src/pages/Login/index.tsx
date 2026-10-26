@@ -138,9 +138,6 @@ export default function Login() {
             <button type="submit" disabled={loading || recovering} className={styles.submit}>
               {t(loading ? 'Entrando…' : 'Entrar')}
             </button>
-            <p className={styles.demo}>
-              {t('Entre com o CNPJ da unidade e suas credenciais de acesso.')}
-            </p>
             <Link className={styles.aboutLink} to="/sobre">
               {t('Conheça o projeto')}
             </Link>

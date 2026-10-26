@@ -291,11 +291,6 @@ export function EventForm({
             )}
           </div>
         </fieldset>
-        <p className={styles.note}>
-          {t(
-            'Campos com * são obrigatórios. Selecione um local da unidade. O responsável de um evento existente não pode ser alterado.',
-          )}
-        </p>
         {error && (
           <p className={styles.error} role="alert">
             {t(error)}

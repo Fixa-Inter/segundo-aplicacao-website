@@ -252,7 +252,6 @@ export default function Profile() {
                   label={t('Localização')}
                   value={address || t('Não informado')}
                 />
-                <p>{t('A localização é gerenciada pelo administrador da unidade.')}</p>
               </section>
               <div className={common.formActions}>
                 <button className={common.secondary} type="button" onClick={cancel} disabled={busy}>

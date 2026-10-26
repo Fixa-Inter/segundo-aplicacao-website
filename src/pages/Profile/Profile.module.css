@@ -161,8 +161,3 @@
   border-radius: 20px;
   background: var(--fixa-neutral-surface);
 }
-.locationInfo p {
-  margin: 8px 0 0 40px;
-  color: var(--fixa-muted);
-  font-size: 13px;
-}

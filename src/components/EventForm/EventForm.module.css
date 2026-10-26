@@ -77,12 +77,6 @@
 .field textarea[aria-invalid='true'] {
   border-color: var(--fixa-danger-text);
 }
-.note {
-  margin: 24px 0 0;
-  color: var(--fixa-muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
 .error {
   margin: 8px 0;
   color: var(--fixa-danger-text);

@@ -1120,6 +1120,11 @@ const messages: Record<string, readonly [string, string, string]> = {
   funcionário: ['employee', 'empleado', '员工'],
   'Voltar para equipe': ['Back to team', 'Volver al equipo', '返回团队'],
   'Voltar para calendário': ['Back to calendar', 'Volver al calendario', '返回日历'],
+  'Nenhum gestor encontrado para os filtros escolhidos.': [
+    'No managers match these filters.',
+    'No hay gestores con estos filtros.',
+    '没有符合筛选条件的主管。',
+  ],
   'Nenhum técnico encontrado para os filtros escolhidos.': [
     'No technicians match these filters.',
     'No hay técnicos con estos filtros.',
@@ -1170,6 +1175,11 @@ const messages: Record<string, readonly [string, string, string]> = {
   'Técnico ·': ['Technician ·', 'Técnico ·', '技术人员 ·'],
   Gestor: ['Manager', 'Gestor', '主管'],
   Gestores: ['Managers', 'Gestores', '主管'],
+  'O dashboard ainda não está disponível.': [
+    'The dashboard is not available yet.',
+    'El dashboard aún no está disponible.',
+    '仪表板暂不可用。',
+  ],
   Administrador: ['Administrator', 'Administrador', '管理员'],
   'Não foi possível identificar a instituição da sua conta.': [
     'Your account institution could not be identified.',

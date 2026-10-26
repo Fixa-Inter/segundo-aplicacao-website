@@ -111,9 +111,7 @@ export default function Home() {
               />
             </>
           ) : (
-            <p className={styles.calendarState}>
-              {t('O resumo do dashboard ainda não está configurado.')}
-            </p>
+            <p className={styles.calendarState}>{t('O dashboard ainda não está disponível.')}</p>
           )}
         </section>
         <section className={styles.eventPanel} aria-label={t('Calendário resumido')}>

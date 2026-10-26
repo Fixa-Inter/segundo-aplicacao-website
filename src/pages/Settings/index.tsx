@@ -61,9 +61,6 @@ export default function Settings() {
           </label>
         </div>
       </fieldset>
-      <p className={common.muted}>
-        {t('As preferências são salvas neste navegador e aplicadas automaticamente.')}
-      </p>
     </div>
   )
 }

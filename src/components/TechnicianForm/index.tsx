@@ -443,7 +443,7 @@ function TechnicianFormFields({
                     maxLength={100}
                     required
                     aria-invalid={Boolean(passwordError)}
-                    aria-describedby="technician-password-rule technician-password-error"
+                    aria-describedby={passwordError ? 'technician-password-error' : undefined}
                     onChange={(event) => {
                       setPassword(event.currentTarget.value)
                       setPasswordError(undefined)
@@ -475,11 +475,6 @@ function TechnicianFormFields({
             ))}
           </div>
         </fieldset>
-        {!technician && (
-          <p id="technician-password-rule" className={styles.note}>
-            {t('Senha inicial: de 8 a 100 caracteres.')}
-          </p>
-        )}
         <fieldset
           disabled={busy}
           className={styles.competencies}

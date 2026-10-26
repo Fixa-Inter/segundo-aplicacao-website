@@ -320,9 +320,6 @@ export default function Recovery() {
                   )}
                 </div>
               )}
-              {(step === 'password' || step === 'change') && (
-                <p className={styles.demoNote}>{t('Use uma senha de 8 a 100 caracteres.')}</p>
-              )}
               {step !== 'email' && error && (
                 <p className={styles.error} role="alert">
                   {t(error)}
@@ -352,22 +349,12 @@ export default function Recovery() {
                 {t('Voltar ao login')}
               </Link>
             )}
-            {step === 'email' && (
-              <p className={styles.demoNote}>
-                {t('Se o e-mail estiver cadastrado, você receberá um código de recuperação.')}
-              </p>
-            )}
             {step === 'code' && (
               <p className={styles.resend}>
                 {t('Não recebeu o código?')}{' '}
                 <button type="button" disabled={busy} onClick={resend}>
                   {t('Reenviar')}
                 </button>
-              </p>
-            )}
-            {step === 'code' && (
-              <p className={styles.demoNote}>
-                {t('O código será validado ao salvar a nova senha.')}
               </p>
             )}
             {notice && (

@@ -75,12 +75,6 @@
   font-size: 14px;
   margin: 10px 0 -12px;
 }
-.demo {
-  margin: 12px 0 0;
-  color: var(--fixa-muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
 .aboutLink {
   display: inline-block;
   margin-top: 12px;

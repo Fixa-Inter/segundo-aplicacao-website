@@ -44,11 +44,7 @@ export default function Dashboard() {
         <section className={styles.embedEmpty}>
           <BarChart3 size={44} aria-hidden="true" />
           <h2>{t('Seus indicadores em um só lugar')}</h2>
-          <p>
-            {t(
-              'O dashboard estará disponível assim que a integração com o Databricks for liberada.',
-            )}
-          </p>
+          <p>{t('O dashboard ainda não está disponível.')}</p>
         </section>
       )}
     </div>

@@ -725,11 +725,6 @@ export default function Manu() {
             </div>
           </form>
         )}
-        {!pendingConfirmation && (
-          <p className={styles.note}>
-            {t('Enter para enviar; Shift + Enter para uma nova linha.')}
-          </p>
-        )}
       </section>
       <ConfirmDialog
         opened={Boolean(deleting)}

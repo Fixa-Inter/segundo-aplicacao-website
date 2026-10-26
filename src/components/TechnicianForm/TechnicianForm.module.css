@@ -134,12 +134,6 @@
 .rules {
   margin-top: 24px;
 }
-.note {
-  margin: 0 0 8px;
-  color: var(--fixa-muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
 .error {
   margin: 0;
   color: var(--fixa-danger-text);
