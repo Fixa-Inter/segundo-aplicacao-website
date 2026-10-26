@@ -6,7 +6,7 @@ import common from '../management.module.css'
 import styles from './Settings.module.css'
 
 export default function Settings() {
-  const { language, languageSource, theme, setLanguage, setTheme, t } = usePreferences()
+  const { language, theme, setLanguage, setTheme, t } = usePreferences()
   return (
     <div className={common.page}>
       <PageHeader title={t('Configurações')} />
@@ -18,10 +18,9 @@ export default function Settings() {
           {t('Idioma da interface')}
           <select
             id="language"
-            value={languageSource === 'browser' ? 'browser' : language}
-            onChange={(event) => setLanguage(event.target.value as Language | 'browser')}
+            value={language}
+            onChange={(event) => setLanguage(event.target.value as Language)}
           >
-            <option value="browser">{t('Idioma do navegador')}</option>
             <option value="pt-BR" lang="pt-BR">
               Português
             </option>
