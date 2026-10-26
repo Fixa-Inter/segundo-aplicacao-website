@@ -686,3 +686,71 @@ test('RH edita técnico de outra unidade da instituição preservando vínculo e
     false,
   )
 })
+
+test('seleção única de turno rejeita múltiplos vínculos no envio antes de qualquer chamada à API', async () => {
+  const { client, calls } = setup(() => {
+    throw Error('Nenhuma chamada deve ser enviada')
+  })
+  const service = createManagementService(client, () => user)
+  for (const values of [
+    { shiftId: '4', shiftIds: ['4', '5'] },
+    { shiftId: '4', shiftIds: [] },
+    { shiftId: '4', shiftIds: ['5'] },
+    { shiftId: '', shiftIds: ['4'] },
+  ])
+    await assert.rejects(service.saveTechnician({ ...input, ...values }, '22'), /turno/)
+  assert.equal(calls.length, 0)
+  assert.deepEqual(validateTechnician({ ...input, shiftIds: undefined }), {})
+  assert.deepEqual(validateTechnician({ ...input, shiftId: '5', shiftIds: ['5'] }), {})
+})
+
+test('troca para um turno vincula o escolhido antes de remover antigos e preserva vínculos se falhar', async () => {
+  for (const fail of [false, true]) {
+    let links = [
+      { id: 80, turnoId: 4, estaAtivo: true },
+      { id: 81, turnoId: 6, estaAtivo: true },
+    ]
+    const { client, calls } = setup((call) => {
+      if (call.url === '/api/v1/usuarios/22') return { data: { ...tech, ...call.data } }
+      if (call.url === '/api/v1/turnos')
+        return { data: [shift, { ...shift, id: 5 }, { ...shift, id: 6 }] }
+      if (call.url === '/api/v1/usuarios/22/turnos')
+        return { data: links.map((item) => ({ ...item })) }
+      if (call.url === '/api/v1/aptidoes') return { data: [] }
+      if (call.url === '/api/v1/turnos/5/usuarios/22') {
+        if (fail) return { status: 503 }
+        const created = { id: 82, turnoId: 5, estaAtivo: true }
+        links.push(created)
+        return { data: created }
+      }
+      const match = call.url.match(/^\/api\/v1\/turnos-usuarios\/(\d+)\/desativar$/)
+      if (match) {
+        links = links.map((item) =>
+          item.id === Number(match[1]) ? { ...item, estaAtivo: false } : item,
+        )
+        return { data: links.find((item) => item.id === Number(match[1])) }
+      }
+      throw Error('Endpoint inesperado: ' + call.url)
+    })
+    const service = createManagementService(client, () => user)
+    const save = service.saveTechnician({ ...input, shiftId: '5', shiftIds: ['5'] }, '22')
+    if (fail) {
+      await assert.rejects(save, PartialSaveError)
+      assert.deepEqual(
+        links.filter((item) => item.estaAtivo).map((item) => item.turnoId),
+        [4, 6],
+      )
+      assert.equal(calls.filter((call) => call.url.includes('/turnos-usuarios/')).length, 0)
+    } else {
+      const saved = await save
+      assert.deepEqual(saved.shiftIds, ['5'])
+      assert.deepEqual(
+        links.filter((item) => item.estaAtivo).map((item) => item.turnoId),
+        [5],
+      )
+      const added = calls.findIndex((call) => call.url === '/api/v1/turnos/5/usuarios/22')
+      const removed = calls.findIndex((call) => call.url.includes('/turnos-usuarios/'))
+      assert(added >= 0 && removed > added)
+    }
+  }
+})

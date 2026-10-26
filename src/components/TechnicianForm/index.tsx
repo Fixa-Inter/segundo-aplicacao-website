@@ -1,4 +1,3 @@
-import { MultiSelect } from '@mantine/core'
 import { ConfirmDialog } from '../ConfirmDialog'
 import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
 import { hasFormChanges } from '../../utils/formChanges'
@@ -31,7 +30,7 @@ const fields: {
   { key: 'name', label: 'Nome completo', maxLength: 100 },
   { key: 'email', label: 'E-mail', type: 'email', maxLength: 100 },
   { key: 'birthDate', label: 'Data de nascimento', maxLength: 10 },
-  { key: 'jobTitle', label: 'Cargo', maxLength: 100 },
+  { key: 'jobTitle', label: 'Função', maxLength: 100 },
   { key: 'specialty', label: 'Especialidade', maxLength: 60 },
   { key: 'shift', label: 'Turno', maxLength: 13 },
 ]
@@ -87,14 +86,18 @@ function TechnicianFormFields({
 }: TechnicianFormFieldsProps) {
   const { t } = usePreferences()
 
+  const linkedShiftIds = [
+    ...new Set(technician?.shiftIds ?? (technician?.shiftId ? [technician.shiftId] : [])),
+  ]
+  const selectedShiftId = linkedShiftIds.length === 1 ? linkedShiftIds[0] : ''
   const [form, setForm] = useState<TechnicianInput>({
     name: technician?.name ?? '',
     birthDate: technician?.birthDate ?? '',
     email: technician?.email ?? '',
     phone: '',
     jobTitle: technician?.jobTitle ?? 'Técnico de manutenção',
-    shiftId: technician?.shiftId ?? '',
-    shiftIds: technician?.shiftIds ?? [],
+    shiftId: selectedShiftId,
+    shiftIds: linkedShiftIds,
     specialty: technician?.specialty ?? '',
     shift: technician?.shift ?? '08:00 - 16:00',
     status: technician?.status ?? 'Ativo',
@@ -272,8 +275,73 @@ function TechnicianFormFields({
             {fields.slice(0, 3).map(renderField)}
             {renderField(fields[3])}
             <div className={`${styles.field} ${styles.access}`}>
-              <label htmlFor="technician-access">{t('Tipo de acesso')}</label>
-              <input id="technician-access" value={t('TÉCNICO')} readOnly />
+              <label htmlFor="technician-access">{t('Cargo')}</label>
+              <input id="technician-access" value={t('Técnico')} readOnly />
+            </div>
+            <div className={`${styles.field} ${styles.specialty}`}>
+              <label htmlFor="technician-specialty">{t('Especialidade')}</label>
+              <input id="technician-specialty" value={t(draftSpecialty || 'Sem notas')} readOnly />
+            </div>
+            <div className={`${styles.field} ${styles.shift}`}>
+              <label htmlFor="technician-shift">{t('Turno')} *</label>
+              <select
+                id="technician-shift"
+                value={form.shiftId ?? ''}
+                required
+                disabled={busy || !shifts.length}
+                aria-invalid={Boolean(errors.shiftId)}
+                aria-describedby={errors.shiftId ? 'technician-shift-error' : undefined}
+                onChange={(event) => {
+                  const shiftId = event.currentTarget.value
+                  setForm((current) => ({
+                    ...current,
+                    shiftId,
+                    shiftIds: shiftId ? [shiftId] : [],
+                  }))
+                  setErrors((current) => ({ ...current, shiftId: undefined }))
+                }}
+              >
+                <option value="" disabled>
+                  {t('Selecione um turno')}
+                </option>
+                {shifts.map((shift) => (
+                  <option key={shift.id} value={shift.id}>
+                    {shift.name}
+                  </option>
+                ))}
+              </select>
+              {!shifts.length && !shiftError && (
+                <p>{t('Nenhum turno ativo cadastrado na unidade.')}</p>
+              )}
+              {shiftError && (
+                <div role="alert">
+                  <p>{t(shiftError)}</p>
+                  <button type="button" onClick={() => setShiftAttempt((value) => value + 1)}>
+                    {t('Tentar novamente')}
+                  </button>
+                </div>
+              )}
+              {errors.shiftId && (
+                <p id="technician-shift-error" role="alert" className={styles.error}>
+                  {t(errors.shiftId)}
+                </p>
+              )}
+            </div>
+            <div className={`${styles.field} ${styles.status}`}>
+              <label htmlFor="technician-status">{t('Situação')}</label>
+              <select
+                id="technician-status"
+                value={form.status}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    status: event.target.value as TechnicianInput['status'],
+                  }))
+                }
+              >
+                <option value="Ativo">{t('Ativo')}</option>
+                <option value="Inativo">{t('Inativo')}</option>
+              </select>
             </div>
             {!technician && (
               <div className={`${styles.field} ${styles.password}`}>
@@ -324,66 +392,6 @@ function TechnicianFormFields({
             {t('Senha inicial: de 8 a 100 caracteres.')}
           </p>
         )}
-        <fieldset disabled={busy}>
-          <legend>{t('Informações operacionais')}</legend>
-          <div className={styles.operational}>
-            <div className={styles.field}>
-              <label htmlFor="technician-specialty">{t('Especialidade')}</label>
-              <input id="technician-specialty" value={t(draftSpecialty || 'Sem notas')} readOnly />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="technician-shift">{t('Turnos')} *</label>
-              <MultiSelect
-                id="technician-shift"
-                className={styles.shiftSelect}
-                classNames={{ input: styles.shiftInput }}
-                data={shifts.map((shift) => ({ value: shift.id, label: shift.name }))}
-                value={form.shiftIds ?? []}
-                placeholder={form.shiftIds?.length ? undefined : t('Selecione os turnos')}
-                disabled={busy}
-                searchable
-                clearable
-                aria-invalid={Boolean(errors.shiftId)}
-                onChange={(shiftIds) => {
-                  setForm((current) => ({ ...current, shiftIds, shiftId: shiftIds[0] ?? '' }))
-                  setErrors((current) => ({ ...current, shiftId: undefined }))
-                }}
-              />
-              {!shifts.length && !shiftError && (
-                <p>{t('Nenhum turno ativo cadastrado na unidade.')}</p>
-              )}
-              {shiftError && (
-                <div role="alert">
-                  <p>{shiftError}</p>
-                  <button type="button" onClick={() => setShiftAttempt((value) => value + 1)}>
-                    {t('Tentar novamente')}
-                  </button>
-                </div>
-              )}
-              {errors.shiftId && (
-                <p role="alert" className={styles.error}>
-                  {t(errors.shiftId)}
-                </p>
-              )}
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="technician-status">{t('Situação')}</label>
-              <select
-                id="technician-status"
-                value={form.status}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    status: event.target.value as TechnicianInput['status'],
-                  }))
-                }
-              >
-                <option value="Ativo">{t('Ativo')}</option>
-                <option value="Inativo">{t('Inativo')}</option>
-              </select>
-            </div>
-          </div>
-        </fieldset>
         <fieldset
           disabled={busy}
           className={styles.competencies}

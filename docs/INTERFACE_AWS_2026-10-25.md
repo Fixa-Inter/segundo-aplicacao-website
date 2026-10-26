@@ -1,5 +1,20 @@
 # Interface e serviços AWS — Issue #12
 
+## Refinamento do formulário técnico em 26/10/2026
+
+Solicitação de interface do usuário, registrada na Issue #12 e implementada na branch feature/integracao-ia-manu.
+
+- Especialidade, Turno e Situação agora fazem parte do mesmo bloco e grid dos dados principais, sem o título Informações operacionais. No desktop, ocupam respectivamente 1/4, 2/4 e 1/4 da linha.
+- Turno usa um select de valor único com a mesma apresentação de Situação. O envio aceita exatamente um turno cadastrado e consistente com o identificador selecionado.
+- O campo fixo usa Cargo e exibe Técnico, sem letras inteiramente maiúsculas. O campo profissional passou a se chamar Função. Os nomes de campos e os enums enviados à API permanecem os do contrato existente.
+- Cadastros antigos com vários turnos exigem escolher explicitamente qual ficará antes de salvar. Abrir ou cancelar o formulário não remove vínculos. A troca continua vinculando primeiro o turno escolhido; se esse vínculo falhar, os antigos são preservados.
+
+Verificação concluída no Edge em 26/10, das 07h07min52s às 07h08min08s (São Paulo), com respostas controladas e dados fictícios. Foram conferidos o alinhamento das três linhas, os novos rótulos, o valor único, salvamento/reabertura, isDirty e confirmação de descarte, além do caso antigo com múltiplos vínculos. Cadastro novo também usa os mesmos campos. Não houve erro JavaScript nem chamada de cadastro ao servidor AWS.
+
+O formulário foi conferido sem rolagem horizontal em 1366, 900 e 390 px. Capturas e relatório técnico ficaram somente em dev.local, ignorado pelo Git. Os testes de contrato versionados exercitam a rejeição de vários turnos antes de qualquer requisição e a preservação dos vínculos quando a troca falha. Formatação, lint, 97 testes e build aprovados.
+
+A implementação e a verificação foram assistidas por IA. Este registro não representa Code Review ou homologação da equipe. Nenhuma alteração de backend, PR novo, merge ou publicação foi feita.
+
 ## Atualização: login AWS aprovado em 25/10/2026 às 23h39
 
 A correção do serviço publicado foi confirmada com a conta de teste autorizada. Login retornou 200, perfil 200 e turnos 200. No Edge automatizado, sem respostas controladas da API Web, foram aprovados:

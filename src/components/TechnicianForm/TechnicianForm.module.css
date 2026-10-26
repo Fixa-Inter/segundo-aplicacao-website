@@ -72,11 +72,12 @@
   grid-column: span 2;
 }
 
-.operational {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
-  align-items: start;
-  gap: 20px;
+.specialty,
+.status {
+  grid-column: span 3;
+}
+.shift {
+  grid-column: span 6;
 }
 .field {
   display: grid;
@@ -104,7 +105,8 @@
 .field input[readonly] {
   color: var(--fixa-muted);
 }
-.field input[aria-invalid='true'] {
+.field input[aria-invalid='true'],
+.field select[aria-invalid='true'] {
   border-color: var(--fixa-danger-text);
 }
 .passwordField {
@@ -264,8 +266,7 @@
   }
 }
 @media (max-width: 900px) {
-  .grid,
-  .operational {
+  .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
@@ -282,8 +283,7 @@
     gap: 8px 10px;
     padding: 12px;
   }
-  .grid,
-  .operational {
+  .grid {
     grid-template-columns: minmax(0, 1fr);
   }
   .back {
@@ -300,45 +300,5 @@
   }
   .actions button {
     min-width: 120px;
-  }
-}
-
-.shiftInput {
-  min-height: 60px;
-  padding: 12px 18px;
-  border: 1px solid transparent;
-  border-radius: 30px;
-  background: var(--fixa-field-bg, #f3f4f9);
-}
-.shiftSelect input {
-  min-height: 24px;
-  width: auto;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-
-.shiftSelect :global(.mantine-Pill-root) {
-  flex: 0 0 auto;
-  height: auto;
-  min-height: 30px;
-  padding: 4px 10px;
-  background: var(--fixa-initials-bg);
-  color: var(--fixa-text-primary);
-  font-size: 14px;
-}
-.shiftSelect :global(.mantine-Pill-label) {
-  white-space: normal;
-  line-height: 1.5;
-}
-.shiftSelect :global(.mantine-PillsInputField-field) {
-  font-family: inherit;
-  font-size: 14px;
-}
-@media (max-width: 600px) {
-  .shiftInput {
-    border-radius: 20px;
-    min-height: 52px;
   }
 }
