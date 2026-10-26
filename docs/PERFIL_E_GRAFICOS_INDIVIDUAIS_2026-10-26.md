@@ -4,7 +4,7 @@ Continuação da Issue #12 na branch feature/integracao-ia-manu, conforme pedido
 
 ## Perfil
 
-Nome, E-mail e Data de nascimento ocupam três colunas iguais no desktop, tanto nos inputs de edição como nas informações de visualização. O nome completo foi incluído entre as informações; o cabeçalho de identidade continua com seu tratamento de nomes longos. A localização permanece abaixo, ocupando a linha inteira, e mantém o vínculo de leitura com a unidade.
+Na edição, Nome, E-mail e Data de nascimento ocupam três colunas iguais no desktop. Após o ajuste solicitado às 17h16, a visualização mostra Localização, E-mail e Data de nascimento nessa mesma disposição; o nome aparece somente no cabeçalho de identidade. A localização mantém o vínculo de leitura com a unidade.
 
 Em tablets a grade usa duas colunas e em celulares uma. A grade principal usa uma coluna com mínimo zero para que nomes e e-mails longos não alarguem o conteúdo e não encostem na margem direita do celular. Não houve alteração no payload, nas validações, no modal de salvar ou na proteção de alterações pendentes.
 

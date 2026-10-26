@@ -268,9 +268,9 @@ export default function Profile() {
               <h3>{t('Informações')}</h3>
               <div>
                 <InformationItem
-                  icon={<FigmaIcon name="profile" />}
-                  label={t('Nome')}
-                  value={profile.name || t('Não informado')}
+                  icon={<FigmaIcon name="location" />}
+                  label={t('Localização')}
+                  value={address || t('Não informado')}
                 />
                 <InformationItem
                   icon={<FigmaIcon name="mail" />}
@@ -286,13 +286,6 @@ export default function Profile() {
                       : t('Não informado')
                   }
                 />
-                <div className={styles.location}>
-                  <InformationItem
-                    icon={<FigmaIcon name="location" />}
-                    label={t('Localização')}
-                    value={address || t('Não informado')}
-                  />
-                </div>
               </div>
               <button
                 ref={editButtonRef}
