@@ -77,6 +77,21 @@ const messages: Record<string, readonly [string, string, string]> = {
   ],
   'Abrir em nova aba': ['Open in a new tab', 'Abrir en otra pestaña', '在新标签页打开'],
   'Carregando dashboard…': ['Loading dashboard…', 'Cargando dashboard…', '正在加载仪表板…'],
+  'Visão geral': ['Overview', 'Vista general', '概览'],
+  'Resumo de manutenção': ['Maintenance overview', 'Resumen de mantenimiento', '维护概览'],
+  'Ver dashboard completo': ['View full dashboard', 'Ver dashboard completo', '查看完整仪表板'],
+  'Abrir no Databricks': ['Open in Databricks', 'Abrir en Databricks', '在 Databricks 中打开'],
+  'O resumo do dashboard ainda não está configurado.': [
+    'The dashboard overview is not configured yet.',
+    'El resumen del dashboard aún no está configurado.',
+    '仪表板概览尚未配置。',
+  ],
+  'Não foi possível carregar os eventos.': [
+    'Events could not be loaded.',
+    'No se pudieron cargar los eventos.',
+    '无法加载事件。',
+  ],
+  'Carregando eventos…': ['Loading events…', 'Cargando eventos…', '正在加载事件…'],
   'Dashboard de manutenção': ['Maintenance dashboard', 'Dashboard de mantenimiento', '维护仪表板'],
   'Seus indicadores em um só lugar': [
     'Your indicators in one place',

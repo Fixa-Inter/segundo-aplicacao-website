@@ -59,6 +59,7 @@ VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
 VITE_CLOUDINARY_FOLDER=
 VITE_DATABRICKS_DASHBOARD_URL=https://dbc-7dc0a7b3-a574.cloud.databricks.com/embed/dashboardsv3/01f1d0be95ef1d86b90737aa9639b671?o=7474651714950692
+VITE_DATABRICKS_HOME_WIDGET=a5185eb0~solicitacoes-por-periodo
 ```
 
 Para testar a API local, altere somente `VITE_API_BASE_URL` para `http://localhost:8080` e reinicie o Vite. O padrão atual é a AWS. Em produção, configure a variável na hospedagem e gere uma nova versão da web. A URL da IA permanece independente. Antes da troca, valide o login e o CORS do serviço publicado.
@@ -81,7 +82,8 @@ A configuração atual aponta para a AWS. Na verificação real de 25/10/2026 à
 | Calendário/Home      | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                                                              |
 | Perfil               | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                                                  |
 | Senha                | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                                                 |
-| Dashboard/desempenho | Indisponíveis até existir contrato da API de indicadores/BI; nenhum número fictício apresentado como real                                                                              |
+| Dashboard | V1 usa somente iframes Databricks: a Home abre o gráfico Solicitações por período; a tela Dashboard mantém as páginas completas. Não depende de uma API de BI. |
+| Desempenho individual | Indicadores indisponíveis quando não há dados no contrato atual; nenhum número fictício é apresentado como real. |
 | Manu                 | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; histórico remoto, títulos do servidor e cache de conversas ativas                                 |
 
 Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`. A sessão usa `sessionStorage` da aba para os tokens Bearer e a identificação mínima; senhas não são armazenadas. Em erro de renovação por token inválido, a sessão local é encerrada. O backend é responsável por autorização e isolamento entre unidades.
@@ -89,6 +91,8 @@ Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`.
 O cadastro, os turnos e as notas usam endpoints separados. Uma falha pode deixar uma parte salva. A web informa isso e conserva o ID retornado para completar a operação ao tentar novamente, sem reenviar a criação do usuário. Não há promessa de transação conjunta no frontend.
 
 Há diferenças relevantes entre o protótipo e a API: técnicos são desativados; o responsável de um evento não pode ser trocado na edição; turnos e locais precisam existir na unidade; o perfil de gestor não recebe dados de endereço/telefone. Consulte o [mapeamento e a verificação da integração](docs/INTEGRACAO_API_2026-10-25.md).
+
+A Home usa `VITE_DATABRICKS_HOME_WIDGET` para escolher um único gráfico do dashboard configurado, sem alterar a URL da tela Dashboard. O valor é o identificador `página~widget` do parâmetro `fullscreenWidget` copiado do Databricks. O calendário carrega separadamente pela API Web; uma falha nos eventos não impede o iframe. A incorporação mantém a autenticação e a navegação fornecidas pelo Databricks. Não há API de BI prevista para essa exibição na V1.
 
 ## Verificar
 

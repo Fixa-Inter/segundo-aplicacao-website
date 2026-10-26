@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { DataChart } from '../../components/DataChart'
-import { StatCard } from '../../components/StatCard'
+import { ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { useAuth } from '../../contexts/useAuth'
@@ -10,16 +9,23 @@ import type { HomeData } from '../../types/home'
 import { monthDays, occursOnDate } from '../../utils/calendar'
 import { usePreferences } from '../../contexts/usePreferences'
 import { truncateText } from '../../utils/presentation'
+import { dashboardWidgetURL, dashboardViewURL } from '../../utils/dashboardEmbed'
 import styles from './Home.module.css'
 
 export default function Home() {
   const { t, formatDate } = usePreferences()
   const { user } = useAuth()
+  const dashboardUrl = dashboardWidgetURL(
+    import.meta.env.VITE_DATABRICKS_DASHBOARD_URL,
+    import.meta.env.VITE_DATABRICKS_HOME_WIDGET,
+  )
+  const dashboardView = dashboardViewURL(dashboardUrl ?? undefined)
+  const [frameLoaded, setFrameLoaded] = useState(false)
   const [data, setData] = useState<HomeData | null>(null)
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
   const daysRef = useRef<HTMLDivElement>(null)
-  const [selectedDay, setSelectedDay] = useState('')
+  const [selectedDay, setSelectedDay] = useState(() => new Date().toLocaleDateString('sv-SE'))
   useEffect(() => {
     let active = true
     getHomeData()
@@ -29,7 +35,7 @@ export default function Home() {
         setSelectedDay(result.selectedDay)
       })
       .catch(() => {
-        if (active) setError('Não foi possível carregar o resumo da Home.')
+        if (active) setError('Não foi possível carregar os eventos.')
       })
     return () => {
       active = false
@@ -48,28 +54,10 @@ export default function Home() {
     const observer = new ResizeObserver(centerSelection)
     observer.observe(rail)
     return () => observer.disconnect()
-  }, [selectedDay])
-  if (error) {
-    return (
-      <div role="alert">
-        <p>{t(error)}</p>
-        <button
-          type="button"
-          onClick={() => {
-            setError('')
-            setAttempt((value) => value + 1)
-          }}
-        >
-          {t('Tentar novamente')}
-        </button>
-      </div>
-    )
-  }
-  if (!data) return <p role="status">{t('Carregando resumo…')}</p>
-  const { taskSummary, monthlyTasks } = data
+  }, [selectedDay, data])
   const month = selectedDay.slice(0, 7)
   const days = monthDays(month).filter((date) => date.startsWith(month))
-  const events = data.events.filter((event) => occursOnDate(event, selectedDay))
+  const events = (data?.events ?? []).filter((event) => occursOnDate(event, selectedDay))
 
   function changeMonth(offset: number) {
     const date = new Date(`${selectedDay.slice(0, 7)}-01T12:00:00Z`)
@@ -96,92 +84,134 @@ export default function Home() {
         </h1>
         <img src={banner} width="2172" height="724" alt="" />
       </section>
-      <section className={styles.stats} aria-label={t('Resumo de tarefas')}>
-        {taskSummary.map((card) => (
-          <StatCard key={card.label} {...card} />
-        ))}
-      </section>
       <div className={styles.grid}>
         <section className={styles.chartPanel} aria-labelledby="chart-heading">
           <div className={styles.chartHeading}>
-            <h2 id="chart-heading">{t('Tarefas registradas')}</h2>
-            <Link to="/dashboard" aria-label={t('Abrir Dashboard')}>
+            <h2 id="chart-heading">{t('Visão geral')}</h2>
+            <Link
+              to="/dashboard"
+              aria-label={t('Ver dashboard completo')}
+              title={t('Ver dashboard completo')}
+            >
               <FigmaIcon name="arrow-up-right" />
             </Link>
           </div>
-          {!monthlyTasks.length && (
-            <p>{t('Os indicadores aguardam a conexão com a API de Dashboard/BI.')}</p>
-          )}
-          {monthlyTasks.length > 0 && (
-            <DataChart
-              fill
-              softBars
-              data={monthlyTasks.map((item) => ({
-                label: t(item.month),
-                value: item.value,
-                accent: item.month === 'Mar',
-              }))}
-              label={t('Tarefas por mês. {name}.', {
-                name: monthlyTasks.map((item) => `${t(item.month)}: ${item.value}`).join('; '),
-              })}
-            />
+          {dashboardUrl ? (
+            <>
+              {!frameLoaded && (
+                <p className={styles.frameStatus} role="status">
+                  {t('Carregando dashboard…')}
+                </p>
+              )}
+              <iframe
+                className={styles.chartFrame}
+                src={dashboardUrl}
+                title={t('Resumo de manutenção')}
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+                onLoad={() => setFrameLoaded(true)}
+              />
+              {dashboardView && (
+                <a
+                  className={styles.dashboardExternal}
+                  href={dashboardView}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('Abrir no Databricks')}
+                  <ExternalLink size={15} aria-hidden="true" />
+                </a>
+              )}
+            </>
+          ) : (
+            <p className={styles.calendarState}>
+              {t('O resumo do dashboard ainda não está configurado.')}
+            </p>
           )}
         </section>
         <section className={styles.eventPanel} aria-label={t('Calendário resumido')}>
-          <div className={styles.monthHeader}>
-            <button type="button" onClick={() => changeMonth(-1)} aria-label={t('Mês anterior')}>
-              <FigmaIcon name="chevron-left" />
-            </button>
-            <h2 aria-live="polite">
-              {formatDate(selectedDay, { month: 'long', year: 'numeric' }).replace(' de ', ' ')}
-            </h2>
-            <button type="button" onClick={() => changeMonth(1)} aria-label={t('Próximo mês')}>
-              <FigmaIcon name="chevron-right" />
-            </button>
-          </div>
-          <div ref={daysRef} className={styles.days} aria-label={t('Dias do mês')}>
-            {days.map((date, index) => (
+          {error ? (
+            <div role="alert" className={styles.calendarState}>
+              <p>{t(error)}</p>
               <button
-                key={date}
+                className={styles.retry}
                 type="button"
-                aria-label={formatDate(date, { dateStyle: 'full' })}
-                aria-pressed={date === selectedDay}
-                data-date={date}
-                onKeyDown={(event) => moveDay(event, index)}
-                onClick={() => setSelectedDay(date)}
+                onClick={() => {
+                  setError('')
+                  setAttempt((value) => value + 1)
+                }}
               >
-                <span>{formatDate(date, { weekday: 'short' }).replace('.', '')}</span>
-                <strong>{Number(date.slice(-2))}</strong>
+                {t('Tentar novamente')}
               </button>
-            ))}
-          </div>
-          <h3 id="events-heading">{t('Eventos')}</h3>
-          <div className={styles.events} aria-labelledby="events-heading" aria-live="polite">
-            {events.length ? (
-              events.map((event) => (
-                <article key={event.id} className={styles.event}>
-                  <time dateTime={selectedDay}>
-                    {Number(selectedDay.slice(-2))}
-                    <small>{formatDate(selectedDay, { weekday: 'short' }).replace('.', '')}</small>
-                  </time>
-                  <div>
-                    <h4>{event.title}</h4>
-                    <span>{event.time}</span>
-                  </div>
-                  <Link
-                    className={styles.eventLink}
-                    to="/calendario"
-                    state={{ date: selectedDay }}
-                    aria-label={t('Ver evento {name}', { name: event.title })}
+            </div>
+          ) : !data ? (
+            <p role="status" className={styles.calendarState}>
+              {t('Carregando eventos…')}
+            </p>
+          ) : (
+            <>
+              <div className={styles.monthHeader}>
+                <button
+                  type="button"
+                  onClick={() => changeMonth(-1)}
+                  aria-label={t('Mês anterior')}
+                >
+                  <FigmaIcon name="chevron-left" />
+                </button>
+                <h2 aria-live="polite">
+                  {formatDate(selectedDay, { month: 'long', year: 'numeric' }).replace(' de ', ' ')}
+                </h2>
+                <button type="button" onClick={() => changeMonth(1)} aria-label={t('Próximo mês')}>
+                  <FigmaIcon name="chevron-right" />
+                </button>
+              </div>
+              <div ref={daysRef} className={styles.days} aria-label={t('Dias do mês')}>
+                {days.map((date, index) => (
+                  <button
+                    key={date}
+                    type="button"
+                    aria-label={formatDate(date, { dateStyle: 'full' })}
+                    aria-pressed={date === selectedDay}
+                    data-date={date}
+                    onKeyDown={(event) => moveDay(event, index)}
+                    onClick={() => setSelectedDay(date)}
                   >
-                    <FigmaIcon name="more" />
-                  </Link>
-                </article>
-              ))
-            ) : (
-              <p className={styles.empty}>{t('Nenhum evento neste dia.')}</p>
-            )}
-          </div>
+                    <span>{formatDate(date, { weekday: 'short' }).replace('.', '')}</span>
+                    <strong>{Number(date.slice(-2))}</strong>
+                  </button>
+                ))}
+              </div>
+              <h3 id="events-heading">{t('Eventos')}</h3>
+              <div className={styles.events} aria-labelledby="events-heading" aria-live="polite">
+                {events.length ? (
+                  events.map((event) => (
+                    <article key={event.id} className={styles.event}>
+                      <time dateTime={selectedDay}>
+                        {Number(selectedDay.slice(-2))}
+                        <small>
+                          {formatDate(selectedDay, { weekday: 'short' }).replace('.', '')}
+                        </small>
+                      </time>
+                      <div>
+                        <h4>{event.title}</h4>
+                        <span>{event.time}</span>
+                      </div>
+                      <Link
+                        className={styles.eventLink}
+                        to="/calendario"
+                        state={{ date: selectedDay }}
+                        aria-label={t('Ver evento {name}', { name: event.title })}
+                      >
+                        <FigmaIcon name="more" />
+                      </Link>
+                    </article>
+                  ))
+                ) : (
+                  <p className={styles.empty}>{t('Nenhum evento neste dia.')}</p>
+                )}
+              </div>
+            </>
+          )}
         </section>
       </div>
     </div>

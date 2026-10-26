@@ -74,3 +74,27 @@ Esta verificação confirma a navegação, a renderização e o comportamento ob
 As capturas e o relatório técnico ficaram somente em dev.local, ignorado pelo Git. Não foram versionados dados operacionais, cookies, tokens ou o perfil de navegador. Não houve alteração dos dashboards, das permissões ou das APIs.
 
 A janela de coleta registrada foi de 25/10 às 23h50min40s até 26/10 às 00h27min03s (São Paulo), incluindo espera pela autenticação e retomada da conversa. Ela não representa tempo contínuo de execução. A análise foi assistida por IA, com inspeção de DOM e capturas por Playwright; o resultado é evidência de teste, sem aprovação humana ou encerramento da Issue #12.
+
+
+## Home na V1: gráfico único — 26/10/2026
+
+Por definição do usuário, a V1 usa os iframes do Databricks, sem uma API dedicada ao BI. O bloco que aguardava essa API na Home foi substituído por Solicitações por período, usando o parâmetro oficial fullscreenWidget. A tela Dashboard preserva o dashboard completo. O calendário continua consultando os eventos reais da API Web e possui carregamento, erro e tentativa de recuperação independentes do iframe.
+
+Configuração pública, também registrada em .env.example:
+
+```dotenv
+VITE_DATABRICKS_HOME_WIDGET=a5185eb0~solicitacoes-por-periodo
+```
+
+O valor identifica a página e o widget do dashboard já definido em VITE_DATABRICKS_DASHBOARD_URL. Outros ambientes devem configurar as duas variáveis antes do build. Se o widget for substituído no Databricks, atualizar seu identificador. Sem configuração válida, a Home informa que o resumo ainda não foi configurado. O link para o dashboard completo fica no cabeçalho e Abrir no Databricks usa a visualização publicada em nova aba.
+
+### Validação
+
+- API Web e iframe reais em 26/10 às 07h51 (São Paulo): login aprovado, eventos carregados, gráfico Solicitações por período renderizado, sem erros JavaScript nem falhas HTTP da API. Nenhum registro operacional foi alterado.
+- O Databricks mantém sua barra de navegação e o botão Exit fullscreen no iframe; o parâmetro seleciona o gráfico desejado, sem remover os controles do provedor. A incorporação preserva as permissões e o login Databricks.
+- Teste com respostas controladas: carregamento independente, erro/retry dos eventos, manutenção do iframe, links e ausência de rolagem horizontal em 1366, 900 e 390 px. Esse teste usa dados fictícios somente no contexto de QA.
+- Formatação, lint, 99 testes e build aprovados. Os testes do utilitário conferem o widget escolhido, a preservação do workspace/filtros e a rejeição de configuração inválida.
+
+Capturas e relatórios reais/controlados permanecem em dev.local, ignorado pelo Git. O teste foi assistido por IA; não representa aprovação humana, merge ou homologação dos cálculos de BI. A atividade continua vinculada à Issue #12 na branch de integração existente, sem abrir novo PR por orientação do usuário.
+
+Fonte do parâmetro: [incorporação de um widget — documentação oficial](https://docs.databricks.com/aws/en/dashboards/share/embedding/basic#embed-a-single-widget).
