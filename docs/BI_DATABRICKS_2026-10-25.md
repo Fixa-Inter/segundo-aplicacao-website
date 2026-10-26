@@ -1,5 +1,7 @@
 # Databricks: configuração e teste do iframe
 
+**Estado atual:** em 25/10/2026 às 23h27 (São Paulo), o usuário confirmou que os gráficos apareceram na página local com iframe, no navegador autenticado no Databricks. O relato confirma a leitura do BI; a sessão de cada navegador continua independente. Os resultados sem autenticação abaixo registram a verificação inicial.
+
 Continuação da [Issue #12](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12). O usuário forneceu o iframe oficial e uma captura do diálogo Copy embed code com http://localhost:5173 em Approved Domains.
 
 ## Configuração
@@ -26,3 +28,18 @@ Após corrigir o login Web, entrar na aplicação e abrir Dashboard. Se o iframe
 Para exibir dashboards sem uma conta Databricks por visitante, a equipe precisará definir o fluxo de incorporação autenticada para usuários externos; isso exige configuração própria no Databricks e não é obtido tornando o iframe público.
 
 Fontes oficiais: [embedding básico e autenticação](https://docs.databricks.com/aws/en/dashboards/share/embedding/basic) e [configuração de domínios do workspace](https://docs.databricks.com/aws/en/ai-bi/admin/embed).
+
+## Correção após teste do usuário às 23h22
+
+O detalhe “The dashboard must be embedded in an iframe” confirmou que abrir a URL /embed/... diretamente em uma aba é inválido. A orientação anterior de teste direto foi corrigida. O botão Abrir em nova aba agora usa /dashboardsv3/<id>/published, preservando o workspace e os filtros; somente o iframe utiliza /embed/dashboardsv3/<id>.
+
+Nesta máquina foi criada uma página temporária em http://localhost:5173/dev.local/bi-preview.html com o iframe real. Ela permite testar o BI com a sessão Databricks do navegador enquanto a API Web não autentica. O arquivo está na pasta ignorada dev.local e não faz parte do build ou das rotas da aplicação. As permissões continuam sendo aplicadas pelo Databricks.
+
+Regressões cobrem a separação de URLs, preservação de parâmetros e rejeição de URLs com credenciais. Fonte para o caminho de visualização publicada: https://docs.databricks.com/aws/en/dashboards/manage/filters.
+
+## Validação após a correção
+
+- O usuário respondeu “Os gráficos apareceram” ao abrir a prévia local com iframe. A autenticação dos dados foi validada pelo usuário no seu navegador, não por uma sessão automatizada com credenciais.
+- O Edge do usuário ainda solicitou login; orientado a entrar na conta Databricks e recarregar a prévia.
+- O teste automatizado conferiu que o iframe mantém /embed/... e Abrir em nova aba usa /dashboardsv3/<id>/published com o parâmetro o preservado.
+- A prévia local respondeu 200 sem depender do login da API Web. Nenhuma alteração na autenticação ou nas permissões da aplicação.
