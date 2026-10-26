@@ -100,12 +100,12 @@ export function TechnicianDetails({
           />
           <InformationItem
             icon={<BriefcaseBusiness />}
-            label={t('Cargo')}
+            label={t('Função')}
             value={technician.jobTitle || t('Não informado')}
           />
           <InformationItem
             icon={<ShieldUser />}
-            label={t('Tipo de acesso')}
+            label={t('Cargo')}
             value={t(technical ? 'Técnico' : 'Gestor')}
           />
           {technician.unitName && (
@@ -118,7 +118,7 @@ export function TechnicianDetails({
           {technical && (
             <InformationItem
               icon={<Clock3 />}
-              label={t('Turnos')}
+              label={t('Turno')}
               value={technician.shift || t('Não informado')}
             />
           )}
