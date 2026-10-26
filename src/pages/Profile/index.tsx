@@ -273,11 +273,6 @@ export default function Profile() {
                   value={profile.email || t('Não informado')}
                 />
                 <InformationItem
-                  icon={<FigmaIcon name="phone" />}
-                  label={t('Telefone')}
-                  value={profile.phone || t('Não informado')}
-                />
-                <InformationItem
                   icon={<FigmaIcon name="profile-calendar" />}
                   label={t('Data de nascimento')}
                   value={

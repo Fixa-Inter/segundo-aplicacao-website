@@ -1,5 +1,7 @@
 # Dashboard, unidade de trabalho e apresentação da Manu
 
+> Atualização posterior: por solicitação do usuário, Telefone foi retirado das informações de técnicos/gestores e do perfil. Sua ausência na API fica registrada abaixo como contexto; o campo não é oferecido na interface atual.
+
 Continuação da [Issue #12](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12), em 26/10/2026. O usuário esclareceu que localização significa unidade/local de trabalho, não endereço pessoal.
 
 ## Dashboard

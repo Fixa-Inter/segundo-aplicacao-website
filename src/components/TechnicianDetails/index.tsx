@@ -72,11 +72,6 @@ export function TechnicianDetails({ technician, onBack, onEdit }: TechnicianDeta
             value={technician.email || t('Não informado')}
           />
           <InformationItem
-            icon={<FigmaIcon name="phone" />}
-            label={t('Telefone')}
-            value={technician.phone || t('Não informado')}
-          />
-          <InformationItem
             icon={<FigmaIcon name="profile-calendar" />}
             label={t('Data de nascimento')}
             value={
