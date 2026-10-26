@@ -1,5 +1,7 @@
 # Manu na web — contrato publicado e pendências
 
+**Atualização em 26/10/2026:** o CORS da AWS passou nos testes, mas histórico e chat continuam com 403 para as contas autorizadas. Veja a [verificação atual e o contrato de perfil](IA_AWS_2026-10-26.md). As seções abaixo registram a integração e os resultados históricos da etapa anterior.
+
 Atividade [web #11](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/11), branch `feature/integracao-ia-manu`. A implementação foi ajustada após o usuário esclarecer que o serviço de IA deve ser consumido sem mudanças no seu código. Novas rotas serão implementadas pelo responsável da IA.
 
 ## Escopo corrigido
