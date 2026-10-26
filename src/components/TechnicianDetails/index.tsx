@@ -1,25 +1,16 @@
 import { FigmaIcon } from '../FigmaIcon'
 import { TechnicianCompetencies } from '../TechnicianCompetencies'
+import { TechnicianPerformance } from '../TechnicianPerformance'
 import { useUnsavedChanges } from '../../contexts/useUnsavedChanges'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef } from 'react'
-import type { PerformancePeriod } from '../../types/management'
 import type { TechnicianDetailsProps } from '../../types/ui'
 import { BadgeCheck, Clock3, ShieldUser, BriefcaseBusiness } from 'lucide-react'
 import { InformationItem } from '../InformationItem'
 import { formatAddress, truncateText } from '../../utils/presentation'
 import styles from './TechnicianDetails.module.css'
 
-export function TechnicianDetails({
-  technician,
-  onBack,
-  onEdit,
-  period,
-  points,
-  loading,
-  error,
-  onPeriodChange,
-}: TechnicianDetailsProps) {
+export function TechnicianDetails({ technician, onBack, onEdit }: TechnicianDetailsProps) {
   const { t, formatDate } = usePreferences()
   const { requestExit } = useUnsavedChanges()
 
@@ -27,7 +18,6 @@ export function TechnicianDetails({
   useEffect(() => {
     headingRef.current?.focus()
   }, [])
-  const max = Math.max(1, ...points.map((point) => point.completed + point.active + point.late))
   const address = formatAddress(technician)
   const technical = technician.accessType === 'TÉCNICO'
   return (
@@ -132,80 +122,7 @@ export function TechnicianDetails({
       {technical && (
         <>
           <TechnicianCompetencies key={technician.id} technicianId={technician.id} />
-          <section className={styles.performance} aria-labelledby="performance-title">
-            <div className={styles.toolbar}>
-              <h2 id="performance-title">{t('Desempenho')}</h2>
-              <label htmlFor="technician-performance-period">
-                {t('Período')}
-                <select
-                  id="technician-performance-period"
-                  value={period}
-                  onChange={(event) => {
-                    onPeriodChange(event.currentTarget.value as PerformancePeriod)
-                  }}
-                >
-                  <option value="week">{t('Última semana')}</option>
-                  <option value="month">{t('Último mês')}</option>
-                </select>
-              </label>
-            </div>
-            {loading ? (
-              <p role="status">{t('Carregando desempenho…')}</p>
-            ) : error ? (
-              <p role="alert">{t(error)}</p>
-            ) : points.length ? (
-              <>
-                <div
-                  className={styles.chart}
-                  role="img"
-                  aria-label={points
-                    .map(
-                      (point) =>
-                        `${t(point.label)}: ${point.completed} concluídas, ${point.active} em andamento e ${point.late} atrasadas`,
-                    )
-                    .join('; ')}
-                >
-                  {points.map((point) => (
-                    <div className={styles.column} key={t(point.label)}>
-                      <span className={styles.total}>
-                        {point.completed + point.active + point.late}
-                      </span>
-                      <div
-                        className={styles.stack}
-                        style={{
-                          height: `${((point.completed + point.active + point.late) / max) * 200}px`,
-                        }}
-                      >
-                        <div className={styles.late} style={{ flex: point.late }} />
-                        <div className={styles.active} style={{ flex: point.active }} />
-                        <div className={styles.completed} style={{ flex: point.completed }} />
-                      </div>
-                      <span>{t(point.label)}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className={styles.legend}>
-                  <span>
-                    <i className={styles.completed} />
-                    {t('Concluídas')}
-                  </span>
-                  <span>
-                    <i className={styles.active} />
-                    {t('Em andamento')}
-                  </span>
-                  <span>
-                    <i className={styles.late} />
-                    {t('Atrasadas')}
-                  </span>
-                </div>
-                <p className={styles.note}>
-                  {t('Fixture sintética, sem vínculo com chamados reais ou eventos do calendário.')}
-                </p>
-              </>
-            ) : (
-              <p>{t('Nenhum registro de desempenho neste período.')}</p>
-            )}
-          </section>
+          <TechnicianPerformance key={technician.id} name={technician.name} />
         </>
       )}
     </div>

@@ -60,6 +60,8 @@ VITE_CLOUDINARY_UPLOAD_PRESET=
 VITE_CLOUDINARY_FOLDER=
 VITE_DATABRICKS_DASHBOARD_URL=https://dbc-7dc0a7b3-a574.cloud.databricks.com/embed/dashboardsv3/01f1d0be95ef1d86b90737aa9639b671?o=7474651714950692
 VITE_DATABRICKS_HOME_WIDGET=a5185eb0~solicitacoes-por-periodo
+VITE_DATABRICKS_TECHNICIAN_WIDGET=37645ca6~os-criadas-por-periodo
+VITE_DATABRICKS_TECHNICIAN_FILTER=f_37645ca6~tecnico1.s
 ```
 
 Para testar a API local, altere somente `VITE_API_BASE_URL` para `http://localhost:8080` e reinicie o Vite. O padrão atual é a AWS. Em produção, configure a variável na hospedagem e gere uma nova versão da web. A URL da IA permanece independente. Antes da troca, valide o login e o CORS do serviço publicado.
@@ -74,17 +76,17 @@ A configuração atual aponta para a AWS. Na verificação real de 25/10/2026 à
 
 ## Integração atual
 
-| Fluxo                | Comportamento                                                                                                                                                                          |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Login/sessão         | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                                                            |
-| Equipe               | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação                                                                     |
-| Competências         | Dez categorias; notas opcionais de 0 a 10, com até duas casas decimais e entrada com ponto ou vírgula; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente |
-| Calendário/Home      | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                                                              |
-| Perfil               | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                                                  |
-| Senha                | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                                                 |
-| Dashboard | V1 usa somente iframes Databricks: a Home abre o gráfico Solicitações por período; a tela Dashboard mantém as páginas completas. Não depende de uma API de BI. |
-| Desempenho individual | Indicadores indisponíveis quando não há dados no contrato atual; nenhum número fictício é apresentado como real. |
-| Manu                 | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; histórico remoto, títulos do servidor e cache de conversas ativas                                 |
+| Fluxo                 | Comportamento                                                                                                                                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Login/sessão          | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                                                            |
+| Equipe                | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação                                                                     |
+| Competências          | Dez categorias; notas opcionais de 0 a 10, com até duas casas decimais e entrada com ponto ou vírgula; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente |
+| Calendário/Home       | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                                                              |
+| Perfil                | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                                                  |
+| Senha                 | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                                                 |
+| Dashboard             | V1 usa somente iframes Databricks: a Home abre o gráfico Solicitações por período; a tela Dashboard mantém as páginas completas. Não depende de uma API de BI.                         |
+| Desempenho individual | Iframe de OS criadas por período com filtro pelo nome completo do técnico; depende dos nomes atualizados na base do BI, sem números fictícios.                                         |
+| Manu                  | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; histórico remoto, títulos do servidor e cache de conversas ativas                                 |
 
 Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`. A sessão usa `sessionStorage` da aba para os tokens Bearer e a identificação mínima; senhas não são armazenadas. Em erro de renovação por token inválido, a sessão local é encerrada. O backend é responsável por autorização e isolamento entre unidades.
 
@@ -93,6 +95,8 @@ O cadastro, os turnos e as notas usam endpoints separados. Uma falha pode deixar
 Há diferenças relevantes entre o protótipo e a API: técnicos são desativados; o responsável de um evento não pode ser trocado na edição; turnos e locais precisam existir na unidade; o perfil de gestor não recebe dados de endereço/telefone. Consulte o [mapeamento e a verificação da integração](docs/INTEGRACAO_API_2026-10-25.md).
 
 A Home usa `VITE_DATABRICKS_HOME_WIDGET` para escolher um único gráfico do dashboard configurado, sem alterar a URL da tela Dashboard. O valor é o identificador `página~widget` do parâmetro `fullscreenWidget` copiado do Databricks. O calendário carrega separadamente pela API Web; uma falha nos eventos não impede o iframe. A incorporação mantém a autenticação e a navegação fornecidas pelo Databricks. Não há API de BI prevista para essa exibição na V1.
+
+A ficha do técnico usa `VITE_DATABRICKS_TECHNICIAN_WIDGET` e `VITE_DATABRICKS_TECHNICIAN_FILTER` para incorporar o gráfico de OS com o filtro publicado de nome completo. Se a configuração estiver ausente ou malformada, não abre um gráfico geral como alternativa. O filtro atual do BI é nominal: nomes alterados na Web precisam ser atualizados no BI; para identidade estável e métricas de conclusão, a responsável deve publicar o filtro de ID e ligá-lo às fontes correspondentes. Veja [o contrato de desempenho individual](docs/BI_TECNICO_2026-10-26.md).
 
 ## Verificar
 

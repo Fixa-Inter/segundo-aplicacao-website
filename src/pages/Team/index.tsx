@@ -11,18 +11,11 @@ import { TechnicianDetails } from '../../components/TechnicianDetails'
 import { TechnicianForm } from '../../components/TechnicianForm'
 import {
   getProfile,
-  getTechnicianPerformance,
   listTeamMembers,
   removeTechnician,
   saveTechnician,
 } from '../../services/managementService'
-import type {
-  ManagerProfile,
-  PerformancePeriod,
-  PerformancePoint,
-  Technician,
-  TeamMember,
-} from '../../types/management'
+import type { ManagerProfile, Technician, TeamMember } from '../../types/management'
 import { truncateText } from '../../utils/presentation'
 import common from '../management.module.css'
 import styles from './Team.module.css'
@@ -51,41 +44,7 @@ export default function Team() {
   const [editing, setEditing] = useState<Technician | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [details, setDetails] = useState<TeamMember | null>(null)
-  const [period, setPeriod] = useState<PerformancePeriod>('week')
-  const [performance, setPerformance] = useState<PerformancePoint[]>([])
-  const [performanceLoading, setPerformanceLoading] = useState(false)
-  const [performanceError, setPerformanceError] = useState('')
-  const detailsId = details?.accessType === 'TÉCNICO' ? details.id : undefined
-  useEffect(() => {
-    if (!detailsId) return
-    let active = true
-    getTechnicianPerformance(detailsId, period)
-      .then((points) => {
-        if (active) setPerformance(points)
-      })
-      .catch((reason) => {
-        if (active)
-          setPerformanceError(
-            reason instanceof Error ? reason.message : 'Não foi possível carregar o desempenho.',
-          )
-      })
-      .finally(() => {
-        if (active) setPerformanceLoading(false)
-      })
-    return () => {
-      active = false
-    }
-  }, [detailsId, period])
-  function changePeriod(next: PerformancePeriod) {
-    if (next === period) return
-    setPeriod(next)
-    setPerformanceLoading(true)
-    setPerformanceError('')
-  }
   function showDetails(item: TeamMember) {
-    setPeriod('week')
-    setPerformanceLoading(item.accessType === 'TÉCNICO')
-    setPerformanceError('')
     setDetails(item)
   }
   const [deleting, setDeleting] = useState<Technician | null>(null)
@@ -179,11 +138,6 @@ export default function Team() {
     return (
       <TechnicianDetails
         technician={details}
-        period={period}
-        points={performance}
-        loading={performanceLoading}
-        error={performanceError}
-        onPeriodChange={changePeriod}
         onBack={() => {
           const id = details.id
           setDetails(null)

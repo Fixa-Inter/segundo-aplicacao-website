@@ -5,8 +5,6 @@ import type {
   CalendarEventInput,
   EventResponsibleOption,
   ManagerProfile,
-  PerformancePeriod,
-  PerformancePoint,
   Technician,
   TeamMember,
   TechnicianInput,
@@ -139,9 +137,4 @@ export interface TechnicianDetailsProps {
   technician: TeamMember
   onBack: () => void
   onEdit?: () => void
-  period: PerformancePeriod
-  points: PerformancePoint[]
-  loading: boolean
-  error: string
-  onPeriodChange: (period: PerformancePeriod) => void
 }

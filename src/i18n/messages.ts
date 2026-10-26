@@ -1055,6 +1055,12 @@ const messages: Record<string, readonly [string, string, string]> = {
     '工作信息',
   ],
   Cargo: ['Role', 'Cargo', '职位'],
+  'Desempenho de {name}': ['Performance of {name}', 'Desempeño de {name}', '{name}的绩效'],
+  'O desempenho deste técnico ainda não está disponível.': [
+    'Performance for this technician is not available yet.',
+    'El desempeño de este técnico aún no está disponible.',
+    '此技术人员的绩效尚不可用。',
+  ],
   Função: ['Job title', 'Función', '工作职能'],
   'Selecione um turno': ['Select a shift', 'Selecciona un turno', '请选择班次'],
   'Selecione apenas um turno.': [
