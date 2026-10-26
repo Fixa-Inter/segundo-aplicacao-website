@@ -58,7 +58,7 @@ AI_PROXY_TARGET=https://ia-api.fixa.solutions
 VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
 VITE_CLOUDINARY_FOLDER=
-VITE_DATABRICKS_DASHBOARD_URL=
+VITE_DATABRICKS_DASHBOARD_URL=https://dbc-7dc0a7b3-a574.cloud.databricks.com/embed/dashboardsv3/01f1d0be95ef1d86b90737aa9639b671?o=7474651714950692
 ```
 
 Para testar a API local, altere somente `VITE_API_BASE_URL` para `http://localhost:8080` e reinicie o Vite. O padrão atual é a AWS. Em produção, configure a variável na hospedagem e gere uma nova versão da web. A URL da IA permanece independente. Antes da troca, valide o login e o CORS do serviço publicado.
@@ -67,7 +67,7 @@ O Vite encaminha `/api/ia` para o serviço existente; a Vercel tem a regra equiv
 
 As conversas são recuperadas da IA publicada por `GET /api/v1/sessoes`; a leitura de uma conversa fora do cache usa `POST /api/v1/sessoes/conversa`. Títulos, resumo e emoções vêm do servidor. Mensagens ativas e URLs de anexos são mantidas em memória durante a sessão; o contrato de histórico ainda não devolve anexos nem a confirmação pendente. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
 
-Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O cloud name, o preset unsigned e a pasta fornecidos foram configurados no `.env.local` desta máquina; um upload real foi validado no navegador. Outras máquinas/implantação precisam configurar as três variáveis públicas de Cloudinary. Se a equipe escolher assinatura futuramente, será necessário o contrato da rota de assinatura. Não inclua API Secret no frontend. O dashboard recebe a URL de incorporação do Databricks quando ela for fornecida.
+Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O cloud name, o preset unsigned e a pasta fornecidos foram configurados no `.env.local` desta máquina; um upload real foi validado no navegador. Outras máquinas/implantação precisam configurar as três variáveis públicas de Cloudinary. Se a equipe escolher assinatura futuramente, será necessário o contrato da rota de assinatura. Não inclua API Secret no frontend. A URL oficial do dashboard Databricks está configurada no exemplo e no ambiente local. O iframe usa a autenticação e as permissões do Databricks; pode ser necessário entrar na conta pelo link Abrir em nova aba. A aprovação de domínio para o teste atual é http://localhost:5173. Consulte [a verificação real do iframe](docs/BI_DATABRICKS_2026-10-25.md).
 
 A configuração atual aponta para a AWS. Na verificação de 25/10/2026 às 22h43 (São Paulo), o login de exemplo ainda retornou HTTP 500; o CORS permitiu `http://localhost:5173`, e o health check da IA retornou 200. A falha precisa ser investigada no servidor Web. Consulte [a revisão atual da interface e da AWS](docs/INTERFACE_AWS_2026-10-25.md). O [teste anterior com API local](docs/API_LOCAL_DEV_2026-10-25.md) é um registro histórico. Consulte [contrato, pendências e evidências](docs/INTEGRACAO_IA_2026-10-25.md).
 
