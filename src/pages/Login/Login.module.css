@@ -76,7 +76,10 @@
   margin: 10px 0 -12px;
 }
 .aboutLink {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 44px;
   margin-top: 12px;
   color: var(--fixa-text-primary);
   font-size: 14px;
