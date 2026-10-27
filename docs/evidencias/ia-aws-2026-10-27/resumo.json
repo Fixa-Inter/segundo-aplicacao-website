@@ -1,0 +1,323 @@
+{
+  "webBase": "4bb82ce",
+  "mode": "Web real no Edge, APIs AWS, somente conversas novas do teste modificadas",
+  "live": {
+    "started": "2026-10-27T17:07:44.962Z",
+    "accounts": [
+      {
+        "label": "Gestor",
+        "checks": [
+          {
+            "name": "login",
+            "status": 200,
+            "role": "GESTOR"
+          },
+          {
+            "name": "history",
+            "status": 200,
+            "serverStatus": "SUCESSO",
+            "count": 6
+          },
+          {
+            "name": "frontend-decode-history",
+            "ok": true,
+            "count": 6
+          },
+          {
+            "name": "specific-history",
+            "ok": true,
+            "sameId": true,
+            "messages": 10
+          },
+          {
+            "name": "chat",
+            "status": 200,
+            "fields": [
+              "thread_id",
+              "intencao",
+              "resposta",
+              "emocao",
+              "confirmacao"
+            ],
+            "emotion": "NEUTRO",
+            "intent": "ajuda_geral",
+            "confirmation": "nao",
+            "answerPresent": true,
+            "fallbackDetected": false
+          },
+          {
+            "name": "close-own-test",
+            "status": 200,
+            "state": "ENCERRADA",
+            "summaryType": "string",
+            "summaryPresent": true
+          },
+          {
+            "name": "saved-own-test",
+            "ok": true,
+            "closed": true,
+            "messages": 2,
+            "summaryTitlePresent": false,
+            "titleMatchesSummary": false
+          },
+          {
+            "name": "cleanup-own-test",
+            "ok": true,
+            "status": "EXCLUIDA",
+            "absent": true
+          }
+        ],
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "POST",
+            "path": "/api/v1/sessoes/conversa",
+            "bearerMatchesLogin": true,
+            "bodyKeys": [
+              "session_id"
+            ]
+          },
+          {
+            "method": "POST",
+            "path": "/api/v1/chat",
+            "bearerMatchesLogin": true,
+            "bodyKeys": [
+              "mensagem",
+              "thread_id",
+              "imagens"
+            ]
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/v1/chat/sessions/{thread_id}",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "POST",
+            "path": "/api/v1/sessoes/conversa",
+            "bearerMatchesLogin": true,
+            "bodyKeys": [
+              "session_id"
+            ]
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/v1/sessoes/conversa/{session_id}",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "RH",
+        "checks": [
+          {
+            "name": "login",
+            "status": 200,
+            "role": "ADMINISTRADOR"
+          },
+          {
+            "name": "history",
+            "status": 200,
+            "serverStatus": "SUCESSO",
+            "count": 7
+          },
+          {
+            "name": "frontend-decode-history",
+            "ok": true,
+            "count": 7
+          },
+          {
+            "name": "specific-history",
+            "ok": true,
+            "sameId": true,
+            "messages": 4
+          },
+          {
+            "name": "chat",
+            "status": 200,
+            "fields": [
+              "thread_id",
+              "intencao",
+              "resposta",
+              "emocao",
+              "confirmacao"
+            ],
+            "emotion": "NEUTRO",
+            "intent": "ajuda_geral",
+            "confirmation": "nao",
+            "answerPresent": true,
+            "fallbackDetected": false
+          },
+          {
+            "name": "close-own-test",
+            "status": 200,
+            "state": "ENCERRADA",
+            "summaryType": "string",
+            "summaryPresent": true
+          },
+          {
+            "name": "saved-own-test",
+            "ok": true,
+            "closed": true,
+            "messages": 2,
+            "summaryTitlePresent": false,
+            "titleMatchesSummary": false
+          },
+          {
+            "name": "cleanup-own-test",
+            "ok": true,
+            "status": "EXCLUIDA",
+            "absent": true
+          }
+        ],
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "POST",
+            "path": "/api/v1/sessoes/conversa",
+            "bearerMatchesLogin": true,
+            "bodyKeys": [
+              "session_id"
+            ]
+          },
+          {
+            "method": "POST",
+            "path": "/api/v1/chat",
+            "bearerMatchesLogin": true,
+            "bodyKeys": [
+              "mensagem",
+              "thread_id",
+              "imagens"
+            ]
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/v1/chat/sessions/{thread_id}",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "POST",
+            "path": "/api/v1/sessoes/conversa",
+            "bearerMatchesLogin": true,
+            "bodyKeys": [
+              "session_id"
+            ]
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/v1/sessoes/conversa/{session_id}",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/sessoes",
+            "bearerMatchesLogin": true,
+            "bodyKeys": []
+          }
+        ],
+        "errors": []
+      }
+    ],
+    "finished": "2026-10-27T17:08:49.969Z"
+  },
+  "transport": {
+    "checkedAt": "2026-10-27T17:12:06.223Z",
+    "checks": [
+      {
+        "url": "https://ia-api.fixa.solutions/api/v1/sessoes",
+        "method": "OPTIONS",
+        "status": 200,
+        "allowOrigin": "http://localhost:5173",
+        "allowHeaders": "authorization",
+        "cacheControl": null
+      },
+      {
+        "url": "http://localhost:5173/api/ia/api/v1/sessoes",
+        "method": "GET",
+        "status": 401,
+        "allowOrigin": null,
+        "allowHeaders": null,
+        "cacheControl": "private, no-store"
+      }
+    ]
+  },
+  "contractTests": {
+    "passed": 25,
+    "failed": 0
+  },
+  "iaRepositoryMain": "b0977fd0d25aceed468014f2092457cd08bdc665",
+  "deployedGitRevision": "Não exposta pelo serviço",
+  "limits": [
+    "Sem homologação de criação de registros, upload novo ou todos os agentes",
+    "Sem tokens, credenciais ou mensagens anteriores nesta evidência"
+  ]
+}
