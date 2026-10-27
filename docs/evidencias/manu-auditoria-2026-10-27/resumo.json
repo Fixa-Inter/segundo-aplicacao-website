@@ -1,0 +1,279 @@
+{
+  "date": "2026-10-27",
+  "timezone": "America/Sao_Paulo",
+  "activity_started": "2026-10-27T16:41:03-03:00",
+  "document_generated": "2026-10-27T17:14:18.999244-03:00",
+  "issue": "https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12",
+  "estimate_minutes": 90,
+  "elapsed_minutes_observed_at_generation": 33.3,
+  "web_base_revision": "9e6434d",
+  "ia_source_main_revision": "b0977fd0d25aceed468014f2092457cd08bdc665",
+  "aws_deployed_revision": "not exposed / not inferred from repository",
+  "ai_base_url": "https://ia-api.fixa.solutions",
+  "web_base_url": "https://web-api.fixa.solutions",
+  "unique_directed_case_count": 72,
+  "aws_ai_probe_requests": 39,
+  "web_logins": 2,
+  "controlled_service_cases": 14,
+  "controlled_browser_cases": 17,
+  "cleanup": [
+    {
+      "account": "Gestor",
+      "thread_id": "782f7a56-77ed-43e5-b770-b343e8b89012",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "account": "Gestor",
+      "thread_id": "47155a61-2d69-46ce-86db-316816edfa89",
+      "status": 200,
+      "ok": true
+    }
+  ],
+  "rh_test_thread_removed_in_case": "D01",
+  "finding_count": 11,
+  "priority_counts": {
+    "P1": 1,
+    "P2": 8,
+    "P3": 2
+  },
+  "checks": {
+    "format": {
+      "exit_code": 0,
+      "passed": true,
+      "log_tail": [
+        "",
+        "> fixa-web@0.0.0 format:check",
+        "> node ./node_modules/prettier/bin/prettier.cjs --check src tests scripts dev/compose.yml dev/compose.shared.yml package.json eslint.config.js vite.config.ts index.html",
+        "",
+        "Checking formatting...",
+        "All matched files use Prettier code style!"
+      ]
+    },
+    "lint": {
+      "exit_code": 0,
+      "passed": true,
+      "log_tail": ["", "> fixa-web@0.0.0 lint", "> node ./node_modules/eslint/bin/eslint.js .", ""]
+    },
+    "test": {
+      "exit_code": 0,
+      "passed": true,
+      "log_tail": [
+        "✔ calendário atravessa mês e ano sem deslocamento local (2.7544ms)",
+        "ℹ tests 117",
+        "ℹ suites 0",
+        "ℹ pass 117",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 13932.0332"
+      ],
+      "tests": 117,
+      "passed_tests": 117,
+      "failed_tests": 0
+    },
+    "build": {
+      "exit_code": 0,
+      "passed": true,
+      "log_tail": [
+        "dist/assets/index-D7wBYMZ5.js                               470.84 kB │ gzip: 152.95 kB",
+        "",
+        "✓ built in 12.24s",
+        "[PLUGIN_TIMINGS] Plugin hooks ran for 10.3s of this 11.9s build (87%).",
+        "2 hooks are listed without a time. Their calls overlapped, so the time inside one call includes work from other calls. To find their cost, profile the build with `node --cpu-prof`:",
+        "  - vite:asset load (63 calls)",
+        "  - vite:css transform (29 calls)",
+        "See https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.",
+        ""
+      ]
+    },
+    "baseline_manu_tests": {
+      "passed": 25,
+      "failed": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "IA-01",
+      "priority": "P2",
+      "owner": "API da IA",
+      "source": "AWS real",
+      "title": "Identificador com espaços causa erro 500 no encerramento",
+      "cases": "S07",
+      "reproduce": "Com Bearer válido, enviar DELETE /api/v1/chat/sessions/%20, sem corpo.",
+      "observed": "HTTP 500 com corpo Internal Server Error. A entrada inválida não vira um erro de validação.",
+      "expected": "Rejeitar o identificador vazio após trim com HTTP 400 ou 422, sem executar o encerramento.",
+      "impact": "Uma entrada controlável pelo cliente produz falha interna e impede um tratamento previsível na interface.",
+      "fix": "Validar e normalizar o parâmetro de caminho antes do serviço. Converter ValueError em resposta 4xx. Aplicar os mesmos limites a todas as rotas de sessão.",
+      "acceptance": "Espaço, tabulação e ID vazio após normalização retornam 4xx; um ID válido continua funcionando.",
+      "code": "app/services/sessao.py: finalizar_sessao_chat; a validação de thread_id após strip lança ValueError."
+    },
+    {
+      "id": "IA-02",
+      "priority": "P2",
+      "owner": "API da IA",
+      "source": "AWS real",
+      "title": "Encerramento confirma sucesso para conversa inexistente ou de outra conta",
+      "cases": "S03, S05, S06",
+      "reproduce": "Gerar um UUID sem conversa e chamar DELETE /api/v1/chat/sessions/{uuid}. Repetir com o ID de uma conversa de QA da outra conta autorizada.",
+      "observed": "Ambos retornaram HTTP 200, status ENCERRADA, mensagem Sessão encerrada com sucesso e resumo null.",
+      "expected": "Retornar 404 quando não houver conversa acessível ao usuário autenticado. Se houver política de DELETE idempotente, ela precisa ser explícita e não afirmar que houve encerramento e resumo.",
+      "impact": "A Web aceita a confirmação e pode apresentar uma conversa como encerrada sem o serviço ter confirmado a operação sobre uma conversa válida.",
+      "fix": "Consultar a sessão por identificador e usuário antes de resumir ou responder. Manter autorização por proprietário e retornar erro uniforme para inexistente/sem acesso.",
+      "acceptance": "Conversa própria encerra; conversa inexistente ou de outra conta retorna 404. Não retorna dados da outra conta nem modifica seu estado.",
+      "code": "app/services/sessao.py e persistência de sessões. Não houve evidência de leitura ou alteração da conversa alheia: a leitura pelo dono continuou disponível e sem resumo."
+    },
+    {
+      "id": "IA-03",
+      "priority": "P2",
+      "owner": "API da IA",
+      "source": "AWS real",
+      "title": "Conversa encerrada aceita novas mensagens",
+      "cases": "C01, C02",
+      "reproduce": "Criar conversa de QA, encerrá-la pelo DELETE de chat/sessions e enviar POST /api/v1/chat com o mesmo thread_id.",
+      "observed": "O encerramento retornou ENCERRADA com resumo. O POST posterior retornou 200, o mesmo thread_id e nova resposta: Olá! Como posso ajudar?",
+      "expected": "Pelo fluxo atual da Web, uma conversa salva fica somente para leitura; a API deve retornar 409 ao tentar continuar. Uma política de reabertura exigiria contrato e atualização explícita do resumo.",
+      "impact": "O estado usado pela Web diverge do estado permitido pela API. O resumo pode deixar de representar as mensagens posteriores.",
+      "fix": "Persistir estado explícito da conversa e verificá-lo antes de invocar o grafo. Não inferir encerramento somente da existência de texto de resumo.",
+      "acceptance": "POST em sessão encerrada é recusado sem invocar ferramentas; uma conversa nova continua aceitando mensagens.",
+      "code": "app/services/chat.py: consulta a existência e o proprietário, mas não bloqueia o estado encerrado antes do grafo."
+    },
+    {
+      "id": "IA-04",
+      "priority": "P2",
+      "owner": "API da IA",
+      "source": "AWS real; lacuna de validação",
+      "title": "Validação de imagens é mais permissiva que a da Web",
+      "cases": "I01, I02, I03, U11, U12",
+      "reproduce": "Enviar uma imagem com URL file:///__fixa_qa_arquivo_inexistente__.png. Em outro envio da mesma conversa de QA, enviar quatro URLs públicas de imagem.",
+      "observed": "As duas requisições retornaram HTTP 200 e resposta genérica fora_de_escopo. A Web rejeita protocolos fora de HTTP/HTTPS e limita a três imagens; a API aceita lista de strings sem esses limites.",
+      "expected": "Validar também no servidor o protocolo, a quantidade e o formato da URL. Definir uma política de origem e de limites de conteúdo antes de qualquer download.",
+      "impact": "Clientes que não passam pela Web conseguem ignorar as restrições do produto. Há superfície de entrada não validada no servidor.",
+      "fix": "Alinhar o schema de imagens ao limite acordado de três anexos e validar URL. Se o serviço baixar imagens, proteger destino, redirecionamentos, timeout, tamanho e tipo do conteúdo.",
+      "acceptance": "file:, javascript:, URL inválida e quatro anexos são recusados com 422; anexos válidos continuam no fluxo esperado.",
+      "code": "app/schemas/chat.py: imagens é list[str], sem limite de itens/URI. Isto é endurecimento do contrato atual; não foi demonstrado SSRF, leitura de arquivo ou acesso à rede interna."
+    },
+    {
+      "id": "IA-05",
+      "priority": "P3",
+      "owner": "API da IA",
+      "source": "AWS real + código-fonte",
+      "title": "Resumo não fornece um título curto separado",
+      "cases": "C01",
+      "reproduce": "Encerrar uma conversa de teste e examinar resumo; comparar com o formatador de histórico que separa a primeira linha como titulo.",
+      "observed": "A resposta veio em um único parágrafo, começando com O usuário informou que era um teste de integração [...]. Não havia título separado. O código de histórico usa a primeira linha como título.",
+      "expected": "Devolver titulo curto e resumo em campos distintos, sem depender de Markdown, primeira linha ou interpretação pela Web.",
+      "impact": "O cabeçalho pode receber um parágrafo. A Web tem uma proteção que usa a primeira mensagem quando o título não é utilizável, mas isso não entrega o título do resumo solicitado.",
+      "fix": "Gerar saída estruturada e validada com titulo e resumo. Devolver ambos no encerramento e nas duas consultas de histórico.",
+      "acceptance": "Um resumo de várias frases produz um titulo curto independente; o mesmo título aparece após reload. Falha ao gerar resumo não muda indevidamente o estado.",
+      "code": "app/memory/persistencia/gerar_resumo.py e app/services/sessoes/historico.py; proteção atual em src/utils/manu.ts."
+    },
+    {
+      "id": "INT-01",
+      "priority": "P1",
+      "owner": "API da IA + Web",
+      "source": "Web real com contrato remoto controlado",
+      "title": "Confirmação pendente desaparece ao recarregar a página",
+      "cases": "U07, B02",
+      "reproduce": "Responder ao envio com confirmacao=sim. Verificar os botões Sim e Não. Recarregar e abrir a mesma conversa, usando o DTO atual do histórico.",
+      "observed": "Antes do reload há proposta e botões. Depois há apenas um balão comum; Sim aparece zero vezes e o campo de mensagem volta a ficar habilitado. O histórico não informa a confirmação pendente nem a marcação da mensagem.",
+      "expected": "A proposta deve continuar pendente após reload, troca de dispositivo e nova sessão de navegador. Sim/Não e a correção precisam continuar associados à proposta correta.",
+      "impact": "O usuário perde o caminho de revisar/confirmar uma criação. Este teste não criou registros e não prova que a API execute uma criação sem consentimento.",
+      "fix": "Persistir proposta, estado e identificador da ação no backend; expor estado no histórico. A Web deve restaurar os controles pelos campos remotos. A verificação de consentimento também precisa existir no servidor.",
+      "acceptance": "Recarregar com proposta pendente preserva a revisão; dupla confirmação não duplica criação; confirmação de proposta antiga é rejeitada. A etapa com criação real deve ser homologada em ambiente de teste.",
+      "code": "Contrato em src/types/api/manu.ts; src/services/manuService.ts define confirmacao=nao ao decodificar histórico. O cache só mascara a ausência enquanto a página permanece carregada."
+    },
+    {
+      "id": "INT-02",
+      "priority": "P2",
+      "owner": "API da IA + Web",
+      "source": "Web real com contrato remoto controlado",
+      "title": "Imagens enviadas somem na reabertura pelo histórico",
+      "cases": "U08, B03",
+      "reproduce": "Enviar mensagem com uma imagem, recarregar a página e abrir novamente a conversa.",
+      "observed": "A mensagem tinha uma imagem antes do reload e zero depois. O DTO remoto só contém role, mensagem e emocao; o adaptador define images=[] em cada mensagem.",
+      "expected": "O histórico deve conservar as URLs das imagens enviadas, na mensagem original e na ordem original.",
+      "impact": "A conversa reaberta perde contexto visual. O usuário não consegue conferir qual foto havia enviado.",
+      "fix": "Persistir e devolver imagens por mensagem e mapear esses campos na Web; validar as URLs também ao ler o histórico.",
+      "acceptance": "Uma a três imagens válidas continuam visíveis após reload e em outra sessão autenticada; uma conversa sem anexos continua funcionando.",
+      "code": "src/types/api/manu.ts e src/services/manuService.ts: decodeHistory. Upload do teste foi interceptado; nenhum arquivo real foi enviado ao Cloudinary."
+    },
+    {
+      "id": "WEB-01",
+      "priority": "P2",
+      "owner": "Web; contrato de saída da IA também deve validar",
+      "source": "Resposta defeituosa controlada",
+      "title": "Resposta vazia é exibida como balão sem conteúdo",
+      "cases": "U01, U02, B01",
+      "reproduce": "Simular POST /api/v1/chat com resposta vazia ou somente espaços e os demais campos válidos.",
+      "observed": "O serviço aceita e armazena a resposta. A tela mostra um balão com Manu e nenhum conteúdo, sem alerta. A validação atual só exige typeof resposta=string.",
+      "expected": "Rejeitar resposta sem conteúdo após trim, preservar o contexto e apresentar erro compreensível, sem repetir o POST automaticamente.",
+      "impact": "A conversa parece ter sido respondida, mas o usuário não recebe informação nem indicação da falha.",
+      "fix": "Validar resposta.trim() tanto na saída da IA quanto no adaptador Web. Manter a política de não repetir ações ambíguas automaticamente.",
+      "acceptance": "Strings vazias e em branco produzem erro legível, sem bolha vazia e sem reenvio automático.",
+      "code": "src/services/manuService.ts: validação da resposta de send. Não foi observada resposta vazia da AWS nesta auditoria."
+    },
+    {
+      "id": "WEB-02",
+      "priority": "P2",
+      "owner": "Web",
+      "source": "Resposta defeituosa controlada",
+      "title": "thread_id inválido é aceito na resposta de criação de chat",
+      "cases": "U03, U04",
+      "reproduce": "Simular a primeira resposta com thread_id de 101 caracteres ou somente três espaços. Tentar encerrar a conversa depois.",
+      "observed": "Ambos os IDs foram aceitos e guardados. O de 101 caracteres falha depois com Conversa inválida.; o de espaços passa da primeira validação e não tem um encerramento confirmado.",
+      "expected": "Validar o mesmo formato e limite do identificador ao receber, enviar, ler e encerrar a conversa. Não gravar resposta incompatível no cache.",
+      "impact": "A interface entra em um estado que não consegue operar de forma consistente nas próximas ações.",
+      "fix": "Compartilhar a validação de ID: string normalizada não vazia, limite de 100 e formato pactuado. Validar antes de remember().",
+      "acceptance": "Resposta com ID vazio após trim ou acima do limite é rejeitada imediatamente; IDs válidos continuam aceitos.",
+      "code": "src/services/manuService.ts: send verifica truthiness, enquanto close aplica limite de 100. A AWS não retornou ID inválido nos testes reais."
+    },
+    {
+      "id": "WEB-03",
+      "priority": "P2",
+      "owner": "Web",
+      "source": "Falha HTTP 503 controlada",
+      "title": "Histórico já em memória fica inacessível ao voltar à tela com API indisponível",
+      "cases": "B04, B14",
+      "reproduce": "Conversar normalmente; navegar para Perfil; fazer a listagem da IA responder 503; voltar para Manu sem recarregar toda a aplicação.",
+      "observed": "O cache do serviço ainda tinha uma conversa, mas a barra lateral mostrava zero. Apareceu o aviso de falha, sem disponibilizar os dados já carregados. Tentar novamente recuperou a lista quando a API voltou.",
+      "expected": "Manter as conversas em memória acessíveis junto do aviso de que não foi possível atualizá-las.",
+      "impact": "Uma indisponibilidade temporária bloqueia o acesso ao histórico já disponível nesta sessão.",
+      "fix": "Usar cachedList também no carregamento inicial que falhou, como já é feito em refreshConversations. Identificar que os dados podem estar desatualizados.",
+      "acceptance": "Na navegação Perfil > Manu com 503, a conversa em cache continua selecionável; o aviso permanece e o retry atualiza depois.",
+      "code": "src/pages/Manu/index.tsx: catch do useEffect inicial não popula conversations; refreshConversations faz esse fallback."
+    },
+    {
+      "id": "WEB-04",
+      "priority": "P3",
+      "owner": "Web / integração Cloudinary",
+      "source": "Resposta defeituosa controlada",
+      "title": "Falha de formato do upload expõe erro técnico ao usuário",
+      "cases": "U09, U10, B10",
+      "reproduce": "Simular resposta de upload 200 contendo HTML. Alternativamente, retornar secure_url=not a url.",
+      "observed": "HTML dispara SyntaxError e a interface mostra Unexpected token [...] is not valid JSON. URL inválida gera TypeError: Invalid URL.",
+      "expected": "Exibir uma mensagem curta em português sobre a falha do envio, conservando as ações de remover e tentar novamente.",
+      "impact": "O usuário recebe detalhe técnico incompreensível em vez de orientação útil.",
+      "fix": "Proteger response.json() e new URL() no serviço e converter falhas em ApiError de aplicação. Preservar cancelamento e eventual status de erro do provedor.",
+      "acceptance": "HTML, JSON malformado, secure_url ausente/inválida e erro HTTP apresentam mensagem amigável; remover/repetir continuam funcionando.",
+      "code": "src/services/cloudinaryService.ts: response.json() e new URL(); src/pages/Manu/index.tsx: errorMessage repassa a mensagem do Error."
+    }
+  ],
+  "classification_note": "Os pass=false dos arquivos brutos comparam expectativas do ensaio. A02 é observação de semântica 403/401, não quebra de autenticação; I01/I03 indicam lacunas de validação; U06 é sugestão de resiliência. Casos sobrepostos foram agrupados em 11 pontos.",
+  "audit_collection_completed": true,
+  "delivery_prepared_at": "2026-10-27T17:14:56.222725-03:00",
+  "elapsed_minutes_observed_at_delivery_preparation": 33.9,
+  "pdf_visual_review": {
+    "pages": 10,
+    "all_pages_rendered_and_inspected": true,
+    "text_clipping_check_passed": true,
+    "replacement_characters": 0,
+    "first_page_header_repaired_and_reinspected": true
+  },
+  "issue_updated_externally": false,
+  "project_status": "not changed or asserted",
+  "production_code_changed": false,
+  "pr_created": false,
+  "pdf_sha256": "4fc6bc47211ffd880ccc202b5f81425c703408594299d7aaffb563bf32b706d5"
+}
