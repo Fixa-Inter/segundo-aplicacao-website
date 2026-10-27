@@ -2,6 +2,12 @@
 
 Frontend de gestão de manutenção em React 19, TypeScript e Vite. Repositório: [segundo-aplicacao-website](https://github.com/Fixa-Inter/segundo-aplicacao-website).
 
+## Validação atual
+
+A [validação de DAD de 26/10/2026](docs/VALIDACAO_DAD_2026-10-26.md) registra 114 testes aprovados, 72 cenários de acessibilidade automatizada sem violações detectadas após correções e 28 visitas com API Web real. Consulte a [matriz atual](docs/MATRIZ_REQUISITOS.md) e o [roteiro de apresentação](docs/ROTEIRO_DAD.md). Há pendências; esses resultados não certificam WCAG integral nem todos os critérios de DAD.
+
+**URL pública da Web: não confirmada.** O teste atual usa http://localhost:5173. Em 26/10, o histórico da IA funcionou para Gestor (200), mas recusou RH (403); os iframes Databricks pediram login no perfil de QA. Os registros datados abaixo preservam resultados históricos.
+
 ## Executar
 
 Use Node.js 24 e um servidor da [API Web FIXA](https://github.com/Fixa-Inter/segundo-api-web) em execução.

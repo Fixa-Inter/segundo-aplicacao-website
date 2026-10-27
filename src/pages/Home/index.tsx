@@ -150,24 +150,35 @@ export default function Home() {
                   <FigmaIcon name="chevron-right" />
                 </button>
               </div>
-              <div ref={daysRef} className={styles.days} aria-label={t('Dias do mês')}>
+              <div ref={daysRef} className={styles.days} role="group" aria-label={t('Dias do mês')}>
                 {days.map((date, index) => (
                   <button
                     key={date}
                     type="button"
-                    aria-label={formatDate(date, { dateStyle: 'full' })}
+                    aria-label={
+                      formatDate(date, { weekday: 'short' }).replace('.', '') +
+                      ' ' +
+                      Number(date.slice(-2)) +
+                      ', ' +
+                      formatDate(date, { dateStyle: 'full' })
+                    }
                     aria-pressed={date === selectedDay}
                     data-date={date}
                     onKeyDown={(event) => moveDay(event, index)}
                     onClick={() => setSelectedDay(date)}
                   >
-                    <span>{formatDate(date, { weekday: 'short' }).replace('.', '')}</span>
+                    <span>{formatDate(date, { weekday: 'short' }).replace('.', '')} </span>
                     <strong>{Number(date.slice(-2))}</strong>
                   </button>
                 ))}
               </div>
               <h3 id="events-heading">{t('Eventos')}</h3>
-              <div className={styles.events} aria-labelledby="events-heading" aria-live="polite">
+              <div
+                className={styles.events}
+                role="region"
+                aria-labelledby="events-heading"
+                aria-live="polite"
+              >
                 {events.length ? (
                   events.map((event) => (
                     <article key={event.id} className={styles.event}>

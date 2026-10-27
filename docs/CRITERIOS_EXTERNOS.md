@@ -1,5 +1,7 @@
 # Critérios externos detalhados — PDF interdisciplinar
 
+> Registro histórico de 27/09/2026, sem revalidação integral das demais disciplinas. As observações de ausência de API, IA, backend ou telefone abaixo descrevem a versão daquela data e não o contrato atual. Para DAD e integração Web, prevalecem a [matriz atual](MATRIZ_REQUISITOS.md) e a [validação de 26/10/2026](VALIDACAO_DAD_2026-10-26.md).
+
 Revisão das 11 páginas do PDF de 14/05/2026, em 27/09/2026. Esta lista complementa a [matriz Web](MATRIZ_REQUISITOS.md), que contém DAD, Desenvolvimento 1 e BI. Cada linha abaixo permanece pendente de evidência no artefato indicado. Não equivale a uma entrega aprovada da equipe. M = mínimo; E = extra.
 
 **Arquivo atual no Web:** inexistente para os artefatos externos, salvo quando a linha aponta explicitamente para código/documentação deste repositório. **Teste e demonstração:** executar ou apresentar a evidência da última coluna, incluindo seu link direto no documento de entregas da equipe. Nenhum resultado externo foi validado nesta sessão.

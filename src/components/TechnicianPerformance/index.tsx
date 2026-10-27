@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import type { TechnicianPerformanceProps } from '../../types/ui'
 import { usePreferences } from '../../contexts/usePreferences'
 import { dashboardFilteredWidgetURL } from '../../utils/dashboardEmbed'
 import styles from './TechnicianPerformance.module.css'
 
-export function TechnicianPerformance({ name }: { name: string }) {
+export function TechnicianPerformance({ name }: TechnicianPerformanceProps) {
   const { t } = usePreferences()
   const [loadedURL, setLoadedURL] = useState('')
   const filter = import.meta.env.VITE_DATABRICKS_TECHNICIAN_FILTER ?? ''

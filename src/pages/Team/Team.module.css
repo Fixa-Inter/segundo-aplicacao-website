@@ -21,7 +21,7 @@
 }
 .tablePanel table th {
   background: var(--fixa-table-head);
-  color: white;
+  color: var(--fixa-table-head-text);
   font-size: 16px;
   font-weight: 500;
 }

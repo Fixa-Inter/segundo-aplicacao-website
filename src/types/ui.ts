@@ -139,3 +139,15 @@ export interface TechnicianDetailsProps {
   onBack: () => void
   onEdit?: () => void
 }
+
+export interface InformationItemProps {
+  icon: ReactNode
+  label: string
+  value: string
+}
+export interface TechnicianPerformanceProps {
+  name: string
+}
+export interface UnsavedChangesProviderProps {
+  children: ReactNode
+}

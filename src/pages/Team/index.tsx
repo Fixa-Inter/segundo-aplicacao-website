@@ -375,12 +375,9 @@ export default function Team() {
                                   .join('')}
                               </span>
                               <span className={styles.memberText}>
-                                <span
-                                  className={styles.memberName}
-                                  title={item.name}
-                                  aria-label={item.name}
-                                >
-                                  {truncateText(item.name, 40)}
+                                <span className={styles.memberName} title={item.name}>
+                                  <span aria-hidden="true">{truncateText(item.name, 40)}</span>
+                                  <span className={styles.srOnly}>{item.name}</span>
                                 </span>
                                 <small>
                                   {institutional && (

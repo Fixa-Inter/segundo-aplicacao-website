@@ -36,6 +36,10 @@
   outline: none;
   border-color: var(--fixa-text-primary);
 }
+.control input:focus-visible {
+  outline: 3px solid var(--fixa-focus);
+  outline-offset: 3px;
+}
 .control input[aria-invalid='true'] {
   border-color: var(--fixa-danger-text);
 }

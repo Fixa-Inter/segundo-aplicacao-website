@@ -215,7 +215,12 @@ export default function Calendar() {
                 <FigmaIcon name="chevron-right" />
               </button>
             </div>
-            <div ref={calendarRef} className={styles.calendarGrid} aria-label={t('Dias do mês')}>
+            <div
+              ref={calendarRef}
+              className={styles.calendarGrid}
+              role="group"
+              aria-label={t('Dias do mês')}
+            >
               {Array.from({ length: 7 }, (_, index) =>
                 formatDate(shiftDate('2026-03-01', index), { weekday: 'narrow' }),
               ).map((day, index) => (
