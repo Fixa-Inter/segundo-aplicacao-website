@@ -183,8 +183,8 @@
   max-width: 1100px;
   width: 100%;
   align-self: center;
-  padding: 20px 24px 14px;
-  border-radius: 30px;
+  padding: 14px 20px 12px;
+  border-radius: 24px;
   background: var(--fixa-surface);
   box-shadow: 0 2px 15px 8px #153d7d1a;
 }
@@ -196,7 +196,7 @@
 .composer textarea {
   display: block;
   width: 100%;
-  min-height: 92px;
+  min-height: 52px;
   max-height: 220px;
   resize: none;
   border: 0;
@@ -204,6 +204,7 @@
   color: var(--fixa-ink);
   font: inherit;
   font-size: 18px;
+  line-height: 1.4;
 }
 .composer textarea:focus {
   outline: none;
