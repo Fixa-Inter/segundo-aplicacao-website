@@ -1,0 +1,52 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid var(--fixa-primary);
+  border-radius: 999px;
+  background: var(--fixa-primary);
+  color: white;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    opacity 150ms;
+}
+.button:hover:not(:disabled) {
+  background: #0e2d60;
+}
+.button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.button :is(svg, img) {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+@media (max-width: 600px) {
+  .button {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    flex: none;
+    padding: 0;
+    border-radius: 16px;
+  }
+  .button :is(svg, img) {
+    width: 24px;
+    height: 24px;
+  }
+  .label {
+    display: none;
+  }
+}
+
+.button img {
+  filter: brightness(0) invert(1);
+}

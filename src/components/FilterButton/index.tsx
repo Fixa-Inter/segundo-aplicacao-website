@@ -14,7 +14,7 @@ export function FilterButton({ children, active = false, onClear }: FilterButton
           type="button"
           aria-label={t(active ? 'Filtrar, filtros ativos' : 'Filtrar')}
         >
-          {t('Filtrar')}
+          <span>{t('Filtrar')}</span>
           <FigmaIcon name="filter" />
           {active && <i aria-hidden="true" />}
         </button>

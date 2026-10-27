@@ -115,7 +115,7 @@ npm test
 npm run build
 ```
 
-Os testes de ciclo dos hooks rodam separadamente, com Vite já em execução e Playwright disponível na máquina:
+Os testes de ciclo dos hooks e de interface responsiva rodam separadamente, com Vite já em execução e Playwright disponível na máquina:
 
 ```bash
 npm run test:browser
@@ -124,6 +124,8 @@ npm run test:browser
 Se o módulo Playwright estiver fora do projeto, defina `FIXA_PLAYWRIGHT_MODULE` com o caminho de seu `index.mjs`. `FIXA_TEST_BASE_URL` usa http://localhost:5173 por padrão; `FIXA_TEST_BROWSER_CHANNEL` permite escolher outro navegador. No Windows, o padrão é Edge; nos demais sistemas, Chromium. Use a configuração de API descrita acima; as leituras dos testes são interceptadas e conexões externas não simuladas são bloqueadas. Não é necessário login real.
 
 A [revisão posterior da estrutura](docs/REVISAO_ESTRUTURA_2026-10-26.md) registra oito testes de navegador aprovados, além dos 117 testes Node, corrigindo reaproveitamento de opções/notas antigas e tratamento de exceção imediata.
+
+A [revisão mobile](docs/MOBILE_RESPONSIVO_2026-10-26.md) acrescenta 13 casos de interface/toque, totalizando 21 testes de navegador. Inclui botões compactos, cartões da equipe, calendário sem sobreposição, formulários e campo de mensagem da Manu em telas baixas.
 
 `tests/api-contract.test.mjs` verifica o transporte e os adaptadores usados em produção com respostas HTTP controladas. As suítes antigas continuam utilizando fixtures de demonstração explicitamente isoladas em `src/mocks/services`; não comprovam persistência real. Não há importação dessas fixtures pelos serviços de produção.
 

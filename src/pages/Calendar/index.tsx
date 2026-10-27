@@ -7,6 +7,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EventDetails } from '../../components/EventDetails'
 import { EventForm } from '../../components/EventForm'
 import { PageHeader } from '../../components/PageHeader'
+import { AddRecordButton } from '../../components/AddRecordButton'
 import {
   listEvents,
   listEventResponsibles,
@@ -159,16 +160,12 @@ export default function Calendar() {
       <PageHeader
         title={t('Calendário')}
         action={
-          <button
+          <AddRecordButton
             ref={addButtonRef}
-            className={`${common.primary} ${common.addButton}`}
-            type="button"
+            label={t('Adicionar evento')}
             onClick={() => openForm()}
             disabled={loading || Boolean(loadError)}
-          >
-            <FigmaIcon name="plus" />
-            {t('Adicionar evento')}
-          </button>
+          />
         }
       />
       {notice && (

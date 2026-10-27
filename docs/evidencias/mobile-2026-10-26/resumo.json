@@ -1,0 +1,1107 @@
+{
+  "base": "7cf1c8f",
+  "branch": "feature/integracao-ia-manu",
+  "environment": "Edge com toque emulado; APIs e iframe interceptados; nenhum dado operacional alterado",
+  "checks": [
+    {
+      "check": "format:check",
+      "exitCode": 0,
+      "log": "dev.local/mobile-review/final-format-check.log"
+    },
+    {
+      "check": "lint",
+      "exitCode": 0,
+      "log": "dev.local/mobile-review/final-lint.log"
+    },
+    {
+      "check": "test",
+      "exitCode": 0,
+      "log": "dev.local/mobile-review/final-test.log"
+    },
+    {
+      "check": "build",
+      "exitCode": 0,
+      "log": "dev.local/mobile-review/final-build.log"
+    }
+  ],
+  "unit": {
+    "passed": 117,
+    "failed": 0
+  },
+  "browser": {
+    "passed": 21,
+    "failed": 0,
+    "existingHookCases": 8,
+    "newInterfaceCases": 13,
+    "names": [
+      "✔ equipe: ações por toque e botão compacto em 320px",
+      "✔ equipe: ações por toque e botão compacto em 390px",
+      "✔ calendário: dias sem sobreposição e ações por toque em 320px",
+      "✔ calendário: dias sem sobreposição e ações por toque em 390px",
+      "✔ Manu: compositor visível, histórico e envio por toque em 320x667",
+      "✔ Manu: compositor visível, histórico e envio por toque em 390x500",
+      "✔ Manu: compositor visível, histórico e envio por toque em 844x390",
+      "✔ RH: abas, menu móvel, perfil e preferências permanecem acessíveis",
+      "✔ desktop preserva rótulos completos dos botões de adicionar",
+      "✔ páginas em 360 e 430px, tema escuro e rótulos em inglês não transbordam",
+      "✔ paginação longa permite chegar à última página por toque",
+      "✔ Home: meses, faixa de dias e evento podem ser acionados por toque",
+      "✔ login em 320px permite preencher os campos e alternar a senha por toque",
+      "✔ desativar e reativar a mesma fonte limpa dados antigos até a nova resposta",
+      "✔ trocar fonte cancela a anterior e ignora sua resposta atrasada",
+      "✔ falha e nova tentativa exibem erro, carregamento e sucesso sem reaproveitar erro antigo",
+      "✔ desmontagem aborta e uma resposta posterior não gera nova atualização",
+      "✔ exceção síncrona do carregador vira estado de erro sem desmontar a interface",
+      "✔ StrictMode aborta a primeira leitura e aceita somente a leitura ativa",
+      "✔ trocar técnico limpa suas notas enquanto as competências do próximo carregam",
+      "✔ trocar técnico existente por cadastro novo devolve dez competências sem notas"
+    ]
+  },
+  "accessibility": {
+    "started": "2026-10-27T02:29:23.659Z",
+    "finished": "2026-10-27T02:35:52.184Z",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa"
+    ],
+    "scans": [
+      {
+        "name": "/",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 8
+          }
+        ]
+      },
+      {
+        "name": "/equipe",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "name": "/calendario",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/perfil",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/configuracoes",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "name": "/manu",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/dashboard",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "perfil-editar",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "evento-criar",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 12
+          }
+        ]
+      },
+      {
+        "name": "evento-erros",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 13
+          }
+        ]
+      },
+      {
+        "name": "equipe-filtro",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      {
+        "name": "tecnico-detalhes",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 3
+          }
+        ]
+      },
+      {
+        "name": "tecnico-editar",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 7
+          }
+        ]
+      },
+      {
+        "name": "descartar-confirmacao",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "tecnico-criar",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 8
+          }
+        ]
+      },
+      {
+        "name": "menu-movel",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "manu-mensagens",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "manu-excluir-dialogo",
+        "role": "GESTOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "name": "/",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 9
+          }
+        ]
+      },
+      {
+        "name": "/equipe",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "name": "/calendario",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/perfil",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/configuracoes",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "name": "/manu",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/dashboard",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "perfil-editar",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "evento-criar",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 8
+          }
+        ]
+      },
+      {
+        "name": "evento-erros",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 9
+          }
+        ]
+      },
+      {
+        "name": "equipe-filtro",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 2
+          }
+        ]
+      },
+      {
+        "name": "tecnico-detalhes",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 3
+          }
+        ]
+      },
+      {
+        "name": "tecnico-editar",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 7
+          }
+        ]
+      },
+      {
+        "name": "descartar-confirmacao",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "tecnico-criar",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 8
+          }
+        ]
+      },
+      {
+        "name": "menu-movel",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "manu-mensagens",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "manu-excluir-dialogo",
+        "role": "GESTOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 8
+          }
+        ]
+      },
+      {
+        "name": "/equipe",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/calendario",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/perfil",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/configuracoes",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "name": "/manu",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/dashboard",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "perfil-editar",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "evento-criar",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 12
+          }
+        ]
+      },
+      {
+        "name": "evento-erros",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 14
+          }
+        ]
+      },
+      {
+        "name": "equipe-filtro",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 33
+          }
+        ]
+      },
+      {
+        "name": "tecnico-detalhes",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 5
+          }
+        ]
+      },
+      {
+        "name": "tecnico-editar",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 15
+          }
+        ]
+      },
+      {
+        "name": "descartar-confirmacao",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "tecnico-criar",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 14
+          }
+        ]
+      },
+      {
+        "name": "menu-movel",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "manu-mensagens",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "manu-excluir-dialogo",
+        "role": "ADMINISTRADOR",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "name": "/",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 9
+          }
+        ]
+      },
+      {
+        "name": "/equipe",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/calendario",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/perfil",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/configuracoes",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 1
+          }
+        ]
+      },
+      {
+        "name": "/manu",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/dashboard",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "perfil-editar",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "evento-criar",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 8
+          }
+        ]
+      },
+      {
+        "name": "evento-erros",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 10
+          }
+        ]
+      },
+      {
+        "name": "equipe-filtro",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "aria-valid-attr-value",
+            "nodes": 1
+          },
+          {
+            "id": "color-contrast",
+            "nodes": 33
+          }
+        ]
+      },
+      {
+        "name": "tecnico-detalhes",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 5
+          }
+        ]
+      },
+      {
+        "name": "tecnico-editar",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 15
+          }
+        ]
+      },
+      {
+        "name": "descartar-confirmacao",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "tecnico-criar",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": [
+          {
+            "id": "color-contrast",
+            "nodes": 14
+          }
+        ]
+      },
+      {
+        "name": "menu-movel",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "manu-mensagens",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "manu-excluir-dialogo",
+        "role": "ADMINISTRADOR",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/login",
+        "role": "ANONYMOUS",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/recuperar-senha",
+        "role": "ANONYMOUS",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/sobre",
+        "role": "ANONYMOUS",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/404",
+        "role": "ANONYMOUS",
+        "width": 320,
+        "theme": "light",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/login",
+        "role": "ANONYMOUS",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/recuperar-senha",
+        "role": "ANONYMOUS",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/sobre",
+        "role": "ANONYMOUS",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      },
+      {
+        "name": "/404",
+        "role": "ANONYMOUS",
+        "width": 390,
+        "theme": "dark",
+        "violations": [],
+        "overflow": false,
+        "incomplete": []
+      }
+    ],
+    "errors": [],
+    "unexpected": []
+  },
+  "extraCalendarWidths": [
+    {
+      "width": 320,
+      "route": "/equipe",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "width": 320,
+      "route": "/calendario",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "width": 390,
+      "route": "/equipe",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "width": 390,
+      "route": "/calendario",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "width": 601,
+      "route": "/equipe",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 213.640625,
+        "height": 46.796875
+      }
+    },
+    {
+      "width": 601,
+      "route": "/calendario",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 209.296875,
+        "height": 46.796875
+      }
+    },
+    {
+      "width": 768,
+      "route": "/equipe",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 213.640625,
+        "height": 46.796875
+      }
+    },
+    {
+      "width": 768,
+      "route": "/calendario",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 209.296875,
+        "height": 46.796875
+      }
+    },
+    {
+      "width": 900,
+      "route": "/equipe",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 213.640625,
+        "height": 46.796875
+      }
+    },
+    {
+      "width": 900,
+      "route": "/calendario",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 209.296875,
+        "height": 46.796875
+      }
+    },
+    {
+      "width": 901,
+      "route": "/equipe",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 213.640625,
+        "height": 46.796875
+      }
+    },
+    {
+      "width": 901,
+      "route": "/calendario",
+      "calendarOverlap": false,
+      "addButton": {
+        "width": 209.296875,
+        "height": 46.796875
+      }
+    }
+  ],
+  "limits": [
+    "Não certifica WCAG integral",
+    "Sem aparelho físico ou teclado virtual real",
+    "Sem Safari/iOS ou leitor de tela",
+    "Conteúdo externo do Databricks e serviços AWS não homologados nesta rodada"
+  ]
+}

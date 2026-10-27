@@ -7,6 +7,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { FilterButton } from '../../components/FilterButton'
 import { Pagination } from '../../components/Pagination'
 import { PageHeader } from '../../components/PageHeader'
+import { AddRecordButton } from '../../components/AddRecordButton'
 import { TechnicianDetails } from '../../components/TechnicianDetails'
 import { TechnicianForm } from '../../components/TechnicianForm'
 import {
@@ -194,16 +195,12 @@ export default function Team() {
         title={t('Minha equipe')}
         action={
           technical && (
-            <button
+            <AddRecordButton
               ref={addButtonRef}
-              className={`${common.primary} ${common.addButton}`}
-              type="button"
+              label={t('Adicionar técnico')}
               onClick={() => openForm()}
               disabled={loading || Boolean(loadError) || !manager}
-            >
-              <FigmaIcon name="plus" />
-              {t('Adicionar técnico')}
-            </button>
+            />
           )
         }
       />

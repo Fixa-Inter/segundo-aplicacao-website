@@ -359,12 +359,14 @@ export default function Manu() {
         <button
           ref={newChatButton}
           className={styles.newChat}
+          aria-label={t(closing ? 'Finalizando…' : 'Novo chat')}
+          title={t(closing ? 'Finalizando…' : 'Novo chat')}
           type="button"
           onClick={() => void newChat()}
           disabled={busy}
         >
           <Plus size={22} aria-hidden="true" />
-          {t(closing ? 'Finalizando…' : 'Novo chat')}
+          <span>{t(closing ? 'Finalizando…' : 'Novo chat')}</span>
         </button>
         <div className={styles.historyTitle}>
           <h2>{t('Conversas')}</h2>

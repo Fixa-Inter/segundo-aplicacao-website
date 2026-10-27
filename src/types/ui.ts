@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, Ref } from 'react'
 import type { CompetencyInput, TechnicianCompetency } from './competency'
 import type {
   CalendarEvent,
@@ -145,4 +145,12 @@ export interface TechnicianPerformanceProps {
 }
 export interface UnsavedChangesProviderProps {
   children: ReactNode
+}
+
+export interface AddRecordButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'children' | 'aria-label' | 'type'
+> {
+  label: string
+  ref?: Ref<HTMLButtonElement>
 }
