@@ -116,11 +116,6 @@ export interface TechnicianFormFieldsProps extends TechnicianFormProps {
   initialCompetencies: TechnicianCompetency[]
 }
 
-export interface TechnicianSubmission {
-  input: TechnicianInput
-  competencies: CompetencyInput[]
-}
-
 export interface EventFormProps {
   event: CalendarEvent | null
   selectedDay: string

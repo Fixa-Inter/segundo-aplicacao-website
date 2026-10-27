@@ -1,15 +1,9 @@
+import type { LoginResponse } from '../types/api/auth'
 import type { LoginCredentials, User } from '../types/auth'
 import { normalizeCnpj, validateLogin } from '../utils/validation.ts'
 import { api } from './api.ts'
 import { ApiError } from './httpClient.ts'
 
-interface LoginResponse {
-  usuarioId: number
-  nome: string
-  tipoAcesso: string
-  token: string
-  refreshToken: string
-}
 const key = 'fixa.session'
 let user: User | null = null
 function persist() {

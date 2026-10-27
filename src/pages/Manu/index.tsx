@@ -6,26 +6,18 @@ import { FigmaIcon } from '../../components/FigmaIcon'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { ApiError } from '../../services/httpClient'
 import { manuApi } from '../../services/manuApi'
-import { createCloudinaryUploader, validateImageFile } from '../../services/cloudinaryService'
-import type { ManuConversation, ManuHistory, ManuMessage } from '../../services/manuService'
+import { validateImageFile } from '../../services/cloudinaryService'
+import { cloudinaryUploader as uploader } from '../../services/cloudinaryApi'
+import type {
+  ManuConversation,
+  ManuHistory,
+  ManuMessage,
+  ManuAttachment as Attachment,
+} from '../../types/manu'
 import { manuEmotionImage } from '../../assets/manuEmotions'
 import { normalizeManuEmotion } from '../../utils/manu'
 import styles from './Manu.module.css'
 
-const uploader = createCloudinaryUploader(
-  import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
-  import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
-  fetch,
-  import.meta.env.VITE_CLOUDINARY_FOLDER,
-)
-interface Attachment {
-  id: string
-  file: File
-  preview: string
-  status: 'uploading' | 'ready' | 'error'
-  url?: string
-  error?: string
-}
 function errorMessage(error: unknown) {
   if (
     error instanceof ApiError &&

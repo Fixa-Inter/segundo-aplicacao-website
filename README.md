@@ -8,6 +8,8 @@ A [validação de DAD de 26/10/2026](docs/VALIDACAO_DAD_2026-10-26.md) registra 
 
 **URL pública da Web: não confirmada.** O teste atual usa http://localhost:5173. Em 26/10, o histórico da IA funcionou para Gestor (200), mas recusou RH (403); os iframes Databricks pediram login no perfil de QA. Os registros datados abaixo preservam resultados históricos.
 
+A [reorganização de componentes e serviços](docs/ORGANIZACAO_DAD_2026-10-26.md) corrigiu as pendências de estrutura M3/M5: formulários com hooks de controle, adaptadores por recurso, DTOs em types e regras de lint para as camadas. A versão reorganizada passou em 117 testes, lint, formatação, build e QA dirigido.
+
 ## Executar
 
 Use Node.js 24 e um servidor da [API Web FIXA](https://github.com/Fixa-Inter/segundo-api-web) em execução.
@@ -120,7 +122,10 @@ Em 25/10/2026, além dos cenários controlados em 1280×720 e 390×844, os fluxo
 ## Organização
 
 - `src/services/httpClient.ts`: transporte, renovação e isolamento de sessão.
-- `src/services/apiManagement.ts`: adaptação entre DTOs Java e entidades da interface.
+- `src/services/apiManagement.ts`: composição dos adaptadores e da sessão.
+- `src/services/resources/`: HTTP por recurso; `teamService.ts` orquestra operações de equipe.
+- `src/hooks/useEventFormController.ts` e `useTechnicianFormController.ts`: estado, validação e salvamento dos formulários.
+- `src/types/api/` e `src/utils/api*.ts`: DTOs por recurso e mapeadores sem acesso HTTP.
 - `src/services/authService.ts` e `recoveryService.ts`: autenticação e senha.
 - `src/utils/apiValidation.ts`: validação alinhada aos DTOs.
 - `src/components`, `src/pages`, `src/contexts`, `src/types`: interface e estado tipados.

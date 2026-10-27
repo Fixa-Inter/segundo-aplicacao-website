@@ -32,7 +32,7 @@ Consulte a [matriz de DAD](MATRIZ_REQUISITOS.md) e o [relatório com resultados 
 
 ## Demonstrações técnicas do PDF
 
-- Mostrar src/components, src/pages e src/types; explicar as pendências de imports de services nos formulários e do adaptador com vários recursos.
+- Mostrar src/components, src/hooks, src/services/resources e src/types/api; apontar views, controladores, recursos HTTP e composição. O lint impede imports de services em componentes; consulte a [reorganização validada](ORGANIZACAO_DAD_2026-10-26.md).
 - Explicar o estado agrupado e atualizações imutáveis; apontar efeito, dependências e cancelamento pelo AbortController.
 - Mostrar keys de IDs nas listas dinâmicas; distinguir os índices de listas estáticas.
 - **useParams ainda não demonstrado:** resolver rota com guarda ou confirmar interpretação com o professor.

@@ -2,6 +2,9 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Carregando locais…': ['Loading locations…', 'Cargando ubicaciones…', '正在加载地点…'],
+  'Carregando unidades…': ['Loading work locations…', 'Cargando unidades…', '正在加载工作单位…'],
+  'Carregando turnos…': ['Loading shifts…', 'Cargando turnos…', '正在加载班次…'],
   'Conversa salva no histórico': [
     'Conversation saved to history',
     'Conversación guardada en el historial',

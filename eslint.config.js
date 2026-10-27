@@ -13,6 +13,35 @@ export default defineConfig([
     languageOptions: { globals: globals.node },
   },
   {
+    files: ['src/components/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/services', '**/services/**'],
+              message:
+                'Componentes devem consumir hooks ou receber dados e callbacks; serviços pertencem à camada de aplicação.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/components/**/*.{ts,tsx}', 'src/pages/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        {
+          name: 'fetch',
+          message: 'Use o transporte de src/services; não faça HTTP diretamente na interface.',
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,

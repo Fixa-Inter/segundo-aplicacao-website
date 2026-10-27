@@ -1,5 +1,7 @@
 # Validação de DAD e acesso — 26/10/2026
 
+> Atualização posterior no mesmo dia: as pendências de estrutura M3/M5 foram corrigidas e revalidadas na [reorganização de componentes e serviços](ORGANIZACAO_DAD_2026-10-26.md). O conteúdo abaixo preserva o diagnóstico da rodada anterior; a [matriz atual](MATRIZ_REQUISITOS.md) incorpora a correção.
+
 ## Conclusão
 
 **Ainda não é possível declarar todos os critérios de DAD cumpridos nem certificar acessibilidade integral.** Os testes executados passaram após correções de contraste, foco e nomes acessíveis. A API Web publicada autenticou Gestor e RH. Permanecem pendências de organização do código, demonstração de rota parametrizada, publicação da Web e extras; a IA continua recusando o RH.

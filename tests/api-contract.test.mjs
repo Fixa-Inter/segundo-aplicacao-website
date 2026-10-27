@@ -14,6 +14,7 @@ function setup(handler) {
       data: config.data ? JSON.parse(config.data) : undefined,
       auth: config.headers.get('Authorization'),
       params: config.params,
+      signal: config.signal,
     }
     calls.push(call)
     const { status = 200, data = null } = await handler(call)
@@ -899,4 +900,87 @@ test('troca parcial de unidade pode ser concluída sem duplicar técnico ou perd
     false,
   )
   assert.equal(calls.filter((call) => call.url === '/api/v1/turnos-usuarios/8/desativar').length, 1)
+})
+
+test('opções de unidades e turnos propagam o mesmo AbortSignal ao escopo institucional', async () => {
+  const controller = new AbortController()
+  const { client, calls } = setup(async ({ url, params, signal }) => {
+    assert.equal(signal, controller.signal)
+    if (url === '/api/v1/unidades')
+      return {
+        data: [
+          { ...unit, instituicaoId: 8 },
+          { ...unit, id: 6, instituicaoId: 8 },
+        ],
+      }
+    if (url === '/api/v1/usuarios/10') return { data: { ...tech, id: 10, unidadeId: 5 } }
+    if (url === '/api/v1/turnos') {
+      assert.equal(params.unidadeId, 6)
+      return { data: [{ ...shift, unidadeId: 6 }] }
+    }
+    throw Error('Rota inesperada: ' + url)
+  })
+  const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+  const workUnits = await service.listWorkUnits(controller.signal)
+  assert.equal(workUnits.length, 2)
+  const shifts = await service.listShifts('6', controller.signal)
+  assert.equal(shifts[0].id, String(shift.id))
+  assert.equal(
+    calls.every((call) => call.signal === controller.signal),
+    true,
+  )
+})
+test('cancelar locais durante a resposta rejeita a leitura sem expirar a sessão', async () => {
+  const controller = new AbortController()
+  let release
+  let started
+  const ready = new Promise((resolve) => {
+    started = resolve
+  })
+  const { client, calls } = setup(async ({ url, signal }) => {
+    assert.equal(url, '/api/v1/locais')
+    assert.equal(signal, controller.signal)
+    started()
+    return new Promise((resolve) => {
+      release = () => resolve({ data: [{ id: 9, nome: 'Sala', estaAtivo: true }] })
+    })
+  })
+  const service = createManagementService(client, () => user)
+  const pending = service.listLocations(controller.signal)
+  await ready
+  controller.abort()
+  release()
+  await assert.rejects(pending, (error) => error.name === 'CanceledError')
+  assert.equal(calls.length, 1)
+  assert.equal(client.getTokens().token, 'old-token')
+})
+test('cancelamento do escopo do RH interrompe a busca antes de consultar turnos', async () => {
+  const controller = new AbortController()
+  const releases = []
+  let started
+  const ready = new Promise((resolve) => {
+    started = resolve
+  })
+  const { client, calls } = setup(async ({ url, signal }) => {
+    assert.equal(signal, controller.signal)
+    assert.ok(['/api/v1/unidades', '/api/v1/usuarios/10'].includes(url))
+    return new Promise((resolve) => {
+      releases.push(() =>
+        resolve({
+          data:
+            url === '/api/v1/unidades'
+              ? [{ ...unit, instituicaoId: 8 }]
+              : { ...tech, id: 10, unidadeId: 5 },
+        }),
+      )
+      if (releases.length === 2) started()
+    })
+  })
+  const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+  const pending = service.listShifts('5', controller.signal)
+  await ready
+  controller.abort()
+  releases.forEach((release) => release())
+  await assert.rejects(pending, (error) => error.name === 'CanceledError')
+  assert.equal(calls.length, 2)
 })

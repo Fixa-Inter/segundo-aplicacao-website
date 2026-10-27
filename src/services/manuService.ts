@@ -1,36 +1,9 @@
+import type { ManuConversation, ManuHistory, ManuReply } from '../types/manu'
+import type { RemoteConversation } from '../types/api/manu'
+export type { ManuMessage, ManuConversation, ManuHistory, ManuReply } from '../types/manu'
 import { ApiError, type createHttpClient } from './httpClient.ts'
-import {
-  getSummaryTitle,
-  getConversationTitle,
-  normalizeManuEmotion,
-  type ManuEmotion,
-} from '../utils/manu.ts'
-export interface ManuMessage {
-  id: string
-  author: 'user' | 'manu'
-  text: string
-  images: string[]
-  emotion?: ManuEmotion
-  confirmation?: boolean
-}
-export interface ManuConversation {
-  thread_id: string
-  title: string
-  updated_at: string
-  closed: boolean
-}
-export interface ManuHistory extends ManuConversation {
-  messages: ManuMessage[]
-  confirmacao: 'sim' | 'nao'
-  summary?: string | null
-}
-export interface ManuReply {
-  thread_id: string
-  resposta: string
-  emocao: string
-  intencao: string | null
-  confirmacao: 'sim' | 'nao'
-}
+import { getSummaryTitle, getConversationTitle, normalizeManuEmotion } from '../utils/manu.ts'
+
 export function validateImageLinks(images: string[]): string[] {
   if (images.length > 3) throw new ApiError('Use até 3 imagens.')
   return images.map((value) => {
@@ -50,14 +23,7 @@ export function validateImageLinks(images: string[]): string[] {
     return url.href
   })
 }
-interface RemoteConversation {
-  session_id: string
-  iniciada_em: string
-  atualizada_em: string
-  titulo: string
-  resumo: string
-  mensagens: { role: 'human' | 'assistant'; mensagem: string; emocao?: string | null }[]
-}
+
 function decodeHistory(value: RemoteConversation): ManuHistory {
   if (
     !value ||

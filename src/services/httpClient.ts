@@ -1,9 +1,7 @@
+import type { SessionTokens } from '../types/api/auth'
+export type { SessionTokens } from '../types/api/auth'
 import axios, { type AxiosAdapter, type AxiosRequestConfig } from 'axios'
 
-export interface SessionTokens {
-  token: string
-  refreshToken: string
-}
 export class ApiError extends Error {
   status: number
   constructor(message: string, status = 0) {

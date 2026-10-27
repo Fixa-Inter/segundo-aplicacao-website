@@ -1,33 +1,15 @@
 import { ConfirmDialog } from '../ConfirmDialog'
-import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
-import { hasFormChanges } from '../../utils/formChanges'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
-import { useAuth } from '../../contexts/useAuth'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
-import { listShifts, listWorkUnits, PartialSaveError } from '../../services/managementService'
-import type { ShiftOption, WorkUnitOption } from '../../types/management'
-import type { Address, TechnicianInput } from '../../types/management'
-import type {
-  TechnicianFormFieldsProps,
-  TechnicianFormProps,
-  TechnicianSubmission,
-} from '../../types/ui'
-import type { CompetencyInput } from '../../types/competency'
 import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies'
-import { getCompetencyPresentation, parseCompetencyRating } from '../../utils/competencies'
-import { validatePassword, validateTechnician } from '../../utils/apiValidation'
-import { formatDate, parseDateInput } from '../../utils/calendar'
+import { useTechnicianFormController } from '../../hooks/useTechnicianFormController'
+import type { Address, TechnicianInput } from '../../types/management'
+import type { TechnicianFormProps, TechnicianFormFieldsProps } from '../../types/ui'
+import type { TechnicianFieldDefinition } from '../../types/technicianForm'
 import { truncateText } from '../../utils/presentation'
 import styles from './TechnicianForm.module.css'
-
-const fields: {
-  key: Exclude<keyof TechnicianInput, 'status'>
-  label: string
-  type?: 'text' | 'email' | 'tel'
-  maxLength?: number
-}[] = [
+const fields: TechnicianFieldDefinition[] = [
   { key: 'name', label: 'Nome completo', maxLength: 100 },
   { key: 'email', label: 'E-mail', type: 'email', maxLength: 100 },
   { key: 'birthDate', label: 'Data de nascimento', maxLength: 10 },
@@ -35,7 +17,6 @@ const fields: {
   { key: 'specialty', label: 'Especialidade', maxLength: 60 },
   { key: 'shift', label: 'Turno', maxLength: 13 },
 ]
-
 const addressFields: { key: keyof Address; label: string }[] = [
   { key: 'postalCode', label: 'CEP' },
   { key: 'address', label: 'Logradouro' },
@@ -45,7 +26,6 @@ const addressFields: { key: keyof Address; label: string }[] = [
   { key: 'number', label: 'Número' },
   { key: 'complement', label: 'Complemento' },
 ]
-
 export function TechnicianForm(props: TechnicianFormProps) {
   const { t } = usePreferences()
   const { items, loading, error, retry } = useTechnicianCompetencies(props.technician?.id)
@@ -76,116 +56,46 @@ export function TechnicianForm(props: TechnicianFormProps) {
   // O formulário só é montado após a leitura, preservando a base real do isDirty.
   return <TechnicianFormFields {...props} initialCompetencies={items} />
 }
-
-function TechnicianFormFields({
-  technician,
-  manager,
-  onSubmit,
-  onSaved,
-  onCancel,
-  initialCompetencies,
-}: TechnicianFormFieldsProps) {
+function TechnicianFormFields(props: TechnicianFormFieldsProps) {
   const { t } = usePreferences()
-
-  const { user } = useAuth()
-  const institutional = user?.role === 'ADMINISTRADOR'
-  const linkedShiftIds = [
-    ...new Set(technician?.shiftIds ?? (technician?.shiftId ? [technician.shiftId] : [])),
-  ]
-  const selectedShiftId = linkedShiftIds.length === 1 ? linkedShiftIds[0] : ''
-  const [form, setForm] = useState<TechnicianInput>({
-    name: technician?.name ?? '',
-    birthDate: technician?.birthDate ?? '',
-    email: technician?.email ?? '',
-    phone: technician?.phone ?? '',
-    unitId: technician?.unitId ?? '',
-    jobTitle: technician?.jobTitle ?? 'Técnico de manutenção',
-    shiftId: selectedShiftId,
-    shiftIds: linkedShiftIds,
-    specialty: technician?.specialty ?? '',
-    shift: technician?.shift ?? '08:00 - 16:00',
-    status: technician?.status ?? 'Ativo',
-  })
-  const [workUnits, setWorkUnits] = useState<WorkUnitOption[]>([])
-  const [unitError, setUnitError] = useState('')
-  const [unitAttempt, setUnitAttempt] = useState(0)
-  useEffect(() => {
-    if (!institutional) return
-    let active = true
-    listWorkUnits()
-      .then((items) => {
-        if (active) {
-          setWorkUnits(items)
-          setUnitError('')
-        }
-      })
-      .catch(() => {
-        if (active) setUnitError('Não foi possível carregar as unidades de trabalho.')
-      })
-    return () => {
-      active = false
-    }
-  }, [institutional, unitAttempt])
-  const addressSource = workUnits.find((unit) => unit.id === form.unitId) ?? technician ?? manager
-  const [persistedId, setPersistedId] = useState<string | undefined>(technician?.id)
-  const [shifts, setShifts] = useState<ShiftOption[]>([])
-  const [shiftError, setShiftError] = useState('')
-  const [shiftAttempt, setShiftAttempt] = useState(0)
-  useEffect(() => {
-    let active = true
-    listShifts(form.unitId || technician?.unitId)
-      .then((items) => {
-        if (active) {
-          setShifts(items)
-          setShiftError('')
-        }
-      })
-      .catch((reason) => {
-        if (active)
-          setShiftError(
-            reason instanceof Error ? reason.message : 'Não foi possível carregar os turnos.',
-          )
-      })
-    return () => {
-      active = false
-    }
-  }, [shiftAttempt, technician?.unitId, form.unitId])
-  const [password, setPassword] = useState('')
-  const [birthDate, setBirthDate] = useState(
-    technician ? formatDate(technician.birthDate, { dateStyle: 'short' }) : '',
-  )
-  const [ratings, setRatings] = useState<Record<string, string>>(() =>
-    Object.fromEntries(
-      initialCompetencies.map((item) => [item.id, item.rating === null ? '' : String(item.rating)]),
-    ),
-  )
-  const [initialRatings] = useState(() => ({ ...ratings }))
-  const draftSpecialty =
-    getCompetencyPresentation(
-      initialCompetencies.map((item) => ({
-        ...item,
-        rating: parseCompetencyRating(ratings[item.id]) ?? null,
-      })),
-    ).highlights[0]?.name ?? ''
-  const [ratingErrors, setRatingErrors] = useState<Record<string, string>>({})
-  const [initial] = useState(() => ({
-    form: JSON.stringify(form),
-    birthDateText: birthDate,
+  const { technician, manager, initialCompetencies } = props
+  const {
+    form,
+    institutional,
+    cnpj,
+    workUnits,
+    unitError,
+    unitsLoading,
+    shifts,
+    shiftError,
+    shiftsLoading,
+    retryUnits,
+    retryShifts,
+    addressSource,
+    birthDate,
+    ratings,
+    draftSpecialty,
+    ratingErrors,
     password,
-  }))
-  const [passwordVisible, setPasswordVisible] = useState(false)
-  const [passwordError, setPasswordError] = useState<string | undefined>()
-  const [errors, setErrors] = useState<Partial<Record<keyof TechnicianInput, string>>>({})
-  const [error, setError] = useState('')
-  const [pending, setPending] = useState<TechnicianSubmission | null>(null)
-  const [busy, setBusy] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-  const isDirty =
-    hasFormChanges({ form: JSON.stringify(form), birthDateText: birthDate, password }, initial) ||
-    hasFormChanges(ratings, initialRatings)
-  const requestExit = useUnsavedForm(isDirty, busy)
-  const cancel = () => requestExit(onCancel)
-
+    passwordVisible,
+    passwordError,
+    errors,
+    error,
+    pending,
+    busy,
+    formRef,
+    updateField,
+    selectUnit,
+    selectShift,
+    updateStatus,
+    updatePassword,
+    togglePassword,
+    updateRating,
+    submit,
+    confirmSave,
+    closeConfirmation,
+    cancel,
+  } = useTechnicianFormController(props)
   function renderField(field: (typeof fields)[number]) {
     const id = `technician-${field.key}`
     return (
@@ -209,12 +119,7 @@ function TechnicianFormFields({
           }
           aria-invalid={Boolean(errors[field.key])}
           aria-describedby={errors[field.key] ? `${id}-error` : undefined}
-          onChange={(event) => {
-            const value = event.currentTarget.value
-            if (field.key === 'birthDate') setBirthDate(value)
-            else setForm((current) => ({ ...current, [field.key]: value }))
-            setErrors((current) => ({ ...current, [field.key]: undefined }))
-          }}
+          onChange={(event) => updateField(field.key, event.currentTarget.value)}
         />
         {errors[field.key] && (
           <span id={`${id}-error`} className={styles.error} role="alert">
@@ -224,60 +129,6 @@ function TechnicianFormFields({
       </div>
     )
   }
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (busy) return
-    const input = {
-      ...form,
-      specialty: draftSpecialty,
-      birthDate: parseDateInput(birthDate),
-      password: persistedId ? undefined : password,
-    }
-    const validation = validateTechnician(input)
-    if (institutional && !input.unitId) validation.unitId = 'Selecione uma unidade de trabalho.'
-    const invalidPassword = persistedId ? undefined : validatePassword(password)
-    const competencies: CompetencyInput[] = []
-    const invalidRatings: Record<string, string> = {}
-    for (const item of initialCompetencies) {
-      const rating = parseCompetencyRating(ratings[item.id])
-      if (rating === undefined)
-        invalidRatings[item.id] = 'Informe uma nota de 0 a 10, com até duas casas decimais.'
-      else competencies.push({ competencyId: item.id, rating })
-    }
-    setRatingErrors(invalidRatings)
-    setErrors(validation)
-    setPasswordError(invalidPassword)
-    setError('')
-    if (Object.keys(validation).length || invalidPassword || Object.keys(invalidRatings).length) {
-      requestAnimationFrame(() => {
-        formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus()
-      })
-      return
-    }
-    setPending({ input, competencies })
-  }
-
-  async function confirmSave() {
-    if (!pending || busy) return
-    const { input, competencies } = pending
-    setBusy(true)
-    try {
-      const saved = await onSubmit(input, competencies, persistedId)
-      setPassword('')
-      onSaved(saved)
-    } catch (reason) {
-      if (reason instanceof PartialSaveError) {
-        setPersistedId(reason.resourceId)
-        setPassword('')
-      }
-      setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o técnico.')
-    } finally {
-      setPending(null)
-      setBusy(false)
-    }
-  }
-
   return (
     <div className={styles.page}>
       <button
@@ -315,13 +166,7 @@ function TechnicianFormFields({
                   disabled={busy || !workUnits.length}
                   aria-invalid={Boolean(errors.unitId)}
                   aria-describedby={errors.unitId ? 'technician-unit-error' : undefined}
-                  onChange={(event) => {
-                    const unitId = event.currentTarget.value
-                    setForm((value) => ({ ...value, unitId, shiftId: '', shiftIds: [] }))
-                    setShifts([])
-                    setShiftError('')
-                    setErrors((value) => ({ ...value, unitId: undefined, shiftId: undefined }))
-                  }}
+                  onChange={(event) => selectUnit(event.currentTarget.value)}
                 >
                   <option value="" disabled>
                     {t('Selecione uma unidade de trabalho')}
@@ -340,9 +185,7 @@ function TechnicianFormFields({
                 <input
                   id="technician-unit"
                   value={
-                    technician?.unitName ||
-                    manager.company ||
-                    t('Unidade do CNPJ {cnpj}', { cnpj: user?.cnpj ?? '' })
+                    technician?.unitName || manager.company || t('Unidade do CNPJ {cnpj}', { cnpj })
                   }
                   readOnly
                   title={t('Definida pelo RH')}
@@ -353,14 +196,11 @@ function TechnicianFormFields({
                   {t(errors.unitId)}
                 </span>
               )}
+              {unitsLoading && <p role="status">{t('Carregando unidades…')}</p>}
               {unitError && (
                 <div role="alert">
                   <p>{t(unitError)}</p>
-                  <button
-                    type="button"
-                    className={styles.retry}
-                    onClick={() => setUnitAttempt((value) => value + 1)}
-                  >
+                  <button type="button" className={styles.retry} onClick={retryUnits}>
                     {t('Tentar novamente')}
                   </button>
                 </div>
@@ -379,15 +219,7 @@ function TechnicianFormFields({
                 disabled={busy || !shifts.length || (institutional && !form.unitId)}
                 aria-invalid={Boolean(errors.shiftId)}
                 aria-describedby={errors.shiftId ? 'technician-shift-error' : undefined}
-                onChange={(event) => {
-                  const shiftId = event.currentTarget.value
-                  setForm((current) => ({
-                    ...current,
-                    shiftId,
-                    shiftIds: shiftId ? [shiftId] : [],
-                  }))
-                  setErrors((current) => ({ ...current, shiftId: undefined }))
-                }}
+                onChange={(event) => selectShift(event.currentTarget.value)}
               >
                 <option value="" disabled>
                   {t('Selecione um turno')}
@@ -398,13 +230,14 @@ function TechnicianFormFields({
                   </option>
                 ))}
               </select>
-              {!shifts.length && !shiftError && (
+              {!shiftsLoading && !shifts.length && !shiftError && (
                 <p>{t('Nenhum turno ativo cadastrado na unidade.')}</p>
               )}
+              {shiftsLoading && <p role="status">{t('Carregando turnos…')}</p>}
               {shiftError && (
                 <div role="alert">
                   <p>{t(shiftError)}</p>
-                  <button type="button" onClick={() => setShiftAttempt((value) => value + 1)}>
+                  <button type="button" onClick={retryShifts}>
                     {t('Tentar novamente')}
                   </button>
                 </div>
@@ -421,10 +254,7 @@ function TechnicianFormFields({
                 id="technician-status"
                 value={form.status}
                 onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    status: event.target.value as TechnicianInput['status'],
-                  }))
+                  updateStatus(event.currentTarget.value as TechnicianInput['status'])
                 }
               >
                 <option value="Ativo">{t('Ativo')}</option>
@@ -444,16 +274,13 @@ function TechnicianFormFields({
                     required
                     aria-invalid={Boolean(passwordError)}
                     aria-describedby={passwordError ? 'technician-password-error' : undefined}
-                    onChange={(event) => {
-                      setPassword(event.currentTarget.value)
-                      setPasswordError(undefined)
-                    }}
+                    onChange={(event) => updatePassword(event.currentTarget.value)}
                   />
                   <button
                     type="button"
                     aria-label={t(passwordVisible ? 'Ocultar senha' : 'Mostrar senha')}
                     aria-pressed={passwordVisible}
-                    onClick={() => setPasswordVisible((current) => !current)}
+                    onClick={togglePassword}
                   >
                     {passwordVisible ? <EyeOff size={19} /> : <Eye size={19} />}
                   </button>
@@ -505,11 +332,7 @@ function TechnicianFormFields({
                           ? `${id}-error technician-competencies-help`
                           : 'technician-competencies-help'
                       }
-                      onChange={(event) => {
-                        const value = event.currentTarget.value
-                        setRatings((current) => ({ ...current, [item.id]: value }))
-                        setRatingErrors((current) => ({ ...current, [item.id]: '' }))
-                      }}
+                      onChange={(event) => updateRating(item.id, event.currentTarget.value)}
                     />
                     <span aria-hidden="true">/10</span>
                   </div>
@@ -543,7 +366,7 @@ function TechnicianFormFields({
         subject={form.name}
         confirmLabel="Salvar"
         busy={busy}
-        onClose={() => setPending(null)}
+        onClose={closeConfirmation}
         onConfirm={confirmSave}
       />
     </div>
