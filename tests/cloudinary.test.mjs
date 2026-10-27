@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { ApiError } from '../src/services/httpClient.ts'
 import { createCloudinaryUploader, maxImageSize } from '../src/services/cloudinaryService.ts'
 const image = () => new File(['image-fixture'], 'foto.png', { type: 'image/png' })
 test('upload envia multipart ao Cloudinary sem Bearer da API e devolve somente secure_url', async () => {
@@ -72,4 +73,59 @@ test('erro, URL insegura e cancelamento não viram anexo pronto ou retry automá
     throw new DOMException('Aborted', 'AbortError')
   })
   await assert.rejects(service.upload(image(), controller.signal), { name: 'AbortError' })
+})
+
+test('resposta malformada de upload devolve erro compreensível sem repetir envio', async () => {
+  for (const response of [
+    () => new Response('<html>erro do provedor</html>', { status: 200 }),
+    () => new Response('{invalido', { status: 200 }),
+    () => Response.json({ secure_url: 'not a url' }),
+    () => Response.json({ secure_url: null }),
+  ]) {
+    let calls = 0
+    const service = createCloudinaryUploader('fixa', 'preset', async () => {
+      calls++
+      return response()
+    })
+    await assert.rejects(service.upload(image()), (error) => {
+      assert.ok(error instanceof ApiError)
+      assert.match(error.message, /Não foi possível enviar a imagem|resposta inválida/)
+      assert.doesNotMatch(error.message, /Unexpected token|JSON|Invalid URL|SyntaxError/)
+      return true
+    })
+    assert.equal(calls, 1)
+  }
+})
+
+test('falha de rede no upload é amigável e preserva o código HTTP de erro', async () => {
+  const offline = createCloudinaryUploader('fixa', 'preset', async () => {
+    throw new TypeError('Failed to fetch')
+  })
+  await assert.rejects(
+    offline.upload(image()),
+    (error) =>
+      error instanceof ApiError &&
+      error.message === 'Não foi possível enviar a imagem. Tente novamente.',
+  )
+  const limited = createCloudinaryUploader(
+    'fixa',
+    'preset',
+    async () => new Response('', { status: 429 }),
+  )
+  await assert.rejects(
+    limited.upload(image()),
+    (error) => error instanceof ApiError && error.status === 429,
+  )
+})
+
+test('cancelamento antes ou durante upload não envia nem mostra uma falha genérica', async () => {
+  const controller = new AbortController()
+  controller.abort()
+  let calls = 0
+  const service = createCloudinaryUploader('fixa', 'preset', async () => {
+    calls++
+    return Response.json({ secure_url: 'https://res.cloudinary.com/fixa/foto.png' })
+  })
+  await assert.rejects(service.upload(image(), controller.signal), { name: 'AbortError' })
+  assert.equal(calls, 0)
 })

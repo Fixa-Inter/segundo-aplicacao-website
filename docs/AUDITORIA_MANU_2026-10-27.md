@@ -1,5 +1,7 @@
 # Auditoria adversarial da Manu - 27/10/2026
 
+> Atualização posterior da Web: WEB-01 a WEB-04 foram corrigidos e validados na [revisão de correções](CORRECOES_WEB_2026-10-27.md). O PDF e as evidências abaixo preservam o estado observado na coleta original.
+
 Relatório para a equipe da IA e da Web. Atividade vinculada à [Issue #12](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12). Responsável: Gkso31, com execução assistida pelo Codex. Nenhum código da IA ou fluxo de produção da Web foi alterado para esta auditoria.
 
 ## Resultado e prioridade

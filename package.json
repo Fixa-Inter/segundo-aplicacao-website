@@ -17,7 +17,7 @@
     "local:down": "node scripts/local-api.mjs down",
     "local:status": "node scripts/local-api.mjs status",
     "local:logs": "node scripts/local-api.mjs logs",
-    "test:browser": "node --test tests/browser/*.test.mjs"
+    "test:browser": "node --test --test-concurrency=1 tests/browser/*.test.mjs"
   },
   "dependencies": {
     "@fontsource/poppins": "^5.3.0",

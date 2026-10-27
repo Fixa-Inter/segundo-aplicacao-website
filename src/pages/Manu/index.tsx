@@ -78,7 +78,10 @@ export default function Manu() {
           }
         })
         .catch((reason) => {
-          if (!controller.signal.aborted) setHistoryError(historyErrorMessage(reason))
+          if (!controller.signal.aborted) {
+            setConversations(manuApi.cachedList())
+            setHistoryError(historyErrorMessage(reason))
+          }
         })
         .finally(() => {
           if (!controller.signal.aborted) setHistoryLoading(false)
@@ -272,7 +275,7 @@ export default function Manu() {
       setMessages((values) => values.filter((value) => value.id !== pending.id))
       if (mode === 'message') setQuestion(originalQuestion)
       setError(
-        `${errorMessage(reason)} ${t('Não reenviamos automaticamente: o servidor pode ter recebido a mensagem.')}`,
+        `${t(errorMessage(reason))} ${t('Não reenviamos automaticamente: o servidor pode ter recebido a mensagem.')}`,
       )
     } finally {
       if (expected === generation.current) {

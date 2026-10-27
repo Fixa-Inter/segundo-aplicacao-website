@@ -309,6 +309,46 @@ const messages: Record<string, readonly [string, string, string]> = {
   ],
   Conversas: ['Conversations', 'Conversaciones', '对话'],
   'Carregando conversas…': ['Loading conversations…', 'Cargando conversaciones…', '正在加载对话…'],
+  'Olá {name}, como posso te ajudar hoje?': [
+    'Hello {name}, how can I help you today?',
+    'Hola {name}, ¿cómo puedo ayudarte hoy?',
+    '你好，{name}，今天有什么可以帮您？',
+  ],
+  'Nova conversa': ['New conversation', 'Nueva conversación', '新对话'],
+  'Mensagens da conversa': ['Conversation messages', 'Mensajes de la conversación', '对话消息'],
+  'Mensagem para a Manu': ['Message to Manu', 'Mensaje para Manu', '给 Manu 的消息'],
+  Sim: ['Yes', 'Sí', '是'],
+  Não: ['No', 'No', '否'],
+  'A Manu está preparando uma resposta…': [
+    'Manu is preparing a response…',
+    'Manu está preparando una respuesta…',
+    'Manu 正在准备回复…',
+  ],
+  'Não foi possível conectar à Manu.': [
+    'Could not connect to Manu.',
+    'No se pudo conectar con Manu.',
+    '无法连接到 Manu。',
+  ],
+  'Entre novamente para continuar.': [
+    'Sign in again to continue.',
+    'Vuelve a iniciar sesión para continuar.',
+    '请重新登录以继续。',
+  ],
+  'Esta conversa foi finalizada. Inicie uma nova conversa.': [
+    'This conversation has ended. Start a new conversation.',
+    'Esta conversación ha terminado. Inicia una nueva conversación.',
+    '此对话已结束。请开始新对话。',
+  ],
+  'Não foi possível confirmar a finalização da conversa.': [
+    'The conversation could not be confirmed as saved.',
+    'No se pudo confirmar que la conversación se haya guardado.',
+    '无法确认对话已保存。',
+  ],
+  'O serviço da Manu retornou uma resposta inválida.': [
+    'Manu returned an invalid response.',
+    'Manu devolvió una respuesta no válida.',
+    'Manu 返回了无效响应。',
+  ],
   'O serviço da Manu retornou um histórico inválido.': [
     'Manu returned invalid conversation history.',
     'Manu devolvió un historial inválido.',

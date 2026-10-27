@@ -24,12 +24,16 @@ export function validateImageLinks(images: string[]): string[] {
   })
 }
 
+function isThreadId(value: unknown): value is string {
+  return (
+    typeof value === 'string' && value.length > 0 && value.length <= 100 && value.trim() === value
+  )
+}
+
 function decodeHistory(value: RemoteConversation): ManuHistory {
   if (
     !value ||
-    typeof value.session_id !== 'string' ||
-    !value.session_id ||
-    value.session_id.length > 100 ||
+    !isThreadId(value.session_id) ||
     typeof value.titulo !== 'string' ||
     typeof value.resumo !== 'string' ||
     typeof value.atualizada_em !== 'string' ||
@@ -169,11 +173,11 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     },
     async history(threadId: string, signal?: AbortSignal): Promise<ManuHistory> {
       check(signal)
+      if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
       if (removedThreadIds.has(threadId))
         throw new ApiError('Esta conversa foi removida do histórico.', 404)
       const cached = conversations.get(threadId)
       if (cached) return structuredClone(cached)
-      if (!threadId || threadId.length > 100) throw new ApiError('Conversa inválida.')
       const result = await client.request<{ status: 'SUCESSO'; conversa: RemoteConversation }>(
         base + '/api/v1/sessoes/conversa',
         {
@@ -203,6 +207,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       const message = text.trim()
       if (!message || message.length > 4000)
         throw new ApiError('A mensagem deve ter de 1 a 4000 caracteres.')
+      if (threadId !== null && !isThreadId(threadId)) throw new ApiError('Conversa inválida.')
       if (threadId && removedThreadIds.has(threadId))
         throw new ApiError('Esta conversa foi removida do histórico.', 404)
       if (threadId && conversations.get(threadId)?.closed)
@@ -218,10 +223,10 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       signal?.throwIfAborted()
       if (
         !data ||
-        typeof data.thread_id !== 'string' ||
-        !data.thread_id ||
+        !isThreadId(data.thread_id) ||
         (threadId && data.thread_id !== threadId) ||
         typeof data.resposta !== 'string' ||
+        !data.resposta.trim() ||
         !['sim', 'nao'].includes(data.confirmacao ?? 'nao')
       )
         throw new ApiError('O serviço da Manu retornou uma resposta inválida.')
@@ -254,7 +259,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     },
     async close(threadId: string, signal?: AbortSignal) {
       check(signal)
-      if (!threadId || threadId.length > 100) throw new ApiError('Conversa inválida.')
+      if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
       const result = await client.request<{
         thread_id: string
         status: string
@@ -282,7 +287,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     },
     async remove(threadId: string, signal?: AbortSignal) {
       check(signal)
-      if (!threadId || threadId.length > 100) throw new ApiError('Conversa inválida.')
+      if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
       const result = await client.request<{ session_id: string; status: string; mensagem: string }>(
         base + '/api/v1/sessoes/conversa/' + encodeURIComponent(threadId),
         { method: 'DELETE', expireSessionOnUnauthorized: false, timeout: 120000, signal },

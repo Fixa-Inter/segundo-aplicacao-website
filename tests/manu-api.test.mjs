@@ -525,3 +525,44 @@ test('cache de histórico longo preserva conversas recentes em vez de expulsá-l
   assert.equal((await service.history('long-59')).thread_id, 'long-59')
   assert.equal(calls.length, 2)
 })
+
+test('respostas vazias da Manu são recusadas antes de guardar mensagens', async () => {
+  for (const resposta of ['', '   ', '\n\t']) {
+    const { service, calls } = setup(() => ({ data: { ...reply, resposta } }))
+    await assert.rejects(service.send('Pergunta', null), /resposta inválida/)
+    assert.deepEqual(service.cachedList(), [])
+    assert.equal(calls.length, 1)
+  }
+})
+
+test('ID inválido retornado pela Manu é recusado antes de entrar no cache', async () => {
+  for (const thread_id of ['', '   ', ' thread-1', 'thread-1 ', 'x'.repeat(101), 123]) {
+    const { service, calls } = setup(() => ({ data: { ...reply, thread_id } }))
+    await assert.rejects(service.send('Pergunta', null), /resposta inválida/)
+    assert.deepEqual(service.cachedList(), [])
+    assert.equal(calls.length, 1)
+  }
+})
+
+test('ações com ID inválido falham antes de qualquer requisição de conversa', async () => {
+  for (const id of ['', '   ', '\t', ' thread-1', 'thread-1 ', 'x'.repeat(101), 123]) {
+    const { service, calls } = setup(() => ({ data: reply }))
+    await assert.rejects(service.send('Pergunta', id), /Conversa inválida/)
+    await assert.rejects(service.history(id), /Conversa inválida/)
+    await assert.rejects(service.close(id), /Conversa inválida/)
+    await assert.rejects(service.remove(id), /Conversa inválida/)
+    assert.deepEqual(calls, [])
+    assert.deepEqual(service.cachedList(), [])
+  }
+})
+
+test('histórico com ID inválido não contamina a lista de conversas', async () => {
+  const { service } = setup(
+    () => ({
+      data: { status: 'SUCESSO', conversas: [{ ...remoteConversation, session_id: '   ' }] },
+    }),
+    true,
+  )
+  await assert.rejects(service.list(), /histórico inválido/)
+  assert.deepEqual(service.cachedList(), [])
+})

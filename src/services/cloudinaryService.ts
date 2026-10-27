@@ -23,28 +23,41 @@ export function createCloudinaryUploader(
       body.append('file', file)
       body.append('upload_preset', uploadPreset!)
       if (folder?.trim()) body.append('folder', folder.trim())
-      const response = await request(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-        method: 'POST',
-        body,
-        signal,
-        credentials: 'omit',
-      })
-      if (!response.ok)
-        throw new ApiError('Não foi possível enviar a imagem. Tente novamente.', response.status)
-      const result: unknown = await response.json()
-      const value =
-        result && typeof result === 'object' && 'secure_url' in result ? result.secure_url : null
-      if (typeof value !== 'string')
-        throw new ApiError('O serviço de imagens retornou uma resposta inválida.')
-      const url = new URL(value)
-      if (
-        url.protocol !== 'https:' ||
-        url.username ||
-        url.password ||
-        url.hostname !== 'res.cloudinary.com'
-      )
-        throw new ApiError('O serviço de imagens retornou uma resposta inválida.')
-      return url.href
+      signal?.throwIfAborted()
+      try {
+        const response = await request(
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+          {
+            method: 'POST',
+            body,
+            signal,
+            credentials: 'omit',
+          },
+        )
+        signal?.throwIfAborted()
+        if (!response.ok)
+          throw new ApiError('Não foi possível enviar a imagem. Tente novamente.', response.status)
+        const result: unknown = await response.json()
+        signal?.throwIfAborted()
+        const value =
+          result && typeof result === 'object' && 'secure_url' in result ? result.secure_url : null
+        if (typeof value !== 'string')
+          throw new ApiError('O serviço de imagens retornou uma resposta inválida.')
+        const url = new URL(value)
+        if (
+          url.protocol !== 'https:' ||
+          url.username ||
+          url.password ||
+          url.hostname !== 'res.cloudinary.com'
+        )
+          throw new ApiError('O serviço de imagens retornou uma resposta inválida.')
+        return url.href
+      } catch (reason) {
+        signal?.throwIfAborted()
+        if (reason instanceof ApiError || (reason instanceof Error && reason.name === 'AbortError'))
+          throw reason
+        throw new ApiError('Não foi possível enviar a imagem. Tente novamente.')
+      }
     },
   }
 }
