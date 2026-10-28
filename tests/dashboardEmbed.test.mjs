@@ -5,6 +5,7 @@ import {
   dashboardViewURL,
   dashboardWidgetURL,
   dashboardFilteredWidgetURL,
+  dashboardUnitSelectionURL,
 } from '../src/utils/dashboardEmbed.ts'
 test('URL de embed permanece no iframe e nova aba usa visualização publicada do Databricks', () => {
   const embed =
@@ -144,4 +145,46 @@ test('filtro ausente ou inválido nunca produz iframe geral na ficha individual'
     dashboardFilteredWidgetURL(base, undefined, { 'f_page~technician.s': 'Paulo' }),
     null,
   )
+})
+
+const unitFilters = ['f_4c5527fc~unidade1', 'f_38ad7c54~unidade', 'f_37645ca6~unidade.s']
+test('filtros de unidade recebidos mantêm suas codificações e substituem somente a seleção anterior', () => {
+  const base =
+    'https://dbc-test.cloud.databricks.com/embed/dashboardsv3/abc?o=123&f_4c5527fc~unidade1=Unidade+11&f_37645ca6~unidade.i=99&f_37645ca6~unidade.s=Unidade%252011&f_page~tecnico.s=Ana'
+  const url = new URL(dashboardUnitSelectionURL(base, 'Unidade 7', unitFilters))
+  assert.equal(url.searchParams.get(unitFilters[0]), 'Unidade 7')
+  assert.equal(url.searchParams.get(unitFilters[1]), 'Unidade 7')
+  assert.equal(url.searchParams.get(unitFilters[2]), 'Unidade%207')
+  assert.equal(decodeURIComponent(url.searchParams.get(unitFilters[2])), 'Unidade 7')
+  assert.equal(url.searchParams.has('f_37645ca6~unidade.i'), false)
+  assert.equal(url.searchParams.get('f_page~tecnico.s'), 'Ana')
+  assert.equal(url.searchParams.get('o'), '123')
+  assert.equal(new URL(base).searchParams.get(unitFilters[0]), 'Unidade 11')
+  const widget = new URL(dashboardWidgetURL(url.href, 'page~chart'))
+  assert.equal(widget.searchParams.get(unitFilters[0]), 'Unidade 7')
+  const technician = new URL(
+    dashboardFilteredWidgetURL(url.href, 'page~chart', { 'f_page~tecnico.s': 'Nome completo' }),
+  )
+  assert.equal(technician.searchParams.get(unitFilters[2]), 'Unidade%207')
+})
+
+test('seleção de unidade incompleta ou inválida não gera URL geral como fallback', () => {
+  const base = 'https://dbc-test.cloud.databricks.com/embed/dashboardsv3/abc?o=123'
+  for (const selection of ['', '   ', 'x'.repeat(201), 'a\nb', '\ud800'])
+    assert.equal(dashboardUnitSelectionURL(base, selection, unitFilters), null)
+  for (const filters of [
+    [],
+    [''],
+    ['unitId'],
+    ['f_page~unidade.s&token'],
+    [unitFilters[0], unitFilters[0]],
+    ['f_page~unidade', 'f_page~unidade.s'],
+  ])
+    assert.equal(dashboardUnitSelectionURL(base, 'Unidade 7', filters), null)
+  for (const url of [
+    undefined,
+    base + '&token=secret',
+    'https://example.com/embed/dashboardsv3/abc',
+  ])
+    assert.equal(dashboardUnitSelectionURL(url, 'Unidade 7', unitFilters), null)
 })

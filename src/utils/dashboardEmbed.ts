@@ -79,3 +79,41 @@ export function dashboardFilteredWidgetURL(
   }
   return url.href
 }
+
+// Estes parâmetros selecionam a visualização. O isolamento de dados deve existir no Databricks.
+export function dashboardUnitSelectionURL(
+  value: string | undefined,
+  selection: string,
+  filterKeys: readonly string[],
+): string | null {
+  const safe = dashboardEmbedURL(value)
+  if (
+    !safe ||
+    typeof selection !== 'string' ||
+    !selection.trim() ||
+    selection.length > 200 ||
+    /[\p{Cc}\p{Cs}]/u.test(selection) ||
+    !filterKeys.length ||
+    new Set(filterKeys.map((key) => key.replace(/\.s$/, ''))).size !== filterKeys.length ||
+    filterKeys.some((key) => !/^f_[A-Za-z0-9_-]+~[A-Za-z0-9_-]+(?:\.s)?$/.test(key))
+  )
+    return null
+  const url = new URL(safe)
+  if (
+    !(url.hostname.endsWith('.databricks.com') || url.hostname.endsWith('.azuredatabricks.net')) ||
+    !/^\/embed\/dashboardsv3\/[^/]+(?:\/pages\/[A-Za-z0-9_-]+)?\/?$/.test(url.pathname)
+  )
+    return null
+  for (const key of filterKeys) {
+    const prefix = key.endsWith('.s') ? key.slice(0, -2) : key
+    for (const previous of [...url.searchParams.keys()]) {
+      if (previous === prefix || previous.startsWith(prefix + '.'))
+        url.searchParams.delete(previous)
+    }
+    url.searchParams.set(
+      key,
+      key.endsWith('.s') ? encodeURIComponent(selection.trim()) : selection.trim(),
+    )
+  }
+  return url.href
+}

@@ -1,0 +1,19 @@
+{
+  "started": "2026-10-28T01:03:51.131Z",
+  "mode": "Consultas próprias pelo novo serviço da Web; sem operações de BI ou escritas operacionais",
+  "accounts": [
+    {
+      "role": "Gestor",
+      "login": 200,
+      "unitId": 7,
+      "ok": true
+    },
+    {
+      "role": "RH",
+      "login": 200,
+      "unitId": 1,
+      "ok": true
+    }
+  ],
+  "finished": "2026-10-28T01:03:57.288Z"
+}
