@@ -25,3 +25,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Vercel: vínculo local e variáveis baixadas da hospedagem
+.vercel

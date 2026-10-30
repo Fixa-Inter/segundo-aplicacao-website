@@ -4,6 +4,19 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'AI_PROXY_')
   const target = env.AI_PROXY_TARGET || 'https://ia-api.fixa.solutions'
   const proxy: Record<string, ProxyOptions> = {
+    '^/api/web(?:/|$)': {
+      target: 'https://web-api.fixa.solutions',
+      changeOrigin: true,
+      timeout: 30000,
+      proxyTimeout: 30000,
+      rewrite: (path) => path.replace(/^\/api\/web(?=\/|$)/, ''),
+      configure(server) {
+        server.on('proxyReq', (request) => request.removeHeader('origin'))
+        server.on('proxyRes', (response) => {
+          response.headers['cache-control'] = 'private, no-store'
+        })
+      },
+    },
     '^/api/ia(?:/|$)': {
       target,
       changeOrigin: true,

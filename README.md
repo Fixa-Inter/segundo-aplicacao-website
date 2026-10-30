@@ -147,7 +147,11 @@ Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → 
 
 ## Publicação
 
-Na Vercel, use `npm run build`, saída `dist` e a variável pública `VITE_API_BASE_URL` antes do build. `vercel.json` preserva as rotas da SPA. A existência dessa configuração não comprova publicação nem CI aprovado. Configure CORS no backend e execute os fluxos com conta de teste antes da homologação.
+A publicação na Vercel será feita após revisão e promoção `dev` → `hml` → `main`. Conecte o repositório da organização e use `main` como branch de produção. Com a integração Git ativa, pushes nas branches de trabalho podem gerar previews e as atualizações de `main` publicam a versão aprovada.
+
+O projeto define Node.js 24, framework Vite, instalação `npm ci`, build `npm run build` e saída `dist`. Na hospedagem, configure `VITE_API_BASE_URL=/api/web` e `VITE_AI_BASE_URL=/api/ia`, além das variáveis públicas de Cloudinary e Databricks documentadas acima. As chamadas são encaminhadas à AWS antes do fallback das rotas da SPA. Configure esses valores em Preview e Production antes do build; não copie segredos do backend para a hospedagem da Web.
+
+Consulte a [consolidação e preparação de publicação](docs/CONSOLIDACAO_WEB_2026-10-30.md) para os proxies, variáveis, testes e dependências do BI. A configuração e o teste em preview local não comprovam publicação: a URL pública e a implantação ainda dependem da conta Vercel e da validação após o fluxo de revisão.
 
 ## Revisão da integração
 

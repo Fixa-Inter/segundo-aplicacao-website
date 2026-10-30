@@ -1,0 +1,72 @@
+{
+  "at": "2026-10-30T15:51:54.800Z",
+  "mode": "Build de produção em preview local, APIs AWS reais pelos proxies",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/web/auth/login",
+      "status": 200,
+      "bearer": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/web/api/v1/perfil",
+      "status": 200,
+      "bearer": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/web/api/v1/turnos",
+      "status": 200,
+      "bearer": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/web/api/v1/usuarios",
+      "status": 200,
+      "bearer": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/web/api/v1/perfil",
+      "status": 200,
+      "bearer": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/web/api/v1/aptidoes",
+      "status": 200,
+      "bearer": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/web/api/v1/aptidoes",
+      "status": 200,
+      "bearer": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/web/api/v1/usuarios/40/turnos",
+      "status": 200,
+      "bearer": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/web/api/v1/usuarios/39/turnos",
+      "status": 200,
+      "bearer": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/ia/api/v1/sessoes",
+      "status": 200,
+      "bearer": true
+    }
+  ],
+  "errors": [],
+  "login": 200,
+  "team": true,
+  "directRouteAndRestore": true,
+  "aiHistory": 200,
+  "noOverflow": true
+}
