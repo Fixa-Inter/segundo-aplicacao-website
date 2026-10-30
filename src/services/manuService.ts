@@ -1,8 +1,8 @@
 import type { ManuConversation, ManuHistory, ManuReply } from '../types/manu'
-import type { RemoteConversation } from '../types/api/manu'
+import type { RemoteConversation, RemoteClosedConversation } from '../types/api/manu'
 export type { ManuMessage, ManuConversation, ManuHistory, ManuReply } from '../types/manu'
 import { ApiError, type createHttpClient } from './httpClient.ts'
-import { getSummaryTitle, getConversationTitle, normalizeManuEmotion } from '../utils/manu.ts'
+import { getConversationTitle, normalizeManuEmotion } from '../utils/manu.ts'
 
 export function validateImageLinks(images: string[]): string[] {
   if (images.length > 3) throw new ApiError('Use até 3 imagens.')
@@ -17,7 +17,13 @@ export function validateImageLinks(images: string[]): string[] {
       !['http:', 'https:'].includes(url.protocol) ||
       url.username ||
       url.password ||
-      value.length > 2048
+      url.hash ||
+      value.trim().length > 255 ||
+      url.href.length > 255 ||
+      [...value.trim()].some(
+        (character) =>
+          character.charCodeAt(0) < 33 || character.charCodeAt(0) === 127 || character === '\\',
+      )
     )
       throw new ApiError('Informe um link HTTP ou HTTPS válido para a imagem.')
     return url.href
@@ -41,13 +47,17 @@ function decodeHistory(value: RemoteConversation): ManuHistory {
     !Array.isArray(value.mensagens) ||
     value.mensagens.some(
       (item) =>
-        !item || !['human', 'assistant'].includes(item.role) || typeof item.mensagem !== 'string',
+        !item ||
+        !['human', 'assistant'].includes(item.role) ||
+        typeof item.mensagem !== 'string' ||
+        (item.confirmacao !== undefined && !['sim', 'nao'].includes(item.confirmacao)),
     )
   )
     throw new ApiError('O serviço da Manu retornou um histórico inválido.')
   const summary = value.resumo.trim()
-  // O histórico separa a primeira linha do resumo em titulo; o restante pode estar vazio.
   const title = value.titulo.trim()
+  const closed = Boolean(title || summary)
+  const lastMessage = value.mensagens.at(-1)
   return {
     thread_id: value.session_id,
     title: getConversationTitle(
@@ -56,15 +66,25 @@ function decodeHistory(value: RemoteConversation): ManuHistory {
       value.mensagens.find((item) => item.role === 'human')?.mensagem,
     ),
     updated_at: new Date(value.atualizada_em).toISOString(),
-    closed: Boolean(title || summary),
+    closed,
     summary: summary || null,
-    confirmacao: 'nao',
+    confirmacao:
+      !closed && lastMessage?.role === 'assistant' && lastMessage.confirmacao === 'sim'
+        ? 'sim'
+        : 'nao',
     messages: value.mensagens.map((item, index) => ({
       id: value.session_id + ':' + index,
       author: item.role === 'human' ? 'user' : 'manu',
       text: item.mensagem,
       images: [],
-      ...(item.role === 'assistant' ? { emotion: normalizeManuEmotion(item.emocao) } : {}),
+      ...(item.role === 'assistant'
+        ? {
+            emotion: normalizeManuEmotion(item.emocao),
+            ...(item.confirmacao !== undefined
+              ? { confirmation: !closed && item.confirmacao === 'sim' }
+              : {}),
+          }
+        : {}),
     })),
   }
 }
@@ -116,17 +136,24 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     // A leitura pode chegar antes da persistência da última resposta. Preserva anexos e confirmações que ainda existem na sessão.
     if (local.messages.length > remote.messages.length || (local.closed && !remote.closed))
       return local
-    const sameLast = local.messages.at(-1)?.text === remote.messages.at(-1)?.text
+    const lastRemote = remote.messages.at(-1)
+    const sameLast =
+      local.messages.at(-1)?.text === lastRemote?.text &&
+      local.messages.at(-1)?.author === lastRemote?.author
     return {
       ...remote,
-      confirmacao: !remote.closed && sameLast ? local.confirmacao : 'nao',
+      // O contrato atual persiste a decisão; o cache só complementa versões antigas sem esse campo.
+      confirmacao:
+        !remote.closed && sameLast && lastRemote?.confirmation === undefined
+          ? local.confirmacao
+          : remote.confirmacao,
       messages: remote.messages.map((item, index) => {
         const previous = local.messages[index]
         return previous?.author === item.author && previous.text === item.text
           ? {
               ...item,
               images: [...previous.images],
-              confirmation: remote.closed ? false : previous.confirmation,
+              confirmation: remote.closed ? false : (item.confirmation ?? previous.confirmation),
             }
           : item
       }),
@@ -260,25 +287,29 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     async close(threadId: string, signal?: AbortSignal) {
       check(signal)
       if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
-      const result = await client.request<{
-        thread_id: string
-        status: string
-        mensagem: string
-        resumo?: string | null
-      }>(endpoint(`/sessions/${encodeURIComponent(threadId)}`), {
-        method: 'DELETE',
-        expireSessionOnUnauthorized: false,
-        timeout: 120000,
-        signal,
-      })
+      const result = await client.request<RemoteClosedConversation>(
+        endpoint(`/sessions/${encodeURIComponent(threadId)}`),
+        {
+          method: 'DELETE',
+          expireSessionOnUnauthorized: false,
+          timeout: 120000,
+          signal,
+        },
+      )
       signal?.throwIfAborted()
-      if (!result || result.thread_id !== threadId || result.status !== 'ENCERRADA')
+      if (
+        !result ||
+        result.thread_id !== threadId ||
+        result.status !== 'ENCERRADA' ||
+        (result.titulo != null && typeof result.titulo !== 'string') ||
+        (result.resumo != null && typeof result.resumo !== 'string')
+      )
         throw new ApiError('Não foi possível confirmar a finalização da conversa.')
       const previous = conversations.get(threadId)
       if (previous)
         remember({
           ...previous,
-          title: getSummaryTitle(result.resumo) ?? previous.title,
+          title: getConversationTitle(result.titulo, result.resumo, previous.title),
           summary: result.resumo,
           closed: true,
           confirmacao: 'nao',

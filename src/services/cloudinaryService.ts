@@ -48,7 +48,9 @@ export function createCloudinaryUploader(
           url.protocol !== 'https:' ||
           url.username ||
           url.password ||
-          url.hostname !== 'res.cloudinary.com'
+          url.hostname !== 'res.cloudinary.com' ||
+          url.hash ||
+          url.href.length > 255
         )
           throw new ApiError('O serviço de imagens retornou uma resposta inválida.')
         return url.href

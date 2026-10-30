@@ -129,3 +129,15 @@ test('cancelamento antes ou durante upload não envia nem mostra uma falha gené
   await assert.rejects(service.upload(image(), controller.signal), { name: 'AbortError' })
   assert.equal(calls, 0)
 })
+
+test('upload não marca como pronta uma URL que a IA recusaria pelo tamanho ou fragmento', async () => {
+  for (const secure_url of [
+    'https://res.cloudinary.com/fixa/' + 'a'.repeat(256),
+    'https://res.cloudinary.com/fixa/image/upload/qa.png#imagem',
+  ]) {
+    const service = createCloudinaryUploader('fixa', 'preset', async () =>
+      Response.json({ secure_url }),
+    )
+    await assert.rejects(service.upload(image()), /resposta inválida/)
+  }
+})

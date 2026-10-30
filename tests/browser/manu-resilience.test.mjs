@@ -83,6 +83,7 @@ async function setup(options = {}) {
       state.posts++
       state.exists = true
       state.question = req.postDataJSON().mensagem
+      state.lastPost = req.postDataJSON()
       return route.fulfill({
         json: {
           thread_id: 'qa-active',
@@ -219,4 +220,238 @@ test('saudação, erro e confirmação seguem o idioma escolhido sem misturar po
   assert.equal(await page.getByRole('button', { name: 'No', exact: true }).count(), 1)
   assert.equal(await page.getByRole('button', { name: 'Sim', exact: true }).count(), 0)
   assert.equal(state.posts, 2)
+})
+
+async function persistedChat({ width = 390, role = 'GESTOR', proposal = true } = {}) {
+  const fixture = await managementFixture(browser, {
+    width,
+    height: 960,
+    mobile: width < 600,
+    role,
+  })
+  fixtures.push(fixture)
+  const state = {
+    posts: [],
+    closeCalls: 0,
+    deleteCalls: 0,
+    closeFails: false,
+    deleteFails: false,
+    sendFails: false,
+    conversation: {
+      session_id: 'qa-persisted',
+      iniciada_em: '2026-10-30T09:00:00Z',
+      atualizada_em: '2026-10-30T09:01:00Z',
+      titulo: '',
+      resumo: '',
+      mensagens: [
+        { role: 'human', mensagem: 'Conferir uma solicitação' },
+        {
+          role: 'assistant',
+          mensagem: proposal ? 'Proposta de teste para revisão.' : 'Orientação de teste.',
+          emocao: 'CONFIRMACAO',
+          confirmacao: proposal ? 'sim' : 'nao',
+        },
+      ],
+    },
+  }
+  await fixture.context.route('**/api/ia/**', async (route) => {
+    const req = route.request(),
+      path = new URL(req.url()).pathname.replace('/api/ia', '')
+    assert.equal(req.headers().authorization, 'Bearer mobile-test-only')
+    if (req.method() === 'GET' && path === '/api/v1/sessoes')
+      return route.fulfill({
+        json: {
+          status: state.conversation ? 'SUCESSO' : 'SEM_DADOS',
+          conversas: state.conversation ? [state.conversation] : [],
+        },
+      })
+    if (req.method() === 'POST' && path === '/api/v1/sessoes/conversa')
+      return route.fulfill({ json: { status: 'SUCESSO', conversa: state.conversation } })
+    if (req.method() === 'POST' && path === '/api/v1/chat') {
+      const data = req.postDataJSON()
+      state.posts.push(data)
+      if (state.sendFails) return route.fulfill({ status: 503, json: { detail: 'Indisponível.' } })
+      const confirmation = data.mensagem === 'sim' ? 'nao' : 'sim'
+      const response =
+        confirmation === 'sim'
+          ? 'Proposta corrigida para revisão.'
+          : 'Confirmação recebida no teste.'
+      state.conversation.mensagens.push(
+        { role: 'human', mensagem: data.mensagem },
+        { role: 'assistant', mensagem: response, emocao: 'SUCESSO', confirmacao: confirmation },
+      )
+      return route.fulfill({
+        json: {
+          thread_id: 'qa-persisted',
+          resposta: response,
+          emocao: 'SUCESSO',
+          intencao: 'solicitacao',
+          confirmacao: confirmation,
+        },
+      })
+    }
+    if (req.method() === 'DELETE') {
+      assert.equal(req.postData(), null)
+      if (path === '/api/v1/chat/sessions/qa-persisted') {
+        state.closeCalls++
+        if (state.closeFails)
+          return route.fulfill({ status: 503, json: { detail: 'Indisponível.' } })
+        state.conversation.titulo = 'Revisão da solicitação'
+        state.conversation.resumo =
+          '# Detalhes que não são o título\nDescrição detalhada do atendimento.'
+        return route.fulfill({
+          json: {
+            thread_id: 'qa-persisted',
+            status: 'ENCERRADA',
+            titulo: state.conversation.titulo,
+            resumo: state.conversation.resumo,
+          },
+        })
+      }
+      if (path === '/api/v1/sessoes/conversa/qa-persisted') {
+        state.deleteCalls++
+        if (state.deleteFails)
+          return route.fulfill({ status: 503, json: { detail: 'Indisponível.' } })
+        state.conversation = null
+        return route.fulfill({ json: { session_id: 'qa-persisted', status: 'EXCLUIDA' } })
+      }
+    }
+    throw new Error('Rota inesperada da Manu: ' + req.method() + ' ' + path)
+  })
+  const { page } = fixture
+  await page.goto(new URL('/manu', baseURL).href)
+  const select = () =>
+    page
+      .locator('nav[aria-label="Conversas recentes"] button[title]')
+      .filter({ hasNot: page.locator('svg') })
+      .first()
+  await select().click()
+  return { ...fixture, state, select }
+}
+
+test('proposta volta no reload para RH, aceita correção e impede confirmação duplicada no mobile', async () => {
+  const { page, state, select } = await persistedChat({ role: 'ADMINISTRADOR' })
+  await page.getByRole('button', { name: 'Sim', exact: true }).waitFor()
+  assert.equal(await page.locator('#manu-question').count(), 0)
+  await page.reload()
+  await select().click()
+  await page.getByRole('button', { name: 'Sim', exact: true }).waitFor()
+  await screenshot(page, 'manu-proposta-restaurada-390.png')
+  await page.getByRole('button', { name: 'Não', exact: true }).click()
+  await page.locator('#manu-correction').fill('Trocar para a sala de teste.')
+  state.sendFails = true
+  await page.getByRole('button', { name: 'Enviar correção', exact: true }).click()
+  await page.getByRole('alert').filter({ hasText: 'temporariamente indisponível' }).waitFor()
+  assert.equal(await page.locator('#manu-correction').inputValue(), 'Trocar para a sala de teste.')
+  assert.equal(state.posts.length, 1)
+  state.sendFails = false
+  await page.getByRole('button', { name: 'Enviar correção', exact: true }).click()
+  await page.getByText('Proposta corrigida para revisão.', { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Sim', exact: true }).evaluate((button) => {
+    button.click()
+    button.click()
+  })
+  await page.getByText('Confirmação recebida no teste.', { exact: true }).waitFor()
+  assert.equal(state.posts.filter((data) => data.mensagem === 'sim').length, 1)
+  assert.ok(
+    state.posts.every((data) => data.thread_id === 'qa-persisted' && data.imagens.length === 0),
+  )
+  await page.reload()
+  await select().click()
+  await page.locator('#manu-question:enabled').waitFor()
+  assert.equal(await page.getByRole('button', { name: 'Sim', exact: true }).count(), 0)
+  assert.equal(
+    await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1),
+    false,
+  )
+})
+
+test('novo chat conserva conversa no erro e depois usa título explícito, sem apagar histórico', async () => {
+  const { page, state } = await persistedChat({ width: 1440, proposal: false })
+  await page.locator('#manu-question').fill('Rascunho ainda não enviado')
+  state.closeFails = true
+  await page.getByRole('button', { name: 'Novo chat', exact: true }).click()
+  await page
+    .getByRole('alert')
+    .filter({ hasText: 'Suas mensagens continuam disponíveis' })
+    .waitFor()
+  assert.equal(state.closeCalls, 1)
+  assert.equal(await page.locator('#manu-question').inputValue(), 'Rascunho ainda não enviado')
+  await page.getByText('Orientação de teste.', { exact: true }).waitFor()
+  state.closeFails = false
+  await page.getByRole('button', { name: 'Novo chat', exact: true }).click()
+  await page.getByRole('heading', { name: /^Olá / }).waitFor()
+  const saved = page.locator(
+    'nav[aria-label="Conversas recentes"] button[title="Revisão da solicitação"]',
+  )
+  await saved.click()
+  await page.getByRole('heading', { name: 'Revisão da solicitação', exact: true }).waitFor()
+  await page.getByText('Conversa salva no histórico', { exact: true }).waitFor()
+  assert.equal(await page.locator('#manu-question').isDisabled(), true)
+  assert.equal(state.closeCalls, 2)
+  assert.equal(state.deleteCalls, 0)
+  await screenshot(page, 'manu-titulo-salvo-1440.png')
+})
+
+test('exclusão exige confirmação, preserva conversa no erro e remove só depois do sucesso', async () => {
+  const { page, state } = await persistedChat({ width: 390, proposal: false })
+  await page.getByRole('button', { name: /^Excluir conversa: / }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.waitFor()
+  await dialog.getByRole('button', { name: 'Cancelar', exact: true }).click()
+  assert.equal(state.deleteCalls, 0)
+  await page.getByRole('button', { name: /^Excluir conversa: / }).click()
+  state.deleteFails = true
+  await dialog.getByRole('button', { name: 'Excluir', exact: true }).click()
+  await dialog.getByRole('alert').waitFor()
+  assert.equal(state.deleteCalls, 1)
+  assert.notEqual(state.conversation, null)
+  await screenshot(page, 'manu-exclusao-erro-390.png')
+  state.deleteFails = false
+  await dialog.getByRole('button', { name: 'Excluir', exact: true }).click()
+  await dialog.waitFor({ state: 'detached' })
+  await page.getByRole('heading', { name: /^Olá / }).waitFor()
+  assert.equal(await page.getByRole('button', { name: /^Excluir conversa: / }).count(), 0)
+  assert.equal(state.deleteCalls, 2)
+  assert.equal(state.closeCalls, 0)
+})
+
+test('anexo pronto envia a URL do Cloudinary com a mensagem sem passar Bearer ao upload', async () => {
+  const { page, context, state } = await setup({ width: 320 })
+  const imageURL = 'https://res.cloudinary.com/fixa-qa/image/upload/qa.png'
+  let uploads = 0
+  await context.route('**/src/services/cloudinaryApi.ts*', (route) =>
+    route.fulfill({
+      contentType: 'text/javascript',
+      body: `import { createCloudinaryUploader } from '/src/services/cloudinaryService.ts';
+export const cloudinaryUploader = createCloudinaryUploader('fixa-qa', 'qa');`,
+    }),
+  )
+  await context.route('https://api.cloudinary.com/**', (route) => {
+    uploads++
+    assert.equal(route.request().headers().authorization, undefined)
+    return route.fulfill({ json: { secure_url: imageURL } })
+  })
+  await context.route('https://res.cloudinary.com/**', (route) =>
+    route.fulfill({ contentType: 'image/png', body: png }),
+  )
+  await page.reload()
+  await page.getByRole('heading', { name: /^Olá / }).waitFor()
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles({ name: 'qa.png', mimeType: 'image/png', buffer: png })
+  await page.getByText('Imagem pronta', { exact: true }).waitFor()
+  await page.locator('#manu-question').fill('Confira esta imagem de teste')
+  await page.getByRole('button', { name: 'Enviar mensagem', exact: true }).click()
+  await page.getByText('Resposta preservada.', { exact: true }).waitFor()
+  assert.equal(uploads, 1)
+  assert.equal(state.posts, 1)
+  assert.deepEqual(state.lastPost.imagens, [imageURL])
+  assert.equal(state.lastPost.thread_id, null)
+  assert.equal(await page.locator('[role="log"] a[href="' + imageURL + '"]').count(), 1)
+  assert.equal(
+    await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1),
+    false,
+  )
+  await screenshot(page, 'manu-anexo-enviado-320.png')
 })

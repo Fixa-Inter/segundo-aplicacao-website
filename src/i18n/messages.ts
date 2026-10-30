@@ -344,6 +344,11 @@ const messages: Record<string, readonly [string, string, string]> = {
     'No se pudo confirmar que la conversación se haya guardado.',
     '无法确认对话已保存。',
   ],
+  'A Manu não conseguiu gerar uma resposta. Sua mensagem foi preservada na conversa.': [
+    'Manu could not generate a response. Your message was preserved in the conversation.',
+    'Manu no pudo generar una respuesta. Tu mensaje se conservó en la conversación.',
+    'Manu 未能生成回复。你的消息已保存在对话中。',
+  ],
   'O serviço da Manu retornou uma resposta inválida.': [
     'Manu returned an invalid response.',
     'Manu devolvió una respuesta no válida.',

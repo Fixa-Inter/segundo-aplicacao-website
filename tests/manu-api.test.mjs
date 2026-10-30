@@ -566,3 +566,211 @@ test('histórico com ID inválido não contamina a lista de conversas', async ()
   await assert.rejects(service.list(), /histórico inválido/)
   assert.deepEqual(service.cachedList(), [])
 })
+
+test('contrato atual recupera a confirmação pendente após reload e na consulta específica', async () => {
+  const remote = {
+    ...remoteConversation,
+    titulo: '',
+    resumo: '',
+    mensagens: [
+      { role: 'human', mensagem: 'Preparar uma solicitação' },
+      {
+        role: 'assistant',
+        mensagem: 'Confira a proposta.',
+        emocao: 'CONFIRMACAO',
+        confirmacao: 'sim',
+      },
+    ],
+  }
+  for (const mode of ['list', 'history']) {
+    const { service } = setup(
+      () => ({
+        data:
+          mode === 'list'
+            ? { status: 'SUCESSO', conversas: [remote] }
+            : { status: 'SUCESSO', conversa: remote },
+      }),
+      true,
+    )
+    if (mode === 'list') await service.list()
+    const history = await service.history('persisted-1')
+    assert.equal(history.confirmacao, 'sim')
+    assert.equal(history.messages.at(-1).confirmation, true)
+    assert.equal(history.messages.at(-1).emotion, 'CONFIRMACAO')
+    assert.equal(history.closed, false)
+  }
+})
+
+test('proposta antiga ou conversa salva não reativa confirmação do histórico', async () => {
+  for (const closed of [false, true]) {
+    const remote = {
+      ...remoteConversation,
+      titulo: closed ? 'Solicitação revisada' : '',
+      resumo: '',
+      mensagens: [
+        { role: 'assistant', mensagem: 'Confirma?', confirmacao: 'sim' },
+        { role: 'human', mensagem: 'Corrija o local.' },
+      ],
+    }
+    const { service } = setup(() => ({ data: { status: 'SUCESSO', conversa: remote } }), true)
+    assert.equal((await service.history('persisted-1')).confirmacao, 'nao')
+  }
+  const { service } = setup(
+    () => ({
+      data: {
+        status: 'SUCESSO',
+        conversa: {
+          ...remoteConversation,
+          mensagens: [{ role: 'assistant', mensagem: 'Proposta salva', confirmacao: 'sim' }],
+        },
+      },
+    }),
+    true,
+  )
+  assert.equal((await service.history('persisted-1')).confirmacao, 'nao')
+})
+
+test('confirmação persistida prevalece sobre cache antigo da mesma resposta', async () => {
+  for (const flag of ['sim', 'nao']) {
+    const remote = {
+      ...remoteConversation,
+      session_id: 'thread-1',
+      titulo: '',
+      resumo: '',
+      mensagens: [
+        { role: 'human', mensagem: 'Pergunta' },
+        { role: 'assistant', mensagem: reply.resposta, confirmacao: flag },
+      ],
+    }
+    const { service } = setup(
+      (call) => ({
+        data:
+          call.method === 'get'
+            ? { status: 'SUCESSO', conversas: [remote] }
+            : { ...reply, confirmacao: flag === 'sim' ? 'nao' : 'sim' },
+      }),
+      true,
+    )
+    await service.send('Pergunta', null)
+    await service.list()
+    const history = await service.history('thread-1')
+    assert.equal(history.confirmacao, flag)
+    assert.equal(history.messages.at(-1).confirmation, flag === 'sim')
+  }
+})
+
+test('histórico legado mantém confirmação em memória quando o campo ainda está ausente', async () => {
+  const { service } = setup(
+    (call) => ({
+      data:
+        call.method === 'get'
+          ? {
+              status: 'SUCESSO',
+              conversas: [
+                {
+                  ...remoteConversation,
+                  session_id: 'thread-1',
+                  titulo: '',
+                  resumo: '',
+                  mensagens: [
+                    { role: 'human', mensagem: 'Pergunta' },
+                    { role: 'assistant', mensagem: reply.resposta },
+                  ],
+                },
+              ],
+            }
+          : { ...reply, confirmacao: 'sim' },
+    }),
+    true,
+  )
+  await service.send('Pergunta', null)
+  await service.list()
+  assert.equal((await service.history('thread-1')).confirmacao, 'sim')
+})
+
+test('campo de confirmação inválido não libera proposta silenciosamente', async () => {
+  for (const confirmacao of ['talvez', null, true]) {
+    const { service } = setup(
+      () => ({
+        data: {
+          status: 'SUCESSO',
+          conversa: {
+            ...remoteConversation,
+            titulo: '',
+            resumo: '',
+            mensagens: [{ role: 'assistant', mensagem: 'Proposta', confirmacao }],
+          },
+        },
+      }),
+      true,
+    )
+    await assert.rejects(service.history('persisted-1'), /histórico inválido/)
+    assert.deepEqual(service.cachedList(), [])
+  }
+})
+
+test('encerramento usa titulo independente antes do resumo e conserva título no refresh', async () => {
+  const { service } = setup(
+    (call) => ({
+      data:
+        call.method === 'delete'
+          ? {
+              thread_id: 'thread-1',
+              status: 'ENCERRADA',
+              titulo: 'Orientações de manutenção',
+              resumo: '# Não usar como título\nDescrição da conversa.',
+            }
+          : call.method === 'get'
+            ? {
+                status: 'SUCESSO',
+                conversas: [
+                  {
+                    ...remoteConversation,
+                    session_id: 'thread-1',
+                    titulo: 'Orientações de manutenção',
+                    resumo: '# Não usar como título\nDescrição da conversa.',
+                  },
+                ],
+              }
+            : reply,
+    }),
+    true,
+  )
+  await service.send('Pergunta', null)
+  await service.close('thread-1')
+  assert.equal((await service.history('thread-1')).title, 'Orientações de manutenção')
+  await service.list()
+  const history = await service.history('thread-1')
+  assert.equal(history.title, 'Orientações de manutenção')
+  assert.equal(history.closed, true)
+  assert.equal(history.confirmacao, 'nao')
+})
+
+test('resposta malformada do encerramento não altera estado ou título', async () => {
+  for (const fields of [{ titulo: 123 }, { resumo: {} }]) {
+    const { service } = setup((call) => ({
+      data:
+        call.method === 'delete'
+          ? { thread_id: 'thread-1', status: 'ENCERRADA', ...fields }
+          : reply,
+    }))
+    await service.send('Pergunta', null)
+    const before = await service.history('thread-1')
+    await assert.rejects(service.close('thread-1'), /Não foi possível confirmar/)
+    assert.deepEqual(await service.history('thread-1'), before)
+  }
+})
+
+test('URLs de imagens respeitam limite e formato aceitos pela IA publicada', () => {
+  const prefix = 'https://res.cloudinary.com/fixa/image/upload/'
+  const limit = prefix + 'a'.repeat(255 - prefix.length)
+  assert.deepEqual(validateImageLinks([limit]), [limit])
+  for (const image of [
+    limit + 'a',
+    prefix + 'a#fragmento',
+    prefix + 'a b',
+    prefix + 'a\\b',
+    prefix + 'a\nb',
+  ])
+    assert.throws(() => validateImageLinks([image]), /link HTTP ou HTTPS válido/)
+})
