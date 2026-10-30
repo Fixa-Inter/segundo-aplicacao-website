@@ -30,6 +30,21 @@ export function validateImageLinks(images: string[]): string[] {
   })
 }
 
+// Históricos antigos podem omitir anexos; um link inválido não deve ocultar o texto da conversa.
+function historyImageLinks(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .flatMap((link) => {
+      if (typeof link !== 'string') return []
+      try {
+        return validateImageLinks([link])
+      } catch {
+        return []
+      }
+    })
+    .slice(0, 3)
+}
+
 function isThreadId(value: unknown): value is string {
   return (
     typeof value === 'string' && value.length > 0 && value.length <= 100 && value.trim() === value
@@ -76,7 +91,7 @@ function decodeHistory(value: RemoteConversation): ManuHistory {
       id: value.session_id + ':' + index,
       author: item.role === 'human' ? 'user' : 'manu',
       text: item.mensagem,
-      images: [],
+      images: historyImageLinks(item.imagens),
       ...(item.role === 'assistant'
         ? {
             emotion: normalizeManuEmotion(item.emocao),
@@ -152,7 +167,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         return previous?.author === item.author && previous.text === item.text
           ? {
               ...item,
-              images: [...previous.images],
+              images: item.images.length ? item.images : [...previous.images],
               confirmation: remote.closed ? false : (item.confirmation ?? previous.confirmation),
             }
           : item

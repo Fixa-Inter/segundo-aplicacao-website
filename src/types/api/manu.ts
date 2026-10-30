@@ -9,6 +9,7 @@ export interface RemoteConversation {
     mensagem: string
     emocao?: string | null
     confirmacao?: 'sim' | 'nao'
+    imagens?: string[] | null
   }[]
 }
 

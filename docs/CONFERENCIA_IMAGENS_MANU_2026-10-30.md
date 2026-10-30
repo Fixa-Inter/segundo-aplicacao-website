@@ -1,5 +1,8 @@
 # Conferência real de imagem no histórico da Manu — 30/10/2026
 
+> Atualização de 30/10/2026, após 12h23: a IA passou a devolver as imagens e o consumidor da Web foi corrigido. A restauração após reload foi aprovada. Veja [a verificação atual](IMAGENS_MANU_CORRIGIDAS_2026-10-30.md). O restante deste documento registra o teste anterior.
+
+
 Continuação da [Issue #12](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12), responsável Gkso31 com apoio do Codex. Base `db4180e`, branch `feature/integracao-ia-manu`. Estimativa: 20 minutos.
 
 ## Resultado

@@ -774,3 +774,121 @@ test('URLs de imagens respeitam limite e formato aceitos pela IA publicada', () 
   ])
     assert.throws(() => validateImageLinks([image]), /link HTTP ou HTTPS válido/)
 })
+
+test('imagens retornadas nas duas rotas de histórico sobrevivem a uma nova sessão da Web', async () => {
+  const images = [
+    'https://res.cloudinary.com/fixa/image/upload/sala.png',
+    'https://res.cloudinary.com/fixa/image/upload/aparelho.png',
+  ]
+  const remote = {
+    ...remoteConversation,
+    mensagens: [
+      { role: 'human', mensagem: 'Confira os anexos', imagens: images },
+      { role: 'assistant', mensagem: 'Imagens recebidas.', imagens: null, emocao: 'NEUTRO' },
+    ],
+  }
+  for (const source of ['list', 'history']) {
+    const { service } = setup(
+      () => ({
+        data:
+          source === 'list'
+            ? { status: 'SUCESSO', conversas: [remote] }
+            : { status: 'SUCESSO', conversa: remote },
+      }),
+      true,
+    )
+    if (source === 'list') await service.list()
+    const loaded = await service.history('persisted-1')
+    assert.deepEqual(loaded.messages[0].images, images)
+    assert.deepEqual(loaded.messages[1].images, [])
+    loaded.messages[0].images.length = 0
+    assert.deepEqual((await service.history('persisted-1')).messages[0].images, images)
+  }
+})
+
+test('imagens persistidas não são apagadas ao reconciliar com cache sem anexos', async () => {
+  const image = 'https://res.cloudinary.com/fixa/image/upload/servidor.png'
+  const { service } = setup(
+    (call) => ({
+      data:
+        call.method === 'get'
+          ? {
+              status: 'SUCESSO',
+              conversas: [
+                {
+                  ...remoteConversation,
+                  session_id: 'thread-1',
+                  titulo: '',
+                  resumo: '',
+                  mensagens: [
+                    { role: 'human', mensagem: 'Pergunta', imagens: [image] },
+                    { role: 'assistant', mensagem: reply.resposta },
+                  ],
+                },
+              ],
+            }
+          : reply,
+    }),
+    true,
+  )
+  await service.send('Pergunta', null)
+  await service.list()
+  assert.deepEqual((await service.history('thread-1')).messages[0].images, [image])
+})
+
+test('histórico legado sem imagens ou com null mantém a conversa acessível', async () => {
+  for (const images of [undefined, null, []]) {
+    const { service } = setup(
+      () => ({
+        data: {
+          status: 'SUCESSO',
+          conversa: {
+            ...remoteConversation,
+            mensagens: [
+              {
+                role: 'human',
+                mensagem: 'Texto anterior',
+                ...(images === undefined ? {} : { imagens: images }),
+              },
+            ],
+          },
+        },
+      }),
+      true,
+    )
+    const loaded = await service.history('persisted-1')
+    assert.equal(loaded.messages[0].text, 'Texto anterior')
+    assert.deepEqual(loaded.messages[0].images, [])
+  }
+})
+
+test('anexo inválido do histórico não abre link inseguro nem esconde o texto da conversa', async () => {
+  const image = 'https://res.cloudinary.com/fixa/image/upload/valida.png'
+  const { service } = setup(
+    () => ({
+      data: {
+        status: 'SUCESSO',
+        conversa: {
+          ...remoteConversation,
+          mensagens: [
+            {
+              role: 'human',
+              mensagem: 'Texto preservado',
+              imagens: [
+                'javascript:alert(1)',
+                'file:///qa.png',
+                'https://usuario:senha@example.com/qa.png',
+                123,
+                image,
+              ],
+            },
+          ],
+        },
+      },
+    }),
+    true,
+  )
+  const loaded = await service.history('persisted-1')
+  assert.equal(loaded.messages[0].text, 'Texto preservado')
+  assert.deepEqual(loaded.messages[0].images, [image])
+})

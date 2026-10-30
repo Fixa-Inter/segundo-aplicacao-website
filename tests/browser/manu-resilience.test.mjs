@@ -222,7 +222,7 @@ test('saudação, erro e confirmação seguem o idioma escolhido sem misturar po
   assert.equal(state.posts, 2)
 })
 
-async function persistedChat({ width = 390, role = 'GESTOR', proposal = true } = {}) {
+async function persistedChat({ width = 390, role = 'GESTOR', proposal = true, images } = {}) {
   const fixture = await managementFixture(browser, {
     width,
     height: 960,
@@ -244,7 +244,11 @@ async function persistedChat({ width = 390, role = 'GESTOR', proposal = true } =
       titulo: '',
       resumo: '',
       mensagens: [
-        { role: 'human', mensagem: 'Conferir uma solicitação' },
+        {
+          role: 'human',
+          mensagem: 'Conferir uma solicitação',
+          ...(images ? { imagens: images } : {}),
+        },
         {
           role: 'assistant',
           mensagem: proposal ? 'Proposta de teste para revisão.' : 'Orientação de teste.',
@@ -318,6 +322,12 @@ async function persistedChat({ width = 390, role = 'GESTOR', proposal = true } =
     }
     throw new Error('Rota inesperada da Manu: ' + req.method() + ' ' + path)
   })
+  if (images?.length) {
+    await fixture.context.route('https://res.cloudinary.com/**', (route) => {
+      assert.equal(route.request().headers().authorization, undefined)
+      return route.fulfill({ contentType: 'image/png', body: png })
+    })
+  }
   const { page } = fixture
   await page.goto(new URL('/manu', baseURL).href)
   const select = () =>
@@ -455,3 +465,41 @@ export const cloudinaryUploader = createCloudinaryUploader('fixa-qa', 'qa');`,
   )
   await screenshot(page, 'manu-anexo-enviado-320.png')
 })
+
+for (const { role, width } of [
+  { role: 'GESTOR', width: 1440 },
+  { role: 'ADMINISTRADOR', width: 390 },
+]) {
+  test(
+    'imagens do histórico continuam visíveis após reload e ao salvar a conversa: ' + role,
+    async () => {
+      const images = [
+        'https://res.cloudinary.com/fixa-qa/image/upload/primeira.png',
+        'https://res.cloudinary.com/fixa-qa/image/upload/segunda.png',
+      ]
+      const { page, select } = await persistedChat({ role, width, proposal: false, images })
+      const pictures = () => page.locator('[role="log"] article a img')
+      await pictures().first().waitFor()
+      assert.equal(await pictures().count(), 2)
+      await page.reload()
+      await select().click()
+      await pictures().first().waitFor()
+      assert.equal(await pictures().count(), 2)
+      for (const url of images)
+        assert.equal(await page.locator('[role="log"] a[href="' + url + '"] img').count(), 1)
+      await screenshot(page, 'manu-imagens-historico-' + width + '.png')
+      await page.getByRole('button', { name: 'Novo chat', exact: true }).click()
+      await page.getByRole('heading', { name: /^Olá / }).waitFor()
+      await page
+        .locator('nav[aria-label="Conversas recentes"]')
+        .getByTitle('Revisão da solicitação', { exact: true })
+        .click()
+      await page.getByText('Conversa salva no histórico', { exact: true }).waitFor()
+      assert.equal(await pictures().count(), 2)
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1),
+        false,
+      )
+    },
+  )
+}
