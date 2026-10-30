@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { initialTechnicians } from '../src/mocks/management.ts'
-import { getDashboard, saveTechnician } from '../src/services/managementService.ts'
+import { getDashboard, saveTechnician } from '../src/mocks/services/managementService.ts'
 
 test('parcelas sintéticas por técnico preservam totais, amostras e cópias', async () => {
   const total = await getDashboard()

@@ -9,8 +9,10 @@ import { PageHeader } from '../../components/PageHeader'
 import { getProfile, saveProfile } from '../../services/managementService'
 import { useAuth } from '../../contexts/useAuth'
 import type { ManagerProfile } from '../../types/management'
-import { validateProfile } from '../../utils/managementValidation'
+import { validateProfile } from '../../utils/apiValidation'
 import { formatDate as formatDateInput, parseDateInput } from '../../utils/calendar'
+import { InformationItem } from '../../components/InformationItem'
+import { formatAddress, truncateText } from '../../utils/presentation'
 import avatar from '../../assets/figma/avatar.png'
 import common from '../management.module.css'
 import styles from './Profile.module.css'
@@ -29,19 +31,15 @@ const empty: ManagerProfile = {
   number: '',
   complement: '',
 }
-const fields: { key: keyof ManagerProfile; label: string; type?: string; maxLength?: number }[] = [
-  { key: 'name', label: 'Nome', maxLength: 80 },
-  { key: 'company', label: 'Empresa', maxLength: 100 },
-  { key: 'email', label: 'E-mail', type: 'email', maxLength: 120 },
-  { key: 'phone', label: 'Telefone', type: 'tel', maxLength: 20 },
+const fields: {
+  key: 'name' | 'email' | 'birthDate'
+  label: string
+  type?: string
+  maxLength: number
+}[] = [
+  { key: 'name', label: 'Nome', maxLength: 100 },
+  { key: 'email', label: 'E-mail', type: 'email', maxLength: 100 },
   { key: 'birthDate', label: 'Data de nascimento', maxLength: 10 },
-  { key: 'postalCode', label: 'CEP', maxLength: 9 },
-  { key: 'address', label: 'Logradouro', maxLength: 100 },
-  { key: 'district', label: 'Bairro', maxLength: 60 },
-  { key: 'city', label: 'Cidade', maxLength: 60 },
-  { key: 'state', label: 'Estado', maxLength: 2 },
-  { key: 'number', label: 'Número', maxLength: 10 },
-  { key: 'complement', label: 'Complemento', maxLength: 80 },
 ]
 
 export default function Profile() {
@@ -49,7 +47,7 @@ export default function Profile() {
 
   const navigate = useNavigate()
   const [pending, setPending] = useState<ManagerProfile | null>(null)
-  const { updateName } = useAuth()
+  const { updateName, user } = useAuth()
   const [profile, setProfile] = useState<ManagerProfile>(empty)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -117,6 +115,8 @@ export default function Profile() {
     if (busy) return
     const input = { ...profile, birthDate: parseDateInput(birthDateText) }
     const errors = validateProfile(input)
+    if (savedProfile.birthDate && !birthDateText)
+      errors.birthDate = 'A data de nascimento cadastrada não pode ser removida.'
     if (birthDateText && !input.birthDate)
       errors.birthDate = 'Informe a data no formato DD/MM/AAAA.'
     setFieldErrors(errors)
@@ -148,17 +148,15 @@ export default function Profile() {
       setSavedProfile(saved)
       updateName(saved.name)
       setEditing(false)
-      setNotice('Perfil atualizado nesta sessão de demonstração.')
-    } catch {
-      setError('Não foi possível atualizar o perfil.')
+      setNotice('Perfil atualizado com sucesso.')
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Não foi possível atualizar o perfil.')
     } finally {
       setPending(null)
       setBusy(false)
     }
   }
-  const address = [profile.address, profile.number, profile.district, profile.city, profile.state]
-    .filter(Boolean)
-    .join(', ')
+  const address = formatAddress(profile)
 
   return (
     <div className={`${common.page} ${styles.page}`}>
@@ -194,10 +192,13 @@ export default function Profile() {
         <>
           <div className={styles.identity}>
             <img src={avatar} width="88" height="88" alt={t('Avatar ilustrativo do perfil')} />
-            <div>
-              <h2>{profile.name}</h2>
+            <div className={styles.identityText}>
+              <h2 title={profile.name} aria-label={profile.name}>
+                {truncateText(profile.name) || t('Não informado')}
+              </h2>
               <p>
-                {t('Gestor ·')} {profile.company}
+                {t(user?.role === 'ADMINISTRADOR' ? 'Administrador' : 'Gestor')} ·{' '}
+                {profile.company || t('Não informado')}
               </p>
             </div>
             {!editing && (
@@ -216,7 +217,7 @@ export default function Profile() {
             <form ref={formRef} className={styles.form} onSubmit={save} noValidate aria-busy={busy}>
               <div className={styles.profileGrid}>
                 {fields.map((field) => (
-                  <div className={`${common.field} ${styles[field.key]}`} key={field.key}>
+                  <div className={common.field} key={field.key}>
                     <label htmlFor={`profile-${field.key}`}>{t(field.label)}</label>
                     <input
                       id={`profile-${field.key}`}
@@ -231,10 +232,7 @@ export default function Profile() {
                         fieldErrors[field.key] ? `profile-${field.key}-error` : undefined
                       }
                       onChange={(event) => {
-                        const value =
-                          field.key === 'state'
-                            ? event.target.value.toUpperCase()
-                            : event.target.value
+                        const value = event.target.value
                         if (field.key === 'birthDate') setBirthDateText(value)
                         else setProfile((current) => ({ ...current, [field.key]: value }))
                         setFieldErrors((current) => ({ ...current, [field.key]: undefined }))
@@ -248,6 +246,13 @@ export default function Profile() {
                   </div>
                 ))}
               </div>
+              <section className={styles.locationInfo} aria-label={t('Localização')}>
+                <InformationItem
+                  icon={<FigmaIcon name="location" />}
+                  label={t('Localização')}
+                  value={address || t('Não informado')}
+                />
+              </section>
               <div className={common.formActions}>
                 <button className={common.secondary} type="button" onClick={cancel} disabled={busy}>
                   {t('Cancelar')}
@@ -261,24 +266,25 @@ export default function Profile() {
             <section className={styles.information} aria-label={t('Informações do perfil')}>
               <h3>{t('Informações')}</h3>
               <div>
-                <p>
-                  <FigmaIcon name="mail" />
-                  {profile.email}
-                </p>
-                <p>
-                  <FigmaIcon name="phone" />
-                  {profile.phone}
-                </p>
-                <p>
-                  <FigmaIcon name="profile-calendar" />
-                  {profile.birthDate
-                    ? formatDate(profile.birthDate, { dateStyle: 'long' })
-                    : t('Não informado')}
-                </p>
-                <p>
-                  <FigmaIcon name="location" />
-                  {address}
-                </p>
+                <InformationItem
+                  icon={<FigmaIcon name="location" />}
+                  label={t('Localização')}
+                  value={address || t('Não informado')}
+                />
+                <InformationItem
+                  icon={<FigmaIcon name="mail" />}
+                  label={t('E-mail')}
+                  value={profile.email || t('Não informado')}
+                />
+                <InformationItem
+                  icon={<FigmaIcon name="profile-calendar" />}
+                  label={t('Data de nascimento')}
+                  value={
+                    profile.birthDate
+                      ? formatDate(profile.birthDate, { dateStyle: 'long' })
+                      : t('Não informado')
+                  }
+                />
               </div>
               <button
                 ref={editButtonRef}

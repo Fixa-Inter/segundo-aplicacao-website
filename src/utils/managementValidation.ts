@@ -35,7 +35,6 @@ export function validateTechnician(
   if (!isValidPhone(input.phone.trim())) errors.phone = 'Informe um telefone com DDD.'
   if (!isValidDate(input.birthDate) || input.birthDate > new Date().toISOString().slice(0, 10))
     errors.birthDate = 'Informe uma data de nascimento válida, sem data futura.'
-  if (!input.specialty.trim()) errors.specialty = 'Informe a especialidade.'
   if (input.specialty.length > 60)
     errors.specialty = 'A especialidade deve ter no máximo 60 caracteres.'
   if (!/^([01]\d|2[0-3]):[0-5]\d - ([01]\d|2[0-3]):[0-5]\d$/.test(input.shift))

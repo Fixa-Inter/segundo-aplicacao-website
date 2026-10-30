@@ -1,20 +1,19 @@
-import { monthlyTasks, previewWeekStart, taskSummary } from '../mocks/home.ts'
 import { listEvents } from './managementService.ts'
 import type { HomeData } from '../types/home'
-
 export async function getHomeData(): Promise<HomeData> {
   const events = await listEvents()
+  const today = new Date().toLocaleDateString('sv-SE')
   return {
-    taskSummary: taskSummary.map((item) => ({ ...item })),
-    monthlyTasks: monthlyTasks.map((item) => ({ ...item })),
-    events: events.map((event) => ({
-      id: event.id,
-      title: event.title,
-      date: event.date,
-      time: `${event.time}–${event.endTime}h`,
+    taskSummary: [],
+    monthlyTasks: [],
+    events: events.map((item) => ({
+      id: item.id,
+      title: item.title,
+      date: item.date,
+      endDate: item.endDate,
+      time: `${item.time}–${item.endTime}h`,
     })),
-    // A semana do protótipo permite demonstrar os eventos da fixture inicial.
-    weekStart: previewWeekStart,
-    selectedDay: '2026-03-11',
+    weekStart: today,
+    selectedDay: today,
   }
 }

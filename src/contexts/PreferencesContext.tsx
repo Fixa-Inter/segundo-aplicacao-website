@@ -1,16 +1,24 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PreferencesContext } from './preferencesContextValue'
-import { parsePreferences, preferencesStorageKey } from '../utils/preferences'
+import {
+  detectBrowserLanguage,
+  parsePreferences,
+  preferencesStorageKey,
+} from '../utils/preferences'
 import { translate } from '../i18n/messages'
 import { formatDate } from '../utils/calendar'
 import type { PreferencesProviderProps } from '../types/ui'
 
+function browserLanguages() {
+  return navigator.languages.length ? navigator.languages : [navigator.language]
+}
+
 export function PreferencesProvider({ children }: PreferencesProviderProps) {
   const [preferences, setPreferences] = useState(() => {
     try {
-      return parsePreferences(localStorage.getItem(preferencesStorageKey))
+      return parsePreferences(localStorage.getItem(preferencesStorageKey), browserLanguages())
     } catch {
-      return parsePreferences(null)
+      return parsePreferences(null, browserLanguages())
     }
   })
 
@@ -25,11 +33,28 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
     }
   }, [preferences])
 
+  useEffect(() => {
+    function updateLanguage() {
+      const language = detectBrowserLanguage(browserLanguages())
+      setPreferences((current) =>
+        current.languageSource === 'browser' && current.language !== language
+          ? { ...current, language }
+          : current,
+      )
+    }
+    window.addEventListener('languagechange', updateLanguage)
+    return () => window.removeEventListener('languagechange', updateLanguage)
+  }, [])
+
   const value = useMemo(
     () => ({
       ...preferences,
-      setLanguage: (language: typeof preferences.language) =>
-        setPreferences((current) => ({ ...current, language })),
+      setLanguage: (language: typeof preferences.language | 'browser') =>
+        setPreferences((current) => ({
+          ...current,
+          language: language === 'browser' ? detectBrowserLanguage(browserLanguages()) : language,
+          languageSource: language === 'browser' ? 'browser' : 'manual',
+        })),
       setTheme: (theme: typeof preferences.theme) =>
         setPreferences((current) => ({ ...current, theme })),
       t: (text: string, values?: Record<string, string | number>) =>

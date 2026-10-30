@@ -45,20 +45,21 @@
   gap: 26px 20px;
 }
 .name,
+.email {
+  grid-column: span 6;
+}
 .address {
   grid-column: span 8;
 }
 .birthDate,
-.phone,
+.jobTitle,
 .access,
 .postalCode,
 .district,
 .city {
   grid-column: span 4;
 }
-.email {
-  grid-column: span 7;
-}
+
 .password,
 .complement {
   grid-column: span 5;
@@ -69,14 +70,13 @@
 .number {
   grid-column: span 2;
 }
-.edit .email {
-  grid-column: span 12;
+
+.specialty,
+.status {
+  grid-column: span 3;
 }
-.operational {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: start;
-  gap: 20px;
+.shift {
+  grid-column: span 6;
 }
 .field {
   display: grid;
@@ -104,7 +104,8 @@
 .field input[readonly] {
   color: var(--fixa-muted);
 }
-.field input[aria-invalid='true'] {
+.field input[aria-invalid='true'],
+.field select[aria-invalid='true'] {
   border-color: var(--fixa-danger-text);
 }
 .passwordField {
@@ -133,16 +134,77 @@
 .rules {
   margin-top: 24px;
 }
-.note {
-  margin: 0 0 8px;
-  color: var(--fixa-muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
 .error {
   margin: 0;
   color: var(--fixa-danger-text);
   font-size: 13px;
+}
+.form .competencies {
+  margin-top: 36px;
+}
+.competencyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 0;
+  padding: 20px;
+  border-radius: 24px;
+  background: var(--fixa-neutral-surface);
+}
+.competencyField {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--fixa-surface);
+  box-shadow: 0 2px 5px #153d7d0c;
+}
+.competencyField label {
+  color: var(--fixa-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.scoreInput {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fixa-muted);
+  font-size: 13px;
+}
+.scoreInput input {
+  width: 80px;
+  min-height: 44px;
+  padding: 8px 4px 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--fixa-field-bg);
+  color: var(--fixa-ink);
+  text-align: center;
+  font: inherit;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.scoreInput input:hover {
+  border-color: var(--fixa-initials-bg);
+}
+.scoreInput input[aria-invalid='true'] {
+  border-color: var(--fixa-danger-text);
+}
+.competencyField .error {
+  grid-column: 1 / -1;
+}
+.retry {
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--fixa-primary);
+  color: white;
+  font: inherit;
+  cursor: pointer;
 }
 .actions {
   display: flex;
@@ -197,8 +259,7 @@
   }
 }
 @media (max-width: 900px) {
-  .grid,
-  .operational {
+  .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
@@ -207,8 +268,15 @@
   }
 }
 @media (max-width: 600px) {
-  .grid,
-  .operational {
+  .competencyGrid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
+  }
+  .competencyField {
+    gap: 8px 10px;
+    padding: 12px;
+  }
+  .grid {
     grid-template-columns: minmax(0, 1fr);
   }
   .back {
@@ -225,5 +293,24 @@
   }
   .actions button {
     min-width: 120px;
+  }
+}
+
+.workUnit {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .actions button {
+    min-width: 0;
+    min-height: 52px;
+    width: 100%;
+    padding: 12px 8px;
+    border-radius: 20px;
   }
 }

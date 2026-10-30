@@ -1,11 +1,12 @@
-import type { InputHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, Ref } from 'react'
+import type { CompetencyInput, TechnicianCompetency } from './competency'
 import type {
   CalendarEvent,
   CalendarEventInput,
+  EventResponsibleOption,
   ManagerProfile,
-  PerformancePeriod,
-  PerformancePoint,
   Technician,
+  TeamMember,
   TechnicianInput,
 } from './management'
 export interface AppAppearanceProps {
@@ -76,9 +77,10 @@ export interface FigmaIconProps {
 }
 export interface ConfirmDialogProps {
   opened: boolean
-  variant: 'delete' | 'save' | 'logout' | 'discard'
+  variant: 'delete' | 'save' | 'logout' | 'discard' | 'deactivate' | 'deleteConversation'
   subject?: string
   confirmLabel: string
+  error?: string
   busy?: boolean
   onClose: () => void
   onConfirm: () => void
@@ -101,15 +103,23 @@ export interface EventDetailsProps {
 export interface TechnicianFormProps {
   technician: Technician | null
   manager: ManagerProfile
-  onSubmit: (input: TechnicianInput) => Promise<Technician>
+  onSubmit: (
+    input: TechnicianInput,
+    competencies: CompetencyInput[],
+    persistedId?: string,
+  ) => Promise<Technician>
   onSaved: (technician: Technician) => void
   onCancel: () => void
+}
+
+export interface TechnicianFormFieldsProps extends TechnicianFormProps {
+  initialCompetencies: TechnicianCompetency[]
 }
 
 export interface EventFormProps {
   event: CalendarEvent | null
   selectedDay: string
-  technicians: Technician[]
+  responsibles: EventResponsibleOption[]
   onSubmit: (input: CalendarEventInput) => Promise<CalendarEvent>
   onSaved: (event: CalendarEvent) => void
   onCancel: () => void
@@ -120,12 +130,27 @@ export interface AuthProviderProps {
 }
 
 export interface TechnicianDetailsProps {
-  technician: Technician
+  technician: TeamMember
   onBack: () => void
-  onEdit: () => void
-  period: PerformancePeriod
-  points: PerformancePoint[]
-  loading: boolean
-  error: string
-  onPeriodChange: (period: PerformancePeriod) => void
+  onEdit?: () => void
+}
+
+export interface InformationItemProps {
+  icon: ReactNode
+  label: string
+  value: string
+}
+export interface TechnicianPerformanceProps {
+  name: string
+}
+export interface UnsavedChangesProviderProps {
+  children: ReactNode
+}
+
+export interface AddRecordButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'children' | 'aria-label' | 'type'
+> {
+  label: string
+  ref?: Ref<HTMLButtonElement>
 }

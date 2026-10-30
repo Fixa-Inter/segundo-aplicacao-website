@@ -36,6 +36,10 @@
   outline: none;
   border-color: var(--fixa-text-primary);
 }
+.control input:focus-visible {
+  outline: 3px solid var(--fixa-focus);
+  outline-offset: 3px;
+}
 .control input[aria-invalid='true'] {
   border-color: var(--fixa-danger-text);
 }
@@ -67,4 +71,11 @@
   font-size: 13px;
   line-height: 1.4;
   margin: 6px 0 0 6px;
+}
+
+@media (max-width: 600px) {
+  .control button {
+    width: 44px;
+    height: 44px;
+  }
 }

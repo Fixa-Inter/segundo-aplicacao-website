@@ -1,3 +1,7 @@
+.page {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
 .search {
   position: relative;
   flex: 1 1 350px;
@@ -17,7 +21,7 @@
 }
 .tablePanel table th {
   background: var(--fixa-table-head);
-  color: white;
+  color: var(--fixa-table-head-text);
   font-size: 16px;
   font-weight: 500;
 }
@@ -181,6 +185,7 @@
 }
 
 .sectionHeading {
+  gap: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -230,4 +235,169 @@
   transition:
     background-color 150ms,
     color 150ms;
+}
+
+.institutionTable table th:first-child {
+  width: 30%;
+}
+.institutionTable table th:nth-child(2) {
+  width: 17%;
+}
+.institutionTable table th:nth-child(3) {
+  width: 22%;
+}
+
+.memberText {
+  min-width: 0;
+}
+.memberName {
+  display: block;
+  max-width: 36ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  min-width: 0;
+  margin-bottom: -1px;
+}
+.tab {
+  padding: 10px 4px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--fixa-muted);
+  font: inherit;
+  font-size: 22px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tab:hover {
+  color: var(--fixa-text-primary);
+}
+.tab[aria-selected='true'] {
+  border-bottom-color: var(--fixa-text-primary);
+  color: var(--fixa-text-primary);
+}
+.teamContent {
+  min-width: 0;
+}
+.managersTable table th:first-child {
+  width: 42%;
+}
+.managersTable table th:nth-child(2) {
+  width: auto;
+}
+.managersTable table th:last-child {
+  width: 112px;
+}
+@media (max-width: 600px) {
+  .sectionHeading {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tabs {
+    gap: 12px;
+  }
+  .tab {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 600px) {
+  .search input {
+    height: 52px;
+    padding-left: 66px;
+    font-size: 16px;
+  }
+  .searchIcon {
+    width: 52px;
+    height: 52px;
+  }
+  .tablePanel {
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+  }
+  .tablePanel table tbody {
+    display: grid;
+    gap: 12px;
+  }
+  .tablePanel table tr {
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    margin: 0;
+    border: 1px solid var(--fixa-border);
+    border-radius: 18px;
+  }
+  .tablePanel table tbody tr:nth-child(odd),
+  .tablePanel table tbody tr:nth-child(even) {
+    background: var(--fixa-surface);
+  }
+  .tablePanel table td {
+    min-width: 0;
+    padding: 0;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .tablePanel table td:first-child::before,
+  .tablePanel table td:last-child::before {
+    display: none;
+  }
+  .tablePanel table td::before {
+    color: var(--fixa-muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .tablePanel table td:first-child {
+    padding: 0 0 4px;
+  }
+  .tablePanel table td:last-child {
+    margin-top: 4px;
+    padding: 8px 0 0;
+    border-top: 1px solid var(--fixa-border);
+  }
+  .member {
+    gap: 12px;
+    padding: 0;
+  }
+  .initials {
+    width: 44px;
+    height: 44px;
+  }
+  .memberText {
+    flex: 1;
+  }
+  .memberName {
+    max-width: 100%;
+    white-space: normal;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .member small {
+    margin-top: 2px;
+    font-size: 13px;
+  }
+  .tablePanel td:last-child > div {
+    justify-content: flex-end;
+  }
+  .iconButton {
+    background: var(--fixa-accent-surface);
+    border-radius: 12px;
+  }
+  .delete {
+    background: var(--fixa-error-bg);
+  }
+  .sectionHeading h2 {
+    font-size: 20px;
+  }
+  .tab {
+    min-height: 44px;
+  }
 }

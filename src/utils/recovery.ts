@@ -6,7 +6,11 @@ export function readRecoveryChallenge(state: unknown): RecoveryChallenge | null 
   if (!state || typeof state !== 'object' || !('challenge' in state)) return null
   const value = state.challenge
   if (!value || typeof value !== 'object' || !('email' in value) || !('id' in value)) return null
-  if (typeof value.email !== 'string' || validateEmail(value.email) || value.id !== 'demo-recovery')
+  if (
+    typeof value.email !== 'string' ||
+    validateEmail(value.email) ||
+    value.id !== 'email-recovery'
+  )
     return null
   return { email: value.email.trim(), id: value.id }
 }

@@ -1,0 +1,13 @@
+# Somente o código necessário ao build; arquivos locais não pertencem ao deploy.
+.git
+.github
+node_modules
+dist
+dev
+dev.local
+docs
+output
+tests
+.env
+.env.*
+*.log

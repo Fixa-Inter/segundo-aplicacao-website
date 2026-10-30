@@ -40,7 +40,12 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
                 </div>
                 <div>
                   <dt>{t('Data')}</dt>
-                  <dd>{formatDate(event.date, { dateStyle: 'short' })}</dd>
+                  <dd>
+                    {formatDate(event.date, { dateStyle: 'short' })}
+                    {event.endDate && event.endDate !== event.date
+                      ? ` – ${formatDate(event.endDate, { dateStyle: 'short' })}`
+                      : ''}
+                  </dd>
                 </div>
                 <div>
                   <dt>{t('Horário')}</dt>

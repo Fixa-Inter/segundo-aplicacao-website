@@ -1,82 +1,35 @@
 import { ConfirmDialog } from '../ConfirmDialog'
-import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
-import { hasFormChanges } from '../../utils/formChanges'
 import { FigmaIcon } from '../FigmaIcon'
-import { usePreferences } from '../../contexts/usePreferences'
-import { useRef, useState, type FormEvent } from 'react'
 import { AuthField } from '../AuthField'
-import type { CalendarEventInput } from '../../types/management'
+import { usePreferences } from '../../contexts/usePreferences'
+import { useEventFormController } from '../../hooks/useEventFormController'
 import type { EventFormProps } from '../../types/ui'
-import { formatDate, parseDateInput } from '../../utils/calendar'
-import { validateEvent } from '../../utils/managementValidation'
+import { truncateText } from '../../utils/presentation'
 import styles from './EventForm.module.css'
-
-export function EventForm({
-  event,
-  selectedDay,
-  technicians,
-  onSubmit,
-  onSaved,
-  onCancel,
-}: EventFormProps) {
+export function EventForm(props: EventFormProps) {
   const { t } = usePreferences()
-
-  const [form, setForm] = useState<CalendarEventInput>({
-    title: event?.title ?? '',
-    location: event?.location ?? '',
-    description: event?.description ?? '',
-    observation: event?.observation ?? '',
-    date: event?.date ?? selectedDay,
-    time: event?.time ?? '09:00',
-    endTime: event?.endTime ?? '10:00',
-    technicianId: event?.technicianId ?? '',
-  })
-  const [date, setDate] = useState(formatDate(form.date, { dateStyle: 'short' }))
-  const [initial] = useState(() => ({ ...form, dateText: date }))
-  const [errors, setErrors] = useState<Partial<Record<keyof CalendarEventInput, string>>>({})
-  const [error, setError] = useState('')
-  const [pending, setPending] = useState<CalendarEventInput | null>(null)
-  const [busy, setBusy] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-  const isDirty = hasFormChanges({ ...form, dateText: date }, initial)
-  const requestExit = useUnsavedForm(isDirty, busy)
-  const cancel = () => requestExit(onCancel)
-
-  function update<K extends keyof CalendarEventInput>(key: K, value: CalendarEventInput[K]) {
-    setForm((current) => ({ ...current, [key]: value }))
-    setErrors((current) => ({ ...current, [key]: undefined }))
-  }
-
-  async function submit(submitEvent: FormEvent<HTMLFormElement>) {
-    submitEvent.preventDefault()
-    if (busy) return
-    const input = { ...form, date: parseDateInput(date) }
-    const validation = validateEvent(input)
-    setErrors(validation)
-    setError('')
-    if (Object.keys(validation).length) {
-      requestAnimationFrame(() =>
-        formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus(),
-      )
-      return
-    }
-    setPending(input)
-  }
-
-  async function confirmSave() {
-    if (!pending || busy) return
-    const input = pending
-    setBusy(true)
-    try {
-      onSaved(await onSubmit(input))
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o evento.')
-    } finally {
-      setPending(null)
-      setBusy(false)
-    }
-  }
-
+  const { event, responsibles } = props
+  const {
+    form,
+    date,
+    endDate,
+    errors,
+    error,
+    pending,
+    busy,
+    formRef,
+    locations,
+    locationError,
+    locationsLoading,
+    retryLocations,
+    update,
+    updateDate,
+    updateEndDate,
+    submit,
+    confirmSave,
+    closeConfirmation,
+    cancel,
+  } = useEventFormController(props)
   return (
     <div className={styles.page}>
       <button
@@ -88,14 +41,14 @@ export function EventForm({
       >
         <FigmaIcon name="back" />
       </button>
-      <h1 className={styles.title}>
-        <span>{t(event ? 'Edite' : 'Agende')}</span> {event ? event.title : t('um evento')}
+      <h1 className={styles.title} title={event?.title}>
+        <span>{t(event ? 'Edite' : 'Agende')}</span>{' '}
+        {event ? truncateText(event.title, 48) : t('um evento')}
       </h1>
       <form ref={formRef} onSubmit={submit} noValidate aria-busy={busy} className={styles.form}>
         <fieldset disabled={busy} className={styles.grid}>
           <legend className={styles.srOnly}>{t('Dados do evento')}</legend>
           <AuthField
-            className={styles.name}
             id="event-title"
             label={t('Nome do evento *')}
             value={form.title}
@@ -106,9 +59,46 @@ export function EventForm({
             error={errors.title}
             onChange={(e) => update('title', e.currentTarget.value)}
           />
+          <div className={styles.field}>
+            <label htmlFor="event-location-id">{t('Local cadastrado')} *</label>
+            <select
+              id="event-location-id"
+              disabled={locationsLoading}
+              value={form.locationId ?? ''}
+              aria-invalid={Boolean(errors.locationId)}
+              onChange={(e) => update('locationId', e.currentTarget.value)}
+            >
+              <option value="">{t('Selecione um local')}</option>
+              {event?.locationId && !locations.some((item) => item.id === event.locationId) && (
+                <option value={event.locationId}>{event.location}</option>
+              )}
+              {locations.map((item) => (
+                <option value={item.id} key={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+            {errors.locationId && (
+              <p role="alert" className={styles.error}>
+                {t(errors.locationId)}
+              </p>
+            )}
+            {locationsLoading && <p role="status">{t('Carregando locais…')}</p>}
+            {locationError && (
+              <div role="alert">
+                <p>{locationError}</p>
+                <button type="button" onClick={retryLocations}>
+                  {t('Tentar novamente')}
+                </button>
+              </div>
+            )}
+            {!locationsLoading && !locations.length && !locationError && (
+              <p>{t('Nenhum local ativo cadastrado na unidade.')}</p>
+            )}
+          </div>
           <AuthField
             id="event-location"
-            label={t('Local do evento')}
+            label={t('Descrição do local *')}
             value={form.location}
             placeholder={t('Informe o local')}
             maxLength={100}
@@ -123,7 +113,7 @@ export function EventForm({
               <textarea
                 id={`event-${key}`}
                 value={form[key]}
-                maxLength={300}
+                maxLength={255}
                 placeholder={t('Adicione uma breve descrição…')}
                 aria-invalid={Boolean(errors[key])}
                 aria-describedby={errors[key] ? `event-${key}-error` : undefined}
@@ -136,68 +126,86 @@ export function EventForm({
               )}
             </div>
           ))}
-          <AuthField
-            id="event-date"
-            label={t('Data *')}
-            value={date}
-            placeholder={t('DD/MM/AAAA')}
-            inputMode="numeric"
-            maxLength={10}
-            required
-            error={errors.date}
-            onChange={(e) => {
-              setDate(e.currentTarget.value)
-              setErrors((current) => ({ ...current, date: undefined }))
-            }}
-          />
-          <AuthField
-            id="event-start"
-            label={t('Horário de início *')}
-            value={form.time}
-            placeholder={t('09:00')}
-            inputMode="numeric"
-            maxLength={5}
-            required
-            error={errors.time}
-            onChange={(e) => update('time', e.currentTarget.value)}
-          />
-          <AuthField
-            id="event-end"
-            label={t('Horário de término *')}
-            value={form.endTime}
-            placeholder={t('10:00')}
-            inputMode="numeric"
-            maxLength={5}
-            required
-            error={errors.endTime}
-            onChange={(e) => update('endTime', e.currentTarget.value)}
-          />
+          <div className={styles.schedule}>
+            <AuthField
+              id="event-date"
+              label={t('Data *')}
+              value={date}
+              placeholder={t('DD/MM/AAAA')}
+              inputMode="numeric"
+              maxLength={10}
+              required
+              error={errors.date}
+              onChange={(e) => updateDate(e.currentTarget.value)}
+            />
+            <AuthField
+              id="event-end-date"
+              label={t('Data de término *')}
+              value={endDate}
+              placeholder={t('DD/MM/AAAA')}
+              inputMode="numeric"
+              maxLength={10}
+              required
+              error={errors.endDate}
+              onChange={(e) => updateEndDate(e.currentTarget.value)}
+            />
+            <AuthField
+              id="event-start"
+              label={t('Horário de início *')}
+              value={form.time}
+              placeholder={t('09:00')}
+              inputMode="numeric"
+              maxLength={5}
+              required
+              error={errors.time}
+              onChange={(e) => update('time', e.currentTarget.value)}
+            />
+            <AuthField
+              id="event-end"
+              label={t('Horário de término *')}
+              value={form.endTime}
+              placeholder={t('10:00')}
+              inputMode="numeric"
+              maxLength={5}
+              required
+              error={errors.endTime}
+              onChange={(e) => update('endTime', e.currentTarget.value)}
+            />
+          </div>
           <div className={`${styles.field} ${styles.full}`}>
-            <label htmlFor="event-technician">{t('Técnico responsável')}</label>
+            <label htmlFor="event-technician">{t('Responsável pelo evento')}</label>
             <select
+              disabled={Boolean(event)}
+              required
+              aria-invalid={Boolean(errors.technicianId)}
+              aria-describedby={errors.technicianId ? 'event-technician-error' : undefined}
               id="event-technician"
               value={form.technicianId}
               onChange={(e) => update('technicianId', e.currentTarget.value)}
             >
-              <option value="">{t('Não atribuído')}</option>
-              {technicians
-                .filter(
-                  (technician) =>
-                    technician.status === 'Ativo' || technician.id === form.technicianId,
-                )
-                .map((technician) => (
-                  <option key={technician.id} value={technician.id}>
-                    {technician.name}
+              <option value="" disabled>
+                {t('Selecione um responsável')}
+              </option>
+              {event && !responsibles.some((item) => item.id === event.technicianId) && (
+                <option value={event.technicianId}>
+                  {t('Responsável')} #{event.technicianId}
+                </option>
+              )}
+              {responsibles
+                .filter((item) => item.status === 'Ativo' || item.id === form.technicianId)
+                .map((item) => (
+                  <option key={item.id} value={item.id} title={item.name}>
+                    {truncateText(item.name, 48)}
                   </option>
                 ))}
             </select>
+            {errors.technicianId && (
+              <p id="event-technician-error" className={styles.error} role="alert">
+                {t(errors.technicianId)}
+              </p>
+            )}
           </div>
         </fieldset>
-        <p className={styles.note}>
-          {t(
-            'Use dados fictícios. Campos com * são obrigatórios. Data em DD/MM/AAAA e horários em HH:MM; o término deve ser após o início no mesmo dia.',
-          )}
-        </p>
         {error && (
           <p className={styles.error} role="alert">
             {t(error)}
@@ -218,7 +226,7 @@ export function EventForm({
         subject={form.title}
         confirmLabel="Salvar"
         busy={busy}
-        onClose={() => setPending(null)}
+        onClose={closeConfirmation}
         onConfirm={confirmSave}
       />
     </div>

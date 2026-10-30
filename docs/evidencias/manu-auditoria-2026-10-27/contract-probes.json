@@ -1,0 +1,152 @@
+{
+  "started": "2026-10-27T19:50:42.582Z",
+  "mode": "Somente adaptador HTTP controlado; módulos de produção reais",
+  "cases": [
+    {
+      "id": "U01",
+      "name": "Resposta vazia aceita pelo adaptador",
+      "expected": "Rejeitar resposta sem conteúdo",
+      "pass": false,
+      "observed": {
+        "accepted": true,
+        "length": 0,
+        "cachedMessages": 2
+      }
+    },
+    {
+      "id": "U02",
+      "name": "Resposta vazia aceita pelo adaptador",
+      "expected": "Rejeitar resposta sem conteúdo",
+      "pass": false,
+      "observed": {
+        "accepted": true,
+        "length": 3,
+        "cachedMessages": 2
+      }
+    },
+    {
+      "id": "U03",
+      "name": "thread_id inválido na resposta",
+      "expected": "Rejeitar ID vazio após trim ou maior que 100",
+      "pass": false,
+      "observed": {
+        "accepted": true,
+        "idLength": 101,
+        "trimmedIdLength": 101,
+        "closeError": "Conversa inválida."
+      }
+    },
+    {
+      "id": "U04",
+      "name": "thread_id inválido na resposta",
+      "expected": "Rejeitar ID vazio após trim ou maior que 100",
+      "pass": false,
+      "observed": {
+        "accepted": true,
+        "idLength": 3,
+        "trimmedIdLength": 0,
+        "closeError": "Não foi possível confirmar a finalização da conversa."
+      }
+    },
+    {
+      "id": "U05",
+      "name": "Emoção desconhecida",
+      "expected": "Usar NEUTRO sem quebrar a mensagem",
+      "pass": true,
+      "observed": {
+        "emotion": "NEUTRO"
+      }
+    },
+    {
+      "id": "U06",
+      "name": "Uma conversa malformada na listagem",
+      "expected": "Não perder a única conversa válida do lote",
+      "pass": false,
+      "observed": {
+        "wholeListRejected": true,
+        "message": "O serviço da Manu retornou um histórico inválido.",
+        "cacheSize": 0
+      }
+    },
+    {
+      "id": "U07",
+      "name": "Restauração de confirmação pendente",
+      "expected": "Conservar confirmação sim após recarregar o contrato remoto",
+      "pass": false,
+      "observed": {
+        "restoredConfirmation": "nao",
+        "messageHasConfirmation": null,
+        "contractHasConfirmationField": false
+      }
+    },
+    {
+      "id": "U08",
+      "name": "Restauração de anexos",
+      "expected": "Conservar referência de imagem no histórico remoto",
+      "pass": false,
+      "observed": {
+        "restoredImageCount": 0,
+        "contractHasImagesField": false
+      }
+    },
+    {
+      "id": "U09",
+      "name": "Resposta inesperada de upload",
+      "expected": "Erro de aplicação compreensível",
+      "pass": false,
+      "observed": {
+        "errorName": "TypeError",
+        "errorMessage": "Invalid URL"
+      }
+    },
+    {
+      "id": "U10",
+      "name": "Resposta inesperada de upload",
+      "expected": "Erro de aplicação compreensível",
+      "pass": false,
+      "observed": {
+        "errorName": "SyntaxError",
+        "errorMessage": "Unexpected token '<', \"<html>erro\"... is not valid JSON"
+      }
+    },
+    {
+      "id": "U11",
+      "name": "Imagens inválidas na Web",
+      "expected": "Rejeitar protocolos perigosos e excesso de anexos",
+      "pass": true,
+      "observed": {
+        "rejected": 3
+      }
+    },
+    {
+      "id": "U12",
+      "name": "Arquivo inválido no seletor",
+      "expected": "Rejeitar tamanho zero, excesso de 5MB e formato não permitido",
+      "pass": true,
+      "observed": {
+        "rejected": 3
+      }
+    },
+    {
+      "id": "U13",
+      "name": "Resposta ambígua ao excluir",
+      "expected": "Não apagar cache sem identidade/status confirmados",
+      "pass": true,
+      "observed": {
+        "rejected": true,
+        "cached": 1
+      }
+    },
+    {
+      "id": "U14",
+      "name": "Falha HTTP sem repetição",
+      "expected": "Não reenviar POST quando o servidor retorna 500",
+      "pass": true,
+      "observed": {
+        "requests": 1,
+        "cached": 0
+      }
+    }
+  ],
+  "finished": "2026-10-27T19:50:42.625Z"
+}

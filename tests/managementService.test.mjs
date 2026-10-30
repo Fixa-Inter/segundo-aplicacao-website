@@ -11,7 +11,7 @@ import {
   saveProfile,
   saveTechnician,
   saveEvent,
-} from '../src/services/managementService.ts'
+} from '../src/mocks/services/managementService.ts'
 import { initialEvents, initialProfile, initialTechnicians } from '../src/mocks/management.ts'
 
 const technician = {

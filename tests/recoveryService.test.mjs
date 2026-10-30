@@ -6,7 +6,7 @@ import {
   requestRecovery,
   resetPassword,
   verifyRecoveryCode,
-} from '../src/services/recoveryService.ts'
+} from '../src/mocks/services/recoveryService.ts'
 
 test('recuperação demonstrativa valida e-mail, código e política provisória da senha', async () => {
   await assert.rejects(requestRecovery('inválido'), /e-mail válido/)

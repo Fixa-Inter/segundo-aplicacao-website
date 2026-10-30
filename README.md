@@ -1,99 +1,158 @@
 # FIXA Web
 
-Repositório da organização FIXA para as entregas de Desenvolvimento de Aplicações Dinâmicas do segundo ano: [Fixa-Inter/segundo-aplicacao-website](https://github.com/Fixa-Inter/segundo-aplicacao-website).
+Frontend de gestão de manutenção em React 19, TypeScript e Vite. Repositório: [segundo-aplicacao-website](https://github.com/Fixa-Inter/segundo-aplicacao-website).
 
-Aplicação de gestão de manutenção para o perfil gestor, em **React 19, TypeScript e Vite**. A interface segue os frames **Website v2** do [Figma acadêmico](https://www.figma.com/design/VeZNU2w9BMTKBpa3z24BxL/Fixa?node-id=3665-79544). O projeto está em fase de **demonstração local**: a API e a base analítica ainda não foram entregues.
+## Validação atual
 
-## Executar e verificar
+A [validação de DAD de 26/10/2026](docs/VALIDACAO_DAD_2026-10-26.md) registra 114 testes aprovados, 72 cenários de acessibilidade automatizada sem violações detectadas após correções e 28 visitas com API Web real. Consulte a [matriz atual](docs/MATRIZ_REQUISITOS.md) e o [roteiro de apresentação](docs/ROTEIRO_DAD.md). Há pendências; esses resultados não certificam WCAG integral nem todos os critérios de DAD.
 
-Requer Node.js 22.18+ (os testes importam TypeScript pelo suporte nativo do Node). Verificado com Node **24.11.1**. Dentro de `fixa-web`:
+**URL pública da Web: não confirmada.** O teste atual usa http://localhost:5173. Em 27/10, a [conferência da Manu na AWS](docs/IA_AWS_2026-10-27.md) aprovou histórico, chat e encerramento para Gestor e RH (200), sem reproduzir o antigo 403. Os iframes Databricks têm autenticação própria. Os registros datados abaixo preservam resultados históricos.
+
+A [reorganização de componentes e serviços](docs/ORGANIZACAO_DAD_2026-10-26.md) corrigiu as pendências de estrutura M3/M5: formulários com hooks de controle, adaptadores por recurso, DTOs em types e regras de lint para as camadas. A versão reorganizada passou em 117 testes, lint, formatação, build e QA dirigido.
+
+## Executar
+
+Use Node.js 24 e um servidor da [API Web FIXA](https://github.com/Fixa-Inter/segundo-api-web) em execução.
 
 ```bash
 npm ci
-npm run dev
-npm run build
-npm run lint
-npm test
-npm run format:check
 ```
 
-O Vite informa a URL local. `npm run preview` serve o build de `dist/`.
+Copie `.env.example` para `.env.local` e informe a URL **do servidor**, sem `/api/v1` no final:
 
-## Contribuição e integração
+```dotenv
+VITE_API_BASE_URL=https://web-api.fixa.solutions
+```
 
-Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → PR para `dev` → revisão/CI → `hml` → homologação → `main`. O template de PR é o oficial da organização. A [Issue #7](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/7) registra a importação do histórico local, preservando os 64 commits anteriores e o histórico remoto.
+O endereço acima é a API Web publicada na AWS. Para testes locais, use `http://localhost:8080`. O link do repositório GitHub não é o endereço de execução da API. Reinicie o Vite depois de alterar a configuração.
 
-## Demonstração
+```bash
+npm run dev
+```
 
-Entre com `demo@fixa.test` e `demo1234`. Qualquer identificação e senha não vazias são aceitas **somente no mock**; não use credenciais reais. A sessão termina ao atualizar a página. Em recuperação, use um e-mail válido e o código `123456`; nenhum e-mail é enviado e nenhuma senha é alterada. Se o e-mail já estiver preenchido no Login, Esqueci minha senha abre diretamente a etapa de código.
+Entre com CNPJ numérico, e-mail institucional e senha de uma conta real de gestor/administrador cadastrada na API. O acesso demonstrativo e o código fixo `123456` não funcionam nos serviços reais. Sem URL configurada, a web informa a configuração necessária; não substitui uma falha da API por dados fictícios.
 
-| Rota                         | Fluxo disponível nesta versão                                                                                                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/sobre`                     | Página pública de apresentação do projeto e acesso à demonstração                                                                                                               |
-| `/login`, `/recuperar-senha` | Login, recuperação demonstrativa em quatro etapas, validação e feedback                                                                                                         |
-| `/`                          | Home com banner original, indicadores, gráfico e resumo do calendário com todos os dias do mês em uma faixa horizontal rolável, setas de mês e links para o Calendário completo |
-| `/dashboard`                 | KPIs, dois gráficos circulares, filtros de técnico/período/métrica, barras, linha, histograma, boxplot e dispersão com dados demonstrativos                                     |
-| `/equipe`                    | Busca, botão Filtrar, paginação numerada, detalhes com desempenho semanal/mensal, cadastro, edição e confirmação de exclusão **em memória** de técnicos                         |
-| `/calendario`                | Grade mensal, seleção de dia, modal de informações e criação, edição e confirmação de exclusão **em memória** de eventos com local, descrição, observação e horários            |
-| `/perfil`, `/alterar-senha`  | Dados do gestor editáveis **em memória**, confirmação de salvamento e página de troca de senha demonstrativa com senha antiga e nova                                            |
-| `/configuracoes`             | Português, inglês, espanhol e mandarim (chinês simplificado); temas claro e escuro, aplicados na hora                                                                           |
-| `/manu`                      | Conversas guiadas, sugestões, busca e metadados de anexos **sem IA conectada** e sem gravação persistente                                                                       |
+O servidor precisa permitir a origem da web em `app.cors.allowed-origins`. O contrato consultado permite `http://localhost:5173` por padrão; confira a porta exibida pelo Vite. Em produção, configure a origem HTTPS da web no backend e `VITE_API_BASE_URL` no ambiente de build da hospedagem. Variáveis `VITE_*` são públicas: não coloque senhas de banco, chaves JWT ou credenciais de SMTP nelas.
 
-As ações em memória são perdidas ao sair, entrar novamente ou recarregar. Uma gravação iniciada antes do logout não altera a sessão seguinte. Não há endpoints inventados nem afirmação de persistência real. Os dados de exemplo estão em `src/mocks`; páginas acessam os services tipados de `src/services`. O cliente Axios em `src/services/api.ts` ficará disponível para integrar o contrato real quando existir. `.env.example` deixa `VITE_API_BASE_URL` comentada e sem URL presumida; variáveis `VITE_` são públicas e não devem conter segredos.
+O servidor de desenvolvimento usa a porta **5173** e encerra com uma mensagem se ela estiver ocupada, em vez de mudar para 5174 e perder a origem permitida pela API. Nesse caso, use a instância já aberta ou encerre-a no terminal antes de iniciar outra. O idioma segue a ordem de `navigator.languages`, com português como alternativa quando nenhum idioma disponível for suportado. Uma escolha explícita nas Configurações prevalece. Na migração das preferências antigas, um idioma diferente do antigo padrão português é preservado como escolha manual; o antigo padrão passa a seguir o navegador. O tema é preservado; não há seletor adicional no login.
 
-O cadastro do gestor define acesso **TÉCNICO** automaticamente e copia seu endereço ao salvar. Os campos de endereço são somente para leitura. A senha de criação segue uma regra provisória e não é armazenada. Veja as [regras e decisões do cadastro](docs/REGRAS_CADASTRO_TECNICOS.md), incluindo os pontos a confirmar com a API.
+Os comandos chamam as ferramentas diretamente pelo Node para funcionar também em caminhos Windows com `&`, como `OneDrive - Instituto J&F`.
 
-A Manu preserva conversas entre rotas, inclusive respostas que terminem durante a navegação; login, logout e recarregamento limpam o histórico. Anexos guardam somente nome e tamanho: nenhum conteúdo é lido, enviado ou analisado. Use `Enter` para enviar a mensagem; `Shift + Enter` insere uma nova linha. O campo não possui alça de redimensionamento; textos longos continuam acessíveis pela rolagem interna.
+## Executar a API localmente
 
-A Equipe do gestor mostra apenas técnicos. A administração de gestores pertence ao escopo de Administração/RH, ainda sem interface e contrato nesta aplicação. As notificações e os selos repetidos de dados demonstrativos foram removidos por decisão do usuário; os limites dos mocks continuam descritos nesta documentação.
+Com Docker Desktop em execução:
 
-No desktop, o botão no topo da navegação lateral recolhe e expande o menu em qualquer rota. Em telas menores, o botão do cabeçalho abre o menu móvel. Na Manu, a saudação permanece visível durante a conversa e “Novo chat” só fica disponível depois que a conversa atual recebe uma mensagem.
+```bash
+npm run local:up
+npm run dev -- --port 5173 --strictPort
+```
 
-Indicadores e desempenho usam fixtures sintéticas, independentes dos eventos criados. No Dashboard, a distribuição demonstrativa entre os seis técnicos iniciais preserva os totais e amostras de cada mês. Técnicos novos mostram indicadores vazios. Isto não representa produtividade real nem conexão com Data Mart.
+Esse comando usa PostgreSQL, Redis, e-mail local e uma conta exclusiva da máquina. Para executar a API local com uma conta já cadastrada no banco compartilhado da equipe, use:
 
-## Estrutura
+```bash
+npm run local:shared
+```
 
-- `src/pages`: telas com `index.tsx` e CSS Modules.
-- `src/components`: marca, campos, cards e layout reutilizáveis.
-- `src/contexts`: sessão demonstrativa e preferências de idioma/tema com Context e hooks.
-- `src/types`: contratos das entidades e props.
-- `src/services`: interface de dados da demonstração, preparada para substituição por API.
-- `src/mocks`: massa inicial e indicadores.
-- `src/utils`: validação, datas, semanas e leitura segura de preferências.
-- `src/i18n`: traduções da interface; nomes e conteúdo cadastrados são preservados.
-- `src/assets/figma`: imagens locais exportadas do protótipo, sem URLs temporárias em runtime.
+O segundo modo exige `dev.local/api-shared.env`, ignorado pelo Git, com as credenciais de servidor autorizadas. Ele desativa a gestão automática de esquema (`none`) e não executa o seed; edições feitas pela aplicação persistem no banco compartilhado. Redis e e-mail continuam locais. Consulte [dev/README.md](dev/README.md).
 
-Somente idioma e tema são salvos em `localStorage`, na chave `fixa.preferences`; são preservados ao recarregar e sair da conta. Valores inválidos retornam ao português e tema claro. Não há armazenamento de senha ou conversa no navegador. `PrivateRoute` protege apenas a navegação do protótipo; autorização real precisa ser aplicada no backend. Conteúdo dinâmico é renderizado como texto JSX.
+## Configurar a API Web e a Manu
 
-## Qualidade e evidências
+Em `.env.local`, use a API Web publicada e o encaminhamento da própria web para a IA publicada:
 
-- Em 08/10/2026: confirmação de descarte para técnicos, eventos e perfil, incluindo Cancelar, Voltar, navegação entre rotas e saída da conta. Ilustração nova gerada com ImageGen e integrada ao mesmo pop-up das demais confirmações. Build, lint, formatação e **35 testes** aprovados. [Prompt, cenários e capturas](docs/DESCARTE_ALTERACOES_2026-10-08.md).
+```dotenv
+VITE_API_BASE_URL=https://web-api.fixa.solutions
+VITE_AI_BASE_URL=/api/ia
+AI_PROXY_TARGET=https://ia-api.fixa.solutions
+VITE_CLOUDINARY_CLOUD_NAME=
+VITE_CLOUDINARY_UPLOAD_PRESET=
+VITE_CLOUDINARY_FOLDER=
+VITE_DATABRICKS_DASHBOARD_URL=https://dbc-7dc0a7b3-a574.cloud.databricks.com/embed/dashboardsv3/01f1d0be95ef1d86b90737aa9639b671?o=7474651714950692
+VITE_DATABRICKS_HOME_WIDGET=a5185eb0~solicitacoes-por-periodo
+VITE_DATABRICKS_TECHNICIAN_WIDGET=37645ca6~os-criadas-por-periodo
+VITE_DATABRICKS_TECHNICIAN_FILTER=f_37645ca6~tecnico1.s
+```
 
-- Telas de senha alinhadas em 07/10/2026: coluna central compartilhada, campos e botões com a mesma largura, ilustrações proporcionais e seis dígitos igualmente espaçados. Recuperação e troca demonstrativas percorridas no navegador; desktop, notebook e celular conferidos. Build, lint, formatação e **32 testes** aprovados. [Verificação e capturas](docs/ALINHAMENTO_SENHA_2026-10-07.md).
+Para testar a API local, altere somente `VITE_API_BASE_URL` para `http://localhost:8080` e reinicie o Vite. O padrão atual é a AWS. Em produção, configure a variável na hospedagem e gere uma nova versão da web. A URL da IA permanece independente. Antes da troca, valide o login e o CORS do serviço publicado.
 
-- Complemento de legibilidade em 07/10/2026: gráficos com escalas, linhas e valores; menu Técnico com seta animada e hover; legendas das cores; ações de visualizar; confirmações maiores e evento mais compacto; histórico da Manu no topo; ícones estáveis ao recolher a sidebar e logo corrigida. Build, lint, formatação e **32 testes** aprovados. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--leitura-dos-gráficos-e-ações-de-visualizar).
+O Vite encaminha `/api/ia` para o serviço existente; a Vercel tem a regra equivalente em `vercel.json`. Isso permite consumir o contrato publicado sem alterar CORS, agentes, autenticação ou código da IA. As chaves dos modelos, do banco e de assinatura JWT ficam nos servidores. Outros hosts precisam configurar o mesmo reverse proxy antes do fallback da SPA.
 
-- Complemento de 07/10/2026: resumo mensal da Home rolável, seta do Dashboard como SVG proporcional, destaque dos técnicos sem sublinhado e botões Adicionar compartilhando formato arredondado com “+”. Home sem rolagem vertical em 1280 × 720 e 1340 × 800; faixa mensal percorrida pelo mouse e teclado. [Cenários e capturas](docs/REVISAO_DESIGN_2026-10-07.md#complemento--faixa-mensal-e-controles). Build, lint, formatação e **30 testes** aprovados.
+As conversas são recuperadas da IA publicada por `GET /api/v1/sessoes`; a leitura de uma conversa fora do cache usa `POST /api/v1/sessoes/conversa`. Títulos, resumo e emoções vêm do servidor. Mensagens ativas e URLs de anexos são mantidas em memória durante a sessão; o contrato de histórico ainda não devolve anexos nem a confirmação pendente. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
 
-- Revisão de 07/10/2026: pop-ups compactos com as três ilustrações originais enviadas pelo usuário, sobreposição corrigida, confirmação de salvar, Home com sete dias e Manu inteira, filtros com limpeza, Adicionar à direita da main e sidebar recolhida mais espaçosa. Recuperação usa e-mail preenchido no Login e troca autenticada abre página própria. Build, lint, Prettier e **30/30 testes** aprovados. [Revisão atual e capturas](docs/REVISAO_DESIGN_2026-10-07.md). Os registros anteriores abaixo são históricos.
+Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O cloud name, o preset unsigned e a pasta fornecidos foram configurados no `.env.local` desta máquina; um upload real foi validado no navegador. Outras máquinas/implantação precisam configurar as três variáveis públicas de Cloudinary. Se a equipe escolher assinatura futuramente, será necessário o contrato da rota de assinatura. Não inclua API Secret no frontend. A URL oficial do dashboard Databricks está configurada no exemplo e no ambiente local. O iframe usa a autenticação e as permissões do Databricks; pode ser necessário entrar na conta pelo link Abrir em nova aba. A aprovação de domínio para o teste atual é http://localhost:5173. Consulte [a verificação real do iframe](docs/BI_DATABRICKS_2026-10-25.md).
 
-- Revisão após feedback da designer em 06/10/2026: ícones e logos vetoriais originais do Website v2, cores/tipografia, header alinhado, filtros, paginação e modais de exclusão/saída/informações corrigidos. A Home voltou ao resumo de cinco dias do Figma; o seletor mensal detalhado foi retirado. Build, lint, Prettier e **27/27 testes** aprovados; revisão em desktop, notebook, tablet e celular registrada na [auditoria de design](docs/REVISAO_DESIGN_2026-10-06.md), com capturas e adaptações preservadas. Os registros abaixo descrevem versões anteriores.
+A configuração atual aponta para a AWS. Na verificação real de 25/10/2026 às 23h39 (São Paulo), login, Home, equipe, turnos, competências, calendário, perfil e restauração de sessão funcionaram. O Dashboard abriu pelo acesso autenticado da web; os gráficos do Databricks também foram confirmados pelo usuário no Edge. Naquela verificação, o histórico da IA respondeu HTTP 403. A [conferência de 27/10](docs/IA_AWS_2026-10-27.md) confirmou que o acesso de Gestor e RH, o chat e o encerramento estão funcionando. Consulte também o [registro histórico da AWS](docs/INTERFACE_AWS_2026-10-25.md). O [teste anterior com API local](docs/API_LOCAL_DEV_2026-10-25.md) é um registro histórico.
 
-- Em 06/10/2026: **27 testes Node**, build, lint e formatação aprovados. Calendário da Home mais espaçoso, com grade de meses/ano, seleção por dia e semana de domingo a sábado; Novo chat ocupa a largura do histórico e a alça acima de Enviar foi removida. Revisão visual em notebook, tablet e celular registrada no [QA](docs/QA_NAVEGADOR.md). O botão nativo de senha do Edge foi ocultado somente em campos com controle próprio; confirmação visual no Edge ainda pendente.
+## Integração atual
 
-- Em 05/10/2026, nesta revisão: **26 testes Node**, build, lint e formatação aprovados. A revisão no navegador validou os quatro idiomas, tema escuro, preferências após recarregar, evento de sábado na Home e semanas entre meses/anos. Home e Equipe continuam cabendo em notebook; tablet e celular foram conferidos. Veja os cenários e limites em [QA](docs/QA_NAVEGADOR.md).
+| Fluxo                 | Comportamento                                                                                                                                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Login/sessão          | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                                                            |
+| Equipe                | Listagem de técnicos, cadastro com senha inicial, edição de dados, turnos e competências; desativação e reativação                                                                     |
+| Competências          | Dez categorias; notas opcionais de 0 a 10, com até duas casas decimais e entrada com ponto ou vírgula; remoção desativa a avaliação; reaproveitamento do registro ao avaliar novamente |
+| Calendário/Home       | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                                                              |
+| Perfil                | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                                                  |
+| Senha                 | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                                                 |
+| Dashboard             | V1 usa somente iframes Databricks: a Home abre o gráfico Solicitações por período; a tela Dashboard mantém as páginas completas. Não depende de uma API de BI.                         |
+| Desempenho individual | Iframe de OS criadas por período com filtro pelo nome completo do técnico; depende dos nomes atualizados na base do BI, sem números fictícios.                                         |
+| Manu                  | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; histórico remoto, títulos do servidor e cache de conversas ativas                                 |
 
-- Em 28/09/2026: build TypeScript/Vite, lint, formatação e **20 testes Node** aprovados. Os testes cobrem validação, cópias independentes, eventos compartilhados, distribuição analítica, recuperação, histórico da Manu e isolamento da sessão demonstrativa.
-- Em 05/10/2026: a Home foi refinada para preservar as proporções do Figma em diferentes alturas, com sidebar maior. Home, Equipe, Calendário e Perfil cabem sem rolagem em 1280 × 720 e 1340 × 800 no estado inicial. Quando necessária, a rolagem ocorre na área abaixo do cabeçalho, evitando sobreposição; as setas dos campos de seleção têm posição e espaçamento consistentes. O símbolo da FIXA foi adicionado à aba. As medidas e os limites dessa checagem estão no [QA do navegador](docs/QA_NAVEGADOR.md).
-- O código usa Prettier com indentação de dois espaços, configurado em `.prettierrc.json`. Execute `npm run format` para aplicar o estilo.
-- [`.github/workflows/qualidade.yml`](.github/workflows/qualidade.yml) verifica build, lint, testes e formatação em PRs e nas branches `dev`, `hml` e `main`. O [template oficial de PR](.github/PULL_REQUEST_TEMPLATE.md) registra evidências e uso de IA. O workflow remoto de releases foi preservado em [criar-releases.yaml](.github/workflows/criar-releases.yaml). A configuração não equivale a CI aprovado ou release publicada; confira o resultado no PR de integração.
-- Login → Home, cadastro de técnico, CRUD de eventos, edição de perfil, Manu, navegação móvel, página pública e 404 foram percorridos no navegador local. Veja a [evidência de QA](docs/QA_NAVEGADOR.md) e seus limites.
-- A [revisão visual](docs/FIDELIDADE_VISUAL.md) registra os IDs da cópia do Figma, comparações diretas de Login, Recuperação, Home, Dashboard, Equipe, Calendário, Perfil e Manu, além das diferenças conhecidas. Ela não aprova todos os frames e estados. A Home recebeu o banner e o avatar originais; a Manu recebeu sua arte original.
-- A [matriz de requisitos](docs/MATRIZ_REQUISITOS.md) registra critério, estado, arquivo, teste e demonstração. Os [critérios externos](docs/CRITERIOS_EXTERNOS.md) detalham as entregas das demais disciplinas. O [roteiro DAD](docs/ROTEIRO_DAD.md) contém os passos de apresentação e o que ainda precisa ser validado.
-- `docs/REVISAO_INICIAL.md` descreve a revisão anterior e permanece como registro histórico, **não como estado atual**.
+Notas e cadastros persistem pelo backend, sem cópia de dados em `localStorage`. A sessão usa `sessionStorage` da aba para os tokens Bearer e a identificação mínima; senhas não são armazenadas. Em erro de renovação por token inválido, a sessão local é encerrada. O backend é responsável por autorização e isolamento entre unidades.
 
-## Pendências de integração e publicação
+O cadastro, os turnos e as notas usam endpoints separados. Uma falha pode deixar uma parte salva. A web informa isso e conserva o ID retornado para completar a operação ao tentar novamente, sem reenviar a criação do usuário. Não há promessa de transação conjunta no frontend.
 
-O backend de autenticação, CRUD, autorização e Manu ainda não possui contrato. O Dashboard não está conectado ao Data Mart. A rubrica do PDF também exige artefatos de outras disciplinas, hospedagem e histórico Git distribuído por quatro semanas reais; este frontend não comprova essas entregas. Consulte a matriz para cada dependência.
+Há diferenças relevantes entre o protótipo e a API: técnicos são desativados; o responsável de um evento não pode ser trocado na edição; turnos e locais precisam existir na unidade; o perfil de gestor não recebe dados de endereço/telefone. Consulte o [mapeamento e a verificação da integração](docs/INTEGRACAO_API_2026-10-25.md).
 
-Para publicar na Vercel, use build `npm run build` e diretório de saída `dist`. [`vercel.json`](vercel.json) redireciona rotas da SPA para `index.html`. **Ainda não há URL pública da aplicação**; após publicar, registre aqui a URL e execute o roteiro no ambiente publicado. O repositório remoto está identificado no início deste documento. O tablet físico, leitor de tela e todos os estados do Figma devem ser verificados antes de chamar a versão integrada de final.
+A Home usa `VITE_DATABRICKS_HOME_WIDGET` para escolher um único gráfico do dashboard configurado, sem alterar a URL da tela Dashboard. O valor é o identificador `página~widget` do parâmetro `fullscreenWidget` copiado do Databricks. O calendário carrega separadamente pela API Web; uma falha nos eventos não impede o iframe. A incorporação mantém a autenticação e a navegação fornecidas pelo Databricks. Não há API de BI prevista para essa exibição na V1.
+
+A ficha do técnico usa `VITE_DATABRICKS_TECHNICIAN_WIDGET` e `VITE_DATABRICKS_TECHNICIAN_FILTER` para incorporar o gráfico de OS com o filtro publicado de nome completo. Se a configuração estiver ausente ou malformada, não abre um gráfico geral como alternativa. O filtro atual do BI é nominal: nomes alterados na Web precisam ser atualizados no BI; para identidade estável e métricas de conclusão, a responsável deve publicar o filtro de ID e ligá-lo às fontes correspondentes. Veja [o contrato de desempenho individual](docs/BI_TECNICO_2026-10-26.md).
+
+## Verificar
+
+```bash
+npm run format:check
+npm run lint
+npm test
+npm run build
+```
+
+Os testes de ciclo dos hooks e de interface responsiva rodam separadamente, com Vite já em execução e Playwright disponível na máquina:
+
+```bash
+npm run test:browser
+```
+
+Se o módulo Playwright estiver fora do projeto, defina `FIXA_PLAYWRIGHT_MODULE` com o caminho de seu `index.mjs`. `FIXA_TEST_BASE_URL` usa http://localhost:5173 por padrão; `FIXA_TEST_BROWSER_CHANNEL` permite escolher outro navegador. No Windows, o padrão é Edge; nos demais sistemas, Chromium. Use a configuração de API descrita acima; as leituras dos testes são interceptadas e conexões externas não simuladas são bloqueadas. Não é necessário login real.
+
+A [revisão posterior da estrutura](docs/REVISAO_ESTRUTURA_2026-10-26.md) registra oito testes de navegador aprovados, além dos 117 testes Node, corrigindo reaproveitamento de opções/notas antigas e tratamento de exceção imediata.
+
+A [revisão mobile](docs/MOBILE_RESPONSIVO_2026-10-26.md) acrescenta 13 casos de interface/toque, totalizando 21 testes de navegador. Inclui botões compactos, cartões da equipe, calendário sem sobreposição, formulários e campo de mensagem da Manu em telas baixas.
+
+`tests/api-contract.test.mjs` verifica o transporte e os adaptadores usados em produção com respostas HTTP controladas. As suítes antigas continuam utilizando fixtures de demonstração explicitamente isoladas em `src/mocks/services`; não comprovam persistência real. Não há importação dessas fixtures pelos serviços de produção.
+
+Em 25/10/2026, além dos cenários controlados em 1280×720 e 390×844, os fluxos de login, equipe, competências, eventos, perfil e recuperação de senha foram validados no Edge com API Spring Boot, PostgreSQL, Redis e SMTP locais reais. Houve confirmação por consultas independentes à API e recarregamento das páginas. Consulte as [evidências da execução local](docs/API_LOCAL_2026-10-25.md). A sincronização com o aplicativo mobile e a implantação em produção ainda não foram verificadas.
+
+## Organização
+
+- `src/services/httpClient.ts`: transporte, renovação e isolamento de sessão.
+- `src/services/apiManagement.ts`: composição dos adaptadores e da sessão.
+- `src/services/resources/`: HTTP por recurso; `teamService.ts` orquestra operações de equipe.
+- `src/hooks/useEventFormController.ts` e `useTechnicianFormController.ts`: estado, validação e salvamento dos formulários.
+- `src/types/api/` e `src/utils/api*.ts`: DTOs por recurso e mapeadores sem acesso HTTP.
+- `src/services/authService.ts` e `recoveryService.ts`: autenticação e senha.
+- `src/utils/apiValidation.ts`: validação alinhada aos DTOs.
+- `src/components`, `src/pages`, `src/contexts`, `src/types`: interface e estado tipados.
+- `docs`: mapeamento atual, QA e registros históricos do protótipo.
+
+Siga [CONTRIBUTING.md](CONTRIBUTING.md): Issue → branch a partir de `dev` → revisão/CI → `dev` → `hml` → `main`. A integração com API está na [Issue #10](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/10); preserva as alterações da [Issue #9](https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/9). Aprovação, merge e homologação dependem da equipe.
+
+## Publicação
+
+A publicação na Vercel será feita após revisão e promoção `dev` → `hml` → `main`. Conecte o repositório da organização e use `main` como branch de produção. Com a integração Git ativa, pushes nas branches de trabalho podem gerar previews e as atualizações de `main` publicam a versão aprovada.
+
+O projeto define Node.js 24, framework Vite, instalação `npm ci`, build `npm run build` e saída `dist`. Na hospedagem, configure `VITE_API_BASE_URL=/api/web` e `VITE_AI_BASE_URL=/api/ia`, além das variáveis públicas de Cloudinary e Databricks documentadas acima. As chamadas são encaminhadas à AWS antes do fallback das rotas da SPA. Configure esses valores em Preview e Production antes do build; não copie segredos do backend para a hospedagem da Web.
+
+Consulte a [consolidação e preparação de publicação](docs/CONSOLIDACAO_WEB_2026-10-30.md) para os proxies, variáveis, testes e dependências do BI. A configuração e o teste em preview local não comprovam publicação: a URL pública e a implantação ainda dependem da conta Vercel e da validação após o fluxo de revisão.
+
+## Revisão da integração
+
+A [revisão de 25/10/2026](docs/REVISAO_WEB_2026-10-25.md) corrigiu perda indevida de sessão, resposta inválida de renovação e exibição de eventos com vários dias. Login e consultas na API Web local passaram; a chamada real à IA retornou 403 e requer alinhamento de autenticação/perfil no serviço consultado por ela. Não há fallback de resposta simulada na aplicação. As pendências de histórico, Databricks e publicação continuam identificadas no relatório.

@@ -29,3 +29,18 @@
   opacity: 0.35;
   cursor: default;
 }
+
+@media (max-width: 600px) {
+  .pager {
+    max-width: 100%;
+    width: fit-content;
+    margin-left: auto;
+    justify-content: flex-start;
+    padding: 12px 0 4px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .pager button {
+    flex: none;
+  }
+}

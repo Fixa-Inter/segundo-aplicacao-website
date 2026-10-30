@@ -1,0 +1,98 @@
+{
+  "status": "preparacao_validada_integracao_nao_ativada",
+  "issue": "https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12",
+  "responsible": "Gkso31 com apoio do Codex",
+  "branch": "feature/integracao-ia-manu",
+  "base_revision": "dabce7b",
+  "started": "2026-10-27T21:48:27-03:00",
+  "recorded": "2026-10-27T22:11:32.923358-03:00",
+  "estimate_minutes": 90,
+  "elapsed_minutes_observed": 23.1,
+  "requirement": "BI de Gestor/RH limitado à própria unidade; não altera o escopo institucional da equipe do RH",
+  "filter_keys": ["f_4c5527fc~unidade1", "f_38ad7c54~unidade", "f_37645ca6~unidade.s"],
+  "mapping_unit_label_to_api_id": "não confirmado; usuário considera provável, sem certeza",
+  "provider_enforcement": "usuário confirmou somente filtro visual; unidade_id presente na pipeline",
+  "application_iframes_updated": false,
+  "live_databricks_verified": false,
+  "databricks_qa_login_expired": true,
+  "web_api_scope_validation": {
+    "started": "2026-10-28T01:03:51.131Z",
+    "mode": "Consultas próprias pelo novo serviço da Web; sem operações de BI ou escritas operacionais",
+    "accounts": [
+      {
+        "role": "Gestor",
+        "login": 200,
+        "unitId": 7,
+        "ok": true
+      },
+      {
+        "role": "RH",
+        "login": 200,
+        "unitId": 1,
+        "ok": true
+      }
+    ],
+    "finished": "2026-10-28T01:03:57.288Z"
+  },
+  "tests": {
+    "passed": 133,
+    "failed": 0,
+    "new_tests": 9,
+    "targeted_passed": 15
+  },
+  "checks": {
+    "format": {
+      "exit_code": 0,
+      "log_tail": [
+        "",
+        "> fixa-web@0.0.0 format:check",
+        "> node ./node_modules/prettier/bin/prettier.cjs --check src tests scripts dev/compose.yml dev/compose.shared.yml package.json eslint.config.js vite.config.ts index.html",
+        "",
+        "Checking formatting...",
+        "All matched files use Prettier code style!"
+      ]
+    },
+    "lint": {
+      "exit_code": 0,
+      "log_tail": ["", "> fixa-web@0.0.0 lint", "> node ./node_modules/eslint/bin/eslint.js .", ""]
+    },
+    "test": {
+      "exit_code": 0,
+      "log_tail": [
+        "✔ valida evento e perfil antes de salvar (1.2925ms)",
+        "✔ calendário atravessa mês e ano sem deslocamento local (1.3ms)",
+        "ℹ tests 133",
+        "ℹ suites 0",
+        "ℹ pass 133",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 12758.1085"
+      ]
+    },
+    "build": {
+      "exit_code": 0,
+      "log_tail": [
+        "dist/assets/Calendar-DfVuN22g.js                             15.35 kB │ gzip:   5.09 kB",
+        "dist/assets/CloseButton-Du52GlLk.js                          17.39 kB │ gzip:   5.99 kB",
+        "dist/assets/Manu-BzlliDFj.js                                 24.09 kB │ gzip:   8.10 kB",
+        "dist/assets/Recovery-BZym5MjJ.js                             25.52 kB │ gzip:   8.50 kB",
+        "dist/assets/FigmaIcon-xweECoUN.js                            31.42 kB │ gzip:   5.42 kB",
+        "dist/assets/Team-CogQzhXb.js                                 45.85 kB │ gzip:  14.73 kB",
+        "dist/assets/ConfirmDialog-xPmBjWX0.js                        78.72 kB │ gzip:  25.83 kB",
+        "dist/assets/index-fgmDfrhZ.js                               472.33 kB │ gzip: 153.31 kB",
+        "",
+        "✓ built in 2.15s"
+      ]
+    }
+  },
+  "provider_changed": false,
+  "api_changed": false,
+  "pr_created": false,
+  "blockers": [
+    "Confirmar correspondência entre ID da API e valor textual do filtro do BI, preferindo filtro numérico por unidade_id.",
+    "Implementar autorização por unidade em BI/API que permaneça válida sem o parâmetro de URL.",
+    "Autenticar novamente o contexto de QA para homologar páginas, widgets e tentativa de remover/trocar a seleção."
+  ]
+}

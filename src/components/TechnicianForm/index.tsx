@@ -1,30 +1,22 @@
 import { ConfirmDialog } from '../ConfirmDialog'
-import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
-import { hasFormChanges } from '../../utils/formChanges'
 import { FigmaIcon } from '../FigmaIcon'
 import { usePreferences } from '../../contexts/usePreferences'
-import { useRef, useState, type FormEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies'
+import { useTechnicianFormController } from '../../hooks/useTechnicianFormController'
 import type { Address, TechnicianInput } from '../../types/management'
-import type { TechnicianFormProps } from '../../types/ui'
-import { validateDemoPassword, validateTechnician } from '../../utils/managementValidation'
-import { formatDate, parseDateInput } from '../../utils/calendar'
+import type { TechnicianFormProps, TechnicianFormFieldsProps } from '../../types/ui'
+import type { TechnicianFieldDefinition } from '../../types/technicianForm'
+import { truncateText } from '../../utils/presentation'
 import styles from './TechnicianForm.module.css'
-
-const fields: {
-  key: Exclude<keyof TechnicianInput, 'status'>
-  label: string
-  type?: 'text' | 'email' | 'tel'
-  maxLength?: number
-}[] = [
-  { key: 'name', label: 'Nome completo', maxLength: 80 },
+const fields: TechnicianFieldDefinition[] = [
+  { key: 'name', label: 'Nome completo', maxLength: 100 },
+  { key: 'email', label: 'E-mail', type: 'email', maxLength: 100 },
   { key: 'birthDate', label: 'Data de nascimento', maxLength: 10 },
-  { key: 'email', label: 'E-mail', type: 'email', maxLength: 120 },
-  { key: 'phone', label: 'Telefone', type: 'tel', maxLength: 20 },
+  { key: 'jobTitle', label: 'Função', maxLength: 100 },
   { key: 'specialty', label: 'Especialidade', maxLength: 60 },
   { key: 'shift', label: 'Turno', maxLength: 13 },
 ]
-
 const addressFields: { key: keyof Address; label: string }[] = [
   { key: 'postalCode', label: 'CEP' },
   { key: 'address', label: 'Logradouro' },
@@ -34,41 +26,76 @@ const addressFields: { key: keyof Address; label: string }[] = [
   { key: 'number', label: 'Número' },
   { key: 'complement', label: 'Complemento' },
 ]
-
-export function TechnicianForm({
-  technician,
-  manager,
-  onSubmit,
-  onSaved,
-  onCancel,
-}: TechnicianFormProps) {
+export function TechnicianForm(props: TechnicianFormProps) {
   const { t } = usePreferences()
-
-  const [form, setForm] = useState<TechnicianInput>({
-    name: technician?.name ?? '',
-    birthDate: technician?.birthDate ?? '',
-    email: technician?.email ?? '',
-    phone: technician?.phone ?? '',
-    specialty: technician?.specialty ?? '',
-    shift: technician?.shift ?? '08:00 - 16:00',
-    status: technician?.status ?? 'Ativo',
-  })
-  const [password, setPassword] = useState('')
-  const [birthDate, setBirthDate] = useState(
-    technician ? formatDate(technician.birthDate, { dateStyle: 'short' }) : '',
-  )
-  const [initial] = useState(() => ({ ...form, birthDateText: birthDate, password }))
-  const [passwordVisible, setPasswordVisible] = useState(false)
-  const [passwordError, setPasswordError] = useState<string | undefined>()
-  const [errors, setErrors] = useState<Partial<Record<keyof TechnicianInput, string>>>({})
-  const [error, setError] = useState('')
-  const [pending, setPending] = useState<TechnicianInput | null>(null)
-  const [busy, setBusy] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-  const isDirty = hasFormChanges({ ...form, birthDateText: birthDate, password }, initial)
-  const requestExit = useUnsavedForm(isDirty, busy)
-  const cancel = () => requestExit(onCancel)
-
+  const { items, loading, error, retry } = useTechnicianCompetencies(props.technician?.id)
+  if (loading || error)
+    return (
+      <div className={styles.page}>
+        <button
+          className={styles.back}
+          type="button"
+          onClick={props.onCancel}
+          aria-label={t('Voltar para equipe')}
+        >
+          <FigmaIcon name="back" />
+        </button>
+        <h1 className={styles.title}>{t('Competências')}</h1>
+        {loading ? (
+          <p role="status">{t('Carregando competências…')}</p>
+        ) : (
+          <div role="alert">
+            <p>{t(error)}</p>
+            <button className={styles.retry} type="button" onClick={retry}>
+              {t('Tentar novamente')}
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  // O formulário só é montado após a leitura, preservando a base real do isDirty.
+  return <TechnicianFormFields {...props} initialCompetencies={items} />
+}
+function TechnicianFormFields(props: TechnicianFormFieldsProps) {
+  const { t } = usePreferences()
+  const { technician, manager, initialCompetencies } = props
+  const {
+    form,
+    institutional,
+    cnpj,
+    workUnits,
+    unitError,
+    unitsLoading,
+    shifts,
+    shiftError,
+    shiftsLoading,
+    retryUnits,
+    retryShifts,
+    addressSource,
+    birthDate,
+    ratings,
+    draftSpecialty,
+    ratingErrors,
+    password,
+    passwordVisible,
+    passwordError,
+    errors,
+    error,
+    pending,
+    busy,
+    formRef,
+    updateField,
+    selectUnit,
+    selectShift,
+    updateStatus,
+    updatePassword,
+    togglePassword,
+    updateRating,
+    submit,
+    confirmSave,
+    closeConfirmation,
+    cancel,
+  } = useTechnicianFormController(props)
   function renderField(field: (typeof fields)[number]) {
     const id = `technician-${field.key}`
     return (
@@ -77,7 +104,7 @@ export function TechnicianForm({
         <input
           id={id}
           type={field.type ?? 'text'}
-          value={field.key === 'birthDate' ? birthDate : form[field.key]}
+          value={field.key === 'birthDate' ? birthDate : String(form[field.key] ?? '')}
           autoComplete="off"
           autoFocus={field.key === 'name'}
           required
@@ -92,12 +119,7 @@ export function TechnicianForm({
           }
           aria-invalid={Boolean(errors[field.key])}
           aria-describedby={errors[field.key] ? `${id}-error` : undefined}
-          onChange={(event) => {
-            const value = event.currentTarget.value
-            if (field.key === 'birthDate') setBirthDate(value)
-            else setForm((current) => ({ ...current, [field.key]: value }))
-            setErrors((current) => ({ ...current, [field.key]: undefined }))
-          }}
+          onChange={(event) => updateField(field.key, event.currentTarget.value)}
         />
         {errors[field.key] && (
           <span id={`${id}-error`} className={styles.error} role="alert">
@@ -107,42 +129,6 @@ export function TechnicianForm({
       </div>
     )
   }
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (busy) return
-    const input = { ...form, birthDate: parseDateInput(birthDate) }
-    const validation = validateTechnician(input)
-    const invalidPassword = technician ? undefined : validateDemoPassword(password)
-    setErrors(validation)
-    setPasswordError(invalidPassword)
-    setError('')
-    if (Object.keys(validation).length || invalidPassword) {
-      requestAnimationFrame(() => {
-        formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus()
-      })
-      return
-    }
-    setPending(input)
-  }
-
-  async function confirmSave() {
-    if (!pending || busy) return
-    const input = pending
-    setBusy(true)
-    try {
-      // A senha apenas valida o formulário demonstrativo e nunca é enviada ao repositório em memória.
-      const saved = await onSubmit(input)
-      setPassword('')
-      onSaved(saved)
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o técnico.')
-    } finally {
-      setPending(null)
-      setBusy(false)
-    }
-  }
-
   return (
     <div className={styles.page}>
       <button
@@ -154,44 +140,147 @@ export function TechnicianForm({
       >
         <FigmaIcon name="back" />
       </button>
-      <h1 className={styles.title}>
+      <h1 className={styles.title} title={technician?.name}>
         <span>{t(technician ? 'Edite' : 'Adicione um novo')}</span>{' '}
-        {technician ? technician.name : t('funcionário')}
+        {technician ? truncateText(technician.name) : t('funcionário')}
       </h1>
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
         <fieldset disabled={busy}>
-          <legend className={styles.srOnly}>
-            {t('Informações do técnico e endereço herdado do gestor')}
-          </legend>
-          <div className={`${styles.grid} ${technician ? styles.edit : ''}`}>
+          <legend className={styles.srOnly}>{t('Informações do técnico')}</legend>
+          <div className={styles.grid}>
             {fields.slice(0, 3).map(renderField)}
+            {renderField(fields[3])}
+            <div className={`${styles.field} ${styles.access}`}>
+              <label htmlFor="technician-access">{t('Cargo')}</label>
+              <input id="technician-access" value={t('Técnico')} readOnly />
+            </div>
+            <div className={[styles.field, styles.workUnit].join(' ')}>
+              <label htmlFor="technician-unit">
+                {t('Unidade de trabalho')}
+                {institutional ? ' *' : ''}
+              </label>
+              {institutional ? (
+                <select
+                  id="technician-unit"
+                  value={form.unitId ?? ''}
+                  disabled={busy || !workUnits.length}
+                  aria-invalid={Boolean(errors.unitId)}
+                  aria-describedby={errors.unitId ? 'technician-unit-error' : undefined}
+                  onChange={(event) => selectUnit(event.currentTarget.value)}
+                >
+                  <option value="" disabled>
+                    {t('Selecione uma unidade de trabalho')}
+                  </option>
+                  {workUnits.map((unit) => (
+                    <option
+                      key={unit.id}
+                      value={unit.id}
+                      disabled={!unit.active && unit.id !== technician?.unitId}
+                    >
+                      {unit.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  id="technician-unit"
+                  value={
+                    technician?.unitName || manager.company || t('Unidade do CNPJ {cnpj}', { cnpj })
+                  }
+                  readOnly
+                  title={t('Definida pelo RH')}
+                />
+              )}
+              {errors.unitId && (
+                <span id="technician-unit-error" className={styles.error} role="alert">
+                  {t(errors.unitId)}
+                </span>
+              )}
+              {unitsLoading && <p role="status">{t('Carregando unidades…')}</p>}
+              {unitError && (
+                <div role="alert">
+                  <p>{t(unitError)}</p>
+                  <button type="button" className={styles.retry} onClick={retryUnits}>
+                    {t('Tentar novamente')}
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className={[styles.field, styles.specialty].join(' ')}>
+              <label htmlFor="technician-specialty">{t('Especialidade')}</label>
+              <input id="technician-specialty" value={t(draftSpecialty || 'Sem notas')} readOnly />
+            </div>
+            <div className={`${styles.field} ${styles.shift}`}>
+              <label htmlFor="technician-shift">{t('Turno')} *</label>
+              <select
+                id="technician-shift"
+                value={form.shiftId ?? ''}
+                required
+                disabled={busy || !shifts.length || (institutional && !form.unitId)}
+                aria-invalid={Boolean(errors.shiftId)}
+                aria-describedby={errors.shiftId ? 'technician-shift-error' : undefined}
+                onChange={(event) => selectShift(event.currentTarget.value)}
+              >
+                <option value="" disabled>
+                  {t('Selecione um turno')}
+                </option>
+                {shifts.map((shift) => (
+                  <option key={shift.id} value={shift.id}>
+                    {shift.name}
+                  </option>
+                ))}
+              </select>
+              {!shiftsLoading && !shifts.length && !shiftError && (
+                <p>{t('Nenhum turno ativo cadastrado na unidade.')}</p>
+              )}
+              {shiftsLoading && <p role="status">{t('Carregando turnos…')}</p>}
+              {shiftError && (
+                <div role="alert">
+                  <p>{t(shiftError)}</p>
+                  <button type="button" onClick={retryShifts}>
+                    {t('Tentar novamente')}
+                  </button>
+                </div>
+              )}
+              {errors.shiftId && (
+                <p id="technician-shift-error" role="alert" className={styles.error}>
+                  {t(errors.shiftId)}
+                </p>
+              )}
+            </div>
+            <div className={`${styles.field} ${styles.status}`}>
+              <label htmlFor="technician-status">{t('Situação')}</label>
+              <select
+                id="technician-status"
+                value={form.status}
+                onChange={(event) =>
+                  updateStatus(event.currentTarget.value as TechnicianInput['status'])
+                }
+              >
+                <option value="Ativo">{t('Ativo')}</option>
+                <option value="Inativo">{t('Inativo')}</option>
+              </select>
+            </div>
             {!technician && (
               <div className={`${styles.field} ${styles.password}`}>
-                <label htmlFor="technician-password">{t('Senha de demonstração *')}</label>
+                <label htmlFor="technician-password">{t('Senha inicial *')}</label>
                 <span className={styles.passwordField}>
                   <input
                     id="technician-password"
                     type={passwordVisible ? 'text' : 'password'}
                     value={password}
                     autoComplete="off"
-                    maxLength={128}
+                    maxLength={100}
                     required
                     aria-invalid={Boolean(passwordError)}
-                    aria-describedby="technician-password-rule technician-password-error"
-                    onChange={(event) => {
-                      setPassword(event.currentTarget.value)
-                      setPasswordError(undefined)
-                    }}
+                    aria-describedby={passwordError ? 'technician-password-error' : undefined}
+                    onChange={(event) => updatePassword(event.currentTarget.value)}
                   />
                   <button
                     type="button"
-                    aria-label={t(
-                      passwordVisible
-                        ? 'Ocultar senha de demonstração'
-                        : 'Mostrar senha de demonstração',
-                    )}
+                    aria-label={t(passwordVisible ? 'Ocultar senha' : 'Mostrar senha')}
                     aria-pressed={passwordVisible}
-                    onClick={() => setPasswordVisible((current) => !current)}
+                    onClick={togglePassword}
                   >
                     {passwordVisible ? <EyeOff size={19} /> : <Eye size={19} />}
                   </button>
@@ -205,70 +294,56 @@ export function TechnicianForm({
                 </span>
               </div>
             )}
-            {renderField(fields[3])}
-            <div className={`${styles.field} ${styles.access}`}>
-              <label htmlFor="technician-access">{t('Tipo de acesso')}</label>
-              <input
-                id="technician-access"
-                value={t('TÉCNICO')}
-                readOnly
-                aria-describedby="technician-access-note"
-              />
-            </div>
-            {addressFields.map((field) => (
+            {(addressSource.address ? addressFields : []).map((field) => (
               <div className={`${styles.field} ${styles[field.key]}`} key={field.key}>
                 <label htmlFor={`technician-${field.key}`}>{t(field.label)}</label>
-                <input
-                  id={`technician-${field.key}`}
-                  value={manager[field.key]}
-                  readOnly
-                  aria-describedby="technician-address-note"
-                />
+                <input id={`technician-${field.key}`} value={addressSource[field.key]} readOnly />
               </div>
             ))}
           </div>
         </fieldset>
-        <div className={styles.rules}>
-          <p className={styles.note}>
+        <fieldset
+          disabled={busy}
+          className={styles.competencies}
+          aria-describedby="technician-competencies-help"
+        >
+          <legend>{t('Competências')}</legend>
+          <p id="technician-competencies-help" className={styles.srOnly}>
             {t(
-              'Use dados fictícios. Nenhuma conta ou senha real será criada. Os campos com * são obrigatórios nesta demonstração.',
+              'Use uma nota de 0 a 10, com até duas casas decimais. Deixe em branco para remover a avaliação.',
             )}
           </p>
-          {!technician && (
-            <p id="technician-password-rule" className={styles.note}>
-              {t(
-                'Senha: regra provisória de no mínimo 8 caracteres, maiúscula, minúscula e símbolo especial. A senha não é armazenada.',
-              )}
-            </p>
-          )}
-          <p id="technician-access-note" className={styles.note}>
-            {t('O tipo TÉCNICO é definido automaticamente pelo cadastro do gestor.')}
-          </p>
-          <p id="technician-address-note" className={styles.note}>
-            {t('O endereço de')}
-            {manager.name} {t('será aplicado ao salvar e não pode ser alterado neste cadastro.')}
-          </p>
-        </div>
-        <fieldset disabled={busy}>
-          <legend>{t('Informações operacionais da demonstração')}</legend>
-          <div className={styles.operational}>
-            {fields.slice(4).map(renderField)}
-            <div className={styles.field}>
-              <label htmlFor="technician-status">{t('Situação')}</label>
-              <select
-                id="technician-status"
-                value={form.status}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    status: event.target.value as TechnicianInput['status'],
-                  }))
-                }
-              >
-                <option value="Ativo">{t('Ativo')}</option>
-                <option value="Inativo">{t('Inativo')}</option>
-              </select>
-            </div>
+          <div className={styles.competencyGrid}>
+            {initialCompetencies.map((item) => {
+              const id = `technician-competency-${item.id}`
+              return (
+                <div className={styles.competencyField} key={item.id}>
+                  <label htmlFor={id}>{t(item.name)}</label>
+                  <div className={styles.scoreInput}>
+                    <input
+                      id={id}
+                      type="text"
+                      inputMode="decimal"
+                      maxLength={5}
+                      value={ratings[item.id]}
+                      aria-invalid={Boolean(ratingErrors[item.id])}
+                      aria-describedby={
+                        ratingErrors[item.id]
+                          ? `${id}-error technician-competencies-help`
+                          : 'technician-competencies-help'
+                      }
+                      onChange={(event) => updateRating(item.id, event.currentTarget.value)}
+                    />
+                    <span aria-hidden="true">/10</span>
+                  </div>
+                  {ratingErrors[item.id] && (
+                    <p id={`${id}-error`} className={styles.error} role="alert">
+                      {t(ratingErrors[item.id])}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </fieldset>
         {error && (
@@ -291,7 +366,7 @@ export function TechnicianForm({
         subject={form.name}
         confirmLabel="Salvar"
         busy={busy}
-        onClose={() => setPending(null)}
+        onClose={closeConfirmation}
         onConfirm={confirmSave}
       />
     </div>

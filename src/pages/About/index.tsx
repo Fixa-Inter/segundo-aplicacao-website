@@ -31,7 +31,7 @@ export default function About() {
       <header className={styles.header}>
         <Brand />
         <Link to="/login" className={styles.headerLink}>
-          {t('Acessar demonstração')}
+          {t('Acessar FIXA')}
           <ArrowRight size={18} aria-hidden="true" />
         </Link>
       </header>
@@ -71,7 +71,7 @@ export default function About() {
       <footer className={styles.footer}>
         <p>
           {t(
-            'Protótipo acadêmico: os dados e o acesso são demonstrativos. A API e a inteligência da Manu ainda não estão conectadas.',
+            'Aplicação acadêmica de gestão de manutenção. A Manu e os indicadores dependem de serviços adicionais.',
           )}
         </p>
       </footer>

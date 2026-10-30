@@ -1,0 +1,150 @@
+{
+  "issue": "https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12",
+  "responsible": "Gkso31, com apoio do Codex",
+  "base_revision": "44f9e4b",
+  "branch": "feature/integracao-ia-manu",
+  "started_at": "2026-10-27T17:31:19-03:00",
+  "verified_at": "2026-10-27T17:50:39.519925-03:00",
+  "estimated_minutes": 60,
+  "elapsed_minutes_observed": 19.3,
+  "fixes": [
+    {
+      "audit_id": "WEB-01",
+      "behavior": "Rejeita resposta vazia/em branco e conserva rascunho, sem criar balão vazio ou repetir POST."
+    },
+    {
+      "audit_id": "WEB-02",
+      "behavior": "Valida o mesmo identificador em resposta, histórico, envio, encerramento e exclusão, antes do cache/requisição."
+    },
+    {
+      "audit_id": "WEB-03",
+      "behavior": "Mantém conversas em memória acessíveis quando a listagem inicial falha ao voltar à Manu; retry permanece disponível."
+    },
+    {
+      "audit_id": "WEB-04",
+      "behavior": "Converte falhas de JSON, URL e rede do upload em mensagens legíveis; mantém status HTTP e cancelamento, sem retry automático."
+    },
+    {
+      "audit_id": null,
+      "behavior": "Completa traduções da saudação, mensagens de estado, acessibilidade e botões da Manu; traduz o erro antes de compor o aviso de envio."
+    }
+  ],
+  "original_audit_preserved": true,
+  "targeted_contract_regressions": {
+    "before_fix": {
+      "tests": 35,
+      "passed": 28,
+      "failed": 7
+    },
+    "after_fix": {
+      "tests": 35,
+      "passed": 35,
+      "failed": 0
+    }
+  },
+  "checks": {
+    "format": {
+      "exit_code": 0,
+      "log_tail": [
+        "",
+        "> fixa-web@0.0.0 format:check",
+        "> node ./node_modules/prettier/bin/prettier.cjs --check src tests scripts dev/compose.yml dev/compose.shared.yml package.json eslint.config.js vite.config.ts index.html",
+        "",
+        "Checking formatting...",
+        "All matched files use Prettier code style!"
+      ]
+    },
+    "lint": {
+      "exit_code": 0,
+      "log_tail": ["", "> fixa-web@0.0.0 lint", "> node ./node_modules/eslint/bin/eslint.js .", ""]
+    },
+    "test": {
+      "exit_code": 0,
+      "log_tail": [
+        "✔ valida técnico antes do cadastro demonstrativo (8.658ms)",
+        "✔ aplica a regra provisória da senha de demonstração (2.9004ms)",
+        "✔ valida evento e perfil antes de salvar (1.588ms)",
+        "✔ calendário atravessa mês e ano sem deslocamento local (1.4991ms)",
+        "ℹ tests 124",
+        "ℹ suites 0",
+        "ℹ pass 124",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 12898.1239"
+      ]
+    },
+    "build": {
+      "exit_code": 0,
+      "log_tail": [
+        "dist/assets/AppLayout-BAkjmhg8.js                            11.23 kB │ gzip:   4.05 kB",
+        "dist/assets/managementService-CjsMtY-a.js                    12.58 kB │ gzip:   4.64 kB",
+        "dist/assets/Calendar-DfVuN22g.js                             15.35 kB │ gzip:   5.09 kB",
+        "dist/assets/CloseButton-Du52GlLk.js                          17.39 kB │ gzip:   5.99 kB",
+        "dist/assets/Manu-BzlliDFj.js                                 24.09 kB │ gzip:   8.10 kB",
+        "dist/assets/Recovery-BZym5MjJ.js                             25.52 kB │ gzip:   8.50 kB",
+        "dist/assets/FigmaIcon-xweECoUN.js                            31.42 kB │ gzip:   5.42 kB",
+        "dist/assets/Team-CogQzhXb.js                                 45.85 kB │ gzip:  14.73 kB",
+        "dist/assets/ConfirmDialog-xPmBjWX0.js                        78.72 kB │ gzip:  25.83 kB",
+        "dist/assets/index-fgmDfrhZ.js                               472.33 kB │ gzip: 153.31 kB",
+        "",
+        "✓ built in 1.97s"
+      ]
+    },
+    "browser": {
+      "exit_code": 0,
+      "log_tail": [
+        "✔ exceção síncrona do carregador vira estado de erro sem desmontar a interface (1702.2295ms)",
+        "✔ StrictMode aborta a primeira leitura e aceita somente a leitura ativa (1231.3334ms)",
+        "✔ trocar técnico limpa suas notas enquanto as competências do próximo carregam (1617.4731ms)",
+        "✔ trocar técnico existente por cadastro novo devolve dez competências sem notas (1230.7434ms)",
+        "ℹ tests 25",
+        "ℹ suites 0",
+        "ℹ pass 25",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 104110.2028"
+      ]
+    }
+  },
+  "unit_tests": {
+    "tests": 124,
+    "passed": 124,
+    "failed": 0,
+    "new_regressions": 7
+  },
+  "browser_tests": {
+    "tests": 25,
+    "passed": 25,
+    "failed": 0,
+    "new_regressions": 4,
+    "mode": "Edge headless, API Web/IA/Cloudinary/Databricks controlados; nenhum registro real gravado"
+  },
+  "browser_transient": {
+    "initial_parallel_run": {
+      "tests": 24,
+      "passed": 23,
+      "failed": 1,
+      "failure": "Timeout de 10s na espera de carregamento inicial da equipe em 320px."
+    },
+    "isolated_retest": {
+      "tests": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "resolution": "Suites de navegador em sequência com --test-concurrency=1, sem ampliar timeouts nem remover assertions. Rodada final aprovada."
+  },
+  "translation_check": {
+    "languages": ["pt-BR", "en", "es", "zh-CN"],
+    "browser_flow": "Saudação, resposta inválida, rascunho preservado e botões Yes/No em inglês; catálogo dos novos textos conferido em en/es/zh-CN."
+  },
+  "screenshots_visually_reviewed": true,
+  "production_backend_changed": false,
+  "aws_operational_writes": false,
+  "pending_external": ["IA-01", "IA-02", "IA-03", "IA-04", "IA-05", "INT-01", "INT-02"],
+  "pull_request_created": false,
+  "project_status": "não alterado; vínculo pendente conforme Issue #12, sem simular aprovação ou encerramento"
+}

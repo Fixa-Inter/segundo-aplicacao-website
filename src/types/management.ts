@@ -8,7 +8,34 @@ export interface Address {
   complement: string
 }
 
+export interface ShiftOption {
+  id: string
+  name: string
+}
+export interface EventResponsibleOption {
+  id: string
+  name: string
+  status: 'Ativo' | 'Inativo'
+}
+
+export interface LocationOption {
+  id: string
+  name: string
+}
+
+export interface WorkUnitOption extends Address {
+  id: string
+  name: string
+  active: boolean
+}
+
 export interface Technician extends Address {
+  unitName?: string
+  unitId?: string
+  jobTitle?: string
+  shiftId?: string
+  shiftIds?: string[]
+  password?: string
   id: string
   name: string
   email: string
@@ -16,13 +43,24 @@ export interface Technician extends Address {
   birthDate: string
   accessType: 'TÉCNICO'
   specialty: string
+  assessedSpecialty: string | null
   shift: string
   status: 'Ativo' | 'Inativo'
 }
 
-export type TechnicianInput = Omit<Technician, 'id' | 'accessType' | keyof Address>
+export interface TeamMember extends Omit<Technician, 'accessType'> {
+  accessType: 'GESTOR' | 'TÉCNICO'
+  unitName?: string
+}
+
+export type TechnicianInput = Omit<
+  Technician,
+  'id' | 'accessType' | 'assessedSpecialty' | 'unitName' | keyof Address
+>
 
 export interface CalendarEvent {
+  locationId?: string
+  endDate?: string
   id: string
   title: string
   date: string

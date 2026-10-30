@@ -1,324 +1,743 @@
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { ArrowUp, Paperclip, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Paperclip, X } from 'lucide-react'
-import { FigmaIcon } from '../../components/FigmaIcon'
 import { useAuth } from '../../contexts/useAuth'
-import {
-  beginDemoMessage,
-  completeDemoMessage,
-  listDemoConversations,
-  subscribeDemoConversations,
-} from '../../services/manuService'
-import type { ChatAttachment } from '../../types/manu'
-import manu from '../../assets/figma/manu-chat.png'
-import common from '../management.module.css'
+import { FigmaIcon } from '../../components/FigmaIcon'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { ApiError } from '../../services/httpClient'
+import { manuApi } from '../../services/manuApi'
+import { validateImageFile } from '../../services/cloudinaryService'
+import { cloudinaryUploader as uploader } from '../../services/cloudinaryApi'
+import type {
+  ManuConversation,
+  ManuHistory,
+  ManuMessage,
+  ManuAttachment as Attachment,
+} from '../../types/manu'
+import { manuEmotionImage } from '../../assets/manuEmotions'
+import { normalizeManuEmotion } from '../../utils/manu'
 import styles from './Manu.module.css'
 
+function errorMessage(error: unknown) {
+  if (
+    error instanceof ApiError &&
+    (error.status === 503 ||
+      (error.status === 0 && error.message.startsWith('Não foi possível conectar à API.')))
+  )
+    return 'A Manu está temporariamente indisponível. Tente novamente mais tarde.'
+  return error instanceof Error ? error.message : 'Não foi possível conectar à Manu.'
+}
+function historyErrorMessage(reason: unknown) {
+  return reason instanceof ApiError && [0, 503].includes(reason.status)
+    ? 'Não foi possível carregar as conversas.'
+    : errorMessage(reason)
+}
 export default function Manu() {
   const { t } = usePreferences()
-
   const { user } = useAuth()
-  const [conversations, setConversations] = useState(listDemoConversations)
-  const [activeId, setActiveId] = useState<string | null>(
-    () => listDemoConversations()[0]?.id ?? null,
-  )
-  const [query, setQuery] = useState('')
-  const [message, setMessage] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [conversations, setConversations] = useState<ManuConversation[]>([])
+  const [current, setCurrent] = useState<ManuHistory | null>(null)
+  const [messages, setMessages] = useState<ManuMessage[]>([])
+  const [question, setQuestion] = useState('')
+  const [search, setSearch] = useState('')
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [sending, setSending] = useState(false)
+  const [loadingConversation, setLoadingConversation] = useState(false)
+  const [closing, setClosing] = useState(false)
+  const [removing, setRemoving] = useState(false)
+  const [deleting, setDeleting] = useState<ManuConversation | null>(null)
+  const [deleteError, setDeleteError] = useState('')
   const [error, setError] = useState('')
-  const [attachments, setAttachments] = useState<ChatAttachment[]>([])
-  const [suggestionsOpen, setSuggestionsOpen] = useState(false)
-  const fileRef = useRef<HTMLInputElement>(null)
-  const suggestionsRef = useRef<HTMLButtonElement>(null)
-  const messageRef = useRef<HTMLTextAreaElement>(null)
-  const logRef = useRef<HTMLDivElement>(null)
-  const active = conversations.find((item) => item.id === activeId)
-  useEffect(() => subscribeDemoConversations(() => setConversations(listDemoConversations())), [])
-  useEffect(() => {
-    logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'instant' })
-  }, [active?.messages.length, activeId, busy])
-  const filtered = conversations.filter((item) =>
-    item.title.toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR')),
-  )
+  const [historyError, setHistoryError] = useState('')
+  const [historyLoading, setHistoryLoading] = useState(manuApi.configured)
+  const [correcting, setCorrecting] = useState(false)
+  const [correction, setCorrection] = useState('')
+  const request = useRef<AbortController | null>(null)
+  const uploads = useRef(new Map<string, { controller: AbortController; preview: string }>())
+  const generation = useRef(0)
+  const busyRef = useRef(false)
+  const fileInput = useRef<HTMLInputElement>(null)
+  const newChatButton = useRef<HTMLButtonElement>(null)
+  const end = useRef<HTMLDivElement>(null)
+  const uploading = attachments.some((item) => item.status === 'uploading')
+  const busy = sending || loadingConversation || closing || removing || uploading
+  const pendingConfirmation = current?.confirmacao === 'sim' && !current.closed
+  const lastReply = messages.findLast((item) => item.author === 'manu')
 
-  function newChat() {
-    setActiveId(null)
-    setMessage('')
-    setError('')
-    setAttachments([])
-    messageRef.current?.focus()
+  useEffect(() => {
+    const controller = new AbortController()
+    const activeUploads = uploads.current
+    if (!manuApi.configured) return () => controller.abort()
+    if (manuApi.configured)
+      void manuApi
+        .list(controller.signal)
+        .then((data) => {
+          if (!controller.signal.aborted) {
+            setConversations(data)
+            setHistoryError('')
+          }
+        })
+        .catch((reason) => {
+          if (!controller.signal.aborted) {
+            setConversations(manuApi.cachedList())
+            setHistoryError(historyErrorMessage(reason))
+          }
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setHistoryLoading(false)
+        })
+    return () => {
+      controller.abort()
+      request.current?.abort()
+      activeUploads.forEach((item) => {
+        item.controller.abort()
+        URL.revokeObjectURL(item.preview)
+      })
+      activeUploads.clear()
+    }
+  }, [user?.id])
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: 'nearest' })
+  }, [messages, sending, correcting])
+  async function refreshConversations() {
+    setHistoryLoading(true)
+    try {
+      setConversations(await manuApi.list())
+      setHistoryError('')
+    } catch (reason) {
+      setConversations(manuApi.cachedList())
+      setHistoryError(historyErrorMessage(reason))
+    } finally {
+      setHistoryLoading(false)
+    }
   }
-  async function send(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const text = message.trim()
-    if (!text || busy) return
-    if (text.length > 500) {
-      setError('A mensagem deve ter no máximo 500 caracteres.')
+  function clearAttachments() {
+    uploads.current.forEach((item) => {
+      item.controller.abort()
+      URL.revokeObjectURL(item.preview)
+    })
+    uploads.current.clear()
+    setAttachments([])
+  }
+  function resetChat() {
+    generation.current++
+    setCurrent(null)
+    setMessages([])
+    setQuestion('')
+    setError('')
+    setCorrecting(false)
+    setCorrection('')
+    clearAttachments()
+  }
+  async function selectConversation(id: string) {
+    if (busyRef.current || uploading) return
+    const expected = ++generation.current
+    const controller = new AbortController()
+    request.current = controller
+    busyRef.current = true
+    setLoadingConversation(true)
+    setError('')
+    try {
+      const data = await manuApi.history(id, controller.signal)
+      if (controller.signal.aborted || expected !== generation.current) return
+      setCurrent(data)
+      setMessages(data.messages)
+      setQuestion('')
+      setError('')
+      setCorrecting(false)
+      setCorrection('')
+      clearAttachments()
+    } catch (reason) {
+      if (!controller.signal.aborted && expected === generation.current)
+        setError(errorMessage(reason))
+    } finally {
+      if (expected === generation.current) {
+        busyRef.current = false
+        setLoadingConversation(false)
+      }
+    }
+  }
+  async function uploadAttachment(item: Attachment) {
+    const controller = new AbortController()
+    uploads.current.set(item.id, { controller, preview: item.preview })
+    setAttachments((values) =>
+      values.map((value) =>
+        value.id === item.id ? { ...value, status: 'uploading', error: undefined } : value,
+      ),
+    )
+    try {
+      const url = await uploader.upload(item.file, controller.signal)
+      if (!controller.signal.aborted)
+        setAttachments((values) =>
+          values.map((value) =>
+            value.id === item.id ? { ...value, status: 'ready', url } : value,
+          ),
+        )
+    } catch (reason) {
+      if (!controller.signal.aborted)
+        setAttachments((values) =>
+          values.map((value) =>
+            value.id === item.id
+              ? { ...value, status: 'error', error: errorMessage(reason) }
+              : value,
+          ),
+        )
+    }
+  }
+  function selectFiles(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? [])
+    event.target.value = ''
+    if (!files.length) return
+    try {
+      if (attachments.length + files.length > 3) throw new ApiError('Use até 3 imagens.')
+      files.forEach(validateImageFile)
+      if (!uploader.configured)
+        throw new ApiError('O envio de imagens está indisponível no momento.')
+      const added = files.map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
+        status: 'uploading' as const,
+      }))
+      setAttachments((values) => [...values, ...added])
+      setError('')
+      added.forEach((item) => void uploadAttachment(item))
+    } catch (reason) {
+      setError(errorMessage(reason))
+    }
+  }
+  function removeAttachment(id: string) {
+    const item = uploads.current.get(id)
+    if (item) {
+      item.controller.abort()
+      URL.revokeObjectURL(item.preview)
+      uploads.current.delete(id)
+    }
+    setAttachments((values) => values.filter((value) => value.id !== id))
+  }
+  async function send(
+    text = question,
+    mode: 'message' | 'confirmation' | 'correction' = 'message',
+  ) {
+    if (busyRef.current || uploading || current?.closed || !text.trim() || !manuApi.configured)
+      return
+    if (
+      mode === 'message' &&
+      (pendingConfirmation || attachments.some((item) => item.status !== 'ready'))
+    )
+      return
+    busyRef.current = true
+    setSending(true)
+    setError('')
+    const expected = generation.current
+    const controller = new AbortController()
+    request.current = controller
+    const pending: ManuMessage = {
+      id: crypto.randomUUID(),
+      author: 'user',
+      text: text.trim(),
+      images: mode === 'message' ? attachments.flatMap((item) => (item.url ? [item.url] : [])) : [],
+    }
+    setMessages((values) => [...values, pending])
+    const originalQuestion = question
+    if (mode === 'message') setQuestion('')
+    try {
+      const data = await manuApi.send(
+        pending.text,
+        current?.thread_id ?? null,
+        pending.images,
+        controller.signal,
+      )
+      if (controller.signal.aborted || expected !== generation.current) return
+      const reply: ManuMessage = {
+        id: crypto.randomUUID(),
+        author: 'manu',
+        text: data.resposta,
+        images: [],
+        emotion: normalizeManuEmotion(data.emocao),
+        confirmation: data.confirmacao === 'sim',
+      }
+      setMessages((values) => [...values, reply])
+      setCurrent({
+        thread_id: data.thread_id,
+        title: current?.title ?? pending.text.slice(0, 80),
+        updated_at: new Date().toISOString(),
+        closed: false,
+        confirmacao: data.confirmacao,
+        messages: [],
+      })
+      setCorrecting(false)
+      setCorrection('')
+      if (mode === 'message') clearAttachments()
+      await refreshConversations()
+    } catch (reason) {
+      if (controller.signal.aborted || expected !== generation.current) return
+      setMessages((values) => values.filter((value) => value.id !== pending.id))
+      if (mode === 'message') setQuestion(originalQuestion)
+      setError(
+        `${t(errorMessage(reason))} ${t('Não reenviamos automaticamente: o servidor pode ter recebido a mensagem.')}`,
+      )
+    } finally {
+      if (expected === generation.current) {
+        busyRef.current = false
+        setSending(false)
+      }
+    }
+  }
+  async function newChat() {
+    if (busyRef.current || uploading) return
+    if (!current || current.closed) {
+      resetChat()
       return
     }
-    const id = activeId ?? crypto.randomUUID()
+    busyRef.current = true
+    setClosing(true)
     setError('')
-    setBusy(true)
+    const controller = new AbortController()
+    request.current = controller
+    const expected = generation.current
     try {
-      setConversations(beginDemoMessage(id, text, attachments))
-      setActiveId(id)
-      setMessage('')
-      setAttachments([])
-      setConversations(await completeDemoMessage(id, text, attachments.length > 0))
-    } catch {
-      setError('Não foi possível gerar a resposta demonstrativa. Tente novamente.')
+      await manuApi.close(current.thread_id, controller.signal)
+      if (controller.signal.aborted || expected !== generation.current) return
+      resetChat()
+      await refreshConversations()
+    } catch (reason) {
+      if (!controller.signal.aborted)
+        setError(
+          reason instanceof ApiError && (reason.status === 0 || reason.status >= 500)
+            ? 'Não foi possível confirmar o encerramento da conversa. Suas mensagens continuam disponíveis.'
+            : errorMessage(reason),
+        )
     } finally {
-      setBusy(false)
-      messageRef.current?.focus()
+      busyRef.current = false
+      setClosing(false)
     }
   }
-
+  async function deleteConversation() {
+    if (!deleting || busyRef.current || uploading) return
+    const targetId = deleting.thread_id
+    const expected = generation.current
+    const controller = new AbortController()
+    request.current = controller
+    busyRef.current = true
+    setRemoving(true)
+    setDeleteError('')
+    try {
+      await manuApi.remove(targetId, controller.signal)
+      if (controller.signal.aborted || expected !== generation.current) return
+      setConversations((values) => values.filter((item) => item.thread_id !== targetId))
+      if (current?.thread_id === targetId) resetChat()
+      setDeleting(null)
+      await refreshConversations()
+      requestAnimationFrame(() => newChatButton.current?.focus())
+    } catch (reason) {
+      if (!controller.signal.aborted)
+        setDeleteError(
+          reason instanceof ApiError && (reason.status === 0 || reason.status >= 500)
+            ? 'Não foi possível excluir a conversa. Tente novamente.'
+            : errorMessage(reason),
+        )
+    } finally {
+      busyRef.current = false
+      setRemoving(false)
+    }
+  }
+  const filtered = conversations.filter((item) =>
+    item.title.toLocaleLowerCase().includes(search.toLocaleLowerCase()),
+  )
   return (
-    <div className={styles.page}>
-      <aside className={styles.history} aria-label={t('Conversas da Manu')}>
+    <div className={`${styles.page} ${messages.length ? styles.withMessages : ''}`}>
+      <aside className={styles.history}>
         <h1>{t('Manu')}</h1>
-        <label htmlFor="manu-search" className={styles.search}>
-          <span className={styles.srOnly}>{t('Pesquisar conversas')}</span>
+        <label className={styles.search}>
           <FigmaIcon name="chat-search" />
           <input
-            id="manu-search"
             type="search"
+            aria-label={t('Pesquisar conversas')}
             placeholder={t('Pesquisar')}
-            value={query}
-            maxLength={50}
-            onChange={(event) => setQuery(event.target.value)}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
           />
         </label>
         <button
+          ref={newChatButton}
           className={styles.newChat}
+          aria-label={t(closing ? 'Finalizando…' : 'Novo chat')}
+          title={t(closing ? 'Finalizando…' : 'Novo chat')}
           type="button"
-          onClick={newChat}
-          disabled={busy || !activeId}
+          onClick={() => void newChat()}
+          disabled={busy}
         >
-          <FigmaIcon name="new-chat" /> {t('Novo chat')}
+          <Plus size={22} aria-hidden="true" />
+          <span>{t(closing ? 'Finalizando…' : 'Novo chat')}</span>
         </button>
-        <h2>{t('Recentes')}</h2>
-        {filtered.length ? (
-          <nav aria-label={t('Conversas recentes')}>
-            {filtered.map((item) => (
-              <button
-                className={styles.conversation}
-                type="button"
-                key={item.id}
-                aria-current={item.id === activeId ? 'page' : undefined}
-                disabled={busy}
-                onClick={() => {
-                  setActiveId(item.id)
-                  messageRef.current?.focus()
-                }}
-              >
-                {item.title}
-              </button>
-            ))}
-          </nav>
-        ) : (
-          <p className={common.muted}>
-            {t(query ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa nesta sessão.')}
+        <div className={styles.historyTitle}>
+          <h2>{t('Conversas')}</h2>
+        </div>
+        {historyLoading && (
+          <p className={styles.sessionNote} role="status">
+            {t('Carregando conversas…')}
           </p>
         )}
+        {historyError && (
+          <div className={styles.historyError} role="alert">
+            <p>{t(historyError)}</p>
+            <button
+              type="button"
+              onClick={() => void refreshConversations()}
+              disabled={historyLoading}
+            >
+              {t('Tentar novamente')}
+            </button>
+          </div>
+        )}
+        {!historyLoading && !historyError && !filtered.length && (
+          <p className={styles.emptyHistory}>
+            {t(search ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa encontrada.')}
+          </p>
+        )}
+        <nav aria-label={t('Conversas recentes')}>
+          {filtered.map((item) => (
+            <div
+              key={item.thread_id}
+              className={styles.conversationRow}
+              data-active={current?.thread_id === item.thread_id}
+            >
+              <button
+                type="button"
+                className={styles.conversation}
+                aria-current={current?.thread_id === item.thread_id ? 'page' : undefined}
+                disabled={busy}
+                onClick={() => void selectConversation(item.thread_id)}
+                title={item.title}
+              >
+                {!item.closed && current?.thread_id === item.thread_id && (
+                  <span
+                    className={styles.newConversationDot}
+                    role="img"
+                    aria-label={t('Conversa em andamento')}
+                  />
+                )}
+                {item.title}
+              </button>
+              <button
+                type="button"
+                className={styles.deleteConversation}
+                disabled={busy}
+                aria-label={t('Excluir conversa: {title}', { title: item.title })}
+                title={t('Excluir conversa')}
+                onClick={() => {
+                  setDeleteError('')
+                  setDeleting(item)
+                }}
+              >
+                <Trash2 size={17} aria-hidden="true" />
+              </button>
+            </div>
+          ))}
+        </nav>
       </aside>
-      <section className={styles.chat} aria-label={t('Conversa com Manu')}>
-        <div
-          className={`${styles.welcome} ${active?.messages.length ? styles.welcomeCompact : ''}`}
-        >
-          <img src={manu} alt={t('Manu, assistente do FIXA')} width="240" height="240" />
-          <h2>
-            {t('Olá')} {user?.name ?? 'gestor'}
-            {t(', como posso te ajudar hoje?')}
-          </h2>
-        </div>
-        {active?.messages.length ? (
+      <section className={styles.chat} aria-label={t('Manu')}>
+        {loadingConversation && (
+          <p className={styles.sessionNote} role="status">
+            {t('Carregando conversa…')}
+          </p>
+        )}
+        {!messages.length ? (
+          <div className={styles.greeting}>
+            <img src={manuEmotionImage('EMPATICO')} alt={t('Manu')} width="72" height="72" />
+            <h2>
+              {t('Olá {name}, como posso te ajudar hoje?', {
+                name: user?.name.split(' ')[0] ?? '',
+              })}
+            </h2>
+          </div>
+        ) : (
+          <div className={styles.chatHeading}>
+            <h2>{current?.title ?? t('Nova conversa')}</h2>
+            {current?.closed && (
+              <span className={styles.closedChat}>{t('Conversa salva no histórico')}</span>
+            )}
+          </div>
+        )}
+        {(messages.length > 0 || sending) && (
           <div
-            ref={logRef}
             className={styles.messages}
             role="log"
+            aria-label={t('Mensagens da conversa')}
             aria-live="polite"
-            aria-relevant="additions text"
+            aria-busy={sending || loadingConversation}
           >
-            {active.messages.map((item) => (
+            {messages.map((message) => (
               <div
-                key={item.id}
-                className={`${styles.bubble} ${item.author === 'user' ? styles.user : styles.assistant}`}
+                key={message.id}
+                className={`${styles.messageRow} ${message.author === 'user' ? styles.userRow : ''}`}
               >
-                <strong>{t(item.author === 'user' ? 'Você' : 'Manu')}</strong>
-                <p>
-                  {item.author === 'user'
-                    ? item.text
-                    : item.text
-                        .split('\n')
-                        .map((line) => t(line))
-                        .join('\n')}
-                </p>
-                {item.attachments?.map((attachment) => (
-                  <small className={styles.attachmentName} key={attachment.id}>
-                    <Paperclip size={14} aria-hidden="true" /> {attachment.name}{' '}
-                    {t('· somente nome e tamanho')}
-                  </small>
-                ))}
+                {message.author === 'manu' && (
+                  <img
+                    className={styles.emotionAvatar}
+                    src={manuEmotionImage(message.emotion)}
+                    data-emotion={message.emotion ?? 'NEUTRO'}
+                    alt={t('Manu')}
+                    width="72"
+                    height="72"
+                  />
+                )}
+                <article
+                  className={`${styles.bubble} ${message.author === 'user' ? styles.user : styles.assistant} ${message.confirmation ? styles.proposal : ''}`}
+                >
+                  <strong>
+                    {t(
+                      message.author === 'user'
+                        ? 'Você'
+                        : message.confirmation
+                          ? 'Confirme as informações'
+                          : 'Manu',
+                    )}
+                  </strong>
+                  <p>{message.text}</p>
+                  {!!message.images.length && (
+                    <div className={styles.sentImages}>
+                      {message.images.map((url, index) => (
+                        <a key={url + index} href={url} target="_blank" rel="noopener noreferrer">
+                          <img
+                            src={url}
+                            alt={t('Imagem {number}', { number: index + 1 })}
+                            loading="lazy"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  {message.id === lastReply?.id && pendingConfirmation && (
+                    <div className={styles.proposalActions}>
+                      <p>{t('Você confirma as informações acima?')}</p>
+                      <div className={styles.decisionButtons}>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          aria-expanded={correcting}
+                          onClick={() => setCorrecting(true)}
+                        >
+                          {t('Não')}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.acceptProposal}
+                          disabled={busy || correcting}
+                          onClick={() => void send('sim', 'confirmation')}
+                        >
+                          {t('Sim')}
+                        </button>
+                      </div>
+                      {correcting && (
+                        <form
+                          className={styles.correction}
+                          onSubmit={(event) => {
+                            event.preventDefault()
+                            if (correction.trim())
+                              void send(
+                                `Antes de confirmar, corrija as seguintes informações: ${correction.trim()}`,
+                                'correction',
+                              )
+                          }}
+                        >
+                          <label htmlFor="manu-correction">
+                            {t('O que precisa ser corrigido?')}
+                          </label>
+                          <textarea
+                            id="manu-correction"
+                            value={correction}
+                            maxLength={3900}
+                            disabled={busy}
+                            onChange={(event) => setCorrection(event.target.value)}
+                            placeholder={t('Indique a informação incorreta e como ela deve ficar.')}
+                          />
+                          <div className={styles.decisionButtons}>
+                            <button
+                              type="button"
+                              disabled={busy}
+                              onClick={() => {
+                                setCorrecting(false)
+                                setCorrection('')
+                              }}
+                            >
+                              {t('Voltar à proposta')}
+                            </button>
+                            <button
+                              type="submit"
+                              className={styles.acceptProposal}
+                              disabled={busy || !correction.trim()}
+                            >
+                              {t('Enviar correção')}
+                            </button>
+                          </div>
+                        </form>
+                      )}
+                    </div>
+                  )}
+                </article>
               </div>
             ))}
-            {busy && <p role="status">{t('Manu está preparando uma resposta demonstrativa…')}</p>}
+            {sending && (
+              <div className={styles.messageRow} role="status">
+                <img
+                  className={styles.emotionAvatar}
+                  src={manuEmotionImage('AGUARDANDO')}
+                  alt=""
+                  width="72"
+                  height="72"
+                />
+                <p>{t('A Manu está preparando uma resposta…')}</p>
+              </div>
+            )}
+            <div ref={end} />
           </div>
-        ) : null}
+        )}
         {error && (
-          <p role="alert" className={common.error}>
+          <p className={styles.chatError} role="alert">
             {t(error)}
           </p>
         )}
-        <form
-          className={styles.composer}
-          onSubmit={send}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape' && suggestionsOpen) {
+        {!manuApi.configured && (
+          <p className={styles.chatError} role="status">
+            {t('O serviço da Manu ainda não foi configurado.')}
+          </p>
+        )}
+        {!pendingConfirmation && (
+          <form
+            className={styles.composer}
+            onSubmit={(event) => {
               event.preventDefault()
-              setSuggestionsOpen(false)
-              suggestionsRef.current?.focus()
-            }
-          }}
-        >
-          <label className={styles.srOnly} htmlFor="manu-message">
-            {t('Mensagem para Manu')}
-          </label>
-          <textarea
-            ref={messageRef}
-            id="manu-message"
-            value={message}
-            maxLength={500}
-            aria-describedby="manu-message-help"
-            placeholder={t('Como posso te ajudar hoje?')}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => {
-              // O IME pode usar Enter (código 229) para confirmar caracteres antes do envio.
-              if (
-                event.key === 'Enter' &&
-                !event.shiftKey &&
-                !event.nativeEvent.isComposing &&
-                event.nativeEvent.keyCode !== 229
-              ) {
-                event.preventDefault()
-                if (!event.repeat) event.currentTarget.form?.requestSubmit()
-              }
+              void send()
             }}
-          />
-          {attachments.length > 0 && (
-            <ul className={styles.attachments}>
-              {attachments.map((attachment) => (
-                <li key={attachment.id}>
-                  <span>
-                    {attachment.name} ({Math.ceil(attachment.size / 1024)} {t('KB)')}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={t('Remover anexo {name}', { name: attachment.name })}
-                    onClick={() =>
-                      setAttachments((items) => items.filter((item) => item.id !== attachment.id))
-                    }
-                  >
-                    <X size={16} />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className={styles.composerActions}>
-            <button
-              ref={suggestionsRef}
-              type="button"
-              aria-label={t('Sugestões de perguntas')}
-              aria-expanded={suggestionsOpen}
-              aria-controls="manu-suggestions"
-              onClick={() => setSuggestionsOpen((current) => !current)}
-            >
-              <FigmaIcon name="chat-plus" />
-            </button>
-            <button
-              type="button"
-              aria-label={t('Adicionar anexo demonstrativo')}
-              disabled={attachments.length >= 3 || busy}
-              onClick={() => fileRef.current?.click()}
-            >
-              <FigmaIcon name="attachment" />
-            </button>
-            <input
-              id="manu-file"
-              ref={fileRef}
-              className={styles.srOnly}
-              type="file"
-              tabIndex={-1}
-              aria-label={t('Arquivo demonstrativo')}
-              accept="image/png,image/jpeg,image/webp,application/pdf,text/plain"
-              onChange={(event) => {
-                const file = event.currentTarget.files?.[0]
-                event.currentTarget.value = ''
-                if (!file) return
-                if (
-                  file.size > 5 * 1024 * 1024 ||
-                  ![
-                    'image/png',
-                    'image/jpeg',
-                    'image/webp',
-                    'application/pdf',
-                    'text/plain',
-                  ].includes(file.type)
-                ) {
-                  setError('Escolha PNG, JPEG, WebP, PDF ou texto com até 5 MB.')
-                  return
+          >
+            <label htmlFor="manu-question" className={styles.srOnly}>
+              {t('Mensagem para a Manu')}
+            </label>
+            <textarea
+              id="manu-question"
+              maxLength={4000}
+              disabled={busy || current?.closed || pendingConfirmation || !manuApi.configured}
+              placeholder={t(
+                current?.closed
+                  ? 'Inicie uma nova conversa para continuar.'
+                  : pendingConfirmation
+                    ? 'Revise a proposta acima para continuar.'
+                    : 'Como posso te ajudar hoje?',
+              )}
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+                  event.preventDefault()
+                  void send()
                 }
-                setError('')
-                setAttachments((items) =>
-                  [...items, { id: crypto.randomUUID(), name: file.name, size: file.size }].slice(
-                    0,
-                    3,
-                  ),
-                )
               }}
             />
-            <label htmlFor="manu-file" className={styles.srOnly}>
-              {t('Arquivo demonstrativo')}
-            </label>
-            <small>{message.length}/500</small>
-            <button
-              className={styles.send}
-              type="submit"
-              disabled={busy || !message.trim()}
-              aria-label={t('Enviar mensagem')}
-            >
-              <FigmaIcon name="send" />
-            </button>
-          </div>
-          {suggestionsOpen && (
-            <div className={styles.suggestions} id="manu-suggestions">
-              {[
-                'Como cadastrar um técnico?',
-                'Como agendar um evento?',
-                'Como consultar indicadores?',
-              ].map((text) => (
-                <button
-                  key={t(text)}
-                  type="button"
-                  onClick={() => {
-                    setMessage(t(text))
-                    setSuggestionsOpen(false)
-                    messageRef.current?.focus()
-                  }}
-                >
-                  {t(text)}
-                </button>
-              ))}
+            {!!attachments.length && (
+              <ul className={styles.filePreviews}>
+                {attachments.map((item) => (
+                  <li key={item.id}>
+                    <img src={item.preview} alt="" width="64" height="64" />
+                    <div>
+                      <span>{item.file.name}</span>
+                      <small role={item.status === 'error' ? 'alert' : 'status'}>
+                        {t(
+                          item.status === 'uploading'
+                            ? 'Enviando imagem…'
+                            : item.status === 'ready'
+                              ? 'Imagem pronta'
+                              : (item.error ?? 'Falha no envio'),
+                        )}
+                      </small>
+                    </div>
+                    {item.status === 'error' && (
+                      <button
+                        type="button"
+                        aria-label={t('Tentar novamente')}
+                        disabled={sending || closing}
+                        onClick={() => void uploadAttachment(item)}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={t('Remover imagem {number}', {
+                        number: attachments.indexOf(item) + 1,
+                      })}
+                      disabled={sending || closing}
+                      onClick={() => removeAttachment(item.id)}
+                    >
+                      <X size={16} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className={styles.composerActions}>
+              <input
+                ref={fileInput}
+                className={styles.fileInput}
+                type="file"
+                multiple
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={selectFiles}
+              />
+              <button
+                type="button"
+                aria-label={t('Anexar imagens')}
+                disabled={
+                  busy ||
+                  current?.closed ||
+                  pendingConfirmation ||
+                  attachments.length >= 3 ||
+                  !manuApi.configured
+                }
+                onClick={() => {
+                  if (!uploader.configured)
+                    setError(t('O envio de imagens está indisponível no momento.'))
+                  else fileInput.current?.click()
+                }}
+              >
+                <Paperclip size={21} />
+              </button>
+              <small>{question.length}/4000</small>
+              <button
+                type="submit"
+                className={styles.send}
+                aria-label={t('Enviar mensagem')}
+                disabled={
+                  busy ||
+                  !question.trim() ||
+                  current?.closed ||
+                  pendingConfirmation ||
+                  attachments.some((item) => item.status !== 'ready') ||
+                  !manuApi.configured
+                }
+              >
+                <ArrowUp size={22} />
+              </button>
             </div>
-          )}
-        </form>
-        <p id="manu-message-help" className={styles.note}>
-          {t(
-            'Enter para enviar; Shift + Enter para uma nova linha. Anexos: até 3 arquivos de 5 MB; somente nome e tamanho ficam na sessão. Nenhum conteúdo é lido, enviado ou analisado.',
-          )}
-        </p>
+          </form>
+        )}
       </section>
+      <ConfirmDialog
+        opened={Boolean(deleting)}
+        variant="deleteConversation"
+        subject={deleting?.title}
+        confirmLabel="Excluir"
+        busy={removing}
+        error={deleteError}
+        onClose={() => {
+          if (!busyRef.current) {
+            setDeleting(null)
+            setDeleteError('')
+          }
+        }}
+        onConfirm={() => void deleteConversation()}
+      />
     </div>
   )
 }

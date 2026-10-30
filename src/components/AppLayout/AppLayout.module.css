@@ -341,3 +341,28 @@
 .avatar:hover {
   box-shadow: 0 0 0 3px var(--fixa-selected);
 }
+
+@media (max-width: 600px) {
+  .shell {
+    --header-height: 64px;
+    --content-gutter: 16px;
+  }
+  .main {
+    padding-inline: var(--content-gutter);
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+  .avatar {
+    width: 44px;
+    height: 44px;
+  }
+  .headerInner {
+    padding-left: max(var(--content-gutter), env(safe-area-inset-left));
+    padding-right: max(var(--content-gutter), env(safe-area-inset-right));
+  }
+}
+
+@media (max-width: 900px) and (max-height: 500px) {
+  .shell {
+    --header-height: 60px;
+  }
+}

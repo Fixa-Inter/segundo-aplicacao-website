@@ -330,3 +330,54 @@
     background-color 150ms,
     color 150ms;
 }
+
+@media (max-width: 600px) {
+  .calendarPanel {
+    padding: 16px 12px;
+  }
+  .monthHeader {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .monthHeader h2 {
+    flex: 1;
+    min-width: 0;
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  .monthHeader button {
+    width: 44px;
+    height: 44px;
+    flex: none;
+  }
+  .calendarGrid {
+    column-gap: 2px;
+    row-gap: 4px;
+  }
+  .weekday {
+    font-size: 14px;
+  }
+  .day {
+    width: 100%;
+    max-width: 44px;
+    min-width: 24px;
+    height: 44px;
+    font-size: 14px;
+  }
+  .dayNumber {
+    width: min(36px, calc(100% - 4px));
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .eventSummary {
+    gap: 12px;
+    min-height: 48px;
+  }
+  .iconButton {
+    background: var(--fixa-accent-surface);
+    border-radius: 12px;
+  }
+  .delete {
+    background: var(--fixa-error-bg);
+  }
+}

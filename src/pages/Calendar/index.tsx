@@ -7,14 +7,15 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EventDetails } from '../../components/EventDetails'
 import { EventForm } from '../../components/EventForm'
 import { PageHeader } from '../../components/PageHeader'
+import { AddRecordButton } from '../../components/AddRecordButton'
 import {
   listEvents,
-  listTechnicians,
+  listEventResponsibles,
   removeEvent,
   saveEvent,
 } from '../../services/managementService'
-import type { CalendarEvent, Technician } from '../../types/management'
-import { monthDays, shiftDate } from '../../utils/calendar'
+import type { CalendarEvent, EventResponsibleOption } from '../../types/management'
+import { monthDays, occursOnDate, shiftDate } from '../../utils/calendar'
 import common from '../management.module.css'
 import styles from './Calendar.module.css'
 
@@ -25,12 +26,12 @@ export default function Calendar() {
   const linkedDate =
     typeof state?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(state.date)
       ? state.date
-      : '2026-03-11'
+      : new Date().toLocaleDateString('sv-SE')
   const [month, setMonth] = useState(linkedDate.slice(0, 7))
   const [selectedDay, setSelectedDay] = useState(linkedDate)
   const [details, setDetails] = useState<CalendarEvent | null>(null)
   const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [technicians, setTechnicians] = useState<Technician[]>([])
+  const [responsibles, setResponsibles] = useState<EventResponsibleOption[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [loadAttempt, setLoadAttempt] = useState(0)
@@ -51,11 +52,11 @@ export default function Calendar() {
 
   useEffect(() => {
     let active = true
-    Promise.all([listEvents(), listTechnicians()])
-      .then(([loadedEvents, loadedTechnicians]) => {
+    Promise.all([listEvents(), listEventResponsibles()])
+      .then(([loadedEvents, loadedResponsibles]) => {
         if (active) {
           setEvents(loadedEvents)
-          setTechnicians(loadedTechnicians)
+          setResponsibles(loadedResponsibles)
         }
       })
       .catch(() => {
@@ -101,19 +102,24 @@ export default function Calendar() {
     )
   }
   async function confirmDelete() {
-    if (!deleting) return
+    if (!deleting || busy) return
     setBusy(true)
     setError('')
     try {
       await removeEvent(deleting.id)
-      setEvents(await listEvents())
+      setEvents((values) => values.filter((item) => item.id !== deleting.id))
       setDeleting(null)
-      setNotice('Evento excluído nesta sessão de demonstração.')
+      setNotice('Evento excluído com sucesso.')
       requestAnimationFrame(() =>
         calendarRef.current
           ?.querySelector<HTMLButtonElement>(`[data-date="${selectedDay}"]`)
           ?.focus(),
       )
+      try {
+        setEvents(await listEvents())
+      } catch {
+        setError('O evento foi excluído, mas não foi possível atualizar a lista.')
+      }
     } catch {
       setError('Não foi possível excluir o evento.')
       setDeleting(null)
@@ -122,7 +128,7 @@ export default function Calendar() {
     }
   }
   const selectedEvents = events
-    .filter((item) => item.date === selectedDay)
+    .filter((item) => occursOnDate(item, selectedDay))
     .sort((a, b) => a.time.localeCompare(b.time))
   const dates = monthDays(month)
 
@@ -131,7 +137,7 @@ export default function Calendar() {
       <EventForm
         event={editing}
         selectedDay={selectedDay}
-        technicians={technicians}
+        responsibles={responsibles}
         onSubmit={(input) => saveEvent(input, editing?.id)}
         onCancel={() => setFormOpen(false)}
         onSaved={(saved) => {
@@ -142,11 +148,7 @@ export default function Calendar() {
           )
           setSelectedDay(saved.date)
           setMonth(saved.date.slice(0, 7))
-          setNotice(
-            editing
-              ? 'Evento atualizado nesta sessão de demonstração.'
-              : 'Evento criado nesta sessão de demonstração.',
-          )
+          setNotice(editing ? 'Evento atualizado com sucesso.' : 'Evento criado com sucesso.')
           setFormOpen(false)
         }}
       />
@@ -158,16 +160,12 @@ export default function Calendar() {
       <PageHeader
         title={t('Calendário')}
         action={
-          <button
+          <AddRecordButton
             ref={addButtonRef}
-            className={`${common.primary} ${common.addButton}`}
-            type="button"
+            label={t('Adicionar evento')}
             onClick={() => openForm()}
             disabled={loading || Boolean(loadError)}
-          >
-            <FigmaIcon name="plus" />
-            {t('Adicionar evento')}
-          </button>
+          />
         }
       />
       {notice && (
@@ -214,7 +212,12 @@ export default function Calendar() {
                 <FigmaIcon name="chevron-right" />
               </button>
             </div>
-            <div ref={calendarRef} className={styles.calendarGrid} aria-label={t('Dias do mês')}>
+            <div
+              ref={calendarRef}
+              className={styles.calendarGrid}
+              role="group"
+              aria-label={t('Dias do mês')}
+            >
               {Array.from({ length: 7 }, (_, index) =>
                 formatDate(shiftDate('2026-03-01', index), { weekday: 'narrow' }),
               ).map((day, index) => (
@@ -230,7 +233,7 @@ export default function Calendar() {
                   tabIndex={date === selectedDay ? 0 : -1}
                   onKeyDown={(event) => moveDay(event, date)}
                   className={`${styles.day} ${date.slice(0, 7) !== month ? styles.outside : ''}`}
-                  aria-label={`${formatDate(date, { dateStyle: 'full' })}${events.some((item) => item.date === date) ? t(', com evento') : ''}`}
+                  aria-label={`${formatDate(date, { dateStyle: 'full' })}${events.some((item) => occursOnDate(item, date)) ? t(', com evento') : ''}`}
                   aria-pressed={date === selectedDay}
                   onClick={() => {
                     setSelectedDay(date)
@@ -239,7 +242,7 @@ export default function Calendar() {
                 >
                   <span className={styles.dayNumber}>
                     {Number(date.slice(-2))}
-                    {events.some((item) => item.date === date) && <i aria-hidden="true" />}
+                    {events.some((item) => occursOnDate(item, date)) && <i aria-hidden="true" />}
                   </span>
                 </button>
               ))}
@@ -259,8 +262,10 @@ export default function Calendar() {
                   <article className={styles.event} key={item.id}>
                     <div className={styles.eventSummary}>
                       <span className={styles.eventDate} aria-hidden="true">
-                        <strong>{Number(item.date.slice(-2))}</strong>
-                        <span>{formatDate(item.date, { weekday: 'short' }).replace('.', '')}</span>
+                        <strong>{Number(selectedDay.slice(-2))}</strong>
+                        <span>
+                          {formatDate(selectedDay, { weekday: 'short' }).replace('.', '')}
+                        </span>
                       </span>
                       <span>
                         <span className={styles.eventTitle}>{item.title}</span>

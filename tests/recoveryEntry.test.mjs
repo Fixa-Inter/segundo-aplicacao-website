@@ -7,16 +7,16 @@ test('atalho da recuperação aceita somente desafios mock válidos e remove cam
     null,
     {},
     { challenge: null },
-    { challenge: { id: 'demo-recovery', email: '123456789' } },
+    { challenge: { id: 'email-recovery', email: '123456789' } },
     { challenge: { id: 'outro', email: 'demo@fixa.test' } },
   ]) {
     assert.equal(readRecoveryChallenge(state), null)
   }
   assert.deepEqual(
     readRecoveryChallenge({
-      challenge: { id: 'demo-recovery', email: ' demo@fixa.test ', ignored: true },
+      challenge: { id: 'email-recovery', email: ' demo@fixa.test ', ignored: true },
     }),
-    { id: 'demo-recovery', email: 'demo@fixa.test' },
+    { id: 'email-recovery', email: 'demo@fixa.test' },
   )
 })
 test('e-mail mostrado na validação preserva domínio e oculta parte do nome', () => {

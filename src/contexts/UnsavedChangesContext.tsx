@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { UnsavedChangesProviderProps } from '../types/ui'
 import { useBlocker } from 'react-router-dom'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import type { UnsavedFormState } from '../types/unsavedChanges'
@@ -6,7 +7,7 @@ import { UnsavedChangesContext } from './unsavedChangesContextValue'
 
 const clean: UnsavedFormState = { isDirty: false, busy: false }
 
-export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
+export function UnsavedChangesProvider({ children }: UnsavedChangesProviderProps) {
   const [form, setForm] = useState(clean)
   const [exitAction, setExitAction] = useState<(() => void) | null>(null)
   const discardAccepted = useRef(false)

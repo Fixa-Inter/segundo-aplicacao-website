@@ -9,6 +9,9 @@
   background: var(--fixa-bg);
   font-synthesis: none;
   --fixa-primary: #153d7d;
+  --fixa-action-bg: #356fc4;
+  --fixa-action-hover: #2b5ea9;
+  --fixa-table-head-text: #153d7d;
   --fixa-ink: #130943;
   --fixa-black: #000;
   --fixa-event-text: #202020;
@@ -132,6 +135,7 @@ select:not([multiple]):not([size]) {
   --fixa-selected: #294567;
   --fixa-row-alt: #233650;
   --fixa-table-head: #304d76;
+  --fixa-table-head-text: #fff;
   --fixa-initials-bg: #2c466c;
   --fixa-avatar-bg: #294567;
   --fixa-history-selected: #263c56;
