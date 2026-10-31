@@ -1,3 +1,4 @@
+import { visualization } from './fixtures/visualizations.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { AxiosError } from 'axios'
@@ -45,7 +46,12 @@ const reply = {
 test('Manu usa POST publicado via proxy, Bearer, thread e URLs sem identidade enviada pelo cliente', async () => {
   const { service, calls } = setup(() => ({ data: reply }))
   assert.deepEqual(await service.send(' Olá ', null), reply)
-  assert.deepEqual(calls[0].data, { mensagem: 'Olá', thread_id: null, imagens: [] })
+  assert.deepEqual(calls[0].data, {
+    mensagem: 'Olá',
+    plataforma: 'web',
+    thread_id: null,
+    imagens: [],
+  })
   assert.equal(calls[0].url, 'https://web.fixa.test/api/ia/api/v1/chat')
   assert.equal(calls[0].auth, 'Bearer token-1')
   assert.equal(calls[0].timeout, 120000)
@@ -891,4 +897,72 @@ test('anexo inválido do histórico não abre link inseguro nem esconde o texto 
   const loaded = await service.history('persisted-1')
   assert.equal(loaded.messages[0].text, 'Texto preservado')
   assert.deepEqual(loaded.messages[0].images, [image])
+})
+
+test('gráfico da resposta usa unidade do perfil da API, persiste em cache e não aceita recorte adulterado', async () => {
+  const raw = visualization()
+  const { service, calls } = setup((call) => ({
+    data: call.url === '/api/v1/perfil' ? { unidadeId: 5 } : { ...reply, visualizacao: raw },
+  }))
+  const result = await service.send('Mostre gráfico', null)
+  assert.deepEqual(result.visualization, raw)
+  assert.equal(calls[0].data.plataforma, 'web')
+  assert.equal(calls[1].auth, 'Bearer token-1')
+  const history = await service.history('thread-1')
+  assert.deepEqual(history.messages[1].visualization, raw)
+  raw.metadados.unidade_id = 6
+  const next = await service.send('Outra análise', 'thread-1')
+  assert.equal(next.resposta, reply.resposta)
+  assert.equal(next.visualization, undefined)
+  assert.equal(next.visualizationError, true)
+})
+
+test('gráficos válidos voltam de histórico remoto em uma nova instância do serviço', async () => {
+  const raw = visualization('boxplot')
+  const conversation = {
+    session_id: 'thread-1',
+    titulo: 'Análise de tempos',
+    resumo: 'Análise salva',
+    atualizada_em: '2026-10-31T12:00:00Z',
+    iniciada_em: '2026-10-31T11:00:00Z',
+    mensagens: [{ role: 'assistant', mensagem: 'Distribuição de tempos.', visualizacao: raw }],
+  }
+  const { service } = setup(
+    (call) => ({
+      data:
+        call.url === '/api/v1/perfil'
+          ? { unidadeId: 5 }
+          : { status: 'SUCESSO', conversas: [conversation], conversa: conversation },
+    }),
+    true,
+  )
+  await service.list()
+  assert.deepEqual((await service.history('thread-1')).messages[0].visualization, raw)
+})
+
+test('payload de gráfico malformado ou perfil sem unidade preserva texto e indica indisponibilidade', async () => {
+  for (const visualizacao of [{ versao_contrato: '1.0' }, visualization()]) {
+    const { service } = setup((call) => ({
+      data: call.url === '/api/v1/perfil' ? {} : { ...reply, visualizacao },
+    }))
+    const result = await service.send('Análise', null)
+    assert.equal(result.resposta, reply.resposta)
+    assert.equal(result.visualization, undefined)
+    assert.equal(result.visualizationError, true)
+  }
+})
+
+test('sair durante conferência da unidade não recria conversa em cache nem expõe gráfico', async () => {
+  const raw = visualization()
+  let logout
+  const { client, service } = setup(async (call) => {
+    if (call.url === '/api/v1/perfil') {
+      await logout()
+      return { data: { unidadeId: 5 } }
+    }
+    return { data: { ...reply, visualizacao: raw } }
+  })
+  logout = () => client.setTokens(null)
+  await assert.rejects(service.send('Análise', null), /sessão|novamente/)
+  assert.deepEqual(service.cachedList(), [])
 })

@@ -8,17 +8,12 @@ import type { HomeData } from '../../types/home'
 import { monthDays, occursOnDate } from '../../utils/calendar'
 import { usePreferences } from '../../contexts/usePreferences'
 import { truncateText } from '../../utils/presentation'
-import { dashboardWidgetURL } from '../../utils/dashboardEmbed'
+import { AuthenticatedDashboard } from '../../components/AuthenticatedDashboard'
 import styles from './Home.module.css'
 
 export default function Home() {
   const { t, formatDate } = usePreferences()
   const { user } = useAuth()
-  const dashboardUrl = dashboardWidgetURL(
-    import.meta.env.VITE_DATABRICKS_DASHBOARD_URL,
-    import.meta.env.VITE_DATABRICKS_HOME_WIDGET,
-  )
-  const [frameLoaded, setFrameLoaded] = useState(false)
   const [data, setData] = useState<HomeData | null>(null)
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
@@ -94,25 +89,10 @@ export default function Home() {
               <FigmaIcon name="arrow-up-right" />
             </Link>
           </div>
-          {dashboardUrl ? (
-            <>
-              {!frameLoaded && (
-                <p className={styles.frameStatus} role="status">
-                  {t('Carregando dashboard…')}
-                </p>
-              )}
-              <iframe
-                className={styles.chartFrame}
-                src={dashboardUrl}
-                title={t('Resumo de manutenção')}
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-                onLoad={() => setFrameLoaded(true)}
-              />
-            </>
-          ) : (
-            <p className={styles.calendarState}>{t('O dashboard ainda não está disponível.')}</p>
-          )}
+          <AuthenticatedDashboard
+            title={t('Resumo de manutenção')}
+            widget={import.meta.env.VITE_DATABRICKS_HOME_WIDGET}
+          />
         </section>
         <section className={styles.eventPanel} aria-label={t('Calendário resumido')}>
           {error ? (

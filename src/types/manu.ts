@@ -1,3 +1,4 @@
+import type { ManuVisualization } from './visualization'
 import type { ManuEmotion } from '../utils/manu'
 export interface ChatAttachment {
   id: string
@@ -24,6 +25,8 @@ export interface ManuMessage {
   images: string[]
   emotion?: ManuEmotion
   confirmation?: boolean
+  visualization?: ManuVisualization
+  visualizationError?: boolean
 }
 
 export interface ManuConversation {
@@ -40,6 +43,8 @@ export interface ManuHistory extends ManuConversation {
 }
 
 export interface ManuReply {
+  visualization?: ManuVisualization
+  visualizationError?: boolean
   thread_id: string
   resposta: string
   emocao: string

@@ -1,3 +1,4 @@
+import { decodeVisualization } from '../utils/visualization.ts'
 import type { ManuConversation, ManuHistory, ManuReply } from '../types/manu'
 import type { RemoteConversation, RemoteClosedConversation } from '../types/api/manu'
 export type { ManuMessage, ManuConversation, ManuHistory, ManuReply } from '../types/manu'
@@ -51,7 +52,7 @@ function isThreadId(value: unknown): value is string {
   )
 }
 
-function decodeHistory(value: RemoteConversation): ManuHistory {
+function decodeHistory(value: RemoteConversation, unitId: number | null = null): ManuHistory {
   if (
     !value ||
     !isThreadId(value.session_id) ||
@@ -94,6 +95,7 @@ function decodeHistory(value: RemoteConversation): ManuHistory {
       images: historyImageLinks(item.imagens),
       ...(item.role === 'assistant'
         ? {
+            ...visualizationFields(item.visualizacao, unitId),
             emotion: normalizeManuEmotion(item.emocao),
             ...(item.confirmacao !== undefined
               ? { confirmation: !closed && item.confirmacao === 'sim' }
@@ -102,6 +104,11 @@ function decodeHistory(value: RemoteConversation): ManuHistory {
         : {}),
     })),
   }
+}
+function visualizationFields(raw: unknown, unitId: number | null) {
+  if (raw == null) return {}
+  const visualization = decodeVisualization(raw, unitId)
+  return visualization ? { visualization } : { visualizationError: true }
 }
 export function createManuService(client: ReturnType<typeof createHttpClient>, baseURL?: string) {
   let base: string | null = null
@@ -118,10 +125,34 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
   } catch {
     /* Configuração validada antes do envio de credenciais. */
   }
+  async function visualizationUnit(
+    hasVisualization: boolean,
+    signal?: AbortSignal,
+  ): Promise<number | null> {
+    if (!hasVisualization) return null
+    try {
+      const profile = await client.request<{ unidadeId?: number }>('/api/v1/perfil', { signal })
+      signal?.throwIfAborted()
+      return typeof profile?.unidadeId === 'number' &&
+        Number.isSafeInteger(profile.unidadeId) &&
+        profile.unidadeId > 0
+        ? profile.unidadeId
+        : null
+    } catch {
+      signal?.throwIfAborted()
+      return null
+    }
+  }
+  let authVersion = 0
+  const assertSession = (expected: number) => {
+    if (expected !== authVersion)
+      throw new ApiError('A sessão foi encerrada. Entre novamente.', 401)
+  }
   const conversations = new Map<string, ManuHistory>()
   const removedThreadIds = new Set<string>()
   client.onTokens((tokens) => {
     if (!tokens) {
+      authVersion++
       conversations.clear()
       removedThreadIds.clear()
     }
@@ -179,6 +210,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     cachedList,
     async list(signal?: AbortSignal): Promise<ManuConversation[]> {
       check(signal)
+      const expectedAuth = authVersion
       const result = await client.request<{
         status: 'SUCESSO' | 'SEM_DADOS'
         conversas: RemoteConversation[]
@@ -190,8 +222,15 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         !Array.isArray(result.conversas)
       )
         throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+      const unitId = await visualizationUnit(
+        result.conversas.some(
+          (c) => Array.isArray(c.mensagens) && c.mensagens.some((m) => m?.visualizacao != null),
+        ),
+        signal,
+      )
+      assertSession(expectedAuth)
       const loaded = result.conversas
-        .map(decodeHistory)
+        .map((value) => decodeHistory(value, unitId))
         .filter((item) => !removedThreadIds.has(item.thread_id))
         .map(mergeHistory)
       const all = new Map(loaded.map((item) => [item.thread_id, item]))
@@ -218,6 +257,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
       if (removedThreadIds.has(threadId))
         throw new ApiError('Esta conversa foi removida do histórico.', 404)
+      const expectedAuth = authVersion
       const cached = conversations.get(threadId)
       if (cached) return structuredClone(cached)
       const result = await client.request<{ status: 'SUCESSO'; conversa: RemoteConversation }>(
@@ -234,7 +274,12 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         throw new ApiError('O serviço da Manu retornou um histórico inválido.')
       if (removedThreadIds.has(threadId))
         throw new ApiError('Esta conversa foi removida do histórico.', 404)
-      const value = decodeHistory(result.conversa)
+      const unitId = await visualizationUnit(
+        result.conversa?.mensagens?.some((m) => m.visualizacao != null) ?? false,
+        signal,
+      )
+      assertSession(expectedAuth)
+      const value = decodeHistory(result.conversa, unitId)
       if (value.thread_id !== threadId)
         throw new ApiError('O serviço da Manu retornou um histórico inválido.')
       remember(value)
@@ -255,12 +300,13 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       if (threadId && conversations.get(threadId)?.closed)
         throw new ApiError('Esta conversa foi finalizada. Inicie uma nova conversa.', 409)
       const links = validateImageLinks(images)
-      const data = await client.request<ManuReply>(endpoint(), {
+      const expectedAuth = authVersion
+      const data = await client.request<ManuReply & { visualizacao?: unknown }>(endpoint(), {
         method: 'POST',
         expireSessionOnUnauthorized: false,
         timeout: 120000,
         signal,
-        data: { mensagem: message, thread_id: threadId, imagens: links },
+        data: { mensagem: message, plataforma: 'web', thread_id: threadId, imagens: links },
       })
       signal?.throwIfAborted()
       if (
@@ -272,8 +318,13 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         !['sim', 'nao'].includes(data.confirmacao ?? 'nao')
       )
         throw new ApiError('O serviço da Manu retornou uma resposta inválida.')
+      const unitId = await visualizationUnit(data.visualizacao != null, signal)
+      assertSession(expectedAuth)
       const result = {
-        ...data,
+        thread_id: data.thread_id,
+        resposta: data.resposta,
+        intencao: data.intencao,
+        ...visualizationFields(data.visualizacao, unitId),
         confirmacao: data.confirmacao ?? 'nao',
         emocao: normalizeManuEmotion(data.emocao),
       }
@@ -294,6 +345,8 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
             images: [],
             emotion: normalizeManuEmotion(result.emocao),
             confirmation: result.confirmacao === 'sim',
+            ...(result.visualization ? { visualization: result.visualization } : {}),
+            ...(result.visualizationError ? { visualizationError: true } : {}),
           },
         ],
       })

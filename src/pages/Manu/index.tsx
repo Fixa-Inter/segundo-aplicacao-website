@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { ArrowUp, Paperclip, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useAuth } from '../../contexts/useAuth'
@@ -17,6 +17,10 @@ import type {
 import { manuEmotionImage } from '../../assets/manuEmotions'
 import { normalizeManuEmotion } from '../../utils/manu'
 import styles from './Manu.module.css'
+
+const ManuChart = lazy(() =>
+  import('../../components/ManuChart').then((module) => ({ default: module.ManuChart })),
+)
 
 function errorMessage(error: unknown) {
   if (
@@ -256,6 +260,8 @@ export default function Manu() {
         images: [],
         emotion: normalizeManuEmotion(data.emocao),
         confirmation: data.confirmacao === 'sim',
+        visualization: data.visualization,
+        visualizationError: data.visualizationError,
       }
       setMessages((values) => [...values, reply])
       setCurrent({
@@ -496,6 +502,14 @@ export default function Manu() {
                     )}
                   </strong>
                   <p>{message.text}</p>
+                  {message.visualization && (
+                    <Suspense fallback={<p role="status">{t('Carregando gráfico…')}</p>}>
+                      <ManuChart visualization={message.visualization} />
+                    </Suspense>
+                  )}
+                  {message.visualizationError && (
+                    <p role="status">{t('Não foi possível exibir o gráfico desta mensagem.')}</p>
+                  )}
                   {!!message.images.length && (
                     <div className={styles.sentImages}>
                       {message.images.map((url, index) => (
