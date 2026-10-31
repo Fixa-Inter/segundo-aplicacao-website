@@ -7,6 +7,7 @@ export interface RemoteConversation {
   mensagens: {
     role: 'human' | 'assistant'
     mensagem: string
+    visualizacao?: unknown
     emocao?: string | null
     confirmacao?: 'sim' | 'nao'
     imagens?: string[] | null

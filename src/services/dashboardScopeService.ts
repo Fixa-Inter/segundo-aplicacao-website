@@ -26,6 +26,7 @@ export function createDashboardScopeService(
     const profile = await client.request<ApiProfile>('/api/v1/perfil', { signal })
     active()
     if (!profile || !validId(profile.id) || String(profile.id) !== session.id) throw invalid()
+    if (validId(profile.unidadeId)) return profile.unidadeId
     if (session.role === 'ADMINISTRADOR') {
       const identity = await client.request<ApiUser>(`/api/v1/usuarios/${profile.id}`, { signal })
       active()

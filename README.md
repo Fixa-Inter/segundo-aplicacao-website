@@ -6,7 +6,7 @@ Frontend de gestão de manutenção em React 19, TypeScript e Vite. Repositório
 
 A [validação de DAD de 26/10/2026](docs/VALIDACAO_DAD_2026-10-26.md) registra 114 testes aprovados, 72 cenários de acessibilidade automatizada sem violações detectadas após correções e 28 visitas com API Web real. Consulte a [matriz atual](docs/MATRIZ_REQUISITOS.md) e o [roteiro de apresentação](docs/ROTEIRO_DAD.md). Há pendências; esses resultados não certificam WCAG integral nem todos os critérios de DAD.
 
-**URL pública da Web: não confirmada.** O teste atual usa http://localhost:5173. Em 27/10, a [conferência da Manu na AWS](docs/IA_AWS_2026-10-27.md) aprovou histórico, chat e encerramento para Gestor e RH (200), sem reproduzir o antigo 403. Os iframes Databricks têm autenticação própria. Os registros datados abaixo preservam resultados históricos.
+**URL pública da Web: não confirmada.** O teste atual usa http://localhost:5173. Em 27/10, a [conferência da Manu na AWS](docs/IA_AWS_2026-10-27.md) aprovou histórico, chat e encerramento para Gestor e RH (200), sem reproduzir o antigo 403. A integração de 31/10 usa o token por unidade emitido pela API Web e o SDK Databricks; a homologação real do BI depende de resolver o 502 registrado abaixo. Os registros datados abaixo preservam resultados históricos.
 
 A [reorganização de componentes e serviços](docs/ORGANIZACAO_DAD_2026-10-26.md) corrigiu as pendências de estrutura M3/M5: formulários com hooks de controle, adaptadores por recurso, DTOs em types e regras de lint para as camadas. A versão reorganizada passou em 117 testes, lint, formatação, build e QA dirigido.
 
@@ -66,7 +66,6 @@ AI_PROXY_TARGET=https://ia-api.fixa.solutions
 VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
 VITE_CLOUDINARY_FOLDER=
-VITE_DATABRICKS_DASHBOARD_URL=https://dbc-7dc0a7b3-a574.cloud.databricks.com/embed/dashboardsv3/01f1d0be95ef1d86b90737aa9639b671?o=7474651714950692
 VITE_DATABRICKS_HOME_WIDGET=a5185eb0~solicitacoes-por-periodo
 VITE_DATABRICKS_TECHNICIAN_WIDGET=37645ca6~os-criadas-por-periodo
 VITE_DATABRICKS_TECHNICIAN_FILTER=f_37645ca6~tecnico1.s
@@ -76,13 +75,16 @@ Para testar a API local, altere somente `VITE_API_BASE_URL` para `http://localho
 
 O Vite encaminha `/api/ia` para o serviço existente; a Vercel tem a regra equivalente em `vercel.json`. Isso permite consumir o contrato publicado sem alterar CORS, agentes, autenticação ou código da IA. As chaves dos modelos, do banco e de assinatura JWT ficam nos servidores. Outros hosts precisam configurar o mesmo reverse proxy antes do fallback da SPA.
 
-As conversas são recuperadas da IA publicada por `GET /api/v1/sessoes`; a leitura de uma conversa fora do cache usa `POST /api/v1/sessoes/conversa`. Títulos, resumo e emoções vêm do servidor. Mensagens ativas e URLs de anexos são mantidas em memória durante a sessão; o contrato de histórico ainda não devolve anexos nem a confirmação pendente. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
+As conversas são recuperadas da IA publicada por `GET /api/v1/sessoes`; a leitura de uma conversa fora do cache usa `POST /api/v1/sessoes/conversa`. Títulos, resumo e emoções vêm do servidor. O contrato atual devolve anexos, confirmação pendente e visualizações persistidas. O POST de chat inclui `plataforma: "web"`. Gráficos de categorias, séries temporais, histogramas e boxplots são renderizados em Recharts; metadados e unidade são validados antes da apresentação, preservando o texto quando um gráfico é inválido. Cada resposta usa a arte correspondente às 12 emoções fornecidas pelo usuário. Propostas de criação mostram Sim/Não; Não abre a correção antes de nova avaliação da IA.
 
-Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O cloud name, o preset unsigned e a pasta fornecidos foram configurados no `.env.local` desta máquina; um upload real foi validado no navegador. Outras máquinas/implantação precisam configurar as três variáveis públicas de Cloudinary. Se a equipe escolher assinatura futuramente, será necessário o contrato da rota de assinatura. Não inclua API Secret no frontend. A URL oficial do dashboard Databricks está configurada no exemplo e no ambiente local. O iframe usa a autenticação e as permissões do Databricks; pode ser necessário entrar na conta pelo link Abrir em nova aba. A aprovação de domínio para o teste atual é http://localhost:5173. Consulte [a verificação real do iframe](docs/BI_DATABRICKS_2026-10-25.md).
+Arquivos selecionados são enviados ao Cloudinary e apenas a URL HTTPS retornada segue à IA. O cloud name, o preset unsigned e a pasta fornecidos foram configurados no `.env.local` desta máquina; um upload real foi validado no navegador. Outras máquinas/implantação precisam configurar as três variáveis públicas de Cloudinary. Se a equipe escolher assinatura futuramente, será necessário o contrato da rota de assinatura. Não inclua API Secret no frontend. O dashboard usa `GET /api/v1/dashboard/embed` com Bearer e `@databricks/aibi-client`. O token escopado é mantido em memória e encaminhado pelo protocolo do SDK (fragmento do iframe e postMessage; nunca query ou armazenamento). A API renova o acesso quando solicitado pelo SDK. Não há link para o dashboard geral ou fallback sem autorização. O domínio da Web ainda precisa constar nos domínios aprovados do workspace.
 
 A configuração atual aponta para a AWS. Na verificação real de 25/10/2026 às 23h39 (São Paulo), login, Home, equipe, turnos, competências, calendário, perfil e restauração de sessão funcionaram. O Dashboard abriu pelo acesso autenticado da web; os gráficos do Databricks também foram confirmados pelo usuário no Edge. Naquela verificação, o histórico da IA respondeu HTTP 403. A [conferência de 27/10](docs/IA_AWS_2026-10-27.md) confirmou que o acesso de Gestor e RH, o chat e o encerramento estão funcionando. Consulte também o [registro histórico da AWS](docs/INTERFACE_AWS_2026-10-25.md). O [teste anterior com API local](docs/API_LOCAL_DEV_2026-10-25.md) é um registro histórico.
 
 ## Integração atual
+
+A [integração de gráficos e unidade de 31/10/2026](docs/GRAFICOS_UNIDADE_2026-10-31.md) registra o contrato atual, os testes Recharts, a validação real da Manu e as pendências externas. Os registros anteriores abaixo preservam suas datas; não representam o estado mais recente do BI.
+
 
 | Fluxo                 | Comportamento                                                                                                                                                                          |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -92,7 +94,7 @@ A configuração atual aponta para a AWS. Na verificação real de 25/10/2026 à
 | Calendário/Home       | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                                                              |
 | Perfil                | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                                                  |
 | Senha                 | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                                                 |
-| Dashboard             | V1 usa somente iframes Databricks: a Home abre o gráfico Solicitações por período; a tela Dashboard mantém as páginas completas. Não depende de uma API de BI.                         |
+| Dashboard             | SDK Databricks com token por unidade emitido pela API Web; Home e desempenho individual preservam seus widgets. Falha de autorização não abre o dashboard geral.                         |
 | Desempenho individual | Iframe de OS criadas por período com filtro pelo nome completo do técnico; depende dos nomes atualizados na base do BI, sem números fictícios.                                         |
 | Manu                  | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; histórico remoto, títulos do servidor e cache de conversas ativas                                 |
 
@@ -102,7 +104,7 @@ O cadastro, os turnos e as notas usam endpoints separados. Uma falha pode deixar
 
 Há diferenças relevantes entre o protótipo e a API: técnicos são desativados; o responsável de um evento não pode ser trocado na edição; turnos e locais precisam existir na unidade; o perfil de gestor não recebe dados de endereço/telefone. Consulte o [mapeamento e a verificação da integração](docs/INTEGRACAO_API_2026-10-25.md).
 
-A Home usa `VITE_DATABRICKS_HOME_WIDGET` para escolher um único gráfico do dashboard configurado, sem alterar a URL da tela Dashboard. O valor é o identificador `página~widget` do parâmetro `fullscreenWidget` copiado do Databricks. O calendário carrega separadamente pela API Web; uma falha nos eventos não impede o iframe. A incorporação mantém a autenticação e a navegação fornecidas pelo Databricks. Não há API de BI prevista para essa exibição na V1.
+A Home usa `VITE_DATABRICKS_HOME_WIDGET` para selecionar o gráfico no dashboard autorizado pela API. O valor é `página~widget`. O calendário carrega separadamente: uma falha no BI não impede os eventos. O painel de filtros globais fica desabilitado pelo SDK; a proteção real por unidade depende do token emitido pelo backend e das consultas Databricks que usam `__aibi_external_value`. Ocultar filtros não substitui autorização.
 
 A ficha do técnico usa `VITE_DATABRICKS_TECHNICIAN_WIDGET` e `VITE_DATABRICKS_TECHNICIAN_FILTER` para incorporar o gráfico de OS com o filtro publicado de nome completo. Se a configuração estiver ausente ou malformada, não abre um gráfico geral como alternativa. O filtro atual do BI é nominal: nomes alterados na Web precisam ser atualizados no BI; para identidade estável e métricas de conclusão, a responsável deve publicar o filtro de ID e ligá-lo às fontes correspondentes. Veja [o contrato de desempenho individual](docs/BI_TECNICO_2026-10-26.md).
 

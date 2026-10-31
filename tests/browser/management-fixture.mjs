@@ -191,9 +191,12 @@ export async function managementFixture(
         unexpected.push(method + ' ' + path)
         return route.abort()
       }
+      if (path === '/api/v1/dashboard/embed')
+        return route.fulfill({ status: 502, json: { erro: 'BI de teste indisponível' } })
       if (path === '/api/v1/perfil')
         data = {
           id: 10,
+          unidadeId: 5,
           nomeCompleto: 'Conta de Teste Mobile',
           email: 'teste@fixa.test',
           dataNascimento: '1980-01-01',

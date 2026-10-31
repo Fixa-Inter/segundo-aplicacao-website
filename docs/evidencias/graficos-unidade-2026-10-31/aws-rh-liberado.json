@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-31T20:32:41.979638+00:00",
+  "results": [
+    {
+      "role": "RH",
+      "width": 390,
+      "login": true,
+      "chatStatus": 200,
+      "platform": "web",
+      "unit": 1,
+      "expectedUnit": 1,
+      "matchesAccountUnit": true,
+      "hasBearer": true,
+      "kind": "serie_temporal",
+      "title": "Solicitações criadas por período",
+      "chartRendered": true,
+      "persisted": true,
+      "restoredAfterReload": true,
+      "horizontalOverflow": false,
+      "cleanup": 200,
+      "browserErrors": []
+    }
+  ]
+}
