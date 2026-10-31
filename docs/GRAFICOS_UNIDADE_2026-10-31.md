@@ -2,6 +2,12 @@
 
 Issue #14 · branch `feature/dashboards-unidade-graficos-manu`, criada de `origin/dev` após o merge real do PR #13. Responsável: Gkso31 com apoio do Codex. Estimativa inicial: 90 minutos. Somente a Web foi modificada.
 
+## Atualização: gráficos para RH liberados
+
+Após a atualização da IA informada pelo usuário, a conta RH foi retestada na AWS pela Web em 390 px: login e chat **200**, `plataforma: web`, Bearer presente, gráfico `serie_temporal` da **unidade 1**. O gráfico renderizou, foi persistido no histórico e reapareceu após recarregar; sem erros JS nem overflow horizontal. A conversa criada exclusivamente para QA foi removida com **200**. Não foram criados ou alterados registros operacionais.
+
+A liberação não exigiu alterações no código Web. Evidências: [resultado real](evidencias/graficos-unidade-2026-10-31/aws-rh-liberado.json) e [gráfico no celular](evidencias/graficos-unidade-2026-10-31/aws-rh-liberado-390.png). A antiga recusa de RH abaixo é um registro da primeira verificação, superado por esta atualização. O teste do endpoint de dashboard/BI é separado desta correção.
+
 ## Contratos conferidos
 
 - API Web `main`: `1830ee1f0f0ebc5a519bb820cf750de199071fb5`; `GET /api/v1/perfil` agora informa `unidadeId`.
@@ -38,7 +44,7 @@ O audit de produção terminou com **0 vulnerabilidades reportadas**. Patches co
 
 1. API/AWS: investigar o **502 de `/api/v1/dashboard/embed`**; conferir a configuração Databricks e os logs da troca OAuth/tokeninfo. As credenciais devem continuar somente no servidor.
 2. BI: confirmar que **todas as consultas do dashboard restringem `unidade_id` com `__aibi_external_value`**, inclusive ao remover/alterar filtros visuais. O token entrega o contexto; a consulta precisa aplicá-lo. O 502 impediu esta homologação real.
-3. IA: implementar a geração de gráficos para RH, requisito confirmado pelo usuário; ele informou que essa parte ainda não foi implementada. O frontend não deve burlar a autorização.
+3. **Resolvido:** geração de gráficos para RH liberada na IA e confirmada na Web, conforme atualização e evidências acima.
 4. Promoção `dev → hml → main`, aprovação e publicação Vercel seguem o fluxo da organização; não foram realizadas nesta atividade. Project permanece dependente de acesso, sem status de conclusão presumido.
 
 Não é correto declarar a Web 100% homologada enquanto esses testes externos estiverem pendentes.
@@ -54,3 +60,5 @@ Não é correto declarar a Web 100% homologada enquanto esses testes externos es
 Formatação, lint, **161 testes de unidade/contrato**, **38 cenários de navegador** e build aprovados. Após o ajuste final de rótulos/tema, os **7 cenários de gráficos/SDK** foram reconferidos com sucesso, incluindo RH com dados controlados. O SDK foi validado com renovação, painel global desabilitado e ausência do token escopado nos storages.
 
 Início observado: 31/10/2026 às 16h28m37s (America/Sao_Paulo). Registro de evidências: 30.7 minutos observados; estimativa inicial 90 minutos. Abertura de PR e CI subsequentes ficam registrados no GitHub.
+
+Nova verificação de RH: início observado 31/10/2026 às 17h30m51s (America/Sao_Paulo); registro da evidência em 2026-10-31T20:32:41.979638+00:00. Tempo medido até o registro: 1.8 minutos. Sem alterações de código de aplicação.

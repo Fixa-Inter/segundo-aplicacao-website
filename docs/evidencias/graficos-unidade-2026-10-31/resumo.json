@@ -34,7 +34,7 @@
     "manuChartGestor": 200,
     "chartUnit": 7,
     "chartRenderedAndRestored": true,
-    "rhChart": "Pendente de implementação no serviço da IA, conforme confirmado pelo usuário",
+    "rhChart": "Resolvido: AWS 200, unidade 1, gráfico renderizado e restaurado após reload. Nova evidência aws-rh-liberado.json.",
     "dashboardEmbedGestor": 502,
     "dashboardEmbedRH": 502
   },
