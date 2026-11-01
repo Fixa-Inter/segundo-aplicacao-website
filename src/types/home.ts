@@ -1,3 +1,5 @@
+import type { StatCardProps } from './ui'
+
 export interface MonthlyTaskCount {
   month: string
   value: number
@@ -17,4 +19,3 @@ export interface HomeData {
   weekStart: string
   selectedDay: string
 }
-import type { StatCardProps } from './ui'

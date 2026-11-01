@@ -1,7 +1,8 @@
 import type { RecoveryChallenge } from '../types/recovery'
-import { validateEmail } from '../utils/validation.ts'
 import { validatePassword } from '../utils/apiValidation.ts'
+import { validateEmail } from '../utils/validation.ts'
 import { api } from './api.ts'
+
 export async function requestRecovery(email: string): Promise<RecoveryChallenge> {
   const error = validateEmail(email)
   if (error) throw new Error(error)
@@ -12,7 +13,7 @@ export async function requestRecovery(email: string): Promise<RecoveryChallenge>
   })
   return { id: 'email-recovery', email: email.trim() }
 }
-// Não existe endpoint para verificar isoladamente. A confirmação real ocorre com a nova senha.
+
 export async function verifyRecoveryCode(
   _challenge: RecoveryChallenge,
   code: string,

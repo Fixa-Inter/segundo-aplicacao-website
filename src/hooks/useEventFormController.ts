@@ -1,13 +1,14 @@
 import { useRef, useState, type FormEvent } from 'react'
-import { useUnsavedForm } from '../contexts/useUnsavedChanges'
 import { useAuth } from '../contexts/useAuth'
-import { useEventLocations } from './useManagementOptions'
-import { hasFormChanges } from '../utils/formChanges'
-import { formatDate, parseDateInput } from '../utils/calendar'
-import { validateEvent } from '../utils/apiValidation'
+import { useUnsavedForm } from '../contexts/useUnsavedChanges'
+import type { EventFormController } from '../types/eventForm'
 import type { CalendarEventInput } from '../types/management'
 import type { EventFormProps } from '../types/ui'
-import type { EventFormController } from '../types/eventForm'
+import { validateEvent } from '../utils/apiValidation'
+import { formatDate, parseDateInput } from '../utils/calendar'
+import { hasFormChanges } from '../utils/formChanges'
+import { useEventLocations } from './useManagementOptions'
+
 export function useEventFormController({
   event,
   selectedDay,

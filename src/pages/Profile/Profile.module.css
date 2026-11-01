@@ -71,10 +71,6 @@
 .form {
   margin-top: 30px;
 }
-.passwordFields {
-  display: grid;
-  gap: 16px;
-}
 @media (max-width: 600px) {
   .identity button {
     margin-left: 0;

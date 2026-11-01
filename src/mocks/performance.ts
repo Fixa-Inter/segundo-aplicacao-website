@@ -17,7 +17,6 @@ const month: PerformancePoint[] = [
   { label: 'Semana 4', completed: 132, active: 22, late: 9 },
 ]
 
-// Massa sintética independente dos eventos. Novos técnicos começam sem histórico.
 export const performanceByTechnician: Record<
   string,
   Record<PerformancePeriod, PerformancePoint[]>

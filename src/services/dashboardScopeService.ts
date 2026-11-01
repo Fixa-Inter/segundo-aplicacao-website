@@ -1,7 +1,7 @@
-import type { User } from '../types/auth'
 import type { ApiProfile } from '../types/api/profile'
-import type { ApiUser } from '../types/api/users'
 import type { ApiShift } from '../types/api/shifts'
+import type { ApiUser } from '../types/api/users'
+import type { User } from '../types/auth'
 import { ApiError, type createHttpClient } from './httpClient.ts'
 
 const validId = (value: unknown): value is number =>
@@ -35,8 +35,7 @@ export function createDashboardScopeService(
     }
     if (session.role !== 'GESTOR')
       throw new ApiError('Você não tem permissão para esta operação.', 403)
-    // A API restringe esta listagem à unidade do gestor autenticado, sem parâmetro do cliente.
-    // Não aplica esta inferência ao RH: a listagem desse perfil pode conter várias unidades.
+
     const shifts = await client.request<ApiShift[]>('/api/v1/turnos', { signal })
     active()
     if (

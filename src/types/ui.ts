@@ -5,10 +5,11 @@ import type {
   CalendarEventInput,
   EventResponsibleOption,
   ManagerProfile,
-  Technician,
   TeamMember,
+  Technician,
   TechnicianInput,
 } from './management'
+
 export interface AppAppearanceProps {
   children: ReactNode
 }

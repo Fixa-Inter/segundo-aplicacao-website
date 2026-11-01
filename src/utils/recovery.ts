@@ -1,7 +1,6 @@
 import type { RecoveryChallenge } from '../types/recovery'
 import { validateEmail } from './validation.ts'
 
-// O estado de navegação é apenas uma entrada do protótipo, nunca uma autorização real.
 export function readRecoveryChallenge(state: unknown): RecoveryChallenge | null {
   if (!state || typeof state !== 'object' || !('challenge' in state)) return null
   const value = state.challenge

@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
 import { DatabricksDashboard } from '@databricks/aibi-client'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../contexts/useAuth'
 import { usePreferences } from '../../contexts/usePreferences'
-import { LoadingState } from '../LoadingState'
 import { useDashboardAccess } from '../../hooks/useDashboardAccess'
+import { LoadingState } from '../LoadingState'
 import styles from './AuthenticatedDashboard.module.css'
 
 export function AuthenticatedDashboard({
@@ -93,7 +93,7 @@ export function AuthenticatedDashboard({
           throw new Error('Dashboard indisponível.')
         frame.title = title
         frame.referrerPolicy = 'strict-origin-when-cross-origin'
-        // A seleção visual complementa o token por unidade; nunca define a autorização.
+
         if (widget && /^[A-Za-z0-9_-]+~[A-Za-z0-9_-]+$/.test(widget)) {
           const url = new URL(frame.src)
           url.searchParams.set('fullscreenWidget', widget)

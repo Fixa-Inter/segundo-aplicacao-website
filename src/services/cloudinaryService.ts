@@ -1,4 +1,5 @@
 import { ApiError } from './httpClient.ts'
+
 export const maxImageSize = 5 * 1024 * 1024
 const formats = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 export function validateImageFile(file: File) {

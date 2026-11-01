@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PreferencesContext } from './preferencesContextValue'
+import { translate } from '../i18n/messages'
+import type { PreferencesProviderProps } from '../types/ui'
+import { formatDate } from '../utils/calendar'
 import {
   detectBrowserLanguage,
   parsePreferences,
   preferencesStorageKey,
 } from '../utils/preferences'
-import { translate } from '../i18n/messages'
-import { formatDate } from '../utils/calendar'
-import type { PreferencesProviderProps } from '../types/ui'
+import { PreferencesContext } from './preferencesContextValue'
 
 function browserLanguages() {
   return navigator.languages.length ? navigator.languages : [navigator.language]

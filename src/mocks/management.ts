@@ -152,8 +152,6 @@ export const dashboardRecords: DashboardRecord[] = [
   { month: 'Jul', opened: 24, completed: 18, hours: [2, 3, 3, 4, 5, 7, 7, 8] },
 ]
 
-// Distribuição sintética equilibrada: as parcelas somam os totais de cada mês.
-// Não representa produtividade real nem deriva dos eventos cadastrados.
 export const dashboardByTechnician: Record<string, DashboardRecord[]> = Object.fromEntries(
   initialTechnicians.map((technician, index) => [
     technician.id,

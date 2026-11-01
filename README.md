@@ -135,6 +135,11 @@ Em 25/10/2026, além dos cenários controlados em 1280×720 e 390×844, os fluxo
 
 ## Organização
 
+- `src/pages/`: composição das telas.
+- `src/hooks/use*Page.ts`: estado e ações de Home, Equipe, Calendário, Perfil e Recuperação.
+- `src/hooks/useManuChat.ts` e `useManuAttachments.ts`: conversa e anexos da Manu.
+- `src/components/Manu/`: histórico, mensagens, confirmação e escrita.
+- `src/hooks/useManuChartData.ts` e `src/components/ManuChart/`: preparação dos dados, desenho e tabela dos gráficos.
 - `src/services/httpClient.ts`: transporte, renovação e isolamento de sessão.
 - `src/services/apiManagement.ts`: composição dos adaptadores e da sessão.
 - `src/services/resources/`: HTTP por recurso; `teamService.ts` orquestra operações de equipe.

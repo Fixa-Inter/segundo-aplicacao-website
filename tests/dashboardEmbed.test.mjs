@@ -7,6 +7,7 @@ import {
   dashboardFilteredWidgetURL,
   dashboardUnitSelectionURL,
 } from '../src/utils/dashboardEmbed.ts'
+
 test('URL de embed permanece no iframe e nova aba usa visualização publicada do Databricks', () => {
   const embed =
     'https://dbc-example.cloud.databricks.com/embed/dashboardsv3/0123456789abcdef?o=123&f_page~filter=teste#pagina'

@@ -1,7 +1,8 @@
-import type { TechnicianPerformanceProps } from '../../types/ui'
 import { usePreferences } from '../../contexts/usePreferences'
+import type { TechnicianPerformanceProps } from '../../types/ui'
 import { AuthenticatedDashboard } from '../AuthenticatedDashboard'
 import styles from './TechnicianPerformance.module.css'
+
 export function TechnicianPerformance({ name }: TechnicianPerformanceProps) {
   const { t } = usePreferences()
   return (

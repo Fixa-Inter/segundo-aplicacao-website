@@ -26,7 +26,7 @@ export function parsePreferences(
     const parsed: unknown = JSON.parse(value ?? 'null')
     if (!parsed || typeof parsed !== 'object') return defaults
     const { language, languageSource, theme } = parsed as Record<string, unknown>
-    // O formato antigo usava português como padrão e não registrava a origem.
+
     const manual =
       (languageSource === 'manual' || (languageSource === undefined && language !== 'pt-BR')) &&
       (language === 'pt-BR' || language === 'en' || language === 'es' || language === 'zh-CN')

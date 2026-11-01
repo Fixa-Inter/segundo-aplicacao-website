@@ -1,5 +1,6 @@
 import type { CalendarEventInput, ManagerProfile, TechnicianInput } from '../types/management'
 import { validateEmail } from './validation.ts'
+
 export function validatePassword(value: string): string | undefined {
   return value.length < 8 || value.length > 100 ? 'Use uma senha de 8 a 100 caracteres.' : undefined
 }

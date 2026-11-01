@@ -1,7 +1,7 @@
 import { Popover } from '@mantine/core'
 import { usePreferences } from '../../contexts/usePreferences'
-import { FigmaIcon } from '../FigmaIcon'
 import type { FilterButtonProps } from '../../types/ui'
+import { FigmaIcon } from '../FigmaIcon'
 import styles from './FilterButton.module.css'
 
 export function FilterButton({ children, active = false, onClear }: FilterButtonProps) {

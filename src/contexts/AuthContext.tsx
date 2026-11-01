@@ -1,9 +1,10 @@
 import { useEffect, useReducer } from 'react'
-import type { AuthProviderProps } from '../types/ui'
-import { login as loginApi, logout as logoutApi, restoreSession } from '../services/authService'
 import { api } from '../services/api'
+import { login as loginApi, logout as logoutApi, restoreSession } from '../services/authService'
 import type { AuthAction, AuthState, LoginCredentials } from '../types/auth'
+import type { AuthProviderProps } from '../types/ui'
 import { AuthContext } from './authContextValue'
+
 const empty: AuthState = { user: null, loading: false, error: null }
 function reducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {

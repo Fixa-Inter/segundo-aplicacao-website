@@ -1,4 +1,3 @@
-import { LoadingState } from './components/LoadingState'
 import { lazy, Suspense } from 'react'
 import {
   createBrowserRouter,
@@ -7,6 +6,7 @@ import {
   Route,
   RouterProvider,
 } from 'react-router-dom'
+import { LoadingState } from './components/LoadingState'
 import { AuthProvider } from './contexts/AuthContext'
 import { PrivateRoute } from './routes/PrivateRoute'
 

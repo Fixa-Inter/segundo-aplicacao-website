@@ -61,9 +61,9 @@ for (const width of [320, 390])
     await target(add, 48)
     assert.equal((await add.innerText()).trim(), '')
     const title = await page
-        .getByRole('heading', { name: 'Minha equipe', exact: true })
-        .boundingBox(),
-      box = await add.boundingBox()
+      .getByRole('heading', { name: 'Minha equipe', exact: true })
+      .boundingBox()
+    const box = await add.boundingBox()
     assert.ok(Math.abs(title.y + title.height / 2 - (box.y + box.height / 2)) < 8)
     await add.tap()
     await page.locator('#technician-name').waitFor()

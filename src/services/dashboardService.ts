@@ -1,4 +1,5 @@
 import { ApiError, type createHttpClient } from './httpClient.ts'
+
 export interface DashboardAccess {
   instanceUrl: string
   workspaceId: string

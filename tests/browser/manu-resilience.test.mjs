@@ -142,7 +142,7 @@ test('histórico em memória continua acessível ao voltar à Manu com 503 e rec
 test('upload malformado mostra mensagem amigável e permite repetir e remover no mobile', async () => {
   const fixture = await setup({ width: 390 })
   const { page, context } = fixture
-  // Apenas configuração de teste; a implementação real do uploader continua em uso.
+
   await context.route('**/src/services/cloudinaryApi.ts*', (route) =>
     route.fulfill({
       contentType: 'text/javascript',
@@ -166,7 +166,7 @@ export const cloudinaryUploader = createCloudinaryUploader('fixa-qa', 'qa');`,
   await context.route('https://res.cloudinary.com/**', (route) =>
     route.fulfill({ contentType: 'image/png', body: png }),
   )
-  // Recarrega para aplicar a configuração pública controlada e limpar módulos em memória.
+
   await page.reload()
   await page.getByRole('heading', { name: /^Olá / }).waitFor()
   await page
@@ -259,8 +259,8 @@ async function persistedChat({ width = 390, role = 'GESTOR', proposal = true, im
     },
   }
   await fixture.context.route('**/api/ia/**', async (route) => {
-    const req = route.request(),
-      path = new URL(req.url()).pathname.replace('/api/ia', '')
+    const req = route.request()
+    const path = new URL(req.url()).pathname.replace('/api/ia', '')
     assert.equal(req.headers().authorization, 'Bearer mobile-test-only')
     if (req.method() === 'GET' && path === '/api/v1/sessoes')
       return route.fulfill({

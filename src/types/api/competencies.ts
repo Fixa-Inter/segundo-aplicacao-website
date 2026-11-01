@@ -1,4 +1,5 @@
 import type { EnumValue } from './shared'
+
 export interface ApiGrade {
   id: number
   usuarioId: number

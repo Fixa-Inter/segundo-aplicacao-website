@@ -1,9 +1,10 @@
-import { decodeVisualization } from '../utils/visualization.ts'
+import type { RemoteClosedConversation, RemoteConversation } from '../types/api/manu'
 import type { ManuConversation, ManuHistory, ManuReply } from '../types/manu'
-import type { RemoteConversation, RemoteClosedConversation } from '../types/api/manu'
-export type { ManuMessage, ManuConversation, ManuHistory, ManuReply } from '../types/manu'
-import { ApiError, type createHttpClient } from './httpClient.ts'
 import { getConversationTitle, normalizeManuEmotion } from '../utils/manu.ts'
+import { decodeVisualization } from '../utils/visualization.ts'
+import { ApiError, type createHttpClient } from './httpClient.ts'
+
+export type { ManuConversation, ManuHistory, ManuMessage, ManuReply } from '../types/manu'
 
 export function validateImageLinks(images: string[]): string[] {
   if (images.length > 3) throw new ApiError('Use até 3 imagens.')
@@ -31,7 +32,6 @@ export function validateImageLinks(images: string[]): string[] {
   })
 }
 
-// Históricos antigos podem omitir anexos; um link inválido não deve ocultar o texto da conversa.
 function historyImageLinks(value: unknown): string[] {
   if (!Array.isArray(value)) return []
   return value
@@ -157,16 +157,16 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       removedThreadIds.clear()
     }
   })
-  function endpoint(route = '') {
+  function chatEndpoint(route = '') {
     if (!base) throw new ApiError('Configure VITE_AI_BASE_URL com o endereço do serviço da Manu.')
     return `${base}/api/v1/chat${route}`
   }
-  function check(signal?: AbortSignal) {
-    endpoint()
+  function assertCanRequest(signal?: AbortSignal) {
+    chatEndpoint()
     signal?.throwIfAborted()
     if (!client.getTokens()) throw new ApiError('Entre novamente para continuar.', 401)
   }
-  function remember(value: ManuHistory) {
+  function cacheConversation(value: ManuHistory) {
     if (removedThreadIds.has(value.thread_id)) return
     conversations.delete(value.thread_id)
     conversations.set(value.thread_id, value)
@@ -179,7 +179,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
   function mergeHistory(remote: ManuHistory): ManuHistory {
     const local = conversations.get(remote.thread_id)
     if (!local) return remote
-    // A leitura pode chegar antes da persistência da última resposta. Preserva anexos e confirmações que ainda existem na sessão.
+
     if (local.messages.length > remote.messages.length || (local.closed && !remote.closed))
       return local
     const lastRemote = remote.messages.at(-1)
@@ -188,7 +188,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       local.messages.at(-1)?.author === lastRemote?.author
     return {
       ...remote,
-      // O contrato atual persiste a decisão; o cache só complementa versões antigas sem esse campo.
+
       confirmacao:
         !remote.closed && sameLast && lastRemote?.confirmation === undefined
           ? local.confirmacao
@@ -209,7 +209,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
     configured: Boolean(base),
     cachedList,
     async list(signal?: AbortSignal): Promise<ManuConversation[]> {
-      check(signal)
+      assertCanRequest(signal)
       const expectedAuth = authVersion
       const result = await client.request<{
         status: 'SUCESSO' | 'SEM_DADOS'
@@ -240,9 +240,9 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
           else conversations.delete(item.thread_id)
         }
       }
-      // Reinsere das mais antigas às mais recentes para preservar as 50 mais recentes no cache.
+
       for (const item of [...all.values()].sort((a, b) => a.updated_at.localeCompare(b.updated_at)))
-        remember(item)
+        cacheConversation(item)
       return [...all.values()]
         .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
         .map(({ thread_id, title, updated_at, closed }) => ({
@@ -253,7 +253,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         }))
     },
     async history(threadId: string, signal?: AbortSignal): Promise<ManuHistory> {
-      check(signal)
+      assertCanRequest(signal)
       if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
       if (removedThreadIds.has(threadId))
         throw new ApiError('Esta conversa foi removida do histórico.', 404)
@@ -282,7 +282,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       const value = decodeHistory(result.conversa, unitId)
       if (value.thread_id !== threadId)
         throw new ApiError('O serviço da Manu retornou um histórico inválido.')
-      remember(value)
+      cacheConversation(value)
       return structuredClone(value)
     },
     async send(
@@ -301,7 +301,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         throw new ApiError('Esta conversa foi finalizada. Inicie uma nova conversa.', 409)
       const links = validateImageLinks(images)
       const expectedAuth = authVersion
-      const data = await client.request<ManuReply & { visualizacao?: unknown }>(endpoint(), {
+      const data = await client.request<ManuReply & { visualizacao?: unknown }>(chatEndpoint(), {
         method: 'POST',
         expireSessionOnUnauthorized: false,
         timeout: 120000,
@@ -329,7 +329,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         emocao: normalizeManuEmotion(data.emocao),
       }
       const previous = conversations.get(data.thread_id)
-      remember({
+      cacheConversation({
         thread_id: data.thread_id,
         title: previous?.title ?? message.slice(0, 80),
         updated_at: new Date().toISOString(),
@@ -353,10 +353,10 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       return result
     },
     async close(threadId: string, signal?: AbortSignal) {
-      check(signal)
+      assertCanRequest(signal)
       if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
       const result = await client.request<RemoteClosedConversation>(
-        endpoint(`/sessions/${encodeURIComponent(threadId)}`),
+        chatEndpoint(`/sessions/${encodeURIComponent(threadId)}`),
         {
           method: 'DELETE',
           expireSessionOnUnauthorized: false,
@@ -375,7 +375,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
         throw new ApiError('Não foi possível confirmar a finalização da conversa.')
       const previous = conversations.get(threadId)
       if (previous)
-        remember({
+        cacheConversation({
           ...previous,
           title: getConversationTitle(result.titulo, result.resumo, previous.title),
           summary: result.resumo,
@@ -385,7 +385,7 @@ export function createManuService(client: ReturnType<typeof createHttpClient>, b
       return result
     },
     async remove(threadId: string, signal?: AbortSignal) {
-      check(signal)
+      assertCanRequest(signal)
       if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
       const result = await client.request<{ session_id: string; status: string; mensagem: string }>(
         base + '/api/v1/sessoes/conversa/' + encodeURIComponent(threadId),

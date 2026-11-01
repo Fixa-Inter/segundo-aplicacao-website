@@ -1,8 +1,8 @@
-import { usePreferences } from '../../contexts/usePreferences'
 import { ArrowRight, BarChart3, CalendarDays, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Brand } from '../../components/Brand'
 import manu from '../../assets/figma/manu-chat.png'
+import { Brand } from '../../components/Brand'
+import { usePreferences } from '../../contexts/usePreferences'
 import styles from './About.module.css'
 
 const features = [

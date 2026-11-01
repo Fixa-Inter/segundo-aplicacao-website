@@ -1,10 +1,11 @@
-import type { ManagementClient } from '../../types/api/shared'
 import type { ApiProfile } from '../../types/api/profile'
+import type { ManagementClient } from '../../types/api/shared'
 import type { ManagerProfile } from '../../types/management'
-import type { createUnitService } from './units.ts'
 import { address } from '../../utils/apiUnits.ts'
 import { validateProfile } from '../../utils/apiValidation.ts'
 import { check } from '../../utils/validationErrors.ts'
+import type { createUnitService } from './units.ts'
+
 export function createProfileService(
   client: ManagementClient,
   units: ReturnType<typeof createUnitService>,

@@ -1,5 +1,6 @@
-import { usePreferences } from '../../contexts/usePreferences'
 import { Link } from 'react-router-dom'
+import { usePreferences } from '../../contexts/usePreferences'
+
 export default function NotFound() {
   const { t } = usePreferences()
 
