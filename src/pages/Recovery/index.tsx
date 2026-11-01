@@ -44,9 +44,9 @@ export default function Recovery() {
     returnTo,
     step,
     form,
-    setForm,
+    updateField,
+    fieldErrors,
     error,
-    setError,
     notice,
     busy,
     visible,
@@ -59,7 +59,7 @@ export default function Recovery() {
     description,
   } = useRecoveryPage()
   return (
-    <main className={styles.page}>
+    <main id="conteudo" tabIndex={-1} className={styles.page}>
       {step !== 'success' &&
         (step === 'email' || step === 'change' ? (
           <Link
@@ -124,12 +124,8 @@ export default function Recovery() {
                     maxLength={120}
                     disabled={busy}
                     value={form.email}
-                    error={error || undefined}
-                    onChange={(event) => {
-                      const email = event.currentTarget.value
-                      setForm((current) => ({ ...current, email }))
-                      setError(null)
-                    }}
+                    error={fieldErrors.email || error || undefined}
+                    onChange={(event) => updateField('email', event.currentTarget.value)}
                   />
                 </>
               )}
@@ -150,21 +146,25 @@ export default function Recovery() {
                     type="number"
                     length={6}
                     value={form.code}
-                    onChange={(code) => {
-                      setForm((current) => ({ ...current, code }))
-                      setError(null)
-                    }}
+                    onChange={(code) => updateField('code', code)}
                     placeholder=""
                     oneTimeCode
                     disabled={busy}
                     ariaLabel={t('Dígito do código de recuperação')}
-                    error={Boolean(error)}
+                    error={Boolean(fieldErrors.code)}
                     classNames={{ root: styles.pinRoot, input: styles.pinInput }}
                     getInputProps={(index) => ({
                       id: `recovery-code-${index + 1}`,
                       'aria-label': t('Dígito {number} do código', { number: index + 1 }),
+                      'aria-invalid': Boolean(fieldErrors.code),
+                      'aria-describedby': fieldErrors.code ? 'recovery-code-error' : undefined,
                     })}
                   />
+                  {fieldErrors.code && (
+                    <p id="recovery-code-error" className={styles.error} role="alert">
+                      {t(fieldErrors.code)}
+                    </p>
+                  )}
                 </div>
               )}
               {(step === 'password' || step === 'change') && (
@@ -172,21 +172,20 @@ export default function Recovery() {
                   {step === 'change' && (
                     <AuthField
                       id="current-password"
+                      error={fieldErrors.current}
                       label={t('Senha antiga')}
                       type="password"
                       autoComplete="off"
                       maxLength={100}
                       value={form.current}
                       disabled={busy}
-                      onChange={(event) => {
-                        const current = event.currentTarget.value
-                        setForm((form) => ({ ...form, current }))
-                      }}
+                      onChange={(event) => updateField('current', event.currentTarget.value)}
                     />
                   )}
 
                   <AuthField
                     id="new-password"
+                    error={fieldErrors.password}
                     label={t('Nova senha')}
                     type={visible ? 'text' : 'password'}
                     autoComplete="off"
@@ -194,10 +193,7 @@ export default function Recovery() {
                     maxLength={100}
                     disabled={busy}
                     value={form.password}
-                    onChange={(event) => {
-                      const password = event.currentTarget.value
-                      setForm((current) => ({ ...current, password }))
-                    }}
+                    onChange={(event) => updateField('password', event.currentTarget.value)}
                     trailing={
                       <button
                         type="button"
@@ -211,6 +207,7 @@ export default function Recovery() {
                   {step === 'password' && (
                     <AuthField
                       id="confirm-password"
+                      error={fieldErrors.confirmation}
                       label={t('Confirme a nova senha')}
                       type={visible ? 'text' : 'password'}
                       autoComplete="off"
@@ -218,10 +215,7 @@ export default function Recovery() {
                       maxLength={100}
                       disabled={busy}
                       value={form.confirmation}
-                      onChange={(event) => {
-                        const confirmation = event.currentTarget.value
-                        setForm((current) => ({ ...current, confirmation }))
-                      }}
+                      onChange={(event) => updateField('confirmation', event.currentTarget.value)}
                     />
                   )}
                 </div>

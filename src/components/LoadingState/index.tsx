@@ -1,3 +1,4 @@
+import type { LoadingStateProps } from '../../types/ui'
 import logo from '../../assets/figma/sidebar-logo.svg'
 import { usePreferences } from '../../contexts/usePreferences'
 import styles from './LoadingState.module.css'
@@ -6,11 +7,7 @@ export function LoadingState({
   label = 'Carregando página…',
   fullscreen = false,
   compact = false,
-}: {
-  label?: string
-  fullscreen?: boolean
-  compact?: boolean
-}) {
+}: LoadingStateProps) {
   const { t } = usePreferences()
   return (
     <div

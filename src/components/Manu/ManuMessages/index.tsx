@@ -1,15 +1,15 @@
 import { lazy, Suspense } from 'react'
-import { manuEmotionImage } from '../../assets/manuEmotions'
-import type { ManuChatController } from '../../hooks/useManuChat'
-import { LoadingState } from '../LoadingState'
-import { ManuThinking } from '../ManuThinking'
-import styles from './Manu.module.css'
-import { ManuProposal } from './ManuProposal'
+import { manuEmotionImage } from '../../../assets/manuEmotions'
+import type { ManuViewProps } from '../../../types/manuComponents'
+import { LoadingState } from '../../LoadingState'
+import { ManuThinking } from '../../ManuThinking'
+import styles from '../Manu.module.css'
+import { ManuProposal } from '../ManuProposal'
 
 const ManuChart = lazy(() =>
-  import('../ManuChart').then((module) => ({ default: module.ManuChart })),
+  import('../../ManuChart').then((module) => ({ default: module.ManuChart })),
 )
-export function ManuMessages({ chat }: { chat: ManuChatController }) {
+export function ManuMessages({ chat }: ManuViewProps) {
   const { t, messages, sending, loadingConversation, end, pendingConfirmation, lastReply } = chat
   return (
     <>
@@ -59,8 +59,8 @@ export function ManuMessages({ chat }: { chat: ManuChatController }) {
                 )}
                 {!!message.images.length && (
                   <div className={styles.sentImages}>
-                    {message.images.map((url, index) => (
-                      <a key={url + index} href={url} target="_blank" rel="noopener noreferrer">
+                    {[...new Set(message.images)].map((url, index) => (
+                      <a key={url} href={url} target="_blank" rel="noopener noreferrer">
                         <img
                           src={url}
                           alt={t('Imagem {number}', { number: index + 1 })}

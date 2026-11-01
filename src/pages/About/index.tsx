@@ -27,7 +27,7 @@ export default function About() {
   const { t } = usePreferences()
 
   return (
-    <main className={styles.page}>
+    <main id="conteudo" tabIndex={-1} className={styles.page}>
       <header className={styles.header}>
         <Brand />
         <Link to="/login" className={styles.headerLink}>

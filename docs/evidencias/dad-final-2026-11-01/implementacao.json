@@ -1,0 +1,39 @@
+{
+  "scenarios": 42,
+  "violationOccurrences": 0,
+  "rules": [],
+  "incompleteRules": ["color-contrast", "aria-valid-attr-value"],
+  "keyboard": [
+    {
+      "name": "GESTOR modal abrir/foco/restaurar",
+      "focusedInside": true,
+      "returned": true
+    },
+    {
+      "name": "abas RH direita",
+      "passed": true
+    },
+    {
+      "name": "abas RH direita",
+      "passed": true
+    },
+    {
+      "name": "ADMINISTRADOR modal abrir/foco/restaurar",
+      "focusedInside": true,
+      "returned": true
+    },
+    {
+      "name": "rota privada sem sessao",
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "unitTests": 168,
+  "browserRegression": "39 de 41 passaram na execução inicial; os dois cenários móveis corrigidos passaram na repetição dirigida. Cinco cenários novos executados separadamente.",
+  "applicationChanges": "rotas, schema, reducer, props/pastas, validação, identidades de gráficos, contraste e semântica/foco",
+  "limits": [
+    "Sem nova homologação de escrita na AWS.",
+    "Sem medição no React DevTools Profiler ou ensaio real NVDA nesta rodada.",
+    "Sem push, PR ou publicação."
+  ]
+}

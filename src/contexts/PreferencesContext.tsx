@@ -6,6 +6,7 @@ import {
   detectBrowserLanguage,
   parsePreferences,
   preferencesStorageKey,
+  serializePreferences,
 } from '../utils/preferences'
 import { PreferencesContext } from './preferencesContextValue'
 
@@ -27,7 +28,7 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
     document.documentElement.dataset.theme = preferences.theme
     document.documentElement.style.colorScheme = preferences.theme
     try {
-      localStorage.setItem(preferencesStorageKey, JSON.stringify(preferences))
+      localStorage.setItem(preferencesStorageKey, serializePreferences(preferences))
     } catch {
       // Preferências continuam funcionando quando o navegador bloqueia o armazenamento.
     }

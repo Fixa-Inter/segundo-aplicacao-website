@@ -8,10 +8,14 @@ import {
   resetPassword,
   verifyRecoveryCode,
 } from '../services/recoveryService'
-import type { RecoveryChallenge, RecoveryStep } from '../types/recovery'
-import { validatePassword } from '../utils/apiValidation'
+import type {
+  RecoveryChallenge,
+  RecoveryErrors,
+  RecoveryForm,
+  RecoveryStep,
+} from '../types/recovery'
 import { maskRecoveryEmail, readRecoveryChallenge } from '../utils/recovery'
-import { validateEmail } from '../utils/validation'
+import { validateRecoveryForm } from '../utils/recoveryValidation'
 
 export function useRecoveryPage() {
   const { t } = usePreferences()
@@ -22,7 +26,7 @@ export function useRecoveryPage() {
   const returnTo = user ? '/perfil' : '/login'
   const [entry] = useState(() => readRecoveryChallenge(state))
   const [step, setStep] = useState<RecoveryStep>(changing ? 'change' : entry ? 'code' : 'email')
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<RecoveryForm>({
     email: entry?.email ?? '',
     code: '',
     password: '',
@@ -31,23 +35,32 @@ export function useRecoveryPage() {
   })
   const [challenge, setChallenge] = useState<RecoveryChallenge | null>(entry)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<RecoveryErrors>({})
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [visible, setVisible] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   useEffect(() => {
-    if (!error || busy) return
-    const input =
-      error === 'As senhas não coincidem.'
-        ? formRef.current?.querySelector<HTMLInputElement>('#confirm-password')
-        : formRef.current?.querySelector<HTMLInputElement>('input')
-    input?.focus()
-  }, [error, busy])
+    if (busy) return
+    const hasFields = Object.values(fieldErrors).some(Boolean)
+    if (!error && !hasFields) return
+    const frame = requestAnimationFrame(() => {
+      const selector = hasFields ? '[aria-invalid="true"]' : 'input'
+      formRef.current?.querySelector<HTMLInputElement>(selector)?.focus()
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [error, fieldErrors, busy])
   useEffect(() => {
     if (step !== 'email') headingRef.current?.focus()
   }, [step])
+  function updateField(key: keyof RecoveryForm, value: string) {
+    setForm((current) => ({ ...current, [key]: value }))
+    setFieldErrors((current) => ({ ...current, [key]: undefined }))
+    setError(null)
+  }
   function back() {
+    setFieldErrors({})
     setError(null)
     setNotice('')
     setStep(step === 'password' ? 'code' : 'email')
@@ -56,31 +69,12 @@ export function useRecoveryPage() {
     event.preventDefault()
     if (busy) return
     setError(null)
-    if (step === 'email') {
-      const message = validateEmail(form.email)
-      if (message) {
-        setError(message)
-        return
-      }
-    }
-    if (step === 'code' && form.code.length !== 6) {
-      setError('Digite os seis dígitos do código.')
+    const errors = validateRecoveryForm(form, step)
+    setFieldErrors(errors)
+    if (Object.values(errors).some(Boolean)) return
+    if ((step === 'code' || step === 'password') && !challenge) {
+      setStep('email')
       return
-    }
-    if (step === 'change' && !form.current) {
-      setError('Informe a senha atual.')
-      return
-    }
-    if (step === 'password' || step === 'change') {
-      const passwordError = validatePassword(form.password)
-      if (passwordError) {
-        setError(passwordError)
-        return
-      }
-      if (step === 'password' && form.password !== form.confirmation) {
-        setError('As senhas não coincidem.')
-        return
-      }
     }
     setBusy(true)
     try {
@@ -137,9 +131,9 @@ export function useRecoveryPage() {
     returnTo,
     step,
     form,
-    setForm,
+    updateField,
+    fieldErrors,
     error,
-    setError,
     notice,
     busy,
     visible,

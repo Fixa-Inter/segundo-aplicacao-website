@@ -10,6 +10,12 @@ import type {
   TechnicianInput,
 } from './management'
 
+export interface LoadingStateProps {
+  label?: string
+  fullscreen?: boolean
+  compact?: boolean
+}
+
 export interface AppAppearanceProps {
   children: ReactNode
 }

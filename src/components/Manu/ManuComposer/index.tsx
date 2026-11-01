@@ -1,8 +1,8 @@
 import { ArrowUp, Paperclip, RotateCcw, X } from 'lucide-react'
-import type { ManuChatController } from '../../hooks/useManuChat'
-import styles from './Manu.module.css'
+import type { ManuViewProps } from '../../../types/manuComponents'
+import styles from '../Manu.module.css'
 
-export function ManuComposer({ chat }: { chat: ManuChatController }) {
+export function ManuComposer({ chat }: ManuViewProps) {
   const {
     t,
     current,

@@ -1,3 +1,4 @@
+import { visualizationGroupKey } from './chartData.ts'
 import type { ManuVisualization } from '../types/visualization'
 
 const isRecord = (candidate: unknown): candidate is Record<string, unknown> =>
@@ -262,6 +263,10 @@ export function decodeVisualization(
         chartData.qtd_registros
       )
         return null
+      const binKeys = chartData.intervalos.map(
+        (b) => `${b.inferior}:${b.superior}:${b.inclui_superior}`,
+      )
+      if (new Set(binKeys).size !== binKeys.length) return null
     } else if (chartData.tipo === 'boxplot') {
       if (
         !Array.isArray(chartData.grupos) ||
@@ -271,6 +276,10 @@ export function decodeVisualization(
         chartData.grupos.reduce((n, g) => n + (g.valores_extremos?.length ?? 0), 0) > 500
       )
         return null
+      const groupKeys = chartData.grupos.map((g) =>
+        visualizationGroupKey(g.grupo as Record<string, unknown>),
+      )
+      if (new Set(groupKeys).size !== groupKeys.length) return null
     } else return null
     return structuredClone(value) as unknown as ManuVisualization
   } catch {

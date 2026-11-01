@@ -10,11 +10,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { ManuChartModel } from '../../hooks/useManuChartData'
-import { BoxShape } from './BoxShape'
-import { colors } from './chartTheme'
+import type { ManuChartViewProps } from '../../../types/charts'
+import { BoxShape } from '../BoxShape'
+import { colors } from '../chartTheme'
 
-export function ManuChartPlot({ chart }: { chart: ManuChartModel }) {
+export function ManuChartPlot({ chart }: ManuChartViewProps) {
   const {
     visualization,
     t,
@@ -55,7 +55,7 @@ export function ManuChartPlot({ chart }: { chart: ManuChartModel }) {
           {timeSeries.series.length > 1 && <Legend wrapperStyle={{ fontSize: 11 }} />}
           {timeSeries.series.map((s, i) => (
             <Line
-              key={s.key}
+              key={s.id}
               dataKey={s.key}
               name={s.label}
               stroke={colors[i % colors.length]}

@@ -1,10 +1,10 @@
 import { Plus, Trash2 } from 'lucide-react'
-import { FigmaIcon } from '../../components/FigmaIcon'
-import { LoadingState } from '../../components/LoadingState'
-import type { ManuChatController } from '../../hooks/useManuChat'
-import styles from './Manu.module.css'
+import { FigmaIcon } from '../../FigmaIcon'
+import { LoadingState } from '../../LoadingState'
+import type { ManuViewProps } from '../../../types/manuComponents'
+import styles from '../Manu.module.css'
 
-export function ManuHistoryPanel({ chat }: { chat: ManuChatController }) {
+export function ManuHistoryPanel({ chat }: ManuViewProps) {
   const {
     t,
     current,

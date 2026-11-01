@@ -1,6 +1,13 @@
 import type { Language } from '../types/preferences'
 
 const messages: Record<string, readonly [string, string, string]> = {
+  'Voltar à equipe': ['Back to the team', 'Volver al equipo', '返回团队'],
+  'Pessoa não encontrada': ['Person not found', 'Persona no encontrada', '未找到此人员'],
+  'Este cadastro não está disponível na sua equipe.': [
+    'This person is not available in your team.',
+    'Esta persona no está disponible en tu equipo.',
+    '您的团队中没有此人员。',
+  ],
   'Carregando sessão…': ['Loading session…', 'Cargando sesión…', '正在加载会话…'],
   'Não foi possível carregar o dashboard da sua unidade.': [
     'Your location’s dashboard could not be loaded.',

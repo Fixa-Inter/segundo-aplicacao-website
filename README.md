@@ -4,7 +4,7 @@ Frontend de gestão de manutenção em React 19, TypeScript e Vite. Repositório
 
 ## Validação atual
 
-A [auditoria do PDF da entrega final de 02/11](docs/AUDITORIA_DAD_FINAL_2026-11-01.md), realizada em 01/11, é o parecer mais recente de DAD: 161 testes aprovados, 42 cenários de acessibilidade e pendências explícitas de rotas parametrizadas, preferências versionadas, organização, contraste, publicação e demonstração. Ela substitui as conclusões de conformidade dos registros anteriores para o código atual.
+A [auditoria do PDF final](docs/AUDITORIA_DAD_FINAL_2026-11-01.md) registra a avaliação anterior às correções de 01/11. Na branch de trabalho, foram implementados rota individual com useParams e guarda, preferências com _versao/migração, componentes e interfaces padronizados, State/Action em unions, validação da recuperação por campo e ajustes de acessibilidade. As verificações incluem 168 testes e 42 cenários axe sem violações automáticas detectadas. Consulte o [roteiro atualizado](docs/ROTEIRO_DAD.md): publicação e demonstrações presenciais continuam pendentes; estes resultados não certificam WCAG integral.
 
 O registro histórico da [validação de DAD de 26/10/2026](docs/VALIDACAO_DAD_2026-10-26.md) registra 114 testes aprovados, 72 cenários de acessibilidade automatizada sem violações detectadas após correções e 28 visitas com API Web real. Consulte a [matriz de 27/10](docs/MATRIZ_REQUISITOS.md) e o [roteiro de apresentação](docs/ROTEIRO_DAD.md). Há pendências; esses resultados não certificam WCAG integral nem todos os critérios de DAD.
 

@@ -9,7 +9,7 @@
   min-height: 640px;
   border: 1px solid var(--fixa-border, #dce4ef);
   border-radius: 22px;
-  background: white;
+  background: var(--fixa-surface);
 }
 @media (max-width: 600px) {
   .embedFrame {

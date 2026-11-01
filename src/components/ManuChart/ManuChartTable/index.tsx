@@ -1,7 +1,8 @@
-import type { ManuChartModel } from '../../hooks/useManuChartData'
-import styles from './ManuChart.module.css'
+import { visualizationGroupKey, visualizationPointKey } from '../../../utils/chartData'
+import type { ManuChartViewProps } from '../../../types/charts'
+import styles from '../ManuChart.module.css'
 
-export function ManuChartTable({ chart }: { chart: ManuChartModel }) {
+export function ManuChartTable({ chart }: ManuChartViewProps) {
   const {
     visualization,
     t,
@@ -41,8 +42,8 @@ export function ManuChartTable({ chart }: { chart: ManuChartModel }) {
                 </tr>
               </thead>
               <tbody>
-                {chartData.pontos.map((p, i) => (
-                  <tr key={i}>
+                {chartData.pontos.map((p) => (
+                  <tr key={visualizationPointKey(p)}>
                     {'data_referencia' in p && (
                       <td>{formatDate(String(p.data_referencia), { dateStyle: 'short' })}</td>
                     )}
@@ -70,8 +71,8 @@ export function ManuChartTable({ chart }: { chart: ManuChartModel }) {
                 </tr>
               </thead>
               <tbody>
-                {histogramBins.map((b, i) => (
-                  <tr key={i}>
+                {histogramBins.map((b) => (
+                  <tr key={`${b.inferior}:${b.superior}:${b.inclui_superior}`}>
                     <th scope="row">{b.label}</th>
                     <td>{formatValue(b.frequencia)}</td>
                   </tr>
@@ -101,8 +102,8 @@ export function ManuChartTable({ chart }: { chart: ManuChartModel }) {
                 </tr>
               </thead>
               <tbody>
-                {chartData.grupos.map((g, i) => (
-                  <tr key={i}>
+                {chartData.grupos.map((g) => (
+                  <tr key={visualizationGroupKey(g.grupo)}>
                     <th scope="row">
                       {formatGroup(g.grupo)}
                       {g.tipo === 'sem_base'

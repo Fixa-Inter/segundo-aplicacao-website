@@ -12,7 +12,7 @@ export default defineConfig([
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['src/components/**/*.{ts,tsx}'],
+    files: ['src/components/**/*.{ts,tsx}', 'src/pages/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
         'error',

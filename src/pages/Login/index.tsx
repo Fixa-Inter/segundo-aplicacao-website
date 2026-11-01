@@ -1,59 +1,31 @@
 import { Eye, EyeOff } from 'lucide-react'
-import { useState, type FormEvent, type MouseEvent } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import manu from '../../assets/figma/manu-login.png'
 import { AuthField } from '../../components/AuthField'
 import { Brand } from '../../components/Brand'
-import { useAuth } from '../../contexts/useAuth'
-import { usePreferences } from '../../contexts/usePreferences'
-import { requestRecovery } from '../../services/recoveryService'
-import type { LoginCredentials } from '../../types/auth'
-import { validateEmail, validateLoginFields } from '../../utils/validation'
 import styles from './Login.module.css'
 
-export default function Login() {
-  const { t } = usePreferences()
+import { useLoginPage } from '../../hooks/useLoginPage'
 
-  const { user, login, loading, error } = useAuth()
-  const [form, setForm] = useState<LoginCredentials>({ cnpj: '', email: '', password: '' })
-  const [submitted, setSubmitted] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const navigate = useNavigate()
-  const [recovering, setRecovering] = useState(false)
-  const [recoveryError, setRecoveryError] = useState('')
-  const errors = submitted ? validateLoginFields(form) : {}
+export default function Login() {
+  const {
+    t,
+    user,
+    form,
+    setForm,
+    showPassword,
+    setShowPassword,
+    errors,
+    loading,
+    error,
+    recovering,
+    recoveryError,
+    submit,
+    forgot,
+  } = useLoginPage()
   if (user) return <Navigate to="/" replace />
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setSubmitted(true)
-    if (loading || recovering) return
-    const invalid = Object.keys(validateLoginFields(form))[0]
-    if (invalid) {
-      event.currentTarget.querySelector<HTMLInputElement>(`#login-${invalid}`)?.focus()
-      return
-    }
-    if (await login(form)) navigate('/', { replace: true })
-  }
-  async function forgot(event: MouseEvent<HTMLAnchorElement>) {
-    if (recovering || loading) {
-      event.preventDefault()
-      return
-    }
-    if (validateEmail(form.email)) return
-    event.preventDefault()
-    setRecovering(true)
-    setRecoveryError('')
-    try {
-      const challenge = await requestRecovery(form.email)
-      navigate('/recuperar-senha', { state: { challenge } })
-    } catch {
-      setRecoveryError('Não foi possível continuar. Tente novamente.')
-    } finally {
-      setRecovering(false)
-    }
-  }
   return (
-    <main className={styles.page}>
+    <main id="conteudo" tabIndex={-1} className={styles.page}>
       <header className={styles.header}>
         <Brand />
       </header>

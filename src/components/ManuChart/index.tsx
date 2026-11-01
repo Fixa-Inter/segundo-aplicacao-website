@@ -1,10 +1,10 @@
 import { useManuChartData } from '../../hooks/useManuChartData'
-import type { ManuVisualization } from '../../types/visualization'
+import type { ManuChartProps } from '../../types/charts'
 import styles from './ManuChart.module.css'
 import { ManuChartPlot } from './ManuChartPlot'
 import { ManuChartTable } from './ManuChartTable'
 
-export function ManuChart({ visualization }: { visualization: ManuVisualization }) {
+export function ManuChart({ visualization }: ManuChartProps) {
   const chart = useManuChartData(visualization)
   const { id, t, formatDate, chartData, boxGroups, showChart, period, periodEnd } = chart
   return (
@@ -37,8 +37,8 @@ export function ManuChart({ visualization }: { visualization: ManuVisualization 
       )}
       {visualization.avisos.length > 0 && (
         <ul className={styles.warnings}>
-          {visualization.avisos.map((warning, i) => (
-            <li key={i}>{warning}</li>
+          {[...new Set(visualization.avisos)].map((warning) => (
+            <li key={warning}>{warning}</li>
           ))}
         </ul>
       )}

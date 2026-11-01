@@ -1,3 +1,4 @@
+import { buildTimeSeries } from '../utils/chartData'
 import { useId, useMemo } from 'react'
 import { usePreferences } from '../contexts/usePreferences'
 import type { BoxGroup, ManuVisualization } from '../types/visualization'
@@ -21,7 +22,7 @@ export function useManuChartData(visualization: ManuVisualization) {
   )
   const categories =
     chartData.tipo === 'categorias'
-      ? chartData.pontos.map((p, i) => ({ ...p, label: formatGroup(p.grupo), key: i }))
+      ? chartData.pontos.map((p) => ({ ...p, label: formatGroup(p.grupo) }))
       : []
   const histogramBins =
     chartData.tipo === 'histograma'
@@ -30,38 +31,14 @@ export function useManuChartData(visualization: ManuVisualization) {
           label: `[${formatValue(b.inferior)} – ${formatValue(b.superior)}${b.inclui_superior ? ']' : ')'}`,
         }))
       : []
-  const timeSeries = useMemo(() => {
-    if (visualization.dados.tipo !== 'serie_temporal') return { rows: [], series: [] }
-    const signatures = [
-      ...new Set(
-        visualization.dados.pontos.map((p) => JSON.stringify(Object.entries(p.grupo).sort())),
+  const timeSeries = useMemo(
+    () =>
+      buildTimeSeries(
+        visualization.dados.tipo === 'serie_temporal' ? visualization.dados.pontos : [],
+        (group) => visualizationGroupLabel(group, t('Total'), t('Não informado')),
       ),
-    ]
-    const series = signatures.map((sig, i) => ({
-      key: 's' + i,
-      label: visualizationGroupLabel(
-        Object.fromEntries(JSON.parse(sig)),
-        t('Total'),
-        t('Não informado'),
-      ),
-    }))
-    const dates = [...new Set(visualization.dados.pontos.map((p) => p.data_referencia))].sort()
-    const rows = dates.map((date) => {
-      const row: Record<string, string | number | null> = { date }
-      series.forEach((s) => {
-        row[s.key] = null
-      })
-      if (visualization.dados.tipo === 'serie_temporal')
-        visualization.dados.pontos
-          .filter((p) => p.data_referencia === date)
-          .forEach((p) => {
-            const i = signatures.indexOf(JSON.stringify(Object.entries(p.grupo).sort()))
-            row['s' + i] = p.valor
-          })
-      return row
-    })
-    return { rows, series }
-  }, [visualization, t])
+    [visualization, t],
+  )
   const boxGroups =
     chartData.tipo === 'boxplot'
       ? chartData.grupos

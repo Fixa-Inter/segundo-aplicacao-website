@@ -1,6 +1,6 @@
 # Roteiro de demonstração — FIXA Web
 
-Atualizado em **26/10/2026**. A Web consome APIs reais na AWS; cadastros podem alterar o banco compartilhado. Use contas e registros autorizados de homologação. O roteiro anterior de login demonstrativo/código fixo de recuperação não corresponde à integração atual.
+Atualizado em **01/11/2026**. A Web consome APIs reais na AWS; cadastros podem alterar o banco compartilhado. Use contas e registros autorizados de homologação. O roteiro anterior de login demonstrativo/código fixo de recuperação não corresponde à integração atual.
 
 Consulte a [matriz de DAD](MATRIZ_REQUISITOS.md) e o [relatório com resultados e pendências](VALIDACAO_DAD_2026-10-26.md).
 
@@ -35,10 +35,8 @@ Consulte a [matriz de DAD](MATRIZ_REQUISITOS.md) e o [relatório com resultados 
 - Mostrar src/components, src/hooks, src/services/resources e src/types/api; apontar views, controladores, recursos HTTP e composição. O lint impede imports de services em componentes; consulte a [reorganização validada](ORGANIZACAO_DAD_2026-10-26.md).
 - Explicar o estado agrupado e atualizações imutáveis; apontar efeito, dependências e cancelamento pelo AbortController.
 - Mostrar keys de IDs nas listas dinâmicas; distinguir os índices de listas estáticas.
-- **useParams ainda não demonstrado:** resolver rota com guarda ou confirmar interpretação com o professor.
 - Abrir um build de produção em janela limpa e a aba Network: observar chunks de páginas apenas ao navegar. Os testes desta rodada já observaram seis carregamentos distintos.
 - Mostrar AuthContext, Provider e hook de consumo; justificar prop drilling e reducer com casos reais. AuthState ainda não é union.
-- Preferências ainda não têm _versao; não declarar extra de armazenamento versionado concluído.
 - Demonstrar no Profiler qualquer benefício atribuído a useMemo/useCallback; medição ainda pendente.
 - Percorrer login, edição, descarte, abas, filtro e menu móvel sem mouse. Conferir anel de foco, contenção em diálogo e retorno ao acionador.
 - Executar NVDA/VoiceOver com landmarks e iframes; esse ensaio não foi realizado nesta rodada.
@@ -46,3 +44,23 @@ Consulte a [matriz de DAD](MATRIZ_REQUISITOS.md) e o [relatório com resultados 
 - Mostrar git log real e URL pública da Web quando existir. Nenhuma data, aprovação ou evidência deve ser simulada.
 
 Os testes desta rodada não aprovam automaticamente outras disciplinas, todo o fluxo de gravação na AWS ou acessibilidade integral. Registre qualquer etapa não executada e não substitua essa informação por uma resposta simulada.
+
+## Critérios técnicos concluídos após a auditoria final
+
+- Abrir `/equipe/201` com um ID real autorizado da equipe, recarregar e voltar à listagem. O parâmetro vem de `useParams` e é validado antes da seleção. Experimentar um ID inválido/inexistente e conferir o retorno seguro. Detalhes e edição mantêm a confirmação de descarte.
+- Nas preferências, mostrar `fixa.preferences` no localStorage, com `_versao: 1`. O parser migra o formato anterior sem versão, descarta versões incompatíveis e mantém a interface funcional quando o armazenamento é bloqueado. Não exibir tokens de sessionStorage.
+- Apontar `src/types/auth.ts` e `src/utils/authReducer.ts`: State e Action são unions; restauração, entrada, sucesso, falha e saída são transições explícitas. Não é possível representar usuário autenticado com erro de entrada simultâneo no State.
+- Mostrar pastas próprias/index.tsx dos componentes, interfaces em types, validação de recuperação em utils e ações de API nos hooks/serviços. O lint impede importação de serviços nas páginas/componentes.
+- Conferir os erros da recuperação junto ao campo correto e o foco no primeiro erro; testar modais, filtros, abas, menu móvel e a correção da proposta da Manu somente com teclado.
+- Conferir landmarks com leitor de tela. A navegação pública aparece ao receber foco, e os rodapés semânticos não acrescentam texto técnico visível à interface.
+
+### Demonstrações que ainda precisam acontecer na apresentação
+
+1. No React DevTools Profiler, gravar a mesma interação com e sem o useMemo de `useManuChartData`, usando uma série temporal real do contrato. Comparar renderizações/duração; não afirmar ganho que não foi medido.
+2. Mostrar como o useCallback de `useManagementOptions` mantém o carregador estável. Na comparação controlada, verificar requisições adicionais ao retirar a estabilidade; não repetir operações de gravação.
+3. Retirar temporariamente uma dependência de useEffect e demonstrar o efeito da atualização. Restaurar o código em seguida.
+4. No Network, desabilitar cache e visitar as páginas, demonstrando os chunks de React.lazy e o fallback de Suspense.
+5. Apontar consumidores do AuthContext/PreferencesContext e explicar as props intermediárias evitadas; mostrar a validação do conteúdo externo antes do JSX.
+6. Fazer um percurso real com NVDA/VoiceOver. Os testes automáticos e de foco não substituem esse ensaio.
+
+A implementação não equivale à demonstração oral já realizada. Publicação pública, URL no README e promoção das alterações locais pelo fluxo de revisão continuam pendentes. A documentação histórica da auditoria descreve a versão anterior a essas correções.

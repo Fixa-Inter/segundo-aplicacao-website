@@ -1,0 +1,24 @@
+.shortcuts {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 500;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: calc(100vw - 24px);
+  padding: 12px;
+  border: 1px solid var(--fixa-border);
+  border-radius: 12px;
+  background: var(--fixa-surface);
+  transform: translateY(calc(-100% - 24px));
+}
+.shortcuts:focus-within {
+  transform: translateY(0);
+}
+.shortcuts a {
+  display: grid;
+  align-items: center;
+  min-height: 44px;
+  color: var(--fixa-text-primary);
+}

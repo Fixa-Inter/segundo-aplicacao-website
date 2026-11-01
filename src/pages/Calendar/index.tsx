@@ -7,7 +7,6 @@ import { FigmaIcon } from '../../components/FigmaIcon'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
 import { useCalendarPage } from '../../hooks/useCalendarPage'
-import { saveEvent } from '../../services/managementService'
 import { occursOnDate, shiftDate } from '../../utils/calendar'
 import common from '../management.module.css'
 import styles from './Calendar.module.css'
@@ -23,7 +22,6 @@ export default function Calendar() {
     details,
     setDetails,
     events,
-    setEvents,
     responsibles,
     loading,
     setLoading,
@@ -33,7 +31,6 @@ export default function Calendar() {
     busy,
     error,
     notice,
-    setNotice,
     formOpen,
     setFormOpen,
     editing,
@@ -43,6 +40,8 @@ export default function Calendar() {
     calendarRef,
     changeMonth,
     openForm,
+    submitEvent,
+    eventSaved,
     moveDay,
     confirmDelete,
     selectedEvents,
@@ -54,19 +53,9 @@ export default function Calendar() {
         event={editing}
         selectedDay={selectedDay}
         responsibles={responsibles}
-        onSubmit={(input) => saveEvent(input, editing?.id)}
+        onSubmit={submitEvent}
         onCancel={() => setFormOpen(false)}
-        onSaved={(saved) => {
-          setEvents((current) =>
-            editing
-              ? current.map((item) => (item.id === saved.id ? saved : item))
-              : [...current, saved],
-          )
-          setSelectedDay(saved.date)
-          setMonth(saved.date.slice(0, 7))
-          setNotice(editing ? 'Evento atualizado com sucesso.' : 'Evento criado com sucesso.')
-          setFormOpen(false)
-        }}
+        onSaved={eventSaved}
       />
     )
   }

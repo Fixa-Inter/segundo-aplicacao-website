@@ -1,13 +1,23 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
 import { usePreferences } from '../contexts/usePreferences'
-import { getProfile, listTeamMembers, removeTechnician } from '../services/managementService'
+import {
+  getProfile,
+  listTeamMembers,
+  removeTechnician,
+  saveTechnician,
+} from '../services/managementService'
+import type { TechnicianFormProps } from '../types/ui'
 import type { ManagerProfile, TeamMember, Technician } from '../types/management'
 import { pageSize, teamTabs } from '../utils/teamPresentation'
 
 export function useTeamPage() {
   const { t } = usePreferences()
   const { user } = useAuth()
+  const { memberId } = useParams<{ memberId: string }>()
+  const navigate = useNavigate()
+  const { state } = useLocation()
   const institutional = user?.role === 'ADMINISTRADOR'
   const [selectedAccess, setSelectedAccess] = useState<TeamMember['accessType']>(
     institutional ? 'GESTOR' : 'TÉCNICO',
@@ -31,13 +41,33 @@ export function useTeamPage() {
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState<Technician | null>(null)
   const [formOpen, setFormOpen] = useState(false)
-  const [details, setDetails] = useState<TeamMember | null>(null)
+  const validMemberId = memberId !== undefined && /^[1-9]\d*$/.test(memberId)
+  const details = validMemberId ? (items.find((item) => item.id === memberId) ?? null) : null
+  const memberNotFound = memberId !== undefined && !loading && !loadError && !details
   function showDetails(item: TeamMember) {
-    setDetails(item)
+    navigate(`/equipe/${item.id}`)
   }
+  function closeDetails() {
+    navigate('/equipe', { state: { focusMemberId: details?.id } })
+  }
+  function cancelForm() {
+    setFormOpen(false)
+    setLoadAttempt((value) => value + 1)
+    if (memberId !== undefined) closeDetails()
+  }
+  const submitTechnician: TechnicianFormProps['onSubmit'] = (input, competencies, persistedId) =>
+    saveTechnician(input, persistedId ?? editing?.id, competencies)
   const [deleting, setDeleting] = useState<Technician | null>(null)
   const addButtonRef = useRef<HTMLButtonElement>(null)
   const wasFormOpen = useRef(false)
+  useEffect(() => {
+    const id: unknown = state?.focusMemberId
+    if (loading || memberId !== undefined || typeof id !== 'string') return
+    const frame = requestAnimationFrame(() =>
+      document.getElementById(`tech-details-${id}`)?.focus(),
+    )
+    return () => cancelAnimationFrame(frame)
+  }, [state, loading, memberId])
 
   useEffect(() => {
     if (wasFormOpen.current && !formOpen) addButtonRef.current?.focus()
@@ -154,7 +184,11 @@ export function useTeamPage() {
     formOpen,
     setFormOpen,
     details,
-    setDetails,
+    closeDetails,
+    cancelForm,
+    memberId,
+    memberNotFound,
+    submitTechnician,
     showDetails,
     deleting,
     setDeleting,

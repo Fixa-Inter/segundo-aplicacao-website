@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useLocation } from 'react-router-dom'
 import { usePreferences } from '../contexts/usePreferences'
-import { listEventResponsibles, listEvents, removeEvent } from '../services/managementService'
-import type { CalendarEvent, EventResponsibleOption } from '../types/management'
+import {
+  listEventResponsibles,
+  listEvents,
+  removeEvent,
+  saveEvent,
+} from '../services/managementService'
+import type { CalendarEvent, CalendarEventInput, EventResponsibleOption } from '../types/management'
 import { monthDays, occursOnDate, shiftDate } from '../utils/calendar'
 
 export function useCalendarPage() {
@@ -67,6 +72,18 @@ export function useCalendarPage() {
     setEditing(item ?? null)
     setError('')
     setFormOpen(true)
+  }
+  function submitEvent(input: CalendarEventInput): Promise<CalendarEvent> {
+    return saveEvent(input, editing?.id)
+  }
+  function eventSaved(saved: CalendarEvent) {
+    setEvents((current) =>
+      editing ? current.map((item) => (item.id === saved.id ? saved : item)) : [...current, saved],
+    )
+    setSelectedDay(saved.date)
+    setMonth(saved.date.slice(0, 7))
+    setNotice(editing ? 'Evento atualizado com sucesso.' : 'Evento criado com sucesso.')
+    setFormOpen(false)
   }
   function moveDay(event: KeyboardEvent<HTMLButtonElement>, date: string) {
     const weekday = new Date(`${date}T12:00:00Z`).getUTCDay()
@@ -148,6 +165,8 @@ export function useCalendarPage() {
     calendarRef,
     changeMonth,
     openForm,
+    submitEvent,
+    eventSaved,
     moveDay,
     confirmDelete,
     selectedEvents,

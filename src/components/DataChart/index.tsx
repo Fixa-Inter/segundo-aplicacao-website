@@ -127,9 +127,12 @@ export function DataChart({
               y1={(top + bottom) / 2}
               y2={(top + bottom) / 2}
             />
-            {[box.min, box.max].map((value, index) => (
+            {[
+              { id: 'min', value: box.min },
+              { id: 'max', value: box.max },
+            ].map(({ id, value }) => (
               <line
-                key={index}
+                key={id}
                 className={styles.whisker}
                 x1={x(value)}
                 x2={x(value)}

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Eye } from 'lucide-react'
 import { AddRecordButton } from '../../components/AddRecordButton'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
@@ -9,7 +10,6 @@ import { Pagination } from '../../components/Pagination'
 import { TechnicianDetails } from '../../components/TechnicianDetails'
 import { TechnicianForm } from '../../components/TechnicianForm'
 import { useTeamPage } from '../../hooks/useTeamPage'
-import { saveTechnician } from '../../services/managementService'
 import { truncateText } from '../../utils/presentation'
 import { teamTabs } from '../../utils/teamPresentation'
 import common from '../management.module.css'
@@ -46,7 +46,11 @@ export default function Team() {
     formOpen,
     setFormOpen,
     details,
-    setDetails,
+    closeDetails,
+    cancelForm,
+    memberId,
+    memberNotFound,
+    submitTechnician,
     showDetails,
     deleting,
     setDeleting,
@@ -64,13 +68,8 @@ export default function Team() {
       <TechnicianForm
         technician={editing}
         manager={manager}
-        onSubmit={(input, competencies, persistedId) =>
-          saveTechnician(input, persistedId ?? editing?.id, competencies)
-        }
-        onCancel={() => {
-          setFormOpen(false)
-          setLoadAttempt((value) => value + 1)
-        }}
+        onSubmit={submitTechnician}
+        onCancel={cancelForm}
         onSaved={() => {
           setLoadAttempt((value) => value + 1)
           setNotice(editing ? 'Técnico atualizado com sucesso.' : 'Técnico cadastrado com sucesso.')
@@ -81,20 +80,42 @@ export default function Team() {
     )
   }
 
+  if (memberId !== undefined && loading) return <LoadingState label="Carregando equipe…" />
+  if (memberId !== undefined && loadError)
+    return (
+      <section className={common.page}>
+        <p role="alert">{t(loadError)}</p>
+        <button
+          type="button"
+          onClick={() => {
+            setLoadError('')
+            setLoading(true)
+            setLoadAttempt((value) => value + 1)
+          }}
+        >
+          {t('Tentar novamente')}
+        </button>
+        <Link to="/equipe">{t('Voltar à equipe')}</Link>
+      </section>
+    )
+  if (memberNotFound)
+    return (
+      <section className={common.page}>
+        <PageHeader title={t('Pessoa não encontrada')} />
+        <p role="status">{t('Este cadastro não está disponível na sua equipe.')}</p>
+        <Link to="/equipe">{t('Voltar à equipe')}</Link>
+      </section>
+    )
+
   if (details) {
     return (
       <TechnicianDetails
         technician={details}
-        onBack={() => {
-          const id = details.id
-          setDetails(null)
-          requestAnimationFrame(() => document.getElementById(`tech-details-${id}`)?.focus())
-        }}
+        onBack={closeDetails}
         onEdit={
           details.accessType === 'TÉCNICO'
             ? () => {
                 openForm(details)
-                setDetails(null)
               }
             : undefined
         }

@@ -9,6 +9,7 @@ import { usePreferences } from '../../contexts/usePreferences'
 import { useUnsavedChanges } from '../../contexts/useUnsavedChanges'
 import type { NavigationProps } from '../../types/ui'
 import { Brand } from '../Brand'
+import { AppFooter } from '../AppFooter'
 import { ConfirmDialog } from '../ConfirmDialog'
 import { FigmaIcon } from '../FigmaIcon'
 import { LoadingState } from '../LoadingState'
@@ -137,6 +138,9 @@ function Layout() {
               type="button"
               onClick={() => setMenuOpen(true)}
               aria-label={t('Abrir menu')}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-navigation"
+              aria-haspopup="dialog"
             >
               <Menu />
             </button>
@@ -161,6 +165,7 @@ function Layout() {
             <Outlet />
           </Suspense>
         </main>
+        <AppFooter />
       </div>
       <Drawer
         closeButtonProps={{ 'aria-label': t('Fechar menu') }}
@@ -170,7 +175,9 @@ function Layout() {
         size={280}
         classNames={{ body: styles.drawerBody }}
       >
-        <Navigation onNavigate={closeMenu} onLogout={openLogout} />
+        <div id="mobile-navigation">
+          <Navigation onNavigate={closeMenu} onLogout={openLogout} />
+        </div>
       </Drawer>
       <ConfirmDialog
         opened={logoutOpen}

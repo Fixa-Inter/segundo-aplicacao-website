@@ -12,6 +12,7 @@ export function FilterButton({ children, active = false, onClear }: FilterButton
         <button
           className={styles.trigger}
           type="button"
+          aria-haspopup="dialog"
           aria-label={t(active ? 'Filtrar, filtros ativos' : 'Filtrar')}
         >
           <span>{t('Filtrar')}</span>

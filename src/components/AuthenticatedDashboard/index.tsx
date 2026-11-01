@@ -4,17 +4,10 @@ import { useAuth } from '../../contexts/useAuth'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useDashboardAccess } from '../../hooks/useDashboardAccess'
 import { LoadingState } from '../LoadingState'
+import type { AuthenticatedDashboardProps } from '../../types/dashboard'
 import styles from './AuthenticatedDashboard.module.css'
 
-export function AuthenticatedDashboard({
-  title,
-  widget,
-  technician,
-}: {
-  title: string
-  widget?: string
-  technician?: string
-}) {
+export function AuthenticatedDashboard({ title, widget, technician }: AuthenticatedDashboardProps) {
   const { user } = useAuth()
   const getAccess = useDashboardAccess()
   const { t, theme } = usePreferences()
