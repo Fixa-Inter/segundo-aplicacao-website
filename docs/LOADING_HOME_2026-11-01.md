@@ -31,3 +31,13 @@ Atividade: Issue #19. Branch `feature/loading-manu-home`, criada a partir de `or
 ## Limites
 
 Esta rodada não altera nem homologa API/IA/Databricks. A tela de indisponibilidade do dashboard na captura é simulada para verificar o layout, separada do teste de SDK pronto. As dependências externas do BI continuam registradas nas Issues #14/#16. Sem PR, merge, push em branches permanentes ou publicação nesta rodada.
+
+## Correção complementar: loader após a resposta
+
+O envio aguardava `refreshConversations()` mesmo após adicionar a resposta aos balões. Agora termina ao receber a resposta validada; a lista de conversas usa o cache imediatamente e atualiza em segundo plano, sem manter o indicador de resposta ou bloquear a próxima mensagem. A leitura anterior do histórico é cancelada ao iniciar outra e na desmontagem; respostas atrasadas não substituem a lista atual.
+
+Testes de regressão mantêm a primeira leitura do histórico pendente após o chat responder. Antes da correção, falharam em 1440/390 px porque o loader continuava presente. Após a correção, ambos passaram: sem loader, próxima mensagem habilitada e resposta de histórico antiga ignorada. Outro teste confirma que HTTP 503 no histórico preserva a resposta, sem reenvio automático nem retorno do loader. A suíte da Manu passou os 13 cenários, incluindo imagens e confirmações.
+
+Capturas com a leitura do histórico ainda bloqueada: [desktop](evidencias/loading-home-2026-11-01/manu-resposta-sem-loader-1440.png) e [mobile](evidencias/loading-home-2026-11-01/manu-resposta-sem-loader-390.png). Testes controlados, sem cadastros na AWS. Continuação da Issue #19, sem PR.
+
+Verificação final da correção: formatação, lint, build, 161 testes de unidade/contrato e 41 cenários de navegador aprovados (13 da Manu + 28 dos demais arquivos). Os três cenários novos cobrem histórico lento em desktop/mobile e falha da atualização. Nenhuma API foi modificada.

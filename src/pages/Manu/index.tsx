@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { ArrowUp, Paperclip, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useAuth } from '../../contexts/useAuth'
@@ -59,6 +59,7 @@ export default function Manu() {
   const [correcting, setCorrecting] = useState(false)
   const [correction, setCorrection] = useState('')
   const request = useRef<AbortController | null>(null)
+  const historyRequest = useRef<AbortController | null>(null)
   const uploads = useRef(new Map<string, { controller: AbortController; preview: string }>())
   const generation = useRef(0)
   const busyRef = useRef(false)
@@ -70,30 +71,34 @@ export default function Manu() {
   const pendingConfirmation = current?.confirmacao === 'sim' && !current.closed
   const lastReply = messages.findLast((item) => item.author === 'manu')
 
-  useEffect(() => {
+  const refreshConversations = useCallback(async (background = false) => {
+    historyRequest.current?.abort()
     const controller = new AbortController()
+    historyRequest.current = controller
+    // A resposta já está no cache; a leitura remota não mantém o envio ocupado.
+    if (background) setConversations(manuApi.cachedList())
+    setHistoryLoading(!background)
+    try {
+      const data = await manuApi.list(controller.signal)
+      if (!controller.signal.aborted) {
+        setConversations(data)
+        setHistoryError('')
+      }
+    } catch (reason) {
+      if (!controller.signal.aborted) {
+        setConversations(manuApi.cachedList())
+        setHistoryError(historyErrorMessage(reason))
+      }
+    } finally {
+      if (!controller.signal.aborted) setHistoryLoading(false)
+    }
+  }, [])
+  useEffect(() => {
     const activeUploads = uploads.current
-    if (!manuApi.configured) return () => controller.abort()
-    if (manuApi.configured)
-      void manuApi
-        .list(controller.signal)
-        .then((data) => {
-          if (!controller.signal.aborted) {
-            setConversations(data)
-            setHistoryError('')
-          }
-        })
-        .catch((reason) => {
-          if (!controller.signal.aborted) {
-            setConversations(manuApi.cachedList())
-            setHistoryError(historyErrorMessage(reason))
-          }
-        })
-        .finally(() => {
-          if (!controller.signal.aborted) setHistoryLoading(false)
-        })
+    if (!manuApi.configured) return
+    void refreshConversations()
     return () => {
-      controller.abort()
+      historyRequest.current?.abort()
       request.current?.abort()
       activeUploads.forEach((item) => {
         item.controller.abort()
@@ -101,22 +106,10 @@ export default function Manu() {
       })
       activeUploads.clear()
     }
-  }, [user?.id])
+  }, [user?.id, refreshConversations])
   useEffect(() => {
     end.current?.scrollIntoView({ block: 'nearest' })
   }, [messages, sending, correcting])
-  async function refreshConversations() {
-    setHistoryLoading(true)
-    try {
-      setConversations(await manuApi.list())
-      setHistoryError('')
-    } catch (reason) {
-      setConversations(manuApi.cachedList())
-      setHistoryError(historyErrorMessage(reason))
-    } finally {
-      setHistoryLoading(false)
-    }
-  }
   function clearAttachments() {
     uploads.current.forEach((item) => {
       item.controller.abort()
@@ -277,7 +270,7 @@ export default function Manu() {
       setCorrecting(false)
       setCorrection('')
       if (mode === 'message') clearAttachments()
-      await refreshConversations()
+      void refreshConversations(true)
     } catch (reason) {
       if (controller.signal.aborted || expected !== generation.current) return
       setMessages((values) => values.filter((value) => value.id !== pending.id))

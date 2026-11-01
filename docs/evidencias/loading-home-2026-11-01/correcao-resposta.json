@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-01",
+  "issue": 19,
+  "environment": "Edge com respostas controladas; sem gravar na AWS",
+  "before": {
+    "delayedHistoryLoaderTests": 2,
+    "failures": 2,
+    "cause": "Envio aguardava atualização do histórico depois de exibir a resposta."
+  },
+  "after": {
+    "format": true,
+    "lint": true,
+    "build": true,
+    "unitTests": 161,
+    "browserTests": 41,
+    "delayedHistoryWidths": [
+      1440,
+      390
+    ],
+    "replyVisibleWithoutLoaderWhileHistoryPending": true,
+    "nextMessageEnabled": true,
+    "staleHistoryIgnored": true,
+    "history503PreservesReply": true,
+    "automaticResend": false,
+    "browserErrors": []
+  }
+}

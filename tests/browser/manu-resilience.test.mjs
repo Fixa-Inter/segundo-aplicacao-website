@@ -503,3 +503,127 @@ for (const { role, width } of [
     },
   )
 }
+
+for (const width of [1440, 390]) {
+  test(`resposta libera loader e próximo envio sem esperar histórico lento em ${width}px`, async () => {
+    const { page, context, state } = await setup({ width })
+    let release
+    let started
+    let firstDone
+    const gate = new Promise((resolve) => {
+      release = resolve
+    })
+    const requested = new Promise((resolve) => {
+      started = resolve
+    })
+    const finished = new Promise((resolve) => {
+      firstDone = resolve
+    })
+    let reads = 0
+    await context.route('**/api/ia/api/v1/sessoes', async (route) => {
+      reads++
+      if (reads === 1) {
+        started()
+        await gate
+        try {
+          await route.fulfill({
+            json: {
+              status: 'SUCESSO',
+              conversas: [
+                {
+                  session_id: 'qa-active',
+                  iniciada_em: '2026-10-27T10:00:00Z',
+                  atualizada_em: '2026-10-27T10:01:00Z',
+                  titulo: 'Título antigo que chegou atrasado',
+                  resumo: '',
+                  mensagens: [],
+                },
+              ],
+            },
+          })
+        } finally {
+          firstDone()
+        }
+        return
+      }
+      return route.fulfill({ json: { status: 'SEM_DADOS', conversas: [] } })
+    })
+    try {
+      await page.locator('#manu-question').fill('Primeira consulta')
+      await page.getByRole('button', { name: 'Enviar mensagem', exact: true }).click()
+      await requested
+      await page.getByText('Resposta preservada.', { exact: true }).waitFor()
+      assert.equal(
+        await page.getByRole('status').filter({ hasText: 'A Manu está preparando' }).count(),
+        0,
+      )
+      assert.equal(
+        await page.getByRole('status').filter({ hasText: 'Carregando conversas' }).count(),
+        0,
+      )
+      const conversation = page.locator(
+        'nav[aria-label="Conversas recentes"] button[title="Primeira consulta"]',
+      )
+      await conversation.waitFor()
+      await page.locator('#manu-question').fill('Segunda consulta')
+      const send = page.getByRole('button', { name: 'Enviar mensagem', exact: true })
+      assert.equal(await send.isEnabled(), true)
+      await screenshot(page, `manu-resposta-sem-loader-${width}.png`)
+      await send.click()
+      await page.waitForFunction(
+        () =>
+          [...document.querySelectorAll('[role="log"] article p')].filter(
+            (n) => n.textContent === 'Resposta preservada.',
+          ).length === 2,
+      )
+      assert.equal(state.posts, 2)
+      release()
+      await finished
+      await page.waitForFunction(
+        () =>
+          ![...document.querySelectorAll('[role="status"]')].some((n) =>
+            n.textContent.includes('Carregando conversas'),
+          ),
+      )
+      assert.equal(
+        await page
+          .getByRole('button', { name: 'Título antigo que chegou atrasado', exact: true })
+          .count(),
+        0,
+      )
+      assert.equal(
+        await page.getByRole('log').getByText('Resposta preservada.', { exact: true }).count(),
+        2,
+      )
+      assert.equal(
+        await page.getByRole('status').filter({ hasText: 'A Manu está preparando' }).count(),
+        0,
+      )
+    } finally {
+      release()
+      await finished
+    }
+  })
+}
+
+test('falha ao atualizar histórico não retoma o loader nem remove a resposta recebida', async () => {
+  const { page, state } = await setup()
+  state.historyFails = true
+  await page.locator('#manu-question').fill('Consulta com histórico indisponível')
+  await page.getByRole('button', { name: 'Enviar mensagem', exact: true }).click()
+  await page.getByText('Resposta preservada.', { exact: true }).waitFor()
+  await page
+    .getByRole('alert')
+    .filter({ hasText: 'Não foi possível carregar as conversas.' })
+    .waitFor()
+  assert.equal(
+    await page.getByRole('status').filter({ hasText: 'A Manu está preparando' }).count(),
+    0,
+  )
+  await page.locator('#manu-question').fill('Nova consulta')
+  assert.equal(
+    await page.getByRole('button', { name: 'Enviar mensagem', exact: true }).isEnabled(),
+    true,
+  )
+  assert.equal(state.posts, 1)
+})
