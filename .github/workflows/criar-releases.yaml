@@ -5,7 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   release:
-    uses: Fixa-Inter/.github/.github/workflows/criar-release.yml@main
+    uses: Fixa-Inter/.github/.github/workflows/auto-release.yml@main
     secrets: inherit

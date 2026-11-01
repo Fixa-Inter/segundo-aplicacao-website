@@ -1,0 +1,47 @@
+{
+  "issue": "https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/14",
+  "branch": "feature/dashboards-unidade-graficos-manu",
+  "base": "origin/dev (5ee59d3 após merge do PR #13)",
+  "observedStart": "2026-10-31T19:28:37+00:00",
+  "observedRecord": "2026-10-31T19:59:19.132715+00:00",
+  "observedMinutes": 30.7,
+  "estimateMinutes": 90,
+  "checks": {
+    "format:check": "pass",
+    "lint": "pass",
+    "unit": {
+      "passed": 161,
+      "failed": 0
+    },
+    "build": "pass",
+    "browserFull": {
+      "passed": 38,
+      "failed": 0
+    },
+    "browserChartsFinal": {
+      "passed": 7,
+      "failed": 0,
+      "context": "Após ajustes de rótulos/tema; inclui RH com payload controlado"
+    }
+  },
+  "productionAudit": {
+    "total": 0
+  },
+  "developmentAudit": "12 moderados na cadeia ESLint, sem forçar downgrade maior",
+  "realAWS": {
+    "loginGestor": 200,
+    "loginRH": 200,
+    "manuChartGestor": 200,
+    "chartUnit": 7,
+    "chartRenderedAndRestored": true,
+    "rhChart": "Resolvido: AWS 200, unidade 1, gráfico renderizado e restaurado após reload. Nova evidência aws-rh-liberado.json.",
+    "dashboardEmbedGestor": 502,
+    "dashboardEmbedRH": 502
+  },
+  "limitations": [
+    "Não homologado o BI real devido ao 502",
+    "Isolamento Databricks exige consulta usando __aibi_external_value",
+    "Sem permissão read:project",
+    "Sem promoção/merge/publicação nesta atividade"
+  ]
+}

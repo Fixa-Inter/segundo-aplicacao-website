@@ -1,0 +1,45 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "routes": [
+    {
+      "src": "/api/web/(.*)",
+      "dest": "https://web-api.fixa.solutions/$1",
+      "headers": {
+        "Cache-Control": "private, no-store",
+        "x-vercel-enable-rewrite-caching": "0"
+      },
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "delete",
+          "target": {
+            "key": "origin"
+          }
+        }
+      ]
+    },
+    {
+      "src": "/api/ia/(.*)",
+      "dest": "https://ia-api.fixa.solutions/$1",
+      "headers": {
+        "Cache-Control": "private, no-store",
+        "x-vercel-enable-rewrite-caching": "0"
+      }
+    },
+    {
+      "src": "/api/(.*)",
+      "status": 404
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

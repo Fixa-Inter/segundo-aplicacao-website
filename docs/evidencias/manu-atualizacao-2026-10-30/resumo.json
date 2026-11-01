@@ -1,0 +1,49 @@
+{
+  "issue": "https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12",
+  "responsavel": "Gkso31 com apoio do Codex",
+  "branch": "feature/integracao-ia-manu",
+  "base": "3ee7d0e",
+  "sourceConsulted": {
+    "repository": "Fixa-Inter/segundo-inteligencia-artificial",
+    "ref": "main",
+    "sha": "37cba5afd2bb5bd71dac9e9cd907f8d8f531f59c",
+    "deployedSha": "Não exposto; contrato e respostas verificados na AWS."
+  },
+  "checks": {
+    "format:check": "pass",
+    "lint": "pass",
+    "unit": {
+      "passed": 142,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 29,
+      "failed": 0
+    },
+    "targetedContracts": {
+      "passed": 44,
+      "failed": 0
+    },
+    "build": "pass"
+  },
+  "regressions": {
+    "newUnit": 9,
+    "newBrowser": 4,
+    "firstEightNewContractCasesBeforeFix": {
+      "passed": 2,
+      "failed": 6
+    }
+  },
+  "live": "Gestor e RH: login, envio, encerramento e exclusão 200; título distinto, reload, Bearer em todas as chamadas da IA, DELETE sem corpo e consulta após exclusão 404. Dois chats sintéticos removidos. Sem criação/alteração de registros operacionais.",
+  "controlled": "Propostas/correções/confirmações e upload simulados para não criar registros nem fazer upload real. Cenas 320/390/1440px e suíte geral com 360/430/844x390.",
+  "remaining": [
+    "Histórico da IA não inclui URLs de imagens em mensagens. É necessário retornar imagens nas rotas de listagem e consulta específica.",
+    "Histórico não oferece campo explícito de encerramento; a Web mantém a compatibilidade pela existência de título/resumo. Estado explícito é uma melhoria de contrato.",
+    "Não reexecutada a auditoria adversarial completa do servidor; este trabalho valida e corrige a integração Web."
+  ],
+  "observedStart": "2026-10-30T06:55:51-03:00",
+  "observedEnd": "2026-10-30T07:13:24-03:00",
+  "observedMinutes": 17.6,
+  "estimateMinutes": 60,
+  "workflow": "Continuação da Issue #12 na branch de integração. Sem novo PR, merge ou deploy. Issue aberta; Project não presumido."
+}

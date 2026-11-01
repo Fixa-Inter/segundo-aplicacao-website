@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-26",
+  "baseCommit": "3e80923",
+  "scope": "Revisão do ciclo de carregamento; sem uso de contas ou escritas reais",
+  "before": {
+    "browserCases": 8,
+    "passed": 4,
+    "failed": 4
+  },
+  "after": {
+    "browserCases": 8,
+    "passed": 8,
+    "failed": 0,
+    "nodeTests": 117,
+    "format": true,
+    "lint": true,
+    "build": true
+  },
+  "static": {
+    "codeFiles": 118,
+    "any": 0,
+    "servicesInComponents": [],
+    "networkInViews": [],
+    "effects": 21,
+    "effectsMissingDependencies": 0
+  },
+  "forms": {
+    "checks": [
+      "Edição inicia com turno e notas reais; Cancelar sem alteração não abre descarte",
+      "Troca rápida de unidade descarta resposta antiga; turno da unidade anterior não reaparece",
+      "Falha ao carregar turnos aparece no DOM e Tentar novamente recupera opções; descarte preservado",
+      "Cadastro parcial conserva ID, limpa senha e conclui por PATCH sem duplicar usuário ou turno; nota decimal preservada",
+      "Evento mantém dados após erro de salvamento e conclui pela confirmação na nova tentativa",
+      "Gestor mantém unidade somente leitura e edição/descarte no celular"
+    ],
+    "scans": [
+      {
+        "name": "rh-edit-desktop",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "rh-shift-retry",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "rh-create-desktop",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "rh-partial-save-error",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "event-desktop",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "event-mobile",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "gestor-edit-mobile",
+        "violations": [],
+        "overflow": false
+      }
+    ],
+    "errors": [],
+    "unexpected": [],
+    "finishedUTC": "2026-10-27T01:22:50.759Z"
+  },
+  "limits": [
+    "Sem rehomologação AWS/BI/publicação",
+    "Sem gravações operacionais reais",
+    "Sem certificação WCAG integral",
+    "Testes de navegador exigem Vite e Playwright disponíveis"
+  ]
+}

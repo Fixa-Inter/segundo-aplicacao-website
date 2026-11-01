@@ -1,0 +1,402 @@
+import { decodeVisualization } from '../utils/visualization.ts'
+import type { ManuConversation, ManuHistory, ManuReply } from '../types/manu'
+import type { RemoteConversation, RemoteClosedConversation } from '../types/api/manu'
+export type { ManuMessage, ManuConversation, ManuHistory, ManuReply } from '../types/manu'
+import { ApiError, type createHttpClient } from './httpClient.ts'
+import { getConversationTitle, normalizeManuEmotion } from '../utils/manu.ts'
+
+export function validateImageLinks(images: string[]): string[] {
+  if (images.length > 3) throw new ApiError('Use até 3 imagens.')
+  return images.map((value) => {
+    let url: URL
+    try {
+      url = new URL(value.trim())
+    } catch {
+      throw new ApiError('Informe um link HTTP ou HTTPS válido para a imagem.')
+    }
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      url.username ||
+      url.password ||
+      url.hash ||
+      value.trim().length > 255 ||
+      url.href.length > 255 ||
+      [...value.trim()].some(
+        (character) =>
+          character.charCodeAt(0) < 33 || character.charCodeAt(0) === 127 || character === '\\',
+      )
+    )
+      throw new ApiError('Informe um link HTTP ou HTTPS válido para a imagem.')
+    return url.href
+  })
+}
+
+// Históricos antigos podem omitir anexos; um link inválido não deve ocultar o texto da conversa.
+function historyImageLinks(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .flatMap((link) => {
+      if (typeof link !== 'string') return []
+      try {
+        return validateImageLinks([link])
+      } catch {
+        return []
+      }
+    })
+    .slice(0, 3)
+}
+
+function isThreadId(value: unknown): value is string {
+  return (
+    typeof value === 'string' && value.length > 0 && value.length <= 100 && value.trim() === value
+  )
+}
+
+function decodeHistory(value: RemoteConversation, unitId: number | null = null): ManuHistory {
+  if (
+    !value ||
+    !isThreadId(value.session_id) ||
+    typeof value.titulo !== 'string' ||
+    typeof value.resumo !== 'string' ||
+    typeof value.atualizada_em !== 'string' ||
+    Number.isNaN(Date.parse(value.atualizada_em)) ||
+    !Array.isArray(value.mensagens) ||
+    value.mensagens.some(
+      (item) =>
+        !item ||
+        !['human', 'assistant'].includes(item.role) ||
+        typeof item.mensagem !== 'string' ||
+        (item.confirmacao !== undefined && !['sim', 'nao'].includes(item.confirmacao)),
+    )
+  )
+    throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+  const summary = value.resumo.trim()
+  const title = value.titulo.trim()
+  const closed = Boolean(title || summary)
+  const lastMessage = value.mensagens.at(-1)
+  return {
+    thread_id: value.session_id,
+    title: getConversationTitle(
+      title,
+      summary,
+      value.mensagens.find((item) => item.role === 'human')?.mensagem,
+    ),
+    updated_at: new Date(value.atualizada_em).toISOString(),
+    closed,
+    summary: summary || null,
+    confirmacao:
+      !closed && lastMessage?.role === 'assistant' && lastMessage.confirmacao === 'sim'
+        ? 'sim'
+        : 'nao',
+    messages: value.mensagens.map((item, index) => ({
+      id: value.session_id + ':' + index,
+      author: item.role === 'human' ? 'user' : 'manu',
+      text: item.mensagem,
+      images: historyImageLinks(item.imagens),
+      ...(item.role === 'assistant'
+        ? {
+            ...visualizationFields(item.visualizacao, unitId),
+            emotion: normalizeManuEmotion(item.emocao),
+            ...(item.confirmacao !== undefined
+              ? { confirmation: !closed && item.confirmacao === 'sim' }
+              : {}),
+          }
+        : {}),
+    })),
+  }
+}
+function visualizationFields(raw: unknown, unitId: number | null) {
+  if (raw == null) return {}
+  const visualization = decodeVisualization(raw, unitId)
+  return visualization ? { visualization } : { visualizationError: true }
+}
+export function createManuService(client: ReturnType<typeof createHttpClient>, baseURL?: string) {
+  let base: string | null = null
+  try {
+    const parsed = new URL(baseURL ?? '')
+    if (
+      ['http:', 'https:'].includes(parsed.protocol) &&
+      !parsed.username &&
+      !parsed.password &&
+      !parsed.search &&
+      !parsed.hash
+    )
+      base = parsed.href.replace(/\/$/, '')
+  } catch {
+    /* Configuração validada antes do envio de credenciais. */
+  }
+  async function visualizationUnit(
+    hasVisualization: boolean,
+    signal?: AbortSignal,
+  ): Promise<number | null> {
+    if (!hasVisualization) return null
+    try {
+      const profile = await client.request<{ unidadeId?: number }>('/api/v1/perfil', { signal })
+      signal?.throwIfAborted()
+      return typeof profile?.unidadeId === 'number' &&
+        Number.isSafeInteger(profile.unidadeId) &&
+        profile.unidadeId > 0
+        ? profile.unidadeId
+        : null
+    } catch {
+      signal?.throwIfAborted()
+      return null
+    }
+  }
+  let authVersion = 0
+  const assertSession = (expected: number) => {
+    if (expected !== authVersion)
+      throw new ApiError('A sessão foi encerrada. Entre novamente.', 401)
+  }
+  const conversations = new Map<string, ManuHistory>()
+  const removedThreadIds = new Set<string>()
+  client.onTokens((tokens) => {
+    if (!tokens) {
+      authVersion++
+      conversations.clear()
+      removedThreadIds.clear()
+    }
+  })
+  function endpoint(route = '') {
+    if (!base) throw new ApiError('Configure VITE_AI_BASE_URL com o endereço do serviço da Manu.')
+    return `${base}/api/v1/chat${route}`
+  }
+  function check(signal?: AbortSignal) {
+    endpoint()
+    signal?.throwIfAborted()
+    if (!client.getTokens()) throw new ApiError('Entre novamente para continuar.', 401)
+  }
+  function remember(value: ManuHistory) {
+    if (removedThreadIds.has(value.thread_id)) return
+    conversations.delete(value.thread_id)
+    conversations.set(value.thread_id, value)
+    if (conversations.size > 50) conversations.delete(conversations.keys().next().value!)
+  }
+  const cachedList = () =>
+    [...conversations.values()]
+      .map(({ thread_id, title, updated_at, closed }) => ({ thread_id, title, updated_at, closed }))
+      .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+  function mergeHistory(remote: ManuHistory): ManuHistory {
+    const local = conversations.get(remote.thread_id)
+    if (!local) return remote
+    // A leitura pode chegar antes da persistência da última resposta. Preserva anexos e confirmações que ainda existem na sessão.
+    if (local.messages.length > remote.messages.length || (local.closed && !remote.closed))
+      return local
+    const lastRemote = remote.messages.at(-1)
+    const sameLast =
+      local.messages.at(-1)?.text === lastRemote?.text &&
+      local.messages.at(-1)?.author === lastRemote?.author
+    return {
+      ...remote,
+      // O contrato atual persiste a decisão; o cache só complementa versões antigas sem esse campo.
+      confirmacao:
+        !remote.closed && sameLast && lastRemote?.confirmation === undefined
+          ? local.confirmacao
+          : remote.confirmacao,
+      messages: remote.messages.map((item, index) => {
+        const previous = local.messages[index]
+        return previous?.author === item.author && previous.text === item.text
+          ? {
+              ...item,
+              images: item.images.length ? item.images : [...previous.images],
+              confirmation: remote.closed ? false : (item.confirmation ?? previous.confirmation),
+            }
+          : item
+      }),
+    }
+  }
+  return {
+    configured: Boolean(base),
+    cachedList,
+    async list(signal?: AbortSignal): Promise<ManuConversation[]> {
+      check(signal)
+      const expectedAuth = authVersion
+      const result = await client.request<{
+        status: 'SUCESSO' | 'SEM_DADOS'
+        conversas: RemoteConversation[]
+      }>(base + '/api/v1/sessoes', { expireSessionOnUnauthorized: false, signal })
+      signal?.throwIfAborted()
+      if (
+        !result ||
+        !['SUCESSO', 'SEM_DADOS'].includes(result.status) ||
+        !Array.isArray(result.conversas)
+      )
+        throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+      const unitId = await visualizationUnit(
+        result.conversas.some(
+          (c) => Array.isArray(c.mensagens) && c.mensagens.some((m) => m?.visualizacao != null),
+        ),
+        signal,
+      )
+      assertSession(expectedAuth)
+      const loaded = result.conversas
+        .map((value) => decodeHistory(value, unitId))
+        .filter((item) => !removedThreadIds.has(item.thread_id))
+        .map(mergeHistory)
+      const all = new Map(loaded.map((item) => [item.thread_id, item]))
+      for (const item of conversations.values()) {
+        if (!all.has(item.thread_id)) {
+          if (!item.closed) all.set(item.thread_id, item)
+          else conversations.delete(item.thread_id)
+        }
+      }
+      // Reinsere das mais antigas às mais recentes para preservar as 50 mais recentes no cache.
+      for (const item of [...all.values()].sort((a, b) => a.updated_at.localeCompare(b.updated_at)))
+        remember(item)
+      return [...all.values()]
+        .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+        .map(({ thread_id, title, updated_at, closed }) => ({
+          thread_id,
+          title,
+          updated_at,
+          closed,
+        }))
+    },
+    async history(threadId: string, signal?: AbortSignal): Promise<ManuHistory> {
+      check(signal)
+      if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
+      if (removedThreadIds.has(threadId))
+        throw new ApiError('Esta conversa foi removida do histórico.', 404)
+      const expectedAuth = authVersion
+      const cached = conversations.get(threadId)
+      if (cached) return structuredClone(cached)
+      const result = await client.request<{ status: 'SUCESSO'; conversa: RemoteConversation }>(
+        base + '/api/v1/sessoes/conversa',
+        {
+          method: 'POST',
+          expireSessionOnUnauthorized: false,
+          signal,
+          data: { session_id: threadId },
+        },
+      )
+      signal?.throwIfAborted()
+      if (!result || result.status !== 'SUCESSO')
+        throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+      if (removedThreadIds.has(threadId))
+        throw new ApiError('Esta conversa foi removida do histórico.', 404)
+      const unitId = await visualizationUnit(
+        result.conversa?.mensagens?.some((m) => m.visualizacao != null) ?? false,
+        signal,
+      )
+      assertSession(expectedAuth)
+      const value = decodeHistory(result.conversa, unitId)
+      if (value.thread_id !== threadId)
+        throw new ApiError('O serviço da Manu retornou um histórico inválido.')
+      remember(value)
+      return structuredClone(value)
+    },
+    async send(
+      text: string,
+      threadId: string | null,
+      images: string[] = [],
+      signal?: AbortSignal,
+    ): Promise<ManuReply> {
+      const message = text.trim()
+      if (!message || message.length > 4000)
+        throw new ApiError('A mensagem deve ter de 1 a 4000 caracteres.')
+      if (threadId !== null && !isThreadId(threadId)) throw new ApiError('Conversa inválida.')
+      if (threadId && removedThreadIds.has(threadId))
+        throw new ApiError('Esta conversa foi removida do histórico.', 404)
+      if (threadId && conversations.get(threadId)?.closed)
+        throw new ApiError('Esta conversa foi finalizada. Inicie uma nova conversa.', 409)
+      const links = validateImageLinks(images)
+      const expectedAuth = authVersion
+      const data = await client.request<ManuReply & { visualizacao?: unknown }>(endpoint(), {
+        method: 'POST',
+        expireSessionOnUnauthorized: false,
+        timeout: 120000,
+        signal,
+        data: { mensagem: message, plataforma: 'web', thread_id: threadId, imagens: links },
+      })
+      signal?.throwIfAborted()
+      if (
+        !data ||
+        !isThreadId(data.thread_id) ||
+        (threadId && data.thread_id !== threadId) ||
+        typeof data.resposta !== 'string' ||
+        !data.resposta.trim() ||
+        !['sim', 'nao'].includes(data.confirmacao ?? 'nao')
+      )
+        throw new ApiError('O serviço da Manu retornou uma resposta inválida.')
+      const unitId = await visualizationUnit(data.visualizacao != null, signal)
+      assertSession(expectedAuth)
+      const result = {
+        thread_id: data.thread_id,
+        resposta: data.resposta,
+        intencao: data.intencao,
+        ...visualizationFields(data.visualizacao, unitId),
+        confirmacao: data.confirmacao ?? 'nao',
+        emocao: normalizeManuEmotion(data.emocao),
+      }
+      const previous = conversations.get(data.thread_id)
+      remember({
+        thread_id: data.thread_id,
+        title: previous?.title ?? message.slice(0, 80),
+        updated_at: new Date().toISOString(),
+        closed: false,
+        confirmacao: result.confirmacao,
+        messages: [
+          ...(previous?.messages ?? []),
+          { id: crypto.randomUUID(), author: 'user', text: message, images: links },
+          {
+            id: crypto.randomUUID(),
+            author: 'manu',
+            text: result.resposta,
+            images: [],
+            emotion: normalizeManuEmotion(result.emocao),
+            confirmation: result.confirmacao === 'sim',
+            ...(result.visualization ? { visualization: result.visualization } : {}),
+            ...(result.visualizationError ? { visualizationError: true } : {}),
+          },
+        ],
+      })
+      return result
+    },
+    async close(threadId: string, signal?: AbortSignal) {
+      check(signal)
+      if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
+      const result = await client.request<RemoteClosedConversation>(
+        endpoint(`/sessions/${encodeURIComponent(threadId)}`),
+        {
+          method: 'DELETE',
+          expireSessionOnUnauthorized: false,
+          timeout: 120000,
+          signal,
+        },
+      )
+      signal?.throwIfAborted()
+      if (
+        !result ||
+        result.thread_id !== threadId ||
+        result.status !== 'ENCERRADA' ||
+        (result.titulo != null && typeof result.titulo !== 'string') ||
+        (result.resumo != null && typeof result.resumo !== 'string')
+      )
+        throw new ApiError('Não foi possível confirmar a finalização da conversa.')
+      const previous = conversations.get(threadId)
+      if (previous)
+        remember({
+          ...previous,
+          title: getConversationTitle(result.titulo, result.resumo, previous.title),
+          summary: result.resumo,
+          closed: true,
+          confirmacao: 'nao',
+        })
+      return result
+    },
+    async remove(threadId: string, signal?: AbortSignal) {
+      check(signal)
+      if (!isThreadId(threadId)) throw new ApiError('Conversa inválida.')
+      const result = await client.request<{ session_id: string; status: string; mensagem: string }>(
+        base + '/api/v1/sessoes/conversa/' + encodeURIComponent(threadId),
+        { method: 'DELETE', expireSessionOnUnauthorized: false, timeout: 120000, signal },
+      )
+      signal?.throwIfAborted()
+      if (!result || result.session_id !== threadId || result.status !== 'EXCLUIDA')
+        throw new ApiError('Não foi possível confirmar a exclusão da conversa.')
+      removedThreadIds.add(threadId)
+      conversations.delete(threadId)
+      return result
+    },
+  }
+}

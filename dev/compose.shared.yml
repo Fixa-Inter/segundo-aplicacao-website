@@ -1,0 +1,8 @@
+services:
+  api:
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL:?Configure dev.local/api-shared.env}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:?Configure dev.local/api-shared.env}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Configure dev.local/api-shared.env}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      JWT_SECRET: ${JWT_SECRET:?Configure dev.local/api-shared.env}

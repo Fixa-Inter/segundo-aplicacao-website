@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-26",
+  "baseCommit": "4ba462b",
+  "scope": "Reorganização M3/M5; sem escrita operacional real",
+  "quality": {
+    "format": true,
+    "lint": true,
+    "tests": 117,
+    "contractTests": 29,
+    "build": true
+  },
+  "architecture": {
+    "checks": [
+      {
+        "file": "src/components/BoundaryProbe/index.tsx",
+        "expectedRule": "no-restricted-imports",
+        "passed": true
+      },
+      {
+        "file": "src/pages/BoundaryProbe/index.tsx",
+        "expectedRule": "no-restricted-globals",
+        "passed": true
+      },
+      {
+        "file": "src/hooks/useBoundaryProbe.ts",
+        "expectedRule": null,
+        "passed": true
+      }
+    ],
+    "sourceFiles": 118,
+    "componentsImportingServices": [],
+    "compositionLines": 34,
+    "resourceFiles": [
+      "competencies.ts",
+      "events.ts",
+      "locations.ts",
+      "profile.ts",
+      "shifts.ts",
+      "units.ts",
+      "users.ts"
+    ],
+    "passed": true,
+    "effects": 22,
+    "effectsWithoutDependencies": 0,
+    "any": 0,
+    "inlineProps": 0,
+    "networkCallsInViews": 0
+  },
+  "forms": {
+    "checks": [
+      "Edição inicia com turno e notas reais; Cancelar sem alteração não abre descarte",
+      "Troca rápida de unidade descarta resposta antiga; turno da unidade anterior não reaparece",
+      "Falha ao carregar turnos aparece no DOM e Tentar novamente recupera opções; descarte preservado",
+      "Cadastro parcial conserva ID, limpa senha e conclui por PATCH sem duplicar usuário ou turno; nota decimal preservada",
+      "Evento mantém dados após erro de salvamento e conclui pela confirmação na nova tentativa",
+      "Gestor mantém unidade somente leitura e edição/descarte no celular"
+    ],
+    "scans": [
+      {
+        "name": "rh-edit-desktop",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "rh-shift-retry",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "rh-create-desktop",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "rh-partial-save-error",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "event-desktop",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "event-mobile",
+        "violations": [],
+        "overflow": false
+      },
+      {
+        "name": "gestor-edit-mobile",
+        "violations": [],
+        "overflow": false
+      }
+    ],
+    "errors": [],
+    "unexpected": [],
+    "finishedUTC": "2026-10-27T00:24:57.088Z"
+  },
+  "liveAWS": {
+    "pages": 28,
+    "accounts": [
+      {
+        "role": "Gestor",
+        "loginStatus": 200,
+        "logoutStatus": 204,
+        "sameBearerOnProfileAndIA": true,
+        "preferencesPersistAfterReload": true,
+        "iaHistory": [
+          {
+            "status": 200,
+            "authorizationPresent": true
+          },
+          {
+            "status": 200,
+            "authorizationPresent": true
+          }
+        ]
+      },
+      {
+        "role": "RH",
+        "loginStatus": 200,
+        "logoutStatus": 204,
+        "sameBearerOnProfileAndIA": true,
+        "preferencesPersistAfterReload": true,
+        "iaHistory": [
+          {
+            "status": 403,
+            "authorizationPresent": true
+          },
+          {
+            "status": 403,
+            "authorizationPresent": true
+          }
+        ]
+      }
+    ],
+    "errors": [],
+    "operationalWrites": [],
+    "finishedUTC": "2026-10-27T00:29:23.211Z"
+  },
+  "limits": [
+    "Sem homologação de gravação na AWS",
+    "Sem homologação BI autenticado",
+    "RH na IA ainda retorna 403",
+    "Não representa certificação WCAG integral nem todos os critérios de DAD"
+  ]
+}

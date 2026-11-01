@@ -1,0 +1,215 @@
+{
+  "at": "2026-10-30T09:57:43.117Z",
+  "checks": [
+    {
+      "role": "GESTOR",
+      "login": 200,
+      "history": 200,
+      "count": 0,
+      "conversationKeys": [],
+      "messageKeys": [],
+      "pending": 0
+    },
+    {
+      "role": "RH",
+      "login": 200,
+      "history": 200,
+      "count": 7,
+      "conversationKeys": [
+        "session_id",
+        "iniciada_em",
+        "atualizada_em",
+        "titulo",
+        "resumo",
+        "mensagens"
+      ],
+      "messageKeys": [
+        "role",
+        "mensagem",
+        "confirmacao",
+        "emocao"
+      ],
+      "pending": 0
+    }
+  ],
+  "openapi": {
+    "status": 200,
+    "paths": [
+      "/api/v1/health",
+      "/api/v1/chat",
+      "/api/v1/chat/sessions/{thread_id}",
+      "/api/v1/classificar/classificar-problema",
+      "/api/v1/sessoes",
+      "/api/v1/sessoes/conversa",
+      "/api/v1/sessoes/conversa/{session_id}"
+    ],
+    "schemas": {
+      "MensagemHistorico": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "human",
+              "assistant"
+            ],
+            "title": "Role"
+          },
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem"
+          },
+          "emocao": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Emocao"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confirmacao": {
+            "type": "string",
+            "enum": [
+              "sim",
+              "nao"
+            ],
+            "title": "Confirmacao",
+            "default": "nao"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "mensagem"
+        ],
+        "title": "MensagemHistorico"
+      },
+      "ConversaHistorico": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "iniciada_em": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Iniciada Em"
+          },
+          "atualizada_em": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Atualizada Em"
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "resumo": {
+            "type": "string",
+            "title": "Resumo"
+          },
+          "mensagens": {
+            "items": {
+              "$ref": "#/components/schemas/MensagemHistorico"
+            },
+            "type": "array",
+            "title": "Mensagens"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "iniciada_em",
+          "atualizada_em",
+          "titulo",
+          "resumo",
+          "mensagens"
+        ],
+        "title": "ConversaHistorico"
+      },
+      "EncerrarSessaoSaida": {
+        "properties": {
+          "thread_id": {
+            "type": "string",
+            "title": "Thread Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem"
+          },
+          "titulo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Titulo"
+          },
+          "resumo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resumo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "thread_id",
+          "status",
+          "mensagem"
+        ],
+        "title": "EncerrarSessaoSaida"
+      },
+      "ConversaEntrada": {
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Mensagem"
+          },
+          "thread_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thread Id"
+          },
+          "imagens": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "title": "Imagens"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mensagem"
+        ],
+        "title": "ConversaEntrada"
+      }
+    }
+  },
+  "local": "fetch failed"
+}
