@@ -41,6 +41,10 @@
   border-radius: 14px;
   background: var(--fixa-surface);
 }
+.content > ul > li:has(a)::marker,
+.content > ol > li:has(a)::marker {
+  content: '';
+}
 .content li > :first-child {
   margin-top: 0;
 }
@@ -147,4 +151,9 @@
   .content > ol > li:has(a) {
     padding: 10px;
   }
+}
+
+.content > ul:has(> li a),
+.content > ol:has(> li a) {
+  padding-left: 0;
 }
