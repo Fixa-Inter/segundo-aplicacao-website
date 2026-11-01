@@ -1,0 +1,48 @@
+{
+  "issue": "https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12",
+  "responsavel": "Gkso31 com apoio do Codex",
+  "base": "9f01be1",
+  "branch": "feature/integracao-ia-manu",
+  "sourceConsulted": {
+    "repository": "Fixa-Inter/segundo-inteligencia-artificial",
+    "ref": "main",
+    "sha": "42d0f7e86742f6257d85ce5352b21fd564f0667b",
+    "deployedSha": "Não exposto; o novo campo e as respostas foram conferidos diretamente na AWS."
+  },
+  "fixed": "INT-02: imagens da mensagem retornadas pelas duas rotas de histórico são lidas e mantidas no reload/reabertura; cache não apaga anexos recebidos.",
+  "checks": {
+    "format:check": "pass",
+    "lint": "pass",
+    "unit": {
+      "passed": 146,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 31,
+      "failed": 0
+    },
+    "build": "pass",
+    "diffCheck": "pass"
+  },
+  "regressions": {
+    "newUnit": 4,
+    "newBrowser": 2,
+    "beforeNewUnit": {
+      "passed": 1,
+      "failed": 3
+    },
+    "targetedContractsAfter": 41
+  },
+  "live": "Gestor, Web real no Edge, Cloudinary e IA AWS sem mocks: upload/chat/lista/consulta específica 200, URL em mensagens.0.imagens.0 nas duas rotas, uma imagem antes e depois de recarregar. Antes do ajuste do consumidor, mesmo retorno com zero imagens após reload. As duas conversas de QA foram removidas com 200.",
+  "controlled": "Desktop/Gestor 1440px e mobile/RH 390px: duas imagens após reload e após salvar/reabrir. Links HTTP/S validados; anexos ausentes, null ou inválidos preservam o texto. Suíte completa mantém testes anteriores.",
+  "limits": [
+    "Mensagens antigas sem URL disponível continuam com o texto; a Web não reconstrói URLs ausentes.",
+    "A conferência é da recuperação/exibição de imagens; não homologa análise visual pelo modelo ou criação de registros.",
+    "Dois pequenos PNGs sintéticos foram enviados ao Cloudinary. O upload não retornou credencial de exclusão; os arquivos de QA permanecem no provedor."
+  ],
+  "observedStart": "2026-10-30T12:23:02-03:00",
+  "observedEnd": "2026-10-30T12:30:30-03:00",
+  "observedMinutes": 7.5,
+  "estimateMinutes": 30,
+  "workflow": "Continuação da Issue #12 e branch existentes. Sem novo PR, merge ou deploy. Status de Project não presumido."
+}

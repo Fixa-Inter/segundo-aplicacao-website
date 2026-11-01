@@ -1,0 +1,98 @@
+{
+  "started": "2026-10-30T10:40:24.453Z",
+  "checks": {
+    "login": 200,
+    "upload": 200,
+    "uploadURLPresent": true,
+    "chat": 200,
+    "sentImageCount": 1,
+    "sentSameCloudinaryURL": true,
+    "imagesBeforeReload": 1,
+    "imagesAfterReload": 0
+  },
+  "errors": [],
+  "specific": {
+    "status": 200,
+    "present": true,
+    "keys": [
+      "session_id",
+      "iniciada_em",
+      "atualizada_em",
+      "titulo",
+      "resumo",
+      "mensagens"
+    ],
+    "messages": [
+      {
+        "role": "human",
+        "keys": [
+          "role",
+          "mensagem",
+          "confirmacao"
+        ],
+        "textLength": 66,
+        "qaText": "Teste de imagem azul para revisar o histórico. Não crie registros."
+      },
+      {
+        "role": "assistant",
+        "keys": [
+          "role",
+          "mensagem",
+          "emocao",
+          "confirmacao"
+        ],
+        "textLength": 175
+      }
+    ],
+    "imageURLPaths": []
+  },
+  "list": {
+    "status": 200,
+    "present": true,
+    "keys": [
+      "session_id",
+      "iniciada_em",
+      "atualizada_em",
+      "titulo",
+      "resumo",
+      "mensagens"
+    ],
+    "messages": [
+      {
+        "role": "human",
+        "keys": [
+          "role",
+          "mensagem",
+          "confirmacao"
+        ],
+        "textLength": 66,
+        "qaText": "Teste de imagem azul para revisar o histórico. Não crie registros."
+      },
+      {
+        "role": "assistant",
+        "keys": [
+          "role",
+          "mensagem",
+          "emocao",
+          "confirmacao"
+        ],
+        "textLength": 175
+      }
+    ],
+    "imageURLPaths": []
+  },
+  "cleanup": 200,
+  "finished": "2026-10-30T10:40:58.244Z",
+  "cloudinary": "Três PNGs sintéticos de 761 bytes cada foram enviados ao preset público configurado. Sem dados pessoais. Sem credencial de exclusão no retorno, os arquivos de QA permanecem no Cloudinary.",
+  "activity": {
+    "issue": "https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12",
+    "responsavel": "Gkso31 com apoio do Codex",
+    "estimateMinutes": 20,
+    "observedStart": "2026-10-30T07:33:37-03:00",
+    "base": "db4180e",
+    "observedEnd": "2026-10-30T07:41:47-03:00",
+    "observedMinutes": 8.2,
+    "executions": "Três conversas de QA e três uploads sintéticos. As duas primeiras execuções confirmaram ausência das URLs nas duas rotas, mas o seletor do teste não encontrou o título após o guardrail anonimizar o timestamp numérico da mensagem. Na terceira, usado título realmente retornado pela API; o fluxo visual foi concluído. As três conversas foram removidas com 200. Nenhum registro operacional criado."
+  },
+  "observedAssistantReply": "Na captura final, a Manu afirmou não ter recebido imagem apesar de a requisição conter a URL do Cloudinary; causa não investigada nesta conferência."
+}

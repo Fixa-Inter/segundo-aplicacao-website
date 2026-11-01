@@ -1,0 +1,38 @@
+{
+  "issue": "https://github.com/Fixa-Inter/segundo-aplicacao-website/issues/12",
+  "responsavel": "Gkso31 com apoio do Codex",
+  "branch": "feature/integracao-ia-manu",
+  "baseHead": "5427820",
+  "pendingCommitsBeforeConfig": 48,
+  "compareAgainst": "origin/dev",
+  "behindDev": 0,
+  "gitHygiene": "475 arquivos rastreados e adições nos 48 commits: nenhum arquivo proibido rastreado e nenhum padrão de credencial pesquisado encontrado. Não é certificação de ausência de todo tipo de segredo.",
+  "schemaValidation": "Configuração validada contra regras do schema oficial Vercel via AJV; validação do metaschema desativada porque o schema upstream declara draft-04 e inclui exclusiveMinimum numérico de versões posteriores. Não equivale a deploy.",
+  "productionSmoke": {
+    "login": 200,
+    "aiHistory": 200,
+    "team": true,
+    "directRouteAndRestore": true,
+    "browserErrors": 0,
+    "context": "Build de produção em preview Vite local com /api/web e /api/ia, APIs AWS reais; iframe BI controlado para não usar sessão de terceiros."
+  },
+  "checks": {
+    "format:check": "pass",
+    "lint": "pass",
+    "unit": {
+      "passed": 146,
+      "failed": 0
+    },
+    "build": "pass",
+    "browser": {
+      "passed": 31,
+      "failed": 0
+    }
+  },
+  "observedStart": "2026-10-30T12:38:16-03:00",
+  "observedRecord": "2026-10-30T12:58:09-03:00",
+  "observedMinutes": 19.9,
+  "estimateMinutes": 45,
+  "steering": "Usuário solicitou priorizar PR e promoção para main antes da Vercel; revisor autorizado ryancursinom.",
+  "workflow": "Abertura de PR para dev, após checks. Dev → hml → main depende de revisão/homologação real. Sem deploy Vercel nesta etapa."
+}

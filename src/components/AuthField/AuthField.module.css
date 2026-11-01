@@ -1,0 +1,81 @@
+.field {
+  min-width: 0;
+}
+.field label {
+  display: block;
+  margin: 0 0 var(--label-gap, 14px) 6px;
+  color: var(--fixa-text-primary);
+  font-size: var(--label-size, 20px);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.control {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.control input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: var(--field-height, 60px);
+  border: 2px solid transparent;
+  border-radius: var(--field-radius, 26px);
+  background: var(--fixa-auth-field);
+  padding: 0 24px;
+  color: var(--fixa-ink);
+  font-size: var(--input-size, 18px);
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+.control input::placeholder {
+  color: var(--fixa-muted);
+  opacity: 1;
+}
+.control input:focus {
+  outline: none;
+  border-color: var(--fixa-text-primary);
+}
+.control input:focus-visible {
+  outline: 3px solid var(--fixa-focus);
+  outline-offset: 3px;
+}
+.control input[aria-invalid='true'] {
+  border-color: var(--fixa-danger-text);
+}
+.control:has(button) input {
+  padding-right: 56px;
+}
+/* Evita dois controles de revelar senha quando o Edge adiciona seu próprio botão. */
+.control:has(button) input::-ms-reveal {
+  display: none;
+}
+.control button {
+  position: absolute;
+  right: 10px;
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fixa-muted);
+  cursor: pointer;
+}
+.control button:hover {
+  background: var(--fixa-hover);
+}
+.error {
+  display: block;
+  color: var(--fixa-danger-text);
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 6px 0 0 6px;
+}
+
+@media (max-width: 600px) {
+  .control button {
+    width: 44px;
+    height: 44px;
+  }
+}
