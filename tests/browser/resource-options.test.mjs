@@ -4,7 +4,9 @@ import { pathToFileURL } from 'node:url'
 
 const modulePath = process.env.FIXA_PLAYWRIGHT_MODULE
 const { chromium } = await import(modulePath ? pathToFileURL(modulePath).href : 'playwright')
-let browser, context, page
+let browser
+let context
+let page
 const browserErrors = []
 before(async () => {
   browser = await chromium.launch({

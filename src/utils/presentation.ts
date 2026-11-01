@@ -25,8 +25,8 @@ export function formatShiftLabel(shift: {
   horaInicio: number
   horaFim: number
 }): string {
-  const start = formatShiftTime(shift.horaInicio),
-    end = formatShiftTime(shift.horaFim)
+  const start = formatShiftTime(shift.horaInicio)
+  const end = formatShiftTime(shift.horaFim)
   return [shift.nome, start && end ? start + ' – ' + end : ''].filter(Boolean).join(' · ')
 }
 

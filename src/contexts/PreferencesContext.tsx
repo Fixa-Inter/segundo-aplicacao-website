@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PreferencesContext } from './preferencesContextValue'
+import { translate } from '../i18n/messages'
+import type { PreferencesProviderProps } from '../types/ui'
+import { formatDate } from '../utils/calendar'
 import {
   detectBrowserLanguage,
   parsePreferences,
   preferencesStorageKey,
+  serializePreferences,
 } from '../utils/preferences'
-import { translate } from '../i18n/messages'
-import { formatDate } from '../utils/calendar'
-import type { PreferencesProviderProps } from '../types/ui'
+import { PreferencesContext } from './preferencesContextValue'
 
 function browserLanguages() {
   return navigator.languages.length ? navigator.languages : [navigator.language]
@@ -27,7 +28,7 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
     document.documentElement.dataset.theme = preferences.theme
     document.documentElement.style.colorScheme = preferences.theme
     try {
-      localStorage.setItem(preferencesStorageKey, JSON.stringify(preferences))
+      localStorage.setItem(preferencesStorageKey, serializePreferences(preferences))
     } catch {
       // Preferências continuam funcionando quando o navegador bloqueia o armazenamento.
     }

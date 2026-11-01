@@ -1,11 +1,7 @@
+import type { DashboardAccess } from '../types/dashboard'
+export type { DashboardAccess } from '../types/dashboard'
 import { ApiError, type createHttpClient } from './httpClient.ts'
-export interface DashboardAccess {
-  instanceUrl: string
-  workspaceId: string
-  dashboardId: string
-  token: string
-  expiresIn: number
-}
+
 export function decodeDashboardAccess(value: unknown): DashboardAccess {
   const invalid = () => new ApiError('Não foi possível autorizar o dashboard da sua unidade.')
   if (!value || typeof value !== 'object') throw invalid()

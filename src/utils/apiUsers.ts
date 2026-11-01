@@ -1,13 +1,14 @@
-import type { EnumValue } from '../types/api/shared'
-import type { ApiUser } from '../types/api/users'
-import type { ApiUnit } from '../types/api/units'
-import type { ApiShift, ApiLink } from '../types/api/shifts'
 import type { ApiGrade } from '../types/api/competencies'
-import type { Technician, TeamMember } from '../types/management'
-import { address } from './apiUnits.ts'
+import type { EnumValue } from '../types/api/shared'
+import type { ApiLink, ApiShift } from '../types/api/shifts'
+import type { ApiUnit } from '../types/api/units'
+import type { ApiUser } from '../types/api/users'
+import type { TeamMember, Technician } from '../types/management'
 import { grades } from './apiCompetencies.ts'
+import { address } from './apiUnits.ts'
 import { getCompetencyPresentation } from './competencies.ts'
 import { formatShiftLabel } from './presentation.ts'
+
 export const isTechnician = (value: EnumValue) =>
   typeof value === 'object' ? value.id === 3 : value === 'TECNICO'
 

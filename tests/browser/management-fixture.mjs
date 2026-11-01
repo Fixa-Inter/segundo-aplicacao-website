@@ -10,9 +10,9 @@ export async function managementFixture(
     hasTouch: mobile,
     deviceScaleFactor: 1,
   })
-  const errors = [],
-    unexpected = [],
-    writes = []
+  const errors = []
+  const unexpected = []
+  const writes = []
   const date = '2026-10-26'
   const units = [5, 6].map((id) => ({
     id,
@@ -115,10 +115,10 @@ export async function managementFixture(
   )
   const origin = new URL(process.env.FIXA_TEST_BASE_URL || 'http://localhost:5173').origin
   await context.route('**/*', async (route) => {
-    const request = route.request(),
-      url = new URL(request.url()),
-      method = request.method(),
-      path = url.pathname
+    const request = route.request()
+    const url = new URL(request.url())
+    const method = request.method()
+    const path = url.pathname
     if (url.hostname.endsWith('.cloud.databricks.com'))
       return route.fulfill({
         contentType: 'text/html; charset=utf-8',

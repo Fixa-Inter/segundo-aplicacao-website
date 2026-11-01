@@ -1,8 +1,9 @@
 import type { ManagementClient, ManagementSession } from '../../types/api/shared'
 import type { ApiUnit, InstitutionScope } from '../../types/api/units'
 import type { WorkUnitOption } from '../../types/management'
-import type { createUserService } from './users.ts'
 import { address } from '../../utils/apiUnits.ts'
+import type { createUserService } from './users.ts'
+
 export function createUnitService(
   client: ManagementClient,
   user: ManagementSession,
@@ -38,7 +39,7 @@ export function createUnitService(
       units: availableUnits.filter((unit) => unit.instituicaoId === institutionId),
     }
   }
-  // GESTOR depende do escopo imposto pelo servidor; ADMINISTRADOR consulta sua unidade explicitamente.
+
   const scope = (signal?: AbortSignal): Promise<ApiUnit | undefined> =>
     user().role === 'ADMINISTRADOR' ? currentUnit(signal) : Promise.resolve(undefined)
   async function listWorkUnits(signal?: AbortSignal): Promise<WorkUnitOption[]> {

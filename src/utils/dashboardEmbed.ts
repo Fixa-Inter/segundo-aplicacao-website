@@ -45,8 +45,6 @@ export function dashboardWidgetURL(value?: string, widget?: string): string | nu
   return url.href
 }
 
-// O Databricks codifica valores string uma vez dentro do parâmetro tipado .s;
-// URLSearchParams faz a segunda codificação, como a URL gerada pelo filtro publicado.
 export function dashboardFilteredWidgetURL(
   value: string | undefined,
   widget: string | undefined,
@@ -67,7 +65,7 @@ export function dashboardFilteredWidgetURL(
   )
     return null
   const url = new URL(safe)
-  // Seleciona a página do filtro, como na URL gerada pela interface publicada.
+
   url.pathname = url.pathname.replace(/\/$/, '') + '/pages/' + widget!.trim().split('~')[0]
   for (const [key, filter] of entries) {
     const prefix = key.slice(0, -2)
@@ -80,7 +78,6 @@ export function dashboardFilteredWidgetURL(
   return url.href
 }
 
-// Estes parâmetros selecionam a visualização. O isolamento de dados deve existir no Databricks.
 export function dashboardUnitSelectionURL(
   value: string | undefined,
   selection: string,

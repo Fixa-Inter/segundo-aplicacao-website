@@ -1,5 +1,6 @@
 import type { ApiEvent } from '../types/api/events'
 import type { CalendarEvent } from '../types/management'
+
 export function event(item: ApiEvent): CalendarEvent {
   return {
     id: String(item.id),

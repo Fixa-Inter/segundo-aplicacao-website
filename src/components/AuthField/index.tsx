@@ -1,6 +1,7 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import type { AuthFieldProps } from '../../types/ui'
 import styles from './AuthField.module.css'
+
 export function AuthField({
   label,
   error,

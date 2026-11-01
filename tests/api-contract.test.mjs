@@ -855,8 +855,8 @@ test('troca de unidade fora da instituição ou pelo gestor é rejeitada antes d
 })
 
 test('troca parcial de unidade pode ser concluída sem duplicar técnico ou perder turno antigo antes do novo', async () => {
-  let current = { ...tech },
-    fail = true
+  let current = { ...tech }
+  let fail = true
   const { client, calls } = setup((call) => {
     if (call.url === '/api/v1/unidades')
       return {

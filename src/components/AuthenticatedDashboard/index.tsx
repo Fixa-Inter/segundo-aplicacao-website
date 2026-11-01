@@ -1,19 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
 import { DatabricksDashboard } from '@databricks/aibi-client'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../contexts/useAuth'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useDashboardAccess } from '../../hooks/useDashboardAccess'
+import { LoadingState } from '../LoadingState'
+import type { AuthenticatedDashboardProps } from '../../types/dashboard'
 import styles from './AuthenticatedDashboard.module.css'
 
-export function AuthenticatedDashboard({
-  title,
-  widget,
-  technician,
-}: {
-  title: string
-  widget?: string
-  technician?: string
-}) {
+export function AuthenticatedDashboard({ title, widget, technician }: AuthenticatedDashboardProps) {
   const { user } = useAuth()
   const getAccess = useDashboardAccess()
   const { t, theme } = usePreferences()
@@ -92,7 +86,7 @@ export function AuthenticatedDashboard({
           throw new Error('Dashboard indisponível.')
         frame.title = title
         frame.referrerPolicy = 'strict-origin-when-cross-origin'
-        // A seleção visual complementa o token por unidade; nunca define a autorização.
+
         if (widget && /^[A-Za-z0-9_-]+~[A-Za-z0-9_-]+$/.test(widget)) {
           const url = new URL(frame.src)
           url.searchParams.set('fullscreenWidget', widget)
@@ -121,7 +115,11 @@ export function AuthenticatedDashboard({
   }, [user, theme, widget, technician, title, attempt, getAccess])
   return (
     <div className={styles.root} data-dashboard-state={status}>
-      {status === 'loading' && <p role="status">{t('Carregando dashboard…')}</p>}
+      {status === 'loading' && (
+        <div className={styles.loading}>
+          <LoadingState label="Carregando dashboard…" />
+        </div>
+      )}
       {status === 'error' && (
         <div className={styles.error} role="alert">
           <p>{t('Não foi possível carregar o dashboard da sua unidade.')}</p>

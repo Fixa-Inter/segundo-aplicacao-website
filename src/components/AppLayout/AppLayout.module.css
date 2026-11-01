@@ -194,12 +194,6 @@
   padding: 12px 0 24px;
   background: var(--fixa-neutral-surface);
 }
-.modalActions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 24px;
-}
 .skipLink {
   position: fixed;
   top: 8px;

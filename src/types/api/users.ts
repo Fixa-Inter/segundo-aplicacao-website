@@ -1,4 +1,5 @@
 import type { EnumValue } from './shared'
+
 export interface ApiUser {
   id: number
   unidadeId: number

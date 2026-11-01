@@ -1,26 +1,15 @@
-import { FigmaIcon } from '../../components/FigmaIcon'
-import { usePreferences } from '../../contexts/usePreferences'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../../contexts/useAuth'
-import { readRecoveryChallenge, maskRecoveryEmail } from '../../utils/recovery'
-import manuChange from '../../assets/figma/manu-change-password.png'
 import { PinInput } from '@mantine/core'
 import { Eye, EyeOff } from 'lucide-react'
-import { AuthField } from '../../components/AuthField'
-import manu from '../../assets/figma/manu-recovery.png'
+import { Link } from 'react-router-dom'
+import manuChange from '../../assets/figma/manu-change-password.png'
 import manuCode from '../../assets/figma/manu-recovery-code.png'
 import manuPassword from '../../assets/figma/manu-recovery-password.png'
 import manuSuccess from '../../assets/figma/manu-recovery-success.png'
-import {
-  changePassword,
-  requestRecovery,
-  resetPassword,
-  verifyRecoveryCode,
-} from '../../services/recoveryService'
-import { validateEmail } from '../../utils/validation'
-import { validatePassword } from '../../utils/apiValidation'
-import type { RecoveryChallenge, RecoveryStep } from '../../types/recovery'
+import manu from '../../assets/figma/manu-recovery.png'
+import { AuthField } from '../../components/AuthField'
+import { FigmaIcon } from '../../components/FigmaIcon'
+import { useRecoveryPage } from '../../hooks/useRecoveryPage'
+import type { RecoveryStep } from '../../types/recovery'
 import styles from './Recovery.module.css'
 
 const titles: Record<RecoveryStep, string> = {
@@ -37,123 +26,40 @@ const artByStep: Record<RecoveryStep, string> = {
   change: manuChange,
   success: manuSuccess,
 }
-export default function Recovery() {
-  const { t } = usePreferences()
 
-  const { pathname, state } = useLocation()
-  const { user, logout } = useAuth()
-  const changing = pathname === '/alterar-senha'
-  const returnTo = user ? '/perfil' : '/login'
-  const [entry] = useState(() => readRecoveryChallenge(state))
-  const [step, setStep] = useState<RecoveryStep>(changing ? 'change' : entry ? 'code' : 'email')
-  const [form, setForm] = useState({
-    email: entry?.email ?? '',
-    code: '',
-    password: '',
-    confirmation: '',
-    current: '',
-  })
-  const [challenge, setChallenge] = useState<RecoveryChallenge | null>(entry)
-  const [error, setError] = useState<string | null>(null)
-  const [notice, setNotice] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [visible, setVisible] = useState(false)
-  const headingRef = useRef<HTMLHeadingElement>(null)
-  const formRef = useRef<HTMLFormElement>(null)
-  useEffect(() => {
-    if (!error || busy) return
-    const input =
-      error === 'As senhas não coincidem.'
-        ? formRef.current?.querySelector<HTMLInputElement>('#confirm-password')
-        : formRef.current?.querySelector<HTMLInputElement>('input')
-    input?.focus()
-  }, [error, busy])
-  useEffect(() => {
-    if (step !== 'email') headingRef.current?.focus()
-  }, [step])
-  function back() {
-    setError(null)
-    setNotice('')
-    setStep(step === 'password' ? 'code' : 'email')
-  }
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (busy) return
-    setError(null)
-    if (step === 'email') {
-      const message = validateEmail(form.email)
-      if (message) {
-        setError(message)
-        return
-      }
-    }
-    if (step === 'code' && form.code.length !== 6) {
-      setError('Digite os seis dígitos do código.')
-      return
-    }
-    if (step === 'change' && !form.current) {
-      setError('Informe a senha atual.')
-      return
-    }
-    if (step === 'password' || step === 'change') {
-      const passwordError = validatePassword(form.password)
-      if (passwordError) {
-        setError(passwordError)
-        return
-      }
-      if (step === 'password' && form.password !== form.confirmation) {
-        setError('As senhas não coincidem.')
-        return
-      }
-    }
-    setBusy(true)
-    try {
-      if (step === 'change') {
-        await changePassword(form.current, form.password)
-        setForm((current) => ({ ...current, current: '', password: '', confirmation: '' }))
-        setStep('success')
-      } else if (step === 'email') {
-        setChallenge(await requestRecovery(form.email))
-        setStep('code')
-      } else if (step === 'code' && challenge) {
-        await verifyRecoveryCode(challenge, form.code)
-        setStep('password')
-      } else if (step === 'password' && challenge) {
-        await resetPassword(challenge, form.password, form.code)
-        setForm((current) => ({ ...current, password: '', confirmation: '' }))
-        setStep('success')
-      }
-    } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : 'Não foi possível continuar. Tente novamente.',
-      )
-    } finally {
-      setBusy(false)
-    }
-  }
-  async function resend() {
-    if (busy) return
-    setBusy(true)
-    setError(null)
-    try {
-      setChallenge(await requestRecovery(form.email))
-      setNotice('Se o e-mail estiver cadastrado, um novo código será enviado.')
-    } catch {
-      setError('Não foi possível reenviar. Tente novamente.')
-    } finally {
-      setBusy(false)
-    }
-  }
-  const description =
-    step === 'email'
-      ? 'Insira seu e-mail para receber um código de recuperação'
-      : step === 'code'
-        ? t('Código de validação para {email}', { email: maskRecoveryEmail(form.email) })
-        : step === 'password' || step === 'change'
-          ? ''
-          : 'Sua senha foi alterada com sucesso.'
+const submitLabels: Record<RecoveryStep, string> = {
+  email: 'Enviar e-mail',
+  code: 'Continuar',
+  password: 'Continuar',
+  change: 'Alterar',
+  success: 'Continuar',
+}
+
+export default function Recovery() {
+  const {
+    t,
+    user,
+    logout,
+    changing,
+    returnTo,
+    step,
+    form,
+    updateField,
+    fieldErrors,
+    error,
+    notice,
+    busy,
+    visible,
+    setVisible,
+    headingRef,
+    formRef,
+    back,
+    submit,
+    resend,
+    description,
+  } = useRecoveryPage()
   return (
-    <main className={styles.page}>
+    <main id="conteudo" tabIndex={-1} className={styles.page}>
       {step !== 'success' &&
         (step === 'email' || step === 'change' ? (
           <Link
@@ -195,7 +101,7 @@ export default function Recovery() {
               to={changing ? '/login' : returnTo}
               onClick={changing ? logout : undefined}
             >
-              {t(changing ? 'Ir para o login' : user ? 'Voltar ao perfil' : 'Ir para o login')}
+              {t(changing || !user ? 'Ir para o login' : 'Voltar ao perfil')}
             </Link>
           </>
         ) : (
@@ -218,12 +124,8 @@ export default function Recovery() {
                     maxLength={120}
                     disabled={busy}
                     value={form.email}
-                    error={error || undefined}
-                    onChange={(event) => {
-                      const email = event.currentTarget.value
-                      setForm((current) => ({ ...current, email }))
-                      setError(null)
-                    }}
+                    error={fieldErrors.email || error || undefined}
+                    onChange={(event) => updateField('email', event.currentTarget.value)}
                   />
                 </>
               )}
@@ -244,21 +146,25 @@ export default function Recovery() {
                     type="number"
                     length={6}
                     value={form.code}
-                    onChange={(code) => {
-                      setForm((current) => ({ ...current, code }))
-                      setError(null)
-                    }}
+                    onChange={(code) => updateField('code', code)}
                     placeholder=""
                     oneTimeCode
                     disabled={busy}
                     ariaLabel={t('Dígito do código de recuperação')}
-                    error={Boolean(error)}
+                    error={Boolean(fieldErrors.code)}
                     classNames={{ root: styles.pinRoot, input: styles.pinInput }}
                     getInputProps={(index) => ({
                       id: `recovery-code-${index + 1}`,
                       'aria-label': t('Dígito {number} do código', { number: index + 1 }),
+                      'aria-invalid': Boolean(fieldErrors.code),
+                      'aria-describedby': fieldErrors.code ? 'recovery-code-error' : undefined,
                     })}
                   />
+                  {fieldErrors.code && (
+                    <p id="recovery-code-error" className={styles.error} role="alert">
+                      {t(fieldErrors.code)}
+                    </p>
+                  )}
                 </div>
               )}
               {(step === 'password' || step === 'change') && (
@@ -266,21 +172,20 @@ export default function Recovery() {
                   {step === 'change' && (
                     <AuthField
                       id="current-password"
+                      error={fieldErrors.current}
                       label={t('Senha antiga')}
                       type="password"
                       autoComplete="off"
                       maxLength={100}
                       value={form.current}
                       disabled={busy}
-                      onChange={(event) => {
-                        const current = event.currentTarget.value
-                        setForm((form) => ({ ...form, current }))
-                      }}
+                      onChange={(event) => updateField('current', event.currentTarget.value)}
                     />
                   )}
 
                   <AuthField
                     id="new-password"
+                    error={fieldErrors.password}
                     label={t('Nova senha')}
                     type={visible ? 'text' : 'password'}
                     autoComplete="off"
@@ -288,10 +193,7 @@ export default function Recovery() {
                     maxLength={100}
                     disabled={busy}
                     value={form.password}
-                    onChange={(event) => {
-                      const password = event.currentTarget.value
-                      setForm((current) => ({ ...current, password }))
-                    }}
+                    onChange={(event) => updateField('password', event.currentTarget.value)}
                     trailing={
                       <button
                         type="button"
@@ -305,6 +207,7 @@ export default function Recovery() {
                   {step === 'password' && (
                     <AuthField
                       id="confirm-password"
+                      error={fieldErrors.confirmation}
                       label={t('Confirme a nova senha')}
                       type={visible ? 'text' : 'password'}
                       autoComplete="off"
@@ -312,10 +215,7 @@ export default function Recovery() {
                       maxLength={100}
                       disabled={busy}
                       value={form.confirmation}
-                      onChange={(event) => {
-                        const confirmation = event.currentTarget.value
-                        setForm((current) => ({ ...current, confirmation }))
-                      }}
+                      onChange={(event) => updateField('confirmation', event.currentTarget.value)}
                     />
                   )}
                 </div>
@@ -326,17 +226,7 @@ export default function Recovery() {
                 </p>
               )}
               <button className={styles.primary} disabled={busy} type="submit">
-                {t(
-                  busy
-                    ? 'Aguarde…'
-                    : step === 'email'
-                      ? 'Enviar e-mail'
-                      : step === 'code'
-                        ? 'Continuar'
-                        : step === 'change'
-                          ? 'Alterar'
-                          : 'Continuar',
-                )}
+                {t(busy ? 'Aguarde…' : submitLabels[step])}
               </button>
             </form>
             {step === 'change' && (

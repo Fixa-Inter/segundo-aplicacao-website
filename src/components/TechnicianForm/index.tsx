@@ -1,14 +1,15 @@
-import { ConfirmDialog } from '../ConfirmDialog'
-import { FigmaIcon } from '../FigmaIcon'
-import { usePreferences } from '../../contexts/usePreferences'
 import { Eye, EyeOff } from 'lucide-react'
+import { usePreferences } from '../../contexts/usePreferences'
 import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies'
 import { useTechnicianFormController } from '../../hooks/useTechnicianFormController'
 import type { Address, TechnicianInput } from '../../types/management'
-import type { TechnicianFormProps, TechnicianFormFieldsProps } from '../../types/ui'
 import type { TechnicianFieldDefinition } from '../../types/technicianForm'
+import type { TechnicianFormFieldsProps, TechnicianFormProps } from '../../types/ui'
 import { truncateText } from '../../utils/presentation'
+import { ConfirmDialog } from '../ConfirmDialog'
+import { FigmaIcon } from '../FigmaIcon'
 import styles from './TechnicianForm.module.css'
+
 const fields: TechnicianFieldDefinition[] = [
   { key: 'name', label: 'Nome completo', maxLength: 100 },
   { key: 'email', label: 'E-mail', type: 'email', maxLength: 100 },
@@ -53,7 +54,7 @@ export function TechnicianForm(props: TechnicianFormProps) {
         )}
       </div>
     )
-  // O formulário só é montado após a leitura, preservando a base real do isDirty.
+
   return <TechnicianFormFields {...props} initialCompetencies={items} />
 }
 function TechnicianFormFields(props: TechnicianFormFieldsProps) {

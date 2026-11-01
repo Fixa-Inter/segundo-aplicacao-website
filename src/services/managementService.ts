@@ -1,6 +1,7 @@
 import { api } from './api.ts'
-import { currentUser } from './authService.ts'
 import { createManagementService } from './apiManagement.ts'
+import { currentUser } from './authService.ts'
+
 export { PartialSaveError } from './apiManagement.ts'
 export const {
   listTechnicians,

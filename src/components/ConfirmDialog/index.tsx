@@ -1,12 +1,12 @@
 import { Modal } from '@mantine/core'
 import { useId } from 'react'
+import deleteArt from '../../assets/figma/confirm-delete.png'
+import logoutArt from '../../assets/figma/confirm-logout.png'
+import saveArt from '../../assets/figma/confirm-save.png'
+import discardArt from '../../assets/illustrations/confirm-discard.png'
 import { usePreferences } from '../../contexts/usePreferences'
 import type { ConfirmDialogProps } from '../../types/ui'
 import styles from './ConfirmDialog.module.css'
-import deleteArt from '../../assets/figma/confirm-delete.png'
-import saveArt from '../../assets/figma/confirm-save.png'
-import logoutArt from '../../assets/figma/confirm-logout.png'
-import discardArt from '../../assets/illustrations/confirm-discard.png'
 
 const variants = {
   delete: {

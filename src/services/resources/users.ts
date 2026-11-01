@@ -1,5 +1,6 @@
 import type { ManagementClient } from '../../types/api/shared'
 import type { ApiUser, ApiUserChanges, ApiUserQuery } from '../../types/api/users'
+
 export function createUserService(client: ManagementClient) {
   const request = client.request
   async function listUsers(params?: ApiUserQuery): Promise<ApiUser[]> {
