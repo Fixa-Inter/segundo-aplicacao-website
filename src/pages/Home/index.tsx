@@ -8,6 +8,7 @@ import type { HomeData } from '../../types/home'
 import { monthDays, occursOnDate } from '../../utils/calendar'
 import { usePreferences } from '../../contexts/usePreferences'
 import { truncateText } from '../../utils/presentation'
+import { LoadingState } from '../../components/LoadingState'
 import { AuthenticatedDashboard } from '../../components/AuthenticatedDashboard'
 import styles from './Home.module.css'
 
@@ -110,9 +111,7 @@ export default function Home() {
               </button>
             </div>
           ) : !data ? (
-            <p role="status" className={styles.calendarState}>
-              {t('Carregando eventos…')}
-            </p>
+            <LoadingState label="Carregando eventos…" />
           ) : (
             <>
               <div className={styles.monthHeader}>
@@ -157,6 +156,7 @@ export default function Home() {
                 className={styles.events}
                 role="region"
                 aria-labelledby="events-heading"
+                tabIndex={0}
                 aria-live="polite"
               >
                 {events.length ? (

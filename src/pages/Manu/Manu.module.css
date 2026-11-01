@@ -865,7 +865,8 @@
   .history nav,
   .history .emptyHistory,
   .history .historyError,
-  .history .sessionNote {
+  .history .sessionNote,
+  .history > [role='status'] {
     grid-column: 1 / -1;
     margin: 0;
   }

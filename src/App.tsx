@@ -1,4 +1,4 @@
-import { usePreferences } from './contexts/usePreferences'
+import { LoadingState } from './components/LoadingState'
 import { lazy, Suspense } from 'react'
 import {
   createBrowserRouter,
@@ -50,16 +50,9 @@ const router = createBrowserRouter(
 )
 
 function App() {
-  const { t } = usePreferences()
   return (
     <AuthProvider>
-      <Suspense
-        fallback={
-          <p className="page-loading" role="status">
-            {t('Carregando página…')}
-          </p>
-        }
-      >
+      <Suspense fallback={<LoadingState fullscreen />}>
         <RouterProvider router={router} />
       </Suspense>
     </AuthProvider>

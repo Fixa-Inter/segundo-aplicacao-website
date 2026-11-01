@@ -1,4 +1,5 @@
 import { Eye } from 'lucide-react'
+import { LoadingState } from '../../components/LoadingState'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -179,7 +180,7 @@ export default function Calendar() {
         </p>
       )}
       {loading ? (
-        <p role="status">{t('Carregando calendário…')}</p>
+        <LoadingState label="Carregando calendário…" />
       ) : loadError ? (
         <div role="alert" className={common.error}>
           <p>{t(loadError)}</p>

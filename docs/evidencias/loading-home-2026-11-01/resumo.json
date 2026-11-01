@@ -1,0 +1,279 @@
+{
+  "date": "2026-11-01",
+  "environment": "Edge, localhost:5173, respostas controladas sem gravar em AWS",
+  "checks": [
+    {
+      "test": "home",
+      "width": 1920,
+      "height": 900,
+      "mainScroll": 0,
+      "chart": {
+        "x": 346,
+        "y": 301,
+        "width": 911.546875,
+        "height": 567,
+        "bottom": 868
+      },
+      "calendar": {
+        "x": 1281.546875,
+        "y": 301,
+        "width": 552.4375,
+        "height": 567,
+        "bottom": 868
+      },
+      "events": {
+        "x": 1301.546875,
+        "y": 515,
+        "width": 512.4375,
+        "height": 333,
+        "bottom": 848
+      },
+      "eventScroll": 574,
+      "passed": true
+    },
+    {
+      "test": "home",
+      "width": 1440,
+      "height": 900,
+      "mainScroll": 0,
+      "chart": {
+        "x": 306.546875,
+        "y": 301,
+        "width": 655.921875,
+        "height": 567,
+        "bottom": 868
+      },
+      "calendar": {
+        "x": 986.46875,
+        "y": 301,
+        "width": 397.53125,
+        "height": 567,
+        "bottom": 868
+      },
+      "events": {
+        "x": 1006.46875,
+        "y": 515,
+        "width": 357.53125,
+        "height": 333,
+        "bottom": 848
+      },
+      "eventScroll": 871,
+      "passed": true
+    },
+    {
+      "test": "home",
+      "width": 1366,
+      "height": 768,
+      "mainScroll": 0,
+      "chart": {
+        "x": 292.296875,
+        "y": 273.265625,
+        "width": 619.5625,
+        "height": 462.734375,
+        "bottom": 736
+      },
+      "calendar": {
+        "x": 935.859375,
+        "y": 273.265625,
+        "width": 375.5,
+        "height": 462.734375,
+        "bottom": 736
+      },
+      "events": {
+        "x": 955.859375,
+        "y": 485.6875,
+        "width": 335.5,
+        "height": 230.3125,
+        "bottom": 716
+      },
+      "eventScroll": 943,
+      "passed": true
+    },
+    {
+      "test": "home",
+      "width": 1280,
+      "height": 720,
+      "mainScroll": 0,
+      "chart": {
+        "x": 273.90625,
+        "y": 263.1875,
+        "width": 579.609375,
+        "height": 424.8125,
+        "bottom": 688
+      },
+      "calendar": {
+        "x": 877.515625,
+        "y": 263.1875,
+        "width": 351.28125,
+        "height": 424.8125,
+        "bottom": 688
+      },
+      "events": {
+        "x": 897.515625,
+        "y": 473.765625,
+        "width": 311.28125,
+        "height": 194.234375,
+        "bottom": 668
+      },
+      "eventScroll": 943,
+      "passed": true
+    },
+    {
+      "test": "home",
+      "width": 1024,
+      "height": 768,
+      "mainScroll": 0,
+      "chart": {
+        "x": 260.953125,
+        "y": 273.265625,
+        "width": 353.046875,
+        "height": 462.734375,
+        "bottom": 736
+      },
+      "calendar": {
+        "x": 630,
+        "y": 273.265625,
+        "width": 353.046875,
+        "height": 462.734375,
+        "bottom": 736
+      },
+      "events": {
+        "x": 646,
+        "y": 477.0625,
+        "width": 321.046875,
+        "height": 242.9375,
+        "bottom": 720
+      },
+      "eventScroll": 850,
+      "passed": true
+    },
+    {
+      "test": "home",
+      "width": 1024,
+      "height": 600,
+      "mainScroll": 0,
+      "chart": {
+        "x": 260.953125,
+        "y": 252,
+        "width": 353.046875,
+        "height": 316,
+        "bottom": 568
+      },
+      "calendar": {
+        "x": 630,
+        "y": 252,
+        "width": 353.046875,
+        "height": 316,
+        "bottom": 568
+      },
+      "events": {
+        "x": 646,
+        "y": 455.796875,
+        "width": 321.046875,
+        "height": 96.203125,
+        "bottom": 552
+      },
+      "eventScroll": 997,
+      "passed": true
+    },
+    {
+      "test": "home",
+      "width": 390,
+      "height": 844,
+      "mainScroll": 136,
+      "chart": {
+        "x": 16,
+        "y": 256,
+        "width": 358,
+        "height": 320,
+        "bottom": 576
+      },
+      "calendar": {
+        "x": 16,
+        "y": 596,
+        "width": 358,
+        "height": 360,
+        "bottom": 956
+      },
+      "events": {
+        "x": 32,
+        "y": 799.796875,
+        "width": 326,
+        "height": 140.203125,
+        "bottom": 940
+      },
+      "eventScroll": 1064,
+      "passed": true
+    },
+    {
+      "test": "home",
+      "width": 320,
+      "height": 667,
+      "mainScroll": 313,
+      "chart": {
+        "x": 16,
+        "y": 256,
+        "width": 288,
+        "height": 320,
+        "bottom": 576
+      },
+      "calendar": {
+        "x": 16,
+        "y": 596,
+        "width": 288,
+        "height": 360,
+        "bottom": 956
+      },
+      "events": {
+        "x": 32,
+        "y": 799.796875,
+        "width": 256,
+        "height": 140.203125,
+        "bottom": 940
+      },
+      "eventScroll": 1362,
+      "passed": true
+    },
+    {
+      "test": "route-loading",
+      "passed": true
+    },
+    {
+      "test": "manu-thinking",
+      "width": 1440,
+      "reduced": false,
+      "dark": false,
+      "animations": 4,
+      "passed": true
+    },
+    {
+      "test": "manu-thinking",
+      "width": 390,
+      "reduced": false,
+      "dark": false,
+      "animations": 4,
+      "passed": true
+    },
+    {
+      "test": "manu-thinking",
+      "width": 320,
+      "reduced": true,
+      "dark": true,
+      "animations": 0,
+      "passed": true
+    },
+    {
+      "test": "SDK controlado: loader some após ready; iframe cabe na Home sem rolagem externa",
+      "passed": true
+    },
+    {
+      "test": "Loading de dados da equipe aparece durante latência e some ao concluir",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "A indisponibilidade do BI nas capturas é simulada; não é uma nova medição AWS.",
+    "SDK pronto também validado em iframe controlado; nenhum ajuste de contrato/autorização foi feito.",
+    "Em mobile, zoom e telas muito baixas a rolagem continua disponível."
+  ]
+}

@@ -1,5 +1,6 @@
 import { Eye } from 'lucide-react'
 import { useAuth } from '../../contexts/useAuth'
+import { LoadingState } from '../../components/LoadingState'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { FigmaIcon } from '../../components/FigmaIcon'
@@ -322,7 +323,7 @@ export default function Team() {
         tabIndex={institutional ? 0 : undefined}
       >
         {loading ? (
-          <p role="status">{t('Carregando equipe…')}</p>
+          <LoadingState label="Carregando equipe…" />
         ) : loadError ? (
           <section aria-label={teamTitle}>
             <div role="alert" className={common.error}>

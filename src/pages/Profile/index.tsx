@@ -1,3 +1,4 @@
+import { LoadingState } from '../../components/LoadingState'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
 import { hasFormChanges } from '../../utils/formChanges'
@@ -172,7 +173,7 @@ export default function Profile() {
         </p>
       )}
       {loading ? (
-        <p role="status">{t('Carregando perfil…')}</p>
+        <LoadingState label="Carregando perfil…" />
       ) : loadError ? (
         <div role="alert" className={common.error}>
           <p>{t(loadError)}</p>

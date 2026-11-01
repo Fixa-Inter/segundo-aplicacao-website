@@ -2,6 +2,8 @@ import { lazy, Suspense, useEffect, useRef, useState, type ChangeEvent } from 'r
 import { ArrowUp, Paperclip, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useAuth } from '../../contexts/useAuth'
+import { ManuThinking } from '../../components/ManuThinking'
+import { LoadingState } from '../../components/LoadingState'
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { ApiError } from '../../services/httpClient'
@@ -380,11 +382,7 @@ export default function Manu() {
         <div className={styles.historyTitle}>
           <h2>{t('Conversas')}</h2>
         </div>
-        {historyLoading && (
-          <p className={styles.sessionNote} role="status">
-            {t('Carregando conversas…')}
-          </p>
-        )}
+        {historyLoading && <LoadingState compact label="Carregando conversas…" />}
         {historyError && (
           <div className={styles.historyError} role="alert">
             <p>{t(historyError)}</p>
@@ -444,11 +442,7 @@ export default function Manu() {
         </nav>
       </aside>
       <section className={styles.chat} aria-label={t('Manu')}>
-        {loadingConversation && (
-          <p className={styles.sessionNote} role="status">
-            {t('Carregando conversa…')}
-          </p>
-        )}
+        {loadingConversation && <LoadingState compact label="Carregando conversa…" />}
         {!messages.length ? (
           <div className={styles.greeting}>
             <img src={manuEmotionImage('EMPATICO')} alt={t('Manu')} width="72" height="72" />
@@ -472,7 +466,7 @@ export default function Manu() {
             role="log"
             aria-label={t('Mensagens da conversa')}
             aria-live="polite"
-            aria-busy={sending || loadingConversation}
+            aria-busy={loadingConversation}
           >
             {messages.map((message) => (
               <div
@@ -503,7 +497,7 @@ export default function Manu() {
                   </strong>
                   <p>{message.text}</p>
                   {message.visualization && (
-                    <Suspense fallback={<p role="status">{t('Carregando gráfico…')}</p>}>
+                    <Suspense fallback={<LoadingState compact label="Carregando gráfico…" />}>
                       <ManuChart visualization={message.visualization} />
                     </Suspense>
                   )}
@@ -593,18 +587,7 @@ export default function Manu() {
                 </article>
               </div>
             ))}
-            {sending && (
-              <div className={styles.messageRow} role="status">
-                <img
-                  className={styles.emotionAvatar}
-                  src={manuEmotionImage('AGUARDANDO')}
-                  alt=""
-                  width="72"
-                  height="72"
-                />
-                <p>{t('A Manu está preparando uma resposta…')}</p>
-              </div>
-            )}
+            {sending && <ManuThinking />}
             <div ref={end} />
           </div>
         )}

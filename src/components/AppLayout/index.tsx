@@ -1,7 +1,8 @@
 import { usePreferences } from '../../contexts/usePreferences'
 import { UnsavedChangesProvider } from '../../contexts/UnsavedChangesContext'
 import { useUnsavedChanges } from '../../contexts/useUnsavedChanges'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
+import { LoadingState } from '../LoadingState'
 import { Drawer } from '@mantine/core'
 import { FigmaIcon } from '../FigmaIcon'
 import { ConfirmDialog } from '../ConfirmDialog'
@@ -156,7 +157,9 @@ function Layout() {
           </div>
         </header>
         <main ref={mainRef} id="conteudo" tabIndex={-1} className={styles.main}>
-          <Outlet />
+          <Suspense fallback={<LoadingState />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
       <Drawer

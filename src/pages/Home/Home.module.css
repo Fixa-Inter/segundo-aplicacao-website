@@ -1,11 +1,16 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 .welcome {
-  height: clamp(205px, 17.4vw, 250px);
+  height: 180px;
+  flex: none;
   border-radius: 25px;
   background: linear-gradient(135deg, #f9fcff, #e4f0ff);
   display: flex;
   align-items: center;
   padding-left: clamp(24px, 3.6vw, 52px);
-  margin-bottom: 27px;
   overflow: hidden;
   position: relative;
 }
@@ -13,9 +18,9 @@
   position: relative;
   z-index: 1;
   min-width: 0;
-  max-width: 55%;
+  max-width: 60%;
   overflow-wrap: anywhere;
-  font-size: clamp(28px, 3.12vw, 45px);
+  font-size: clamp(26px, 2.8vw, 42px);
   font-weight: 400;
   line-height: 1.35;
   color: #130943;
@@ -32,44 +37,96 @@
 }
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 700fr) minmax(300px, 390fr);
-  gap: 23px;
+  grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr);
+  gap: 24px;
+  min-height: 0;
 }
 .chartPanel,
 .eventPanel {
   min-width: 0;
-  height: 350px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   padding: 24px;
   background: var(--fixa-home-panel);
   border-radius: 20px;
 }
 .chartPanel {
-  display: flex;
-  flex-direction: column;
+  gap: 12px;
 }
-.chartPanel h2 {
+.chartPanel [data-dashboard-state] {
+  flex: 1;
+  min-height: 0;
+}
+.chartHeading {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--fixa-black);
+}
+.chartHeading h2 {
   font-size: clamp(18px, 1.53vw, 22px);
   font-weight: 500;
   margin: 0;
   line-height: 1.5;
 }
+.chartHeading a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+}
+.chartHeading a:hover,
+.monthHeader button:hover,
+.eventLink:hover {
+  background: var(--fixa-hover);
+}
 .eventPanel {
-  display: flex;
-  flex-direction: column;
   padding: 20px;
+}
+.monthHeader {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.monthHeader h2 {
+  min-width: 0;
+  text-align: center;
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 500;
+  text-transform: capitalize;
+  margin: 0;
+  color: var(--fixa-black);
+}
+.monthHeader button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
 }
 .days {
   position: relative;
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: max(58px, calc((100% - 24px) / 7));
+  grid-auto-columns: max(44px, calc((100% - 24px) / 7));
   gap: 4px;
   flex: none;
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--fixa-border) transparent;
   padding-block: 3px 8px;
-  margin-top: 9px;
+  margin-top: 8px;
   overscroll-behavior-x: contain;
 }
 .days button:focus-visible {
@@ -79,28 +136,28 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 4px;
   align-items: center;
   justify-content: center;
-  height: 88px;
+  height: 80px;
   padding: 0;
   border: 0;
   border-radius: 35px;
   background: transparent;
   color: var(--fixa-black);
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   text-transform: capitalize;
 }
 .days span {
   white-space: nowrap;
+  color: var(--fixa-muted);
 }
 .days strong {
   display: grid;
   place-items: center;
   width: min(100%, 40px);
-  height: 40px;
-  border-radius: 50%;
+  height: 36px;
   font-weight: 500;
   font-size: 22px;
 }
@@ -111,27 +168,39 @@
   background: #153d7d;
   color: #fff;
 }
+.days button[aria-pressed='true'] span {
+  color: #fff;
+}
 .eventPanel h3 {
-  margin: 8px 0;
+  margin: 10px 0;
   font-size: clamp(16px, 1.39vw, 20px);
   font-weight: 500;
 }
 .events {
+  flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--fixa-border) transparent;
   display: grid;
   gap: 10px;
   align-content: start;
+  border-radius: 15px;
+}
+.events:focus-visible {
+  outline-offset: 2px;
 }
 .event {
   padding: 10px 12px;
   background: var(--fixa-surface);
   border-radius: 15px;
   display: flex;
-  gap: 18px;
+  gap: 12px;
   align-items: center;
+  color: var(--fixa-event-text);
 }
 .event time {
+  flex: none;
   font-weight: 600;
   color: var(--fixa-ink);
   text-align: center;
@@ -144,134 +213,13 @@
   font-weight: 400;
   text-transform: capitalize;
 }
-.event h4 {
-  margin: 0 0 3px;
-  font-size: clamp(13px, 1.11vw, 16px);
-  font-weight: 500;
-}
-.event div span {
-  display: block;
-  font-size: 12px;
-}
-.empty {
-  margin: 0;
-  padding: 12px 8px;
-  font-size: 13px;
-  color: var(--fixa-muted);
-}
-@media (min-width: 901px) and (min-height: 851px) {
-  .home {
-    padding-top: clamp(0px, calc(27dvh - 230px), 35px);
-  }
-}
-@media (min-width: 901px) and (max-height: 950px) {
-  .welcome {
-    height: clamp(170px, min(17.4vw, 25dvh), 250px);
-    margin-bottom: clamp(18px, 2.5dvh, 24px);
-  }
-  .welcome h1 {
-    font-size: clamp(28px, 5dvh, 45px);
-  }
-  .chartPanel,
-  .eventPanel {
-    height: clamp(276px, min(28vw, 36dvh), 350px);
-  }
-}
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .welcome {
-    height: 180px;
-    padding-left: 24px;
-  }
-  .welcome h1 {
-    font-size: 28px;
-    max-width: 50%;
-  }
-  .welcome img {
-    height: 100%;
-    top: 0;
-  }
-  .chartPanel {
-    height: 300px;
-  }
-  .eventPanel {
-    height: auto;
-    min-height: 320px;
-  }
-  .event h4 {
-    font-size: 16px;
-  }
-}
-@media (max-width: 420px) {
-  .welcome {
-    height: 154px;
-    padding-left: 20px;
-  }
-  .welcome h1 {
-    font-size: 25px;
-    max-width: 45%;
-  }
-}
-
-.chartHeading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  color: var(--fixa-black);
-}
-.chartHeading a {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-}
-.chartHeading a:hover {
-  background: var(--fixa-hover);
-}
-.monthHeader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.monthHeader h2 {
-  font-size: clamp(18px, 1.74vw, 25px);
-  font-weight: 500;
-  text-transform: capitalize;
-  margin: 0;
-  color: var(--fixa-black);
-}
-.monthHeader button {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 44px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-}
-.monthHeader button:hover {
-  background: var(--fixa-hover);
-}
-.days span {
-  color: var(--fixa-muted);
-}
-.days button[aria-pressed='true'] span {
-  color: white;
-}
-.event {
-  color: var(--fixa-event-text);
-}
 .event > div {
   min-width: 0;
 }
 .event h4 {
+  margin: 0 0 3px;
+  font-size: clamp(13px, 1.11vw, 16px);
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 .event div span {
@@ -279,6 +227,7 @@
   align-items: center;
   gap: 6px;
   color: var(--fixa-muted);
+  font-size: 12px;
 }
 .event div span::before {
   content: '';
@@ -293,77 +242,22 @@
   place-items: center;
   flex: none;
   margin-left: auto;
-  width: 28px;
-  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
 }
-.eventLink:hover {
-  background: var(--fixa-hover);
-}
-
-@media (min-width: 901px) and (max-height: 950px) {
-  .eventPanel {
-    padding: 16px;
-  }
-  .days button {
-    height: 80px;
-  }
-  .eventPanel h3 {
-    margin-block: 4px;
-  }
-  .days {
-    margin-top: 6px;
-    padding-bottom: 6px;
-  }
-  .monthHeader button {
-    height: 40px;
-  }
-}
-@media (min-width: 901px) and (max-height: 750px) {
-  .welcome {
-    height: 170px;
-  }
-  .chartPanel,
-  .eventPanel {
-    height: 270px;
-  }
-}
-
-@media (min-width: 901px) and (max-height: 750px) {
-  .days button {
-    height: 80px;
-    gap: 4px;
-  }
-  .event {
-    padding-block: 6px;
-    gap: 10px;
-  }
-}
-
-.home .chartPanel {
-  height: clamp(400px, 45dvh, 480px);
-  gap: 12px;
-  overflow: hidden;
-}
-.chartFrame {
-  display: block;
-  width: 100%;
-  flex: 1;
-  min-height: 0;
-  border: 0;
-  border-radius: 12px;
-  background: white;
-}
-.frameStatus {
+.empty {
   margin: 0;
-  color: var(--fixa-muted);
+  padding: 12px 8px;
   font-size: 13px;
+  color: var(--fixa-muted);
 }
 .calendarState {
-  margin: 0;
+  margin: auto;
   padding-block: 16px;
   color: var(--fixa-muted);
   font-size: 14px;
+  text-align: center;
 }
 .retry {
   min-height: 44px;
@@ -375,12 +269,59 @@
   font: inherit;
   cursor: pointer;
 }
-
+@media (min-width: 901px) {
+  .home {
+    height: 100%;
+    min-height: 460px;
+  }
+  .welcome {
+    height: clamp(140px, 21dvh, 210px);
+  }
+  .grid {
+    flex: 1;
+    min-height: 300px;
+  }
+}
+@media (max-width: 1100px) and (min-width: 901px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 1fr);
+    gap: 16px;
+  }
+  .chartPanel,
+  .eventPanel {
+    padding: 16px;
+  }
+}
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .welcome {
+    padding-left: 24px;
+  }
+  .welcome h1 {
+    font-size: 28px;
+    max-width: 55%;
+  }
+  .welcome img {
+    height: 100%;
+    top: 0;
+  }
+  .chartPanel {
+    height: 320px;
+  }
+  .eventPanel {
+    height: 360px;
+  }
+  .event h4 {
+    font-size: 16px;
+  }
+}
 @media (max-width: 600px) {
   .welcome {
     height: 160px;
     padding: 20px;
-    margin-bottom: 20px;
   }
   .welcome h1 {
     max-width: 66%;
@@ -404,23 +345,12 @@
   .eventPanel {
     padding: 16px;
   }
-  .monthHeader button {
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
-  }
   .monthHeader h2 {
     flex: 1;
-    min-width: 0;
-    text-align: center;
     font-size: 18px;
   }
   .event {
     gap: 10px;
     padding: 10px;
-  }
-  .eventLink {
-    width: 44px;
-    min-width: 44px;
   }
 }

@@ -99,10 +99,6 @@ select:not([multiple]):not([size]) {
     background-image: none;
   }
 }
-.page-loading {
-  padding: 2rem;
-  text-align: center;
-}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

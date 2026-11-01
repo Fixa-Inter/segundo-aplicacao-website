@@ -2,6 +2,7 @@ import type { Language } from '../types/preferences'
 
 // A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Carregando sessão…': ['Loading session…', 'Cargando sesión…', '正在加载会话…'],
   'Não foi possível carregar o dashboard da sua unidade.': [
     'Your location’s dashboard could not be loaded.',
     'No se pudo cargar el dashboard de tu unidad.',

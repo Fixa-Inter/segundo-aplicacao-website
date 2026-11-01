@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { DatabricksDashboard } from '@databricks/aibi-client'
 import { useAuth } from '../../contexts/useAuth'
 import { usePreferences } from '../../contexts/usePreferences'
+import { LoadingState } from '../LoadingState'
 import { useDashboardAccess } from '../../hooks/useDashboardAccess'
 import styles from './AuthenticatedDashboard.module.css'
 
@@ -121,7 +122,11 @@ export function AuthenticatedDashboard({
   }, [user, theme, widget, technician, title, attempt, getAccess])
   return (
     <div className={styles.root} data-dashboard-state={status}>
-      {status === 'loading' && <p role="status">{t('Carregando dashboard…')}</p>}
+      {status === 'loading' && (
+        <div className={styles.loading}>
+          <LoadingState label="Carregando dashboard…" />
+        </div>
+      )}
       {status === 'error' && (
         <div className={styles.error} role="alert">
           <p>{t('Não foi possível carregar o dashboard da sua unidade.')}</p>
