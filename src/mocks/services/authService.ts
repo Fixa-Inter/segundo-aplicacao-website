@@ -1,7 +1,6 @@
 import type { LoginCredentials, User } from '../../types/auth'
 import { normalizeCnpj, validateLogin } from '../../utils/validation.ts'
 
-// Serviço temporário: substitua esta implementação quando o contrato da API estiver disponível.
 export async function loginMock(credentials: LoginCredentials): Promise<User> {
   const error = validateLogin(credentials)
   if (error) throw new Error(error)

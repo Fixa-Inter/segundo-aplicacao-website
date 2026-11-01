@@ -2,6 +2,7 @@ import type { ApiGrade } from '../types/api/competencies'
 import type { EnumValue } from '../types/api/shared'
 import type { TechnicianCompetency } from '../types/competency'
 import { competencyCategories } from './competencies.ts'
+
 export const categoryNames = [
   'ELETRICA',
   'HIDRAULICA',

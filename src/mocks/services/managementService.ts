@@ -1,34 +1,33 @@
-import {
-  dashboardRecords,
-  dashboardByTechnician,
-  initialEvents,
-  initialProfile,
-  initialTechnicians,
-} from '../management.ts'
-import {
-  validateEvent,
-  validateProfile,
-  validateTechnician,
-} from '../../utils/managementValidation.ts'
-import { performanceByTechnician } from '../performance.ts'
+import type { CompetencyId, CompetencyInput, TechnicianCompetency } from '../../types/competency'
 import type {
   CalendarEvent,
   CalendarEventInput,
   DashboardRecord,
   ManagerProfile,
-  Technician,
-  TechnicianInput,
   PerformancePeriod,
   PerformancePoint,
+  Technician,
+  TechnicianInput,
 } from '../../types/management'
-import type { CompetencyId, CompetencyInput, TechnicianCompetency } from '../../types/competency'
 import {
   competencyCategories,
   getCompetencyPresentation,
   validateCompetency,
 } from '../../utils/competencies.ts'
+import {
+  validateEvent,
+  validateProfile,
+  validateTechnician,
+} from '../../utils/managementValidation.ts'
+import {
+  dashboardByTechnician,
+  dashboardRecords,
+  initialEvents,
+  initialProfile,
+  initialTechnicians,
+} from '../management.ts'
+import { performanceByTechnician } from '../performance.ts'
 
-// Repositório em memória da demonstração, limitado à sessão atual.
 let technicians = initialTechnicians.map((item) => ({ ...item }))
 let events = initialEvents.map((item) => ({ ...item }))
 let profile = { ...initialProfile }
@@ -82,12 +81,12 @@ export async function saveTechnician(
   )
     throw new Error('Já existe um técnico com este e-mail.')
   if (id && !technicians.some((item) => item.id === id)) throw new Error('Técnico não encontrado.')
-  // Validar o lote inteiro antes de alterar o cadastro ou qualquer nota.
+
   for (const rating of ratings) {
     const error = validateCompetency(rating)
     if (error) throw new Error(error)
   }
-  // Tipo e endereço são definidos pelo serviço, nunca por campos editáveis do cadastro.
+
   const result: Technician = {
     id: id ?? crypto.randomUUID(),
     name: input.name.trim(),

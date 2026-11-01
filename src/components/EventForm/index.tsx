@@ -1,11 +1,12 @@
-import { ConfirmDialog } from '../ConfirmDialog'
-import { FigmaIcon } from '../FigmaIcon'
-import { AuthField } from '../AuthField'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useEventFormController } from '../../hooks/useEventFormController'
 import type { EventFormProps } from '../../types/ui'
 import { truncateText } from '../../utils/presentation'
+import { AuthField } from '../AuthField'
+import { ConfirmDialog } from '../ConfirmDialog'
+import { FigmaIcon } from '../FigmaIcon'
 import styles from './EventForm.module.css'
+
 export function EventForm(props: EventFormProps) {
   const { t } = usePreferences()
   const { event, responsibles } = props

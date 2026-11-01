@@ -1,12 +1,5 @@
 import { createContext } from 'react'
-import type { LoginCredentials, User } from '../types/auth'
+import type { AuthContextValue } from '../types/auth'
 
-export interface AuthContextValue {
-  user: User | null
-  loading: boolean
-  error: string | null
-  login: (credentials: LoginCredentials) => Promise<boolean>
-  logout: () => void
-  updateName: (name: string) => void
-}
+export type { AuthContextValue } from '../types/auth'
 export const AuthContext = createContext<AuthContextValue | null>(null)

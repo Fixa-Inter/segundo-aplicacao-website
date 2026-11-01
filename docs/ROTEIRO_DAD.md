@@ -1,48 +1,41 @@
-# Roteiro de demonstração — FIXA Web
+# Roteiro de apresentação
 
-Atualizado em **26/10/2026**. A Web consome APIs reais na AWS; cadastros podem alterar o banco compartilhado. Use contas e registros autorizados de homologação. O roteiro anterior de login demonstrativo/código fixo de recuperação não corresponde à integração atual.
+Versão de 01/11/2026. Consulte o [mapa de critérios](ENTREGA_DAD.md) e os [contratos atuais](INTEGRACOES.md). Os ensaios presenciais ainda não foram realizados; os passos abaixo são um roteiro, não comprovantes de execução.
 
-Consulte a [matriz de DAD](MATRIZ_REQUISITOS.md) e o [relatório com resultados e pendências](VALIDACAO_DAD_2026-10-26.md).
+## Preparar
 
-## Preparação
+1. Executar as verificações do README e abrir a Web local ou a implantação aprovada quando disponível.
+2. Usar contas autorizadas de Gestor e RH e dados de homologação. Não mostrar senhas/tokens nem editar registros compartilhados durante a apresentação sem planejamento.
+3. Conferir login, API Web, Manu e acesso ao BI. Se o embed continuar em 502, explicar a dependência externa; não apresentar dados simulados como reais.
+4. Depois da publicação, incluir a URL no README e testar acesso direto e recarga das rotas.
 
-1. Use Node.js 24 e a configuração de ambiente do [README](../README.md).
-2. Execute npm run format:check, npm run lint, npm test e npm run build, registrando os resultados reais.
-3. Execute npm run dev e abra http://localhost:5173. A configuração exige essa porta.
-4. Separe contas de Gestor e RH autorizadas, com CNPJ/e-mail/senha válidos. Não exponha senhas ou tokens na apresentação.
-5. Entre no Databricks no mesmo navegador. A sessão da Web não autentica automaticamente no Databricks.
-6. **Publicação permanece pendente:** testar a URL pública e incluí-la no README antes da avaliação.
+## Demonstrar a interface
 
-## Fluxos da interface
+| Fluxo        | O que mostrar                                                                                              |
+| ------------ | ---------------------------------------------------------------------------------------------------------- |
+| Navegação    | Sobre, login, 404, rota privada sem sessão e retorno de foco                                               |
+| Equipe       | Abas do RH, busca, filtro, paginação, detalhe por URL e ID inexistente                                     |
+| Formulários  | Erros por campo, competências opcionais, seleção de turno e cancelamento de alterações                     |
+| Calendário   | Selecionar data, ver eventos e, com registros de teste autorizados, criar/editar/excluir                   |
+| Perfil       | Edição dos dados pessoais e leitura da localização da unidade                                              |
+| Manu         | Histórico, envio, loader que termina com a resposta, emoções, anexos, proposta/correção e links de ofertas |
+| Gráficos     | Visualização Recharts, tabela de dados e tratamento de contrato inválido; BI autenticado quando disponível |
+| Preferências | Idioma/tema, recarga e recuperação de versão antiga ou armazenamento indisponível                          |
+| Teclado      | Abas, menus, filtros, diálogos, confirmação e restauração de foco                                          |
 
-| Etapa              | Demonstração                                                                                                | Limite ou cuidado                                                                                                                                      |
-| ------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Público e proteção | Abrir /sobre, URL inexistente e /equipe sem sessão.                                                         | 404 tem retorno; rota privada redireciona ao login. Autorização também precisa ser imposta pelo servidor.                                              |
-| Login              | Enviar vazio, conferir erros/foco e entrar com conta autorizada.                                            | Três campos obrigatórios. Não usar dados fictícios como se fossem credenciais reais.                                                                   |
-| Home e BI          | Selecionar dias, navegar meses, conferir eventos e gráfico incorporado.                                     | Gráficos dependem da sessão e permissões Databricks; não há API de BI na V1.                                                                           |
-| Equipe RH          | Gestores abre primeiro; trocar para Técnicos usando teclado; buscar, filtrar e paginar.                     | Gestores têm detalhes somente leitura; ações técnicas dependem do perfil.                                                                              |
-| Técnico            | Abrir detalhes, competências e editar; alterar campo e cancelar; testar Escape/continuar edição e descarte. | Notas opcionais de 0 a 10, até duas casas decimais. Um turno. Local é unidade de trabalho. Telefone não faz parte do contrato atual.                   |
-| Persistência       | Em homologação autorizada, cadastrar/editar um registro de teste e consultar novamente após recarregar.     | Esta rodada não realizou escritas operacionais reais. Técnico é desativado, não apagado fisicamente. Falha parcial pode exigir completar turnos/notas. |
-| Calendário         | Conferir eventos; em homologação criar, editar e excluir um registro próprio de teste.                      | Responsável de evento existente não pode ser trocado; datas/horas inválidas devem produzir erros por campo.                                            |
-| Perfil             | Conferir localização/e-mail/nascimento; editar dados pessoais, cancelar e testar descarte.                  | Localização vem da unidade; não prometer edição de endereço pessoal.                                                                                   |
-| Senha              | Mostrar validação da troca e explicar recuperação.                                                          | Código vem por e-mail real; não usar código fixo nem trocar senha compartilhada durante demonstração sem planejamento.                                 |
-| Manu               | Gestor: histórico, mensagens, emoções e novo chat; exclusão com confirmação em conversa de teste.           | Pode consumir IA e persistir chats. RH ainda recebe 403 no histórico; não declarar resolvido. Upload envia arquivo ao Cloudinary.                      |
-| Preferências       | Trocar os quatro idiomas e tema e recarregar.                                                               | Preferência explícita prevalece; sem escolha, segue idioma compatível do navegador. Sessão usa sessionStorage; dados de negócio persistem no servidor. |
-| Saída              | Abrir confirmação, cancelar por Escape, depois sair.                                                        | Conferir retorno de foco e impossibilidade de abrir rota privada após logout.                                                                          |
+A persistência real deve ser demonstrada com um registro próprio de homologação, consultando novamente após recarregar. Os testes de navegador usam respostas controladas e não substituem essa etapa. Recuperação de senha usa o código recebido por e-mail, sem código fixo.
 
-## Demonstrações técnicas do PDF
+## Explicar o código
 
-- Mostrar src/components, src/hooks, src/services/resources e src/types/api; apontar views, controladores, recursos HTTP e composição. O lint impede imports de services em componentes; consulte a [reorganização validada](ORGANIZACAO_DAD_2026-10-26.md).
-- Explicar o estado agrupado e atualizações imutáveis; apontar efeito, dependências e cancelamento pelo AbortController.
-- Mostrar keys de IDs nas listas dinâmicas; distinguir os índices de listas estáticas.
-- **useParams ainda não demonstrado:** resolver rota com guarda ou confirmar interpretação com o professor.
-- Abrir um build de produção em janela limpa e a aba Network: observar chunks de páginas apenas ao navegar. Os testes desta rodada já observaram seis carregamentos distintos.
-- Mostrar AuthContext, Provider e hook de consumo; justificar prop drilling e reducer com casos reais. AuthState ainda não é union.
-- Preferências ainda não têm _versao; não declarar extra de armazenamento versionado concluído.
-- Demonstrar no Profiler qualquer benefício atribuído a useMemo/useCallback; medição ainda pendente.
-- Percorrer login, edição, descarte, abas, filtro e menu móvel sem mouse. Conferir anel de foco, contenção em diálogo e retorno ao acionador.
-- Executar NVDA/VoiceOver com landmarks e iframes; esse ensaio não foi realizado nesta rodada.
-- Mostrar validação tipada e interpolação JSX de dados externos. Não executar payloads contra contas/serviços de terceiros.
-- Mostrar git log real e URL pública da Web quando existir. Nenhuma data, aprovação ou evidência deve ser simulada.
-
-Os testes desta rodada não aprovam automaticamente outras disciplinas, todo o fluxo de gravação na AWS ou acessibilidade integral. Registre qualquer etapa não executada e não substitua essa informação por uma resposta simulada.
+1. Seguir `App` → página → componente → hook → serviço por recurso → DTO/validação, usando Equipe como exemplo.
+2. Mostrar `useState` com campos relacionados e atualizações imutáveis.
+3. Mostrar `useEffect` e suas dependências em uma consulta; retirar temporariamente uma dependência para demonstrar o efeito e restaurar o arquivo em seguida.
+4. Explicar `AuthContext`/`PreferencesContext`, seus Providers/hooks e o prop drilling evitado.
+5. Percorrer `AuthState`, `AuthAction` e o reducer, justificando por que as transições de autenticação usam esse modelo.
+6. Mostrar o cancelamento no desmontar em `useResourceOptions`; não repetir gravações para demonstrar requisições.
+7. Abrir build de produção com cache desabilitado e observar no Network os chunks de `React.lazy` e o fallback de `Suspense`.
+8. Mostrar `_versao` e migração das preferências no localStorage; não expor sessionStorage com credenciais.
+9. Mostrar as keys estáveis das listas, a validação dos formulários e os dados externos tratados antes do JSX/Markdown.
+10. No React DevTools Profiler, comparar uma interação com e sem `useMemo`/`useCallback`. Medir renderizações/duração antes de afirmar ganho; restaurar a implementação.
+11. Percorrer landmarks, campos, menus, mensagens e diálogos usando NVDA/VoiceOver. A verificação automática não substitui esse ensaio.
+12. Mostrar o histórico Git real, PRs, CI, revisão e URL pública. Não simular datas, aprovações ou demonstrações não executadas.

@@ -1,20 +1,21 @@
 import { useRef, useState, type FormEvent } from 'react'
-import { useUnsavedForm } from '../contexts/useUnsavedChanges'
 import { useAuth } from '../contexts/useAuth'
-import { useWorkUnits, useShifts } from './useManagementOptions'
+import { useUnsavedForm } from '../contexts/useUnsavedChanges'
 import { PartialSaveError } from '../services/managementErrors'
-import { hasFormChanges } from '../utils/formChanges'
-import { getCompetencyPresentation, parseCompetencyRating } from '../utils/competencies'
-import { validatePassword, validateTechnician } from '../utils/apiValidation'
-import { formatDate, parseDateInput } from '../utils/calendar'
-import type { TechnicianInput } from '../types/management'
 import type { CompetencyInput } from '../types/competency'
-import type { TechnicianFormFieldsProps } from '../types/ui'
+import type { TechnicianInput } from '../types/management'
 import type {
+  TechnicianFieldDefinition,
   TechnicianFormController,
   TechnicianSubmission,
-  TechnicianFieldDefinition,
 } from '../types/technicianForm'
+import type { TechnicianFormFieldsProps } from '../types/ui'
+import { validatePassword, validateTechnician } from '../utils/apiValidation'
+import { formatDate, parseDateInput } from '../utils/calendar'
+import { getCompetencyPresentation, parseCompetencyRating } from '../utils/competencies'
+import { hasFormChanges } from '../utils/formChanges'
+import { useShifts, useWorkUnits } from './useManagementOptions'
+
 export function useTechnicianFormController({
   technician,
   manager,

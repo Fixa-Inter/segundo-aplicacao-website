@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { ApiError } from '../src/services/httpClient.ts'
 import { createCloudinaryUploader, maxImageSize } from '../src/services/cloudinaryService.ts'
+
 const image = () => new File(['image-fixture'], 'foto.png', { type: 'image/png' })
 test('upload envia multipart ao Cloudinary sem Bearer da API e devolve somente secure_url', async () => {
   let calls = 0

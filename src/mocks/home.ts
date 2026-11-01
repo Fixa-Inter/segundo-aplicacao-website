@@ -1,7 +1,6 @@
 import type { MonthlyTaskCount } from '../types/home'
 import type { StatCardProps } from '../types/ui'
 
-// Dados do protótipo: substituir pelo service da API quando houver contrato.
 export const taskSummary: StatCardProps[] = [
   { label: 'A fazer', value: 20, tone: 'blue' },
   { label: 'Pendentes', value: 10, tone: 'yellow' },

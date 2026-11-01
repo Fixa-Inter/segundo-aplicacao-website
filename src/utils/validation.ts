@@ -6,7 +6,7 @@ export function normalizeCnpj(value: string): string {
 
 export function validateCnpj(value: string): string | null {
   if (!value.trim()) return 'Informe o CNPJ.'
-  // O formato também aceita as 12 posições alfanuméricas previstas pela Receita Federal.
+
   const formatted = /^[a-z\d]{2}\.[a-z\d]{3}\.[a-z\d]{3}\/[a-z\d]{4}-\d{2}$/i
   if (!/^[a-z\d]{12}\d{2}$/i.test(value.trim()) && !formatted.test(value.trim()))
     return 'Digite um CNPJ com 14 posições, com ou sem pontuação.'

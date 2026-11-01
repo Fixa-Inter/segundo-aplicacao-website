@@ -6,6 +6,7 @@ import {
   formatAddress,
   truncateText,
 } from '../src/utils/presentation.ts'
+
 test('turnos convertem segundos desde meia-noite em horários legíveis', () => {
   for (const [value, expected] of [
     [0, '00:00'],

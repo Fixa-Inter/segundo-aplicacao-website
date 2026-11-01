@@ -5,6 +5,7 @@ import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { managementFixture } from './management-fixture.mjs'
 import { visualization } from '../fixtures/visualizations.mjs'
+
 const { chromium } = await import(
   process.env.FIXA_PLAYWRIGHT_MODULE
     ? pathToFileURL(process.env.FIXA_PLAYWRIGHT_MODULE).href

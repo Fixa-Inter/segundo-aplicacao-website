@@ -1,5 +1,6 @@
-import type { ManuVisualization } from './visualization'
 import type { ManuEmotion } from '../utils/manu'
+import type { ManuVisualization } from './visualization'
+
 export interface ChatAttachment {
   id: string
   name: string

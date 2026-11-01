@@ -1,20 +1,21 @@
 import type { ManagementSession } from '../types/api/shared'
+import type { CompetencyInput } from '../types/competency'
 import type {
+  EventResponsibleOption,
+  TeamMember,
   Technician,
   TechnicianInput,
-  TeamMember,
-  EventResponsibleOption,
 } from '../types/management'
-import type { CompetencyInput } from '../types/competency'
-import type { createUserService } from './resources/users.ts'
-import type { createUnitService } from './resources/units.ts'
-import type { createShiftService } from './resources/shifts.ts'
-import type { createCompetencyService } from './resources/competencies.ts'
-import { technician, isTechnician, teamAccessType } from '../utils/apiUsers.ts'
-import { validateTechnician, validatePassword } from '../utils/apiValidation.ts'
+import { isTechnician, teamAccessType, technician } from '../utils/apiUsers.ts'
+import { validatePassword, validateTechnician } from '../utils/apiValidation.ts'
 import { validateCompetency } from '../utils/competencies.ts'
 import { check } from '../utils/validationErrors.ts'
 import { PartialSaveError } from './managementErrors.ts'
+import type { createCompetencyService } from './resources/competencies.ts'
+import type { createShiftService } from './resources/shifts.ts'
+import type { createUnitService } from './resources/units.ts'
+import type { createUserService } from './resources/users.ts'
+
 export function createTeamService(
   user: ManagementSession,
   users: ReturnType<typeof createUserService>,
@@ -174,7 +175,7 @@ export function createTeamService(
       if (!saved.estaAtivo && (input.status === 'Ativo' || !id))
         saved = await users.setUserActive(String(saved.id), true)
       const links = await shiftsService.listUserShifts(String(saved.id))
-      // Vincular primeiro: se falhar, nenhum vínculo antigo é removido.
+
       for (const shiftId of selected) {
         if (!links.some((link) => link.estaAtivo && String(link.turnoId) === shiftId))
           await shiftsService.linkUser(shiftId, String(saved.id))

@@ -1,7 +1,8 @@
-import type { ManagementClient } from '../../types/api/shared'
 import type { ApiLocation } from '../../types/api/locations'
+import type { ManagementClient } from '../../types/api/shared'
 import type { LocationOption } from '../../types/management'
 import type { createUnitService } from './units.ts'
+
 export function createLocationService(
   client: ManagementClient,
   units: ReturnType<typeof createUnitService>,

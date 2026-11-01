@@ -1,8 +1,9 @@
 import type { ManagementClient, ManagementSession } from '../../types/api/shared'
-import type { ApiShift, ApiLink } from '../../types/api/shifts'
+import type { ApiLink, ApiShift } from '../../types/api/shifts'
 import type { ShiftOption } from '../../types/management'
-import type { createUnitService } from './units.ts'
 import { formatShiftLabel } from '../../utils/presentation.ts'
+import type { createUnitService } from './units.ts'
+
 export function createShiftService(
   client: ManagementClient,
   user: ManagementSession,

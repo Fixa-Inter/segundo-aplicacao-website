@@ -55,7 +55,7 @@ export function getConversationTitle(title: unknown, summary: unknown, firstMess
   const structuredTitle = getSummaryTitle(title)
   if (structuredTitle) return structuredTitle
   const candidate = typeof title === 'string' ? title.trim() : ''
-  // A API antiga usa a primeira linha do resumo como título, mesmo quando é um parágrafo.
+
   if (
     candidate &&
     candidate.length <= 100 &&

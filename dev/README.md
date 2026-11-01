@@ -63,4 +63,4 @@ Para voltar ao banco isolado, execute `npm run local:up`. Para voltar à API pub
 - Se `local:up` informar que o motor Docker não respondeu, confira o Docker Desktop. O processo aberto não basta: o motor precisa estar disponível para `docker info`.
 - Consulte `local:logs` para erros da API. Um contêiner iniciado não significa que o servidor esteja saudável.
 - Confira se 8080, 8025 e 5173 estão disponíveis antes de iniciar. O script não encerra processos alheios para liberar portas.
-- A Manu consome o serviço existente na AWS pelo proxy da própria web; não é necessário clonar, modificar ou iniciar a IA localmente. Consulte [a integração da Manu](../docs/INTEGRACAO_IA_2026-10-25.md). O iframe de BI aguarda a URL de incorporação do Databricks.
+- A Manu consome o serviço existente na AWS pelo proxy da própria web; não é necessário clonar, modificar ou iniciar a IA localmente. Consulte [as integrações atuais](../docs/INTEGRACOES.md). O BI usa o SDK Databricks com token por unidade emitido pela API Web.

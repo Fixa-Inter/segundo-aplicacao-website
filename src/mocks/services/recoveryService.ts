@@ -1,6 +1,7 @@
 import type { RecoveryChallenge } from '../../types/recovery'
-import { validateEmail } from '../../utils/validation.ts'
 import { validateDemoPassword } from '../../utils/managementValidation.ts'
+import { validateEmail } from '../../utils/validation.ts'
+
 const delay = () => new Promise<void>((resolve) => setTimeout(resolve, 350))
 export const DEMO_RECOVERY_CODE = '123456'
 export async function requestRecovery(email: string): Promise<RecoveryChallenge> {
@@ -22,7 +23,6 @@ export async function resetPassword(challenge: RecoveryChallenge, password: stri
   if (!challenge.email) throw new Error('Inicie a recuperação pelo e-mail de demonstração.')
   const error = validateDemoPassword(password)
   if (error) throw new Error(error)
-  // Mock: nenhum e-mail é enviado e nenhuma credencial real é alterada.
 }
 
 export async function changePassword(current: string, next: string): Promise<void> {
@@ -30,5 +30,4 @@ export async function changePassword(current: string, next: string): Promise<voi
   const error = validateDemoPassword(next)
   if (error) throw new Error(error)
   await delay()
-  // Mock: a senha atual não é verificada e nenhuma credencial é armazenada ou alterada.
 }

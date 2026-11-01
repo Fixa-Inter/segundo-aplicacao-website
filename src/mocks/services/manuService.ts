@@ -48,7 +48,7 @@ export function beginDemoMessage(
     id: crypto.randomUUID(),
     author: 'user',
     text,
-    // Somente metadados: nenhum File, conteúdo, URL ou caminho é armazenado.
+
     attachments: attachments.map(({ id, name, size }) => ({ id, name, size })),
   }
   conversations = conversations.some((conversation) => conversation.id === id)
@@ -75,7 +75,7 @@ export async function completeDemoMessage(
       ? `${reply}\nAnexos desta demonstração não são enviados nem analisados.`
       : reply,
   }
-  // Se houve logout durante a resposta, a conversa removida não é recriada.
+
   conversations = conversations.map((conversation) =>
     conversation.id === id
       ? { ...conversation, messages: [...conversation.messages, response] }
@@ -85,7 +85,6 @@ export async function completeDemoMessage(
   return listDemoConversations()
 }
 
-// Respostas guiadas de demonstração. A integração com o serviço de IA depende do backend.
 export async function getDemoReply(question: string): Promise<string> {
   if (!question.trim() || question.trim().length > 500)
     throw new Error('A mensagem deve ter de 1 a 500 caracteres.')

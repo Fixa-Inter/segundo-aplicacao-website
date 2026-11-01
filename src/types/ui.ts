@@ -5,10 +5,17 @@ import type {
   CalendarEventInput,
   EventResponsibleOption,
   ManagerProfile,
-  Technician,
   TeamMember,
+  Technician,
   TechnicianInput,
 } from './management'
+
+export interface LoadingStateProps {
+  label?: string
+  fullscreen?: boolean
+  compact?: boolean
+}
+
 export interface AppAppearanceProps {
   children: ReactNode
 }
