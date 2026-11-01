@@ -7,7 +7,7 @@ export function useResourceOptions<T>(
   enabled = true,
 ): ResourceOptions<T> {
   const [attempt, setAttempt] = useState(0)
-  // A identidade inclui desativação/reativação; resultados de uma leitura anterior não são reutilizados.
+
   const request = useMemo(
     () => ({ loader, fallbackError, enabled, attempt }),
     [loader, fallbackError, enabled, attempt],

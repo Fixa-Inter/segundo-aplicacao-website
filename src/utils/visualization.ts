@@ -1,205 +1,232 @@
+import { visualizationGroupKey } from './chartData.ts'
 import type { ManuVisualization } from '../types/visualization'
 
-const object = (v: unknown): v is Record<string, unknown> =>
-  !!v && typeof v === 'object' && !Array.isArray(v)
-const number = (v: unknown): v is number =>
-  typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= Number.MAX_SAFE_INTEGER
-const count = (v: unknown): v is number => number(v) && Number.isSafeInteger(v) && v >= 0
-const text = (v: unknown): v is string =>
-  typeof v === 'string' && v.trim().length > 0 && v.length <= 2000
-const date = (v: unknown): v is string =>
-  typeof v === 'string' &&
-  /^\d{4}-\d{2}-\d{2}$/.test(v) &&
-  !Number.isNaN(Date.parse(v)) &&
-  new Date(v).toISOString().slice(0, 10) === v
-const range = (v: unknown): v is { inicio: string; fim: string } =>
-  object(v) && date(v.inicio) && date(v.fim) && v.inicio < v.fim
-const group = (v: unknown) =>
-  object(v) &&
-  Object.keys(v).length <= 20 &&
-  Object.values(v).every(
+const isRecord = (candidate: unknown): candidate is Record<string, unknown> =>
+  !!candidate && typeof candidate === 'object' && !Array.isArray(candidate)
+const isSafeNumber = (candidate: unknown): candidate is number =>
+  typeof candidate === 'number' &&
+  Number.isFinite(candidate) &&
+  Math.abs(candidate) <= Number.MAX_SAFE_INTEGER
+const isCount = (candidate: unknown): candidate is number =>
+  isSafeNumber(candidate) && Number.isSafeInteger(candidate) && candidate >= 0
+const isNonEmptyText = (candidate: unknown): candidate is string =>
+  typeof candidate === 'string' && candidate.trim().length > 0 && candidate.length <= 2000
+const isValidDate = (candidate: unknown): candidate is string =>
+  typeof candidate === 'string' &&
+  /^\d{4}-\d{2}-\d{2}$/.test(candidate) &&
+  !Number.isNaN(Date.parse(candidate)) &&
+  new Date(candidate).toISOString().slice(0, 10) === candidate
+const isDateRange = (candidate: unknown): candidate is { inicio: string; fim: string } =>
+  isRecord(candidate) &&
+  isValidDate(candidate.inicio) &&
+  isValidDate(candidate.fim) &&
+  candidate.inicio < candidate.fim
+const isGroup = (candidate: unknown) =>
+  isRecord(candidate) &&
+  Object.keys(candidate).length <= 20 &&
+  Object.values(candidate).every(
     (x) =>
       x === null ||
       (typeof x === 'string' && x.length <= 1000) ||
-      (number(x) && Number.isSafeInteger(x)),
+      (isSafeNumber(x) && Number.isSafeInteger(x)),
   )
-function base(v: unknown): boolean {
+function isCalculationBase(candidate: unknown): boolean {
   return (
-    v == null ||
-    (object(v) &&
-      count(v.qtd_registros_total) &&
-      count(v.qtd_registros_elegiveis) &&
-      count(v.qtd_tempos_negativos_excluidos ?? 0) &&
-      v.qtd_registros_elegiveis + Number(v.qtd_tempos_negativos_excluidos ?? 0) <=
-        v.qtd_registros_total)
+    candidate == null ||
+    (isRecord(candidate) &&
+      isCount(candidate.qtd_registros_total) &&
+      isCount(candidate.qtd_registros_elegiveis) &&
+      isCount(candidate.qtd_tempos_negativos_excluidos ?? 0) &&
+      candidate.qtd_registros_elegiveis + Number(candidate.qtd_tempos_negativos_excluidos ?? 0) <=
+        candidate.qtd_registros_total)
   )
 }
-function validBaseCount(v: Record<string, unknown>): boolean {
+function validBaseCount(candidate: Record<string, unknown>): boolean {
   return (
-    base(v.base_calculo) &&
-    (v.base_calculo == null ||
-      (object(v.base_calculo) && v.qtd_registros === v.base_calculo.qtd_registros_elegiveis))
+    isCalculationBase(candidate.base_calculo) &&
+    (candidate.base_calculo == null ||
+      (isRecord(candidate.base_calculo) &&
+        candidate.qtd_registros === candidate.base_calculo.qtd_registros_elegiveis))
   )
 }
-function point(v: unknown): v is Record<string, unknown> {
+function isDataPoint(candidate: unknown): candidate is Record<string, unknown> {
   return (
-    object(v) &&
-    group(v.grupo) &&
-    (v.valor === null || (number(v.valor) && v.valor >= 0)) &&
-    count(v.qtd_registros) &&
-    validBaseCount(v) &&
-    (v.base_calculo == null || (v.valor === null) === (v.qtd_registros === 0))
+    isRecord(candidate) &&
+    isGroup(candidate.grupo) &&
+    (candidate.valor === null || (isSafeNumber(candidate.valor) && candidate.valor >= 0)) &&
+    isCount(candidate.qtd_registros) &&
+    validBaseCount(candidate) &&
+    (candidate.base_calculo == null ||
+      (candidate.valor === null) === (candidate.qtd_registros === 0))
   )
 }
-function box(v: unknown, analysis: unknown): boolean {
+function isBoxGroup(candidate: unknown, analysisId: unknown): boolean {
   if (
-    !object(v) ||
-    !group(v.grupo) ||
-    v.analise_id !== analysis ||
-    v.unidade !== 'minutos' ||
-    !count(v.qtd_registros) ||
-    !validBaseCount(v)
+    !isRecord(candidate) ||
+    !isGroup(candidate.grupo) ||
+    candidate.analise_id !== analysisId ||
+    candidate.unidade !== 'minutos' ||
+    !isCount(candidate.qtd_registros) ||
+    !validBaseCount(candidate)
   )
     return false
-  if (v.tipo === 'sem_base')
+  if (candidate.tipo === 'sem_base')
     return (
-      v.qtd_registros === 0 &&
-      object(v.base_calculo) &&
-      Number(v.base_calculo.qtd_registros_total) > 0 &&
-      v.motivo === 'SEM_OBSERVACOES_ELEGIVEIS'
-    )
-  if (!['minimo', 'maximo', 'mediana'].every((k) => number(v[k]) && Number(v[k]) >= 0)) return false
-  if (Number(v.minimo) > Number(v.mediana) || Number(v.mediana) > Number(v.maximo)) return false
-  if (v.tipo === 'resumo')
-    return (
-      v.qtd_registros > 0 &&
-      v.qtd_registros < 5 &&
-      number(v.media) &&
-      v.media >= Number(v.minimo) &&
-      v.media <= Number(v.maximo) &&
-      v.motivo === 'POUCOS_REGISTROS_PARA_BOXPLOT'
+      candidate.qtd_registros === 0 &&
+      isRecord(candidate.base_calculo) &&
+      Number(candidate.base_calculo.qtd_registros_total) > 0 &&
+      candidate.motivo === 'SEM_OBSERVACOES_ELEGIVEIS'
     )
   if (
-    v.tipo !== 'boxplot' ||
-    v.qtd_registros < 5 ||
+    !['minimo', 'maximo', 'mediana'].every(
+      (k) => isSafeNumber(candidate[k]) && Number(candidate[k]) >= 0,
+    )
+  )
+    return false
+  if (
+    Number(candidate.minimo) > Number(candidate.mediana) ||
+    Number(candidate.mediana) > Number(candidate.maximo)
+  )
+    return false
+  if (candidate.tipo === 'resumo')
+    return (
+      candidate.qtd_registros > 0 &&
+      candidate.qtd_registros < 5 &&
+      isSafeNumber(candidate.media) &&
+      candidate.media >= Number(candidate.minimo) &&
+      candidate.media <= Number(candidate.maximo) &&
+      candidate.motivo === 'POUCOS_REGISTROS_PARA_BOXPLOT'
+    )
+  if (
+    candidate.tipo !== 'boxplot' ||
+    candidate.qtd_registros < 5 ||
     !['q1', 'q3', 'limite_inferior', 'limite_superior', 'bigode_inferior', 'bigode_superior'].every(
-      (k) => number(v[k]),
+      (k) => isSafeNumber(candidate[k]),
     )
   )
     return false
   if (!(
-    Number(v.minimo) <= Number(v.q1) &&
-    Number(v.q1) <= Number(v.mediana) &&
-    Number(v.mediana) <= Number(v.q3) &&
-    Number(v.q3) <= Number(v.maximo)
+    Number(candidate.minimo) <= Number(candidate.q1) &&
+    Number(candidate.q1) <= Number(candidate.mediana) &&
+    Number(candidate.mediana) <= Number(candidate.q3) &&
+    Number(candidate.q3) <= Number(candidate.maximo)
   ))
     return false
   if (!(
-    Number(v.minimo) <= Number(v.bigode_inferior) &&
-    Number(v.bigode_inferior) <= Number(v.bigode_superior) &&
-    Number(v.bigode_superior) <= Number(v.maximo) &&
-    Number(v.limite_inferior) <= Number(v.bigode_inferior) &&
-    Number(v.bigode_superior) <= Number(v.limite_superior)
+    Number(candidate.minimo) <= Number(candidate.bigode_inferior) &&
+    Number(candidate.bigode_inferior) <= Number(candidate.bigode_superior) &&
+    Number(candidate.bigode_superior) <= Number(candidate.maximo) &&
+    Number(candidate.limite_inferior) <= Number(candidate.bigode_inferior) &&
+    Number(candidate.bigode_superior) <= Number(candidate.limite_superior)
   ))
     return false
   return (
-    Array.isArray(v.valores_extremos) &&
-    v.valores_extremos.length <= 50 &&
-    v.valores_extremos.every(
+    Array.isArray(candidate.valores_extremos) &&
+    candidate.valores_extremos.length <= 50 &&
+    candidate.valores_extremos.every(
       (x) =>
-        number(x) &&
-        x >= Number(v.minimo) &&
-        x <= Number(v.maximo) &&
-        (x < Number(v.limite_inferior) || x > Number(v.limite_superior)),
+        isSafeNumber(x) &&
+        x >= Number(candidate.minimo) &&
+        x <= Number(candidate.maximo) &&
+        (x < Number(candidate.limite_inferior) || x > Number(candidate.limite_superior)),
     ) &&
-    count(v.qtd_extremos_total) &&
-    count(v.qtd_extremos_omitidos) &&
-    v.valores_extremos.length + v.qtd_extremos_omitidos === v.qtd_extremos_total &&
-    v.qtd_extremos_total <= v.qtd_registros
+    isCount(candidate.qtd_extremos_total) &&
+    isCount(candidate.qtd_extremos_omitidos) &&
+    candidate.valores_extremos.length + candidate.qtd_extremos_omitidos ===
+      candidate.qtd_extremos_total &&
+    candidate.qtd_extremos_total <= candidate.qtd_registros
   )
 }
 
-// O contrato contém dados, nunca JSX, HTML ou opções executáveis vindas do modelo.
-// Rejeita resultados inconsistentes sem impedir a leitura do texto da mensagem.
 export function decodeVisualization(
   value: unknown,
   unitId: number | null,
 ): ManuVisualization | null {
   try {
     if (
-      !object(value) ||
+      !isRecord(value) ||
       JSON.stringify(value).length > 256 * 1024 ||
       value.versao_contrato !== '1.0' ||
-      !text(value.visualizacao_id) ||
-      !text(value.titulo) ||
+      !isNonEmptyText(value.visualizacao_id) ||
+      !isNonEmptyText(value.titulo) ||
       !['SUCESSO', 'SUCESSO_PARCIAL'].includes(String(value.status))
     )
       return null
-    const meta = value.metadados,
-      data = value.dados
+    const metadata = value.metadados
+    const chartData = value.dados
     if (
-      !object(meta) ||
-      !object(data) ||
-      !count(meta.unidade_id) ||
-      meta.unidade_id === 0 ||
-      meta.unidade_id !== unitId ||
-      !/^VIS-\d{2}$/.test(String(meta.analise_id)) ||
-      !['quantidade', 'minutos', 'percentual'].includes(String(meta.unidade_medida)) ||
-      !count(meta.qtd_registros_considerados) ||
-      !base(meta.base_calculo) ||
-      (object(meta.base_calculo) &&
-        meta.qtd_registros_considerados !== meta.base_calculo.qtd_registros_elegiveis) ||
-      typeof meta.consultado_em !== 'string' ||
-      !/(Z|[+-]\d{2}:\d{2})$/.test(meta.consultado_em) ||
-      Number.isNaN(Date.parse(meta.consultado_em))
+      !isRecord(metadata) ||
+      !isRecord(chartData) ||
+      !isCount(metadata.unidade_id) ||
+      metadata.unidade_id === 0 ||
+      metadata.unidade_id !== unitId ||
+      !/^VIS-\d{2}$/.test(String(metadata.analise_id)) ||
+      !['quantidade', 'minutos', 'percentual'].includes(String(metadata.unidade_medida)) ||
+      !isCount(metadata.qtd_registros_considerados) ||
+      !isCalculationBase(metadata.base_calculo) ||
+      (isRecord(metadata.base_calculo) &&
+        metadata.qtd_registros_considerados !== metadata.base_calculo.qtd_registros_elegiveis) ||
+      typeof metadata.consultado_em !== 'string' ||
+      !/(Z|[+-]\d{2}:\d{2})$/.test(metadata.consultado_em) ||
+      Number.isNaN(Date.parse(metadata.consultado_em))
     )
       return null
     if (
-      (meta.periodo != null && !range(meta.periodo)) ||
-      (meta.periodo != null && meta.instante_snapshot != null) ||
-      (meta.escala_percentual != null && meta.escala_percentual !== 100) ||
-      !object(meta.filtros)
+      (metadata.periodo != null && !isDateRange(metadata.periodo)) ||
+      (metadata.periodo != null && metadata.instante_snapshot != null) ||
+      (metadata.escala_percentual != null && metadata.escala_percentual !== 100) ||
+      !isRecord(metadata.filtros)
     )
       return null
-    if (!Array.isArray(value.avisos) || value.avisos.length > 100 || !value.avisos.every(text))
+    if (
+      !Array.isArray(value.avisos) ||
+      value.avisos.length > 100 ||
+      !value.avisos.every(isNonEmptyText)
+    )
       return null
-    if (data.tipo === 'categorias' || data.tipo === 'serie_temporal') {
+    if (chartData.tipo === 'categorias' || chartData.tipo === 'serie_temporal') {
       if (
-        !Array.isArray(data.pontos) ||
-        !data.pontos.length ||
-        data.pontos.length > (data.tipo === 'categorias' ? 50 : 500) ||
-        !data.pontos.every(point)
+        !Array.isArray(chartData.pontos) ||
+        !chartData.pontos.length ||
+        chartData.pontos.length > (chartData.tipo === 'categorias' ? 50 : 500) ||
+        !chartData.pontos.every(isDataPoint)
       )
         return null
       if (
-        meta.unidade_medida === 'percentual' &&
-        data.pontos.some((p) => p.valor !== null && Number(p.valor) > 100)
+        metadata.unidade_medida === 'percentual' &&
+        chartData.pontos.some((p) => p.valor !== null && Number(p.valor) > 100)
       )
         return null
-      const identities = data.pontos.map(
+      const pointKeys = chartData.pontos.map(
         (p) =>
           JSON.stringify(Object.entries(p.grupo as Record<string, unknown>).sort()) +
-          (data.tipo === 'serie_temporal' ? String(p.data_referencia) : ''),
+          (chartData.tipo === 'serie_temporal' ? String(p.data_referencia) : ''),
       )
-      if (new Set(identities).size !== identities.length) return null
-      if (data.tipo === 'serie_temporal') {
-        if (!range(meta.periodo) || !['dia', 'semana', 'mes'].includes(String(meta.granularidade)))
-          return null
-        const scope = meta.periodo
+      if (new Set(pointKeys).size !== pointKeys.length) return null
+      if (chartData.tipo === 'serie_temporal') {
         if (
-          data.pontos.some((p) => {
-            if (!date(p.data_referencia)) return true
+          !isDateRange(metadata.periodo) ||
+          !['dia', 'semana', 'mes'].includes(String(metadata.granularidade))
+        )
+          return null
+        const selectedPeriod = metadata.periodo
+        if (
+          chartData.pontos.some((p) => {
+            if (!isValidDate(p.data_referencia)) return true
             if (p.periodo == null)
-              return p.data_referencia < scope.inicio || p.data_referencia >= scope.fim
+              return (
+                p.data_referencia < selectedPeriod.inicio || p.data_referencia >= selectedPeriod.fim
+              )
             const period = p.periodo
             return (
-              !object(period) ||
-              !range(period.calendario) ||
-              !range(period.consultado) ||
+              !isRecord(period) ||
+              !isDateRange(period.calendario) ||
+              !isDateRange(period.consultado) ||
               typeof period.parcial !== 'boolean' ||
               p.data_referencia !== period.calendario.inicio ||
-              period.consultado.inicio !== [scope.inicio, period.calendario.inicio].sort().at(-1) ||
-              period.consultado.fim !== [scope.fim, period.calendario.fim].sort()[0] ||
+              period.consultado.inicio !==
+                [selectedPeriod.inicio, period.calendario.inicio].sort().at(-1) ||
+              period.consultado.fim !== [selectedPeriod.fim, period.calendario.fim].sort()[0] ||
               period.parcial !==
                 (period.calendario.inicio !== period.consultado.inicio ||
                   period.calendario.fim !== period.consultado.fim)
@@ -208,40 +235,51 @@ export function decodeVisualization(
         )
           return null
       }
-    } else if (data.tipo === 'histograma') {
+    } else if (chartData.tipo === 'histograma') {
       if (
-        !count(data.qtd_registros) ||
-        data.qtd_registros === 0 ||
-        !Array.isArray(data.intervalos) ||
-        !data.intervalos.length ||
-        data.intervalos.length > 10
+        !isCount(chartData.qtd_registros) ||
+        chartData.qtd_registros === 0 ||
+        !Array.isArray(chartData.intervalos) ||
+        !chartData.intervalos.length ||
+        chartData.intervalos.length > 10
       )
         return null
       if (
-        data.intervalos.some(
+        chartData.intervalos.some(
           (b, i, bins) =>
-            !object(b) ||
-            !number(b.inferior) ||
-            !number(b.superior) ||
+            !isRecord(b) ||
+            !isSafeNumber(b.inferior) ||
+            !isSafeNumber(b.superior) ||
             b.inferior < 0 ||
             b.inferior > b.superior ||
-            !count(b.frequencia) ||
+            !isCount(b.frequencia) ||
             typeof b.inclui_superior !== 'boolean' ||
             (i > 0 && Number(bins[i - 1].superior) > b.inferior),
         )
       )
         return null
-      if (data.intervalos.reduce((sum, b) => sum + Number(b.frequencia), 0) !== data.qtd_registros)
-        return null
-    } else if (data.tipo === 'boxplot') {
       if (
-        !Array.isArray(data.grupos) ||
-        !data.grupos.length ||
-        data.grupos.length > 50 ||
-        !data.grupos.every((g) => box(g, meta.analise_id)) ||
-        data.grupos.reduce((n, g) => n + (g.valores_extremos?.length ?? 0), 0) > 500
+        chartData.intervalos.reduce((sum, b) => sum + Number(b.frequencia), 0) !==
+        chartData.qtd_registros
       )
         return null
+      const binKeys = chartData.intervalos.map(
+        (b) => `${b.inferior}:${b.superior}:${b.inclui_superior}`,
+      )
+      if (new Set(binKeys).size !== binKeys.length) return null
+    } else if (chartData.tipo === 'boxplot') {
+      if (
+        !Array.isArray(chartData.grupos) ||
+        !chartData.grupos.length ||
+        chartData.grupos.length > 50 ||
+        !chartData.grupos.every((g) => isBoxGroup(g, metadata.analise_id)) ||
+        chartData.grupos.reduce((n, g) => n + (g.valores_extremos?.length ?? 0), 0) > 500
+      )
+        return null
+      const groupKeys = chartData.grupos.map((g) =>
+        visualizationGroupKey(g.grupo as Record<string, unknown>),
+      )
+      if (new Set(groupKeys).size !== groupKeys.length) return null
     } else return null
     return structuredClone(value) as unknown as ManuVisualization
   } catch {
@@ -256,7 +294,9 @@ export function visualizationGroupLabel(
 ): string {
   return (
     Object.values(group)
-      .map((v) => (v === null ? unknownLabel : String(v).replaceAll('_', ' ')))
+      .map((candidate) =>
+        candidate === null ? unknownLabel : String(candidate).replaceAll('_', ' '),
+      )
       .join(' · ') || empty
   )
 }

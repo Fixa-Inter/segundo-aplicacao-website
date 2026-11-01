@@ -41,7 +41,15 @@
   font: inherit;
   cursor: pointer;
 }
-.root > p {
-  margin: 0 0 8px;
-  font-size: 14px;
+.loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  background: var(--fixa-home-panel);
+  border-radius: 16px;
+}
+.loading > div {
+  min-height: 0;
 }

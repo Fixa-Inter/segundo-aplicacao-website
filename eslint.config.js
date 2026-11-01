@@ -4,7 +4,6 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
-
 export default defineConfig([
   globalIgnores(['dist', 'dev.local']),
   {
@@ -13,7 +12,7 @@ export default defineConfig([
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['src/components/**/*.{ts,tsx}'],
+    files: ['src/components/**/*.{ts,tsx}', 'src/pages/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
         'error',

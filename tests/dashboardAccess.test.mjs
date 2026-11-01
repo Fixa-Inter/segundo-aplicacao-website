@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { decodeDashboardAccess, createDashboardService } from '../src/services/dashboardService.ts'
 import { createHttpClient } from '../src/services/httpClient.ts'
+
 const access = {
   instanceUrl: 'https://qa.cloud.databricks.com/',
   workspaceId: '123',

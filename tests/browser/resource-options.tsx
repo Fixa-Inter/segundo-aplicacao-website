@@ -4,6 +4,7 @@ import { flushSync } from 'react-dom'
 import { useResourceOptions } from '../../src/hooks/useResourceOptions'
 import { useTechnicianCompetencies } from '../../src/hooks/useTechnicianCompetencies'
 import { api as managementApi } from '../../src/services/api'
+
 managementApi.setTokens({ token: 'browser-test-only', refreshToken: 'browser-test-refresh' })
 
 type LoaderKey = 'first' | 'second' | 'throws'

@@ -138,9 +138,6 @@
   .schedule {
     grid-template-columns: minmax(0, 1fr);
   }
-  .name {
-    grid-column: auto;
-  }
   .form {
     --label-size: 16px;
     --field-height: 52px;

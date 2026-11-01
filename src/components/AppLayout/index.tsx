@@ -1,16 +1,18 @@
-import { usePreferences } from '../../contexts/usePreferences'
-import { UnsavedChangesProvider } from '../../contexts/UnsavedChangesContext'
-import { useUnsavedChanges } from '../../contexts/useUnsavedChanges'
-import { useEffect, useRef, useState } from 'react'
 import { Drawer } from '@mantine/core'
-import { FigmaIcon } from '../FigmaIcon'
-import { ConfirmDialog } from '../ConfirmDialog'
 import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Brand } from '../Brand'
 import avatar from '../../assets/figma/avatar.png'
+import { UnsavedChangesProvider } from '../../contexts/UnsavedChangesContext'
 import { useAuth } from '../../contexts/useAuth'
+import { usePreferences } from '../../contexts/usePreferences'
+import { useUnsavedChanges } from '../../contexts/useUnsavedChanges'
 import type { NavigationProps } from '../../types/ui'
+import { Brand } from '../Brand'
+import { AppFooter } from '../AppFooter'
+import { ConfirmDialog } from '../ConfirmDialog'
+import { FigmaIcon } from '../FigmaIcon'
+import { LoadingState } from '../LoadingState'
 import styles from './AppLayout.module.css'
 
 const links = [
@@ -136,6 +138,9 @@ function Layout() {
               type="button"
               onClick={() => setMenuOpen(true)}
               aria-label={t('Abrir menu')}
+              aria-expanded={menuOpen}
+              aria-controls={menuOpen ? 'mobile-navigation' : undefined}
+              aria-haspopup="dialog"
             >
               <Menu />
             </button>
@@ -156,8 +161,11 @@ function Layout() {
           </div>
         </header>
         <main ref={mainRef} id="conteudo" tabIndex={-1} className={styles.main}>
-          <Outlet />
+          <Suspense fallback={<LoadingState />}>
+            <Outlet />
+          </Suspense>
         </main>
+        <AppFooter />
       </div>
       <Drawer
         closeButtonProps={{ 'aria-label': t('Fechar menu') }}
@@ -167,7 +175,9 @@ function Layout() {
         size={280}
         classNames={{ body: styles.drawerBody }}
       >
-        <Navigation onNavigate={closeMenu} onLogout={openLogout} />
+        <div id="mobile-navigation">
+          <Navigation onNavigate={closeMenu} onLogout={openLogout} />
+        </div>
       </Drawer>
       <ConfirmDialog
         opened={logoutOpen}

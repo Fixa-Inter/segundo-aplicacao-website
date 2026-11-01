@@ -1,8 +1,9 @@
-import type { ManagementClient } from '../../types/api/shared'
 import type { ApiGrade } from '../../types/api/competencies'
+import type { ManagementClient } from '../../types/api/shared'
 import type { CompetencyInput, TechnicianCompetency } from '../../types/competency'
 import { categoryId, categoryNames, grades } from '../../utils/apiCompetencies.ts'
 import { validateCompetency } from '../../utils/competencies.ts'
+
 export function createCompetencyService(client: ManagementClient) {
   const request = client.request
   const rawGrades = (id: string, signal?: AbortSignal): Promise<ApiGrade[]> =>

@@ -1,9 +1,10 @@
-import type { ManagementClient, ManagementSession } from '../../types/api/shared'
 import type { ApiEvent } from '../../types/api/events'
+import type { ManagementClient, ManagementSession } from '../../types/api/shared'
 import type { CalendarEvent, CalendarEventInput } from '../../types/management'
 import { event } from '../../utils/apiEvents.ts'
 import { validateEvent } from '../../utils/apiValidation.ts'
 import { check } from '../../utils/validationErrors.ts'
+
 export function createEventService(client: ManagementClient, user: ManagementSession) {
   const request = client.request
   async function listEvents(): Promise<CalendarEvent[]> {

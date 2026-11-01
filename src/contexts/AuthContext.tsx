@@ -1,26 +1,13 @@
 import { useEffect, useReducer } from 'react'
-import type { AuthProviderProps } from '../types/ui'
-import { login as loginApi, logout as logoutApi, restoreSession } from '../services/authService'
 import { api } from '../services/api'
-import type { AuthAction, AuthState, LoginCredentials } from '../types/auth'
+import { login as loginApi, logout as logoutApi, restoreSession } from '../services/authService'
+import type { LoginCredentials } from '../types/auth'
+import { authReducer, initialAuthState } from '../utils/authReducer'
+import type { AuthProviderProps } from '../types/ui'
 import { AuthContext } from './authContextValue'
-const empty: AuthState = { user: null, loading: false, error: null }
-function reducer(state: AuthState, action: AuthAction): AuthState {
-  switch (action.type) {
-    case 'LOGIN_START':
-      return { ...state, loading: true, error: null }
-    case 'LOGIN_SUCCESS':
-      return { user: action.user, loading: false, error: null }
-    case 'LOGIN_ERROR':
-      return { user: null, loading: false, error: action.error }
-    case 'LOGOUT':
-      return empty
-    case 'UPDATE_NAME':
-      return { ...state, user: state.user ? { ...state.user, name: action.name } : null }
-  }
-}
+
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, dispatch] = useReducer(reducer, { ...empty, loading: true })
+  const [state, dispatch] = useReducer(authReducer, initialAuthState)
   useEffect(() => {
     let active = true
     const unsubscribe = api.onExpired(() => dispatch({ type: 'LOGOUT' }))
@@ -65,7 +52,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     dispatch({ type: 'UPDATE_NAME', name })
   }
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, updateName }}>
+    <AuthContext.Provider
+      value={{
+        user: state.user,
+        loading: state.status === 'checking' || state.status === 'signing-in',
+        error: state.error,
+        login,
+        logout,
+        updateName,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

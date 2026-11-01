@@ -10,7 +10,6 @@ function isValidPhone(value: string): boolean {
   return /^[\d\s()+-]+$/.test(value) && /^\d{10,11}$/.test(value.replace(/\D/g, ''))
 }
 
-// Regra provisória informada pelo grupo; confirmar com o contrato de autenticação.
 export function validateDemoPassword(password: string): string | undefined {
   if (
     password.length < 8 ||

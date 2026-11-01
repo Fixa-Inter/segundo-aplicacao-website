@@ -1,7 +1,14 @@
 import type { Language } from '../types/preferences'
 
-// A chave em português mantém os textos próximos dos componentes e do protótipo.
 const messages: Record<string, readonly [string, string, string]> = {
+  'Voltar à equipe': ['Back to the team', 'Volver al equipo', '返回团队'],
+  'Pessoa não encontrada': ['Person not found', 'Persona no encontrada', '未找到此人员'],
+  'Este cadastro não está disponível na sua equipe.': [
+    'This person is not available in your team.',
+    'Esta persona no está disponible en tu equipo.',
+    '您的团队中没有此人员。',
+  ],
+  'Carregando sessão…': ['Loading session…', 'Cargando sesión…', '正在加载会话…'],
   'Não foi possível carregar o dashboard da sua unidade.': [
     'Your location’s dashboard could not be loaded.',
     'No se pudo cargar el dashboard de tu unidad.',
@@ -21,6 +28,7 @@ const messages: Record<string, readonly [string, string, string]> = {
   Frequência: ['Frequency', 'Frecuencia', '频数'],
   Quartis: ['Quartiles', 'Cuartiles', '四分位数'],
   'Ver dados do gráfico': ['View chart data', 'Ver datos del gráfico', '查看图表数据'],
+  'Dados da resposta': ['Response data', 'Datos de la respuesta', '回复数据'],
   'Dados do gráfico': ['Chart data', 'Datos del gráfico', '图表数据'],
   'Base elegível / total': ['Eligible / total', 'Elegibles / total', '有效记录 / 总记录'],
   'Período consultado': ['Selected period', 'Período consultado', '查询时段'],

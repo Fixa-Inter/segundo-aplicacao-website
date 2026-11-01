@@ -1,4 +1,3 @@
-// Escala iniciada em zero, com intervalos legíveis e espaço para o maior valor.
 export function chartScale(maximum: number, integers = false) {
   if (!Number.isFinite(maximum) || maximum < 0) {
     throw new Error('O limite do gráfico deve ser finito e não negativo.')

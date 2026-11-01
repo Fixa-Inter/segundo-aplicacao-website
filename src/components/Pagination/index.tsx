@@ -1,6 +1,6 @@
 import { usePreferences } from '../../contexts/usePreferences'
-import { FigmaIcon } from '../FigmaIcon'
 import type { PaginationProps } from '../../types/ui'
+import { FigmaIcon } from '../FigmaIcon'
 import styles from './Pagination.module.css'
 
 export function Pagination({ page, total, onChange }: PaginationProps) {

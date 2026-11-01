@@ -1,5 +1,6 @@
-import type { User } from '../types/auth'
 import type { ManagementSession } from '../types/api/shared'
+import type { User } from '../types/auth'
+
 export function createManagementSession(getUser: () => User | null): ManagementSession {
   return () => {
     const value = getUser()

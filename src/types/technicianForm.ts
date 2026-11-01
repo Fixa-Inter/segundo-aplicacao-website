@@ -1,6 +1,6 @@
 import type { FormEvent, RefObject } from 'react'
-import type { Address, TechnicianInput, ShiftOption, WorkUnitOption } from './management'
 import type { CompetencyInput } from './competency'
+import type { Address, ShiftOption, TechnicianInput, WorkUnitOption } from './management'
 
 export interface TechnicianSubmission {
   input: TechnicianInput

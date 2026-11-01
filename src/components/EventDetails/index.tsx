@@ -1,7 +1,7 @@
 import { Modal } from '@mantine/core'
 import { usePreferences } from '../../contexts/usePreferences'
-import { FigmaIcon } from '../FigmaIcon'
 import type { EventDetailsProps } from '../../types/ui'
+import { FigmaIcon } from '../FigmaIcon'
 import styles from './EventDetails.module.css'
 
 export function EventDetails({ event, onClose }: EventDetailsProps) {

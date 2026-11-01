@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { useState } from 'react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies'
 import type { TechnicianCompetenciesProps } from '../../types/competency'
