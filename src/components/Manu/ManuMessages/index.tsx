@@ -5,6 +5,7 @@ import { LoadingState } from '../../LoadingState'
 import { ManuThinking } from '../../ManuThinking'
 import styles from '../Manu.module.css'
 import { ManuProposal } from '../ManuProposal'
+import { ManuResponse } from '../ManuResponse'
 
 const ManuChart = lazy(() =>
   import('../../ManuChart').then((module) => ({ default: module.ManuChart })),
@@ -48,7 +49,11 @@ export function ManuMessages({ chat }: ManuViewProps) {
                         : 'Manu',
                   )}
                 </strong>
-                <p>{message.text}</p>
+                {message.author === 'manu' ? (
+                  <ManuResponse text={message.text} />
+                ) : (
+                  <p>{message.text}</p>
+                )}
                 {message.visualization && (
                   <Suspense fallback={<LoadingState compact label="Carregando gráfico…" />}>
                     <ManuChart visualization={message.visualization} />

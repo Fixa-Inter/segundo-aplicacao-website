@@ -163,7 +163,7 @@
   padding: 12px 16px;
   border-radius: 16px;
 }
-.bubble p {
+.bubble > p {
   margin: 5px 0 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -390,7 +390,7 @@
 .userRow .bubble {
   max-width: 82%;
 }
-.messageRow .bubble p {
+.messageRow .bubble > p {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }

@@ -28,6 +28,7 @@ const messages: Record<string, readonly [string, string, string]> = {
   Frequência: ['Frequency', 'Frecuencia', '频数'],
   Quartis: ['Quartiles', 'Cuartiles', '四分位数'],
   'Ver dados do gráfico': ['View chart data', 'Ver datos del gráfico', '查看图表数据'],
+  'Dados da resposta': ['Response data', 'Datos de la respuesta', '回复数据'],
   'Dados do gráfico': ['Chart data', 'Datos del gráfico', '图表数据'],
   'Base elegível / total': ['Eligible / total', 'Elegibles / total', '有效记录 / 总记录'],
   'Período consultado': ['Selected period', 'Período consultado', '查询时段'],
