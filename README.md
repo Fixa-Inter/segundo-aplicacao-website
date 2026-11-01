@@ -2,7 +2,7 @@
 
 Aplicação de gestão de manutenção em React 19, TypeScript e Vite. Repositório: [Fixa-Inter/segundo-aplicacao-website](https://github.com/Fixa-Inter/segundo-aplicacao-website).
 
-**Publicação:** ainda sem URL pública confirmada. A implantação na Vercel deve usar a versão promovida para `main` após revisão e homologação.
+**Web publicada:** [segundo-aplicacao-website.vercel.app](https://segundo-aplicacao-website.vercel.app/login). A implantação usa a versão promovida para `main` após revisão e homologação.
 
 ## Executar
 
@@ -90,7 +90,7 @@ Os cenários interceptam as APIs com dados controlados, incluindo falhas e outro
 2. Importar o repositório da organização com branch de produção `main` e raiz `./`.
 3. Usar Vite, Node.js 24, instalação `npm ci`, build `npm run build` e saída `dist`, definidos no projeto.
 4. Configurar as variáveis públicas acima em Preview e Production. O proxy e o retorno das rotas para `index.html` estão em [vercel.json](vercel.json).
-5. Publicar, testar rotas diretas/recarregamento e serviços, autorizar a origem necessária na API/Databricks e incluir a URL pública neste README.
+5. Publicar e conferir rotas diretas/recarregamento e serviços. Autorizar a origem necessária na API/Databricks quando aplicável; o endereço publicado está no início deste README.
 
 Com a integração Git ativa, atualizações aprovadas de `main` geram novas publicações. A configuração local não comprova uma implantação.
 
@@ -102,6 +102,6 @@ Com a integração Git ativa, atualizações aprovadas de `main` geram novas pub
 
 Na conferência de 01/11/2026, o login de Gestor e RH respondeu 200; `GET /api/v1/dashboard/embed` respondeu 502 para ambos. A Web trata a falha sem abrir um dashboard sem restrição. A homologação real do BI depende da correção no serviço de acesso ao Databricks.
 
-Publicação pública e demonstrações presenciais de Profiler/leitor de tela permanecem pendentes. Testes automáticos não certificam acessibilidade integral nem aprovação acadêmica.
+A Web já está publicada. As demonstrações presenciais de Profiler/leitor de tela permanecem pendentes. Testes automáticos não certificam acessibilidade integral nem aprovação acadêmica.
 
 Siga [CONTRIBUTING.md](CONTRIBUTING.md) e [AGENTS.md](AGENTS.md). `node_modules`, `dist`, `.env*` locais, arquivos de desenvolvimento e relatórios gerados ficam fora do Git/publicação. Os relatórios antigos foram preservados no histórico e em uma cópia local ignorada; a entrega mantém somente a documentação atual e evidências selecionadas.

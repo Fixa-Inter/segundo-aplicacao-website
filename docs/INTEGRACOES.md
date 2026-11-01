@@ -44,4 +44,4 @@ Em 01/11/2026 às 19h00 de São Paulo, o teste real de leitura registrou login 2
 
 ## Publicação
 
-A origem pública ainda não foi confirmada. Depois do deploy, validar as regras do proxy, CORS quando houver chamadas diretas e domínios aprovados no Databricks. `APP_CORS_ALLOWED_ORIGINS` pertence ao backend; seu valor deve considerar a origem exata quando aplicável. Nunca usar segredo do service principal, JWT_SECRET ou credenciais de banco como variável `VITE_*`.
+A origem pública da Web é `https://segundo-aplicacao-website.vercel.app`. Validar as regras do proxy, CORS quando houver chamadas diretas e domínios aprovados no Databricks ao configurar ou mudar a implantação. `APP_CORS_ALLOWED_ORIGINS` pertence ao backend; seu valor deve considerar a origem exata quando aplicável. Nunca usar segredo do service principal, JWT_SECRET ou credenciais de banco como variável `VITE_*`.
