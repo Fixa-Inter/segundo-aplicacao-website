@@ -36,7 +36,7 @@ Consulte a [matriz de DAD](MATRIZ_REQUISITOS.md) e o [relatório com resultados 
 - Explicar o estado agrupado e atualizações imutáveis; apontar efeito, dependências e cancelamento pelo AbortController.
 - Mostrar keys de IDs nas listas dinâmicas; distinguir os índices de listas estáticas.
 - Abrir um build de produção em janela limpa e a aba Network: observar chunks de páginas apenas ao navegar. Os testes desta rodada já observaram seis carregamentos distintos.
-- Mostrar AuthContext, Provider e hook de consumo; justificar prop drilling e reducer com casos reais. AuthState ainda não é union.
+- Mostrar AuthContext, Provider e hook de consumo; justificar prop drilling e reducer com casos reais. State e Action já são unions; apontar as transições explícitas em src/utils/authReducer.ts.
 - Demonstrar no Profiler qualquer benefício atribuído a useMemo/useCallback; medição ainda pendente.
 - Percorrer login, edição, descarte, abas, filtro e menu móvel sem mouse. Conferir anel de foco, contenção em diálogo e retorno ao acionador.
 - Executar NVDA/VoiceOver com landmarks e iframes; esse ensaio não foi realizado nesta rodada.

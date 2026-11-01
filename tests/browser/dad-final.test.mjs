@@ -3,11 +3,17 @@ import assert from 'node:assert/strict'
 import { pathToFileURL } from 'node:url'
 import { managementFixture } from './management-fixture.mjs'
 
-const { chromium } = await import(pathToFileURL(process.env.FIXA_PLAYWRIGHT_MODULE).href)
+const modulePath = process.env.FIXA_PLAYWRIGHT_MODULE
+const { chromium } = await import(modulePath ? pathToFileURL(modulePath).href : 'playwright')
 const base = process.env.FIXA_TEST_BASE_URL || 'http://localhost:5173'
 let browser
 before(async () => {
-  browser = await chromium.launch({ channel: 'msedge', headless: true })
+  browser = await chromium.launch({
+    channel:
+      process.env.FIXA_TEST_BROWSER_CHANNEL ||
+      (process.platform === 'win32' ? 'msedge' : undefined),
+    headless: true,
+  })
 })
 after(async () => {
   await browser?.close()

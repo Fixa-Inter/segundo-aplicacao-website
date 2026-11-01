@@ -139,7 +139,7 @@ function Layout() {
               onClick={() => setMenuOpen(true)}
               aria-label={t('Abrir menu')}
               aria-expanded={menuOpen}
-              aria-controls="mobile-navigation"
+              aria-controls={menuOpen ? 'mobile-navigation' : undefined}
               aria-haspopup="dialog"
             >
               <Menu />

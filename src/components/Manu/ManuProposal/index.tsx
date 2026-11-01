@@ -23,7 +23,7 @@ export function ManuProposal({ chat }: ManuViewProps) {
             disabled={busy}
             ref={rejectButton}
             aria-expanded={correcting}
-            aria-controls={correctionId}
+            aria-controls={correcting ? correctionId : undefined}
             onClick={() => setCorrecting(true)}
           >
             {t('Não')}
