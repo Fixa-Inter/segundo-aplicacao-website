@@ -4,7 +4,9 @@ Frontend de gestão de manutenção em React 19, TypeScript e Vite. Repositório
 
 ## Validação atual
 
-A [validação de DAD de 26/10/2026](docs/VALIDACAO_DAD_2026-10-26.md) registra 114 testes aprovados, 72 cenários de acessibilidade automatizada sem violações detectadas após correções e 28 visitas com API Web real. Consulte a [matriz atual](docs/MATRIZ_REQUISITOS.md) e o [roteiro de apresentação](docs/ROTEIRO_DAD.md). Há pendências; esses resultados não certificam WCAG integral nem todos os critérios de DAD.
+A [auditoria do PDF da entrega final de 02/11](docs/AUDITORIA_DAD_FINAL_2026-11-01.md), realizada em 01/11, é o parecer mais recente de DAD: 161 testes aprovados, 42 cenários de acessibilidade e pendências explícitas de rotas parametrizadas, preferências versionadas, organização, contraste, publicação e demonstração. Ela substitui as conclusões de conformidade dos registros anteriores para o código atual.
+
+O registro histórico da [validação de DAD de 26/10/2026](docs/VALIDACAO_DAD_2026-10-26.md) registra 114 testes aprovados, 72 cenários de acessibilidade automatizada sem violações detectadas após correções e 28 visitas com API Web real. Consulte a [matriz de 27/10](docs/MATRIZ_REQUISITOS.md) e o [roteiro de apresentação](docs/ROTEIRO_DAD.md). Há pendências; esses resultados não certificam WCAG integral nem todos os critérios de DAD.
 
 **URL pública da Web: não confirmada.** O teste atual usa http://localhost:5173. Em 27/10, a [conferência da Manu na AWS](docs/IA_AWS_2026-10-27.md) aprovou histórico, chat e encerramento para Gestor e RH (200), sem reproduzir o antigo 403. A integração de 31/10 usa o token por unidade emitido pela API Web e o SDK Databricks; a homologação real do BI depende de resolver o 502 registrado abaixo. Os registros datados abaixo preservam resultados históricos.
 
@@ -85,7 +87,6 @@ A configuração atual aponta para a AWS. Na verificação real de 25/10/2026 à
 
 A [integração de gráficos e unidade de 31/10/2026](docs/GRAFICOS_UNIDADE_2026-10-31.md) registra o contrato atual, os testes Recharts, a validação real da Manu e as pendências externas. Os registros anteriores abaixo preservam suas datas; não representam o estado mais recente do BI.
 
-
 | Fluxo                 | Comportamento                                                                                                                                                                          |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Login/sessão          | CNPJ, e-mail e senha enviados à API; Bearer, renovação de token e logout; restauração da sessão da aba validada no servidor                                                            |
@@ -94,7 +95,7 @@ A [integração de gráficos e unidade de 31/10/2026](docs/GRAFICOS_UNIDADE_2026
 | Calendário/Home       | Eventos reais; local cadastrado, descrição, datas de início/fim e responsável; criação, edição e exclusão                                                                              |
 | Perfil                | Consulta e edição de nome, e-mail e nascimento; demais campos somente quando fornecidos pelo contrato                                                                                  |
 | Senha                 | Solicitação de e-mail e confirmação com código recebido + nova senha; troca autenticada da senha atual                                                                                 |
-| Dashboard             | SDK Databricks com token por unidade emitido pela API Web; Home e desempenho individual preservam seus widgets. Falha de autorização não abre o dashboard geral.                         |
+| Dashboard             | SDK Databricks com token por unidade emitido pela API Web; Home e desempenho individual preservam seus widgets. Falha de autorização não abre o dashboard geral.                       |
 | Desempenho individual | Iframe de OS criadas por período com filtro pelo nome completo do técnico; depende dos nomes atualizados na base do BI, sem números fictícios.                                         |
 | Manu                  | Chat Bearer pelo proxy da web, 12 emoções, revisão de criação e upload configurável; histórico remoto, títulos do servidor e cache de conversas ativas                                 |
 

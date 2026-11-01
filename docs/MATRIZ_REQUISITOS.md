@@ -1,5 +1,7 @@
 # Matriz de requisitos — FIXA Web
 
+**Registro histórico:** para o código atual e o PDF da entrega final de 02/11/2026, consulte a [auditoria de 01/11](AUDITORIA_DAD_FINAL_2026-11-01.md). As classificações abaixo não substituem a nova conferência.
+
 Atualizada em **27/10/2026** com o PDF “Requisitos por disciplina — Interdisciplinar — Maio2026 (5)”, páginas 6–8. Os IDs M/E abaixo são locais, para rastreabilidade. Esta versão substitui as conclusões antigas de DAD que ainda descreviam autenticação demonstrativa e dados somente em memória.
 
 **Validado** indica a evidência técnica descrita, dentro dos limites do [relatório de validação](VALIDACAO_DAD_2026-10-26.md). **Parcial** indica requisito incompleto ou demonstração restante. **Pendente** indica ausência de evidência suficiente. A nota final e as demonstrações orais pertencem ao avaliador; estes estados não equivalem à aprovação acadêmica.
@@ -46,14 +48,14 @@ A [revisão mobile](MOBILE_RESPONSIVO_2026-10-26.md) acrescenta 13 testes de int
 
 ## Integrações e acesso observados nesta rodada
 
-| Área                  | Resultado atual                                                                                                                                                      |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Login/API Web AWS     | Gestor e RH autenticaram; 28 visitas a sete rotas em desktop/celular sem erro JS, transbordamento ou carregamento preso. Nenhuma escrita operacional real.           |
-| Equipe                | RH com Gestores primeiro e Técnicos em aba separada; Gestor com técnicos. Interações de abas, detalhes, filtro e foco verificadas com respostas controladas.         |
-| Perfil e preferências | Edição/cancelamento/descarte por teclado; idioma e tema persistiram após recarregar no teste real.                                                                   |
+| Área                  | Resultado atual                                                                                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Login/API Web AWS     | Gestor e RH autenticaram; 28 visitas a sete rotas em desktop/celular sem erro JS, transbordamento ou carregamento preso. Nenhuma escrita operacional real.                              |
+| Equipe                | RH com Gestores primeiro e Técnicos em aba separada; Gestor com técnicos. Interações de abas, detalhes, filtro e foco verificadas com respostas controladas.                            |
+| Perfil e preferências | Edição/cancelamento/descarte por teclado; idioma e tema persistiram após recarregar no teste real.                                                                                      |
 | Manu                  | [Conferência real de 27/10](IA_AWS_2026-10-27.md): histórico e chat de Gestor/RH 200; encerramento e resumo aprovados, sem reproduzir o 403. Título curto separado ainda depende da IA. |
-| Databricks            | Home e desempenho individual pediram login no perfil de QA. Sem revalidação autenticada dos gráficos nesta rodada; não classificados como quebrados.                 |
-| Publicação da Web     | Não confirmada; teste realizado no localhost e no build servido localmente.                                                                                          |
+| Databricks            | Home e desempenho individual pediram login no perfil de QA. Sem revalidação autenticada dos gráficos nesta rodada; não classificados como quebrados.                                    |
+| Publicação da Web     | Não confirmada; teste realizado no localhost e no build servido localmente.                                                                                                             |
 
 ## Outras disciplinas e registros anteriores
 

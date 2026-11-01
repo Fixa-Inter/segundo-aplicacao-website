@@ -1,0 +1,712 @@
+{
+  "tool": "axe-core local 4.14.0",
+  "scope": "Interface propria; iframes excluidos; fixtures sem escrita externa",
+  "scenarios": [
+    {
+      "name": "GESTOR-1440-light-/",
+      "url": "/",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 45
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-/equipe",
+      "url": "/equipe",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 2,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-novo-tecnico",
+      "url": "/equipe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 3
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-/calendario",
+      "url": "/calendario",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-/perfil",
+      "url": "/perfil",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-editar-perfil",
+      "url": "/perfil",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-/manu",
+      "url": "/manu",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 2,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-/configuracoes",
+      "url": "/configuracoes",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 1
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-/dashboard",
+      "url": "/dashboard",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-1440-light-modal-sair",
+      "url": "/dashboard",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-/",
+      "url": "/",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 7
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-/equipe",
+      "url": "/equipe",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 2,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-novo-tecnico",
+      "url": "/equipe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 13
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-/calendario",
+      "url": "/calendario",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-/perfil",
+      "url": "/perfil",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-editar-perfil",
+      "url": "/perfil",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-/manu",
+      "url": "/manu",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 2,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-/configuracoes",
+      "url": "/configuracoes",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 1
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-390-light-/dashboard",
+      "url": "/dashboard",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-/",
+      "url": "/",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 7
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-/equipe",
+      "url": "/equipe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 1
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 2,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-novo-tecnico",
+      "url": "/equipe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 7
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-/calendario",
+      "url": "/calendario",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-/perfil",
+      "url": "/perfil",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-editar-perfil",
+      "url": "/perfil",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-/manu",
+      "url": "/manu",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 2,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-/configuracoes",
+      "url": "/configuracoes",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 1
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "GESTOR-390-dark-/dashboard",
+      "url": "/dashboard",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": [
+            {
+              "target": ["p"],
+              "html": "<p>Não foi possível carregar o dashboard da sua unidade.</p>",
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.64 (foreground color: #bdcbe0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-/",
+      "url": "/",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 45
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-/equipe",
+      "url": "/equipe",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 2,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-novo-tecnico",
+      "url": "/equipe",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 8
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-/calendario",
+      "url": "/calendario",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-/perfil",
+      "url": "/perfil",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-editar-perfil",
+      "url": "/perfil",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-/manu",
+      "url": "/manu",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 2,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-/configuracoes",
+      "url": "/configuracoes",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 1
+        }
+      ],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-/dashboard",
+      "url": "/dashboard",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": [
+            {
+              "target": ["p"],
+              "html": "<p>Não foi possível carregar o dashboard da sua unidade.</p>",
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.64 (foreground color: #bdcbe0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "ADMINISTRADOR-1440-dark-modal-sair",
+      "url": "/dashboard",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": [
+            {
+              "target": ["._error_1eph6_27 > p"],
+              "html": "<p>Não foi possível carregar o dashboard da sua unidade.</p>",
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.64 (foreground color: #bdcbe0, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 1,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "anon-/login",
+      "url": "/login",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 0,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "anon-/recuperar-senha",
+      "url": "/recuperar-senha",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 0,
+        "footer": 0
+      },
+      "inputs": []
+    },
+    {
+      "name": "anon-/sobre",
+      "url": "/sobre",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 1,
+        "main": 1,
+        "nav": 0,
+        "footer": 1
+      },
+      "inputs": []
+    },
+    {
+      "name": "anon-/inexistente",
+      "url": "/404",
+      "violations": [],
+      "incomplete": [],
+      "landmarks": {
+        "header": 0,
+        "main": 1,
+        "nav": 0,
+        "footer": 0
+      },
+      "inputs": []
+    }
+  ],
+  "keyboard": [
+    {
+      "name": "GESTOR modal abrir/foco/restaurar",
+      "focusedInside": true,
+      "returned": true
+    },
+    {
+      "name": "abas RH direita",
+      "passed": true
+    },
+    {
+      "name": "abas RH direita",
+      "passed": true
+    },
+    {
+      "name": "ADMINISTRADOR modal abrir/foco/restaurar",
+      "focusedInside": true,
+      "returned": true
+    },
+    {
+      "name": "rota privada sem sessao",
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "summary": {
+    "scenarios": 42,
+    "violationOccurrences": 3,
+    "rules": ["color-contrast"],
+    "incompleteRules": ["color-contrast"],
+    "keyboard": [
+      {
+        "name": "GESTOR modal abrir/foco/restaurar",
+        "focusedInside": true,
+        "returned": true
+      },
+      {
+        "name": "abas RH direita",
+        "passed": true
+      },
+      {
+        "name": "abas RH direita",
+        "passed": true
+      },
+      {
+        "name": "ADMINISTRADOR modal abrir/foco/restaurar",
+        "focusedInside": true,
+        "returned": true
+      },
+      {
+        "name": "rota privada sem sessao",
+        "passed": true
+      }
+    ],
+    "failures": []
+  }
+}
