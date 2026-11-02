@@ -28,7 +28,6 @@ VITE_AI_BASE_URL=/api/ia
 VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
 VITE_CLOUDINARY_FOLDER=
-VITE_DATABRICKS_HOME_WIDGET=a5185eb0~solicitacoes-por-periodo
 VITE_DATABRICKS_TECHNICIAN_WIDGET=37645ca6~os-criadas-por-periodo
 VITE_DATABRICKS_TECHNICIAN_FILTER=f_37645ca6~tecnico1.s
 ```
@@ -36,6 +35,8 @@ VITE_DATABRICKS_TECHNICIAN_FILTER=f_37645ca6~tecnico1.s
 Vite e Vercel encaminham `/api/web` à API Web e `/api/ia` à IA publicadas na AWS. Os valores públicos do Cloudinary precisam ser fornecidos pela equipe. Reinicie o Vite ou gere um novo build após mudar variáveis. `VITE_*` fica acessível ao navegador: credenciais de banco, SMTP, modelos de IA, JWT e service principal pertencem ao backend.
 
 Para usar a API local com Docker, consulte [dev/README.md](dev/README.md). É possível apontar `VITE_API_BASE_URL` diretamente para `http://localhost:8080` ou para a origem HTTPS autorizada; nesse caso, o servidor precisa permitir a origem da Web no CORS.
+
+A Home abre somente o gráfico “Distribuição atual das OS por status” ampliado no card. Seu identificador está definido em `src/pages/Home/index.tsx`; a aba Dashboard mantém o painel completo.
 
 ## Funcionalidades
 

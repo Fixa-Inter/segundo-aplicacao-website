@@ -45,8 +45,8 @@ export default function Home() {
             </Link>
           </div>
           <AuthenticatedDashboard
-            title={t('Resumo de manutenção')}
-            widget={import.meta.env.VITE_DATABRICKS_HOME_WIDGET}
+            title={t('Distribuição atual das OS por status')}
+            widget="37645ca6~distribuicao-atual-das-os-por-status"
           />
         </section>
         <section className={styles.eventPanel} aria-label={t('Calendário resumido')}>

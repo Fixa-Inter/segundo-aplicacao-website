@@ -51,9 +51,12 @@ export function AuthenticatedDashboard({ title, widget, technician }: Authentica
       try {
         const access = await getAccess(controller.signal)
         if (controller.signal.aborted) return
+        if (widget && !/^[A-Za-z0-9_-]+~[A-Za-z0-9_-]+$/.test(widget))
+          throw new Error('Gráfico indisponível.')
         instanceOrigin = access.instanceUrl
         dashboard = new DatabricksDashboard({
           ...access,
+          pageId: widget?.split('~')[0],
           container: target,
           colorScheme: theme,
           config: { version: 1, globalFilterVisibility: 'disabled', hideDatabricksLogo: true },
@@ -87,14 +90,13 @@ export function AuthenticatedDashboard({ title, widget, technician }: Authentica
         frame.title = title
         frame.referrerPolicy = 'strict-origin-when-cross-origin'
 
-        if (widget && /^[A-Za-z0-9_-]+~[A-Za-z0-9_-]+$/.test(widget)) {
+        if (widget) {
           const url = new URL(frame.src)
           url.searchParams.set('fullscreenWidget', widget)
           if (technician) {
             const filter = import.meta.env.VITE_DATABRICKS_TECHNICIAN_FILTER
             if (!filter || !/^f_[A-Za-z0-9_-]+~[A-Za-z0-9_-]+\.s$/.test(filter))
               throw new Error('Filtro indisponível.')
-            url.pathname = url.pathname.replace(/\/$/, '') + '/pages/' + widget.split('~')[0]
             url.searchParams.set(filter, encodeURIComponent(technician))
           }
           frame.src = url.href

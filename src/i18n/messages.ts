@@ -1,6 +1,11 @@
 import type { Language } from '../types/preferences'
 
 const messages: Record<string, readonly [string, string, string]> = {
+  'Distribuição atual das OS por status': [
+    'Current distribution of work orders by status',
+    'Distribución actual de órdenes de servicio por estado',
+    '当前工单状态分布',
+  ],
   'Fechar aviso': ['Close notification', 'Cerrar aviso', '关闭通知'],
   'Gestor atualizado com sucesso.': [
     'Manager updated successfully.',

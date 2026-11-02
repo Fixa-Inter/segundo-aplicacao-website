@@ -219,3 +219,60 @@ test('SDK recebe acesso escopado, oculta filtros e renova token sem expor creden
     await f.context.close()
   }
 })
+
+test('Home abre apenas o gráfico de OS por status ampliado e Dashboard preserva o painel completo', async () => {
+  const f = await managementFixture(browser, { width: 1440, mobile: false })
+  try {
+    const token = [
+      Buffer.from('{}').toString('base64'),
+      Buffer.from(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64'),
+      'test-only',
+    ].join('.')
+    await f.context.route('**/api/v1/dashboard/embed', (route) =>
+      route.fulfill({
+        json: {
+          instanceUrl: 'https://qa.cloud.databricks.com',
+          workspaceId: '123',
+          dashboardId: 'a'.repeat(32),
+          token,
+          expiresIn: 3600,
+        },
+      }),
+    )
+    await f.context.route('https://qa.cloud.databricks.com/**', (route) =>
+      route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html><html><body><p>Gráfico de teste</p><script>setTimeout(()=>parent.postMessage({type:'DATABRICKS_EMBED_READY'},'*'),50)</script></body></html>`,
+      }),
+    )
+    await f.page.goto(base)
+    await f.page.locator('[data-dashboard-state="ready"]').waitFor()
+    for (const width of [1440, 390, 320]) {
+      await f.page.setViewportSize({ width, height: 900 })
+      const iframe = f.page.getByTitle('Distribuição atual das OS por status', { exact: true })
+      const src = new URL(await iframe.getAttribute('src'))
+      assert.equal(src.pathname, '/embed/dashboardsv3/' + 'a'.repeat(32) + '/pages/37645ca6')
+      assert.equal(
+        src.searchParams.get('fullscreenWidget'),
+        '37645ca6~distribuicao-atual-das-os-por-status',
+      )
+      const frameBox = await iframe.boundingBox()
+      const rootBox = await f.page.locator('[data-dashboard-state="ready"]').boundingBox()
+      assert.ok(Math.abs(frameBox.width - rootBox.width) < 2)
+      assert.ok(Math.abs(frameBox.height - rootBox.height) < 2)
+      assert.ok(await f.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+      await photo(f.page, `home-status-${width}.png`)
+    }
+    await f.page.getByRole('link', { name: 'Ver dashboard completo', exact: true }).click()
+    await f.page.waitForURL('**/dashboard')
+    await f.page.getByRole('heading', { name: 'Dashboard', exact: true }).waitFor()
+    await f.page.locator('[data-dashboard-state="ready"]').waitFor()
+    const full = new URL(await f.page.locator('iframe').getAttribute('src'))
+    assert.equal(full.pathname, '/embed/dashboardsv3/' + 'a'.repeat(32))
+    assert.equal(full.searchParams.has('fullscreenWidget'), false)
+    assert.deepEqual(f.errors, [])
+    assert.deepEqual(f.unexpected, [])
+  } finally {
+    await f.context.close()
+  }
+})
