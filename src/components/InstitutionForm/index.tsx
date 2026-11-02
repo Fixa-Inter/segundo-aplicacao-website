@@ -38,17 +38,10 @@ export function InstitutionForm({
   const requestExit = useUnsavedForm(isDirty, busy)
   const fieldCount = 1 + Number(units.length > 1) + (local ? 1 : 2) + Number(Boolean(entry))
   const cancel = () => requestExit(onCancel)
-  const title = readOnly
-    ? local
-      ? 'Detalhes do local'
-      : 'Detalhes do turno'
-    : entry
-      ? local
-        ? 'Editar local'
-        : 'Editar turno'
-      : local
-        ? 'Adicionar local'
-        : 'Adicionar turno'
+  const titles = local
+    ? { details: 'Detalhes do local', edit: 'Editar local', create: 'Adicionar local' }
+    : { details: 'Detalhes do turno', edit: 'Editar turno', create: 'Adicionar turno' }
+  const title = readOnly ? titles.details : entry ? titles.edit : titles.create
   function update(key: keyof InstitutionInput, value: string) {
     setForm((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: undefined }))

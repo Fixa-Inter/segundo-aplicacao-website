@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { getHomeData } from '../src/mocks/services/homeService.ts'
-import { saveEvent, removeEvent } from '../src/mocks/services/managementService.ts'
+import { getHomeData } from './fixtures/demo/services/homeService.ts'
+import { saveEvent, removeEvent } from './fixtures/demo/services/managementService.ts'
 
 test('Home usa os eventos atuais do calendário e devolve indicadores independentes', async () => {
   const event = await saveEvent({

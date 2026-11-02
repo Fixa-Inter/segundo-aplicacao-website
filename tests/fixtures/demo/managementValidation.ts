@@ -1,4 +1,8 @@
-import type { CalendarEventInput, ManagerProfile, TechnicianInput } from '../types/management'
+import type {
+  CalendarEventInput,
+  ManagerProfile,
+  TechnicianInput,
+} from '../../../src/types/management'
 
 function isValidDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false

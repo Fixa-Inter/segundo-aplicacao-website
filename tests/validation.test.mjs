@@ -5,7 +5,7 @@ import {
   validateDemoPassword,
   validateProfile,
   validateTechnician,
-} from '../src/utils/managementValidation.ts'
+} from './fixtures/demo/managementValidation.ts'
 import { monthDays, parseDateInput, shiftDate } from '../src/utils/calendar.ts'
 
 test('valida técnico antes do cadastro demonstrativo', () => {

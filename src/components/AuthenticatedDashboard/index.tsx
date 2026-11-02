@@ -54,6 +54,7 @@ export function AuthenticatedDashboard({ title, widget, technician }: Authentica
         if (widget && !/^[A-Za-z0-9_-]+~[A-Za-z0-9_-]+$/.test(widget))
           throw new Error('Gráfico indisponível.')
         instanceOrigin = access.instanceUrl
+        // A API emite o token para a unidade da conta; filtros visuais não dão autorização.
         dashboard = new DatabricksDashboard({
           ...access,
           pageId: widget?.split('~')[0],

@@ -1,5 +1,12 @@
-import type { MonthlyTaskCount } from '../types/home'
-import type { StatCardProps } from '../types/ui'
+interface MonthlyTaskCount {
+  month: string
+  value: number
+}
+interface StatCardProps {
+  label: string
+  value: number
+  tone: 'blue' | 'yellow' | 'green' | 'red'
+}
 
 export const taskSummary: StatCardProps[] = [
   { label: 'A fazer', value: 20, tone: 'blue' },

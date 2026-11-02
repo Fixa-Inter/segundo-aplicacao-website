@@ -39,3 +39,11 @@ export interface InstitutionFormProps {
   onCancel: () => void
   onSubmit: (input: InstitutionInput) => Promise<void>
 }
+
+export interface InstitutionTableProps {
+  entries: InstitutionEntry[]
+  units: InstitutionUnit[]
+  local: boolean
+  onDetails: (entry: InstitutionEntry) => void
+  onEdit: (entry: InstitutionEntry) => void
+}

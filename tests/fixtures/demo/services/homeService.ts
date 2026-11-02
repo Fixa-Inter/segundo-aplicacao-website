@@ -1,8 +1,7 @@
-import type { HomeData } from '../../types/home'
 import { monthlyTasks, previewWeekStart, taskSummary } from '../home.ts'
 import { listEvents } from './managementService.ts'
 
-export async function getHomeData(): Promise<HomeData> {
+export async function getHomeData() {
   const events = await listEvents()
   return {
     taskSummary: taskSummary.map((item) => ({ ...item })),

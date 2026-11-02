@@ -1,4 +1,4 @@
-import type { PerformancePeriod, PerformancePoint } from '../types/management'
+import type { PerformancePeriod, PerformancePoint } from '../../../src/types/management'
 import { initialTechnicians } from './management.ts'
 
 const week: PerformancePoint[] = [

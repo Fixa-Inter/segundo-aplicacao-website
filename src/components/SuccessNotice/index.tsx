@@ -1,12 +1,8 @@
 import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { usePreferences } from '../../contexts/usePreferences'
+import type { SuccessNoticeProps } from '../../types/ui'
 import styles from './SuccessNotice.module.css'
-
-type SuccessNoticeProps = {
-  notice: { message: string }
-  onClose: () => void
-}
 
 export function SuccessNotice({ notice, onClose }: SuccessNoticeProps) {
   const { t } = usePreferences()

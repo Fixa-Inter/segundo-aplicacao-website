@@ -31,11 +31,6 @@ export interface AuthFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string
   trailing?: ReactNode
 }
-export interface StatCardProps {
-  label: string
-  value: number
-  tone: 'blue' | 'yellow' | 'green' | 'red'
-}
 export interface NavigationProps {
   onNavigate: () => void
   onLogout: () => void
@@ -161,4 +156,20 @@ export interface AddRecordButtonProps extends Omit<
 > {
   label: string
   ref?: Ref<HTMLButtonElement>
+}
+
+export interface TeamTableProps {
+  members: TeamMember[]
+  institutional: boolean
+  technical: boolean
+  onDetails: (member: TeamMember) => void
+  onEdit: (member: TeamMember) => void
+}
+
+export interface NoticeMessage {
+  message: string
+}
+export interface SuccessNoticeProps {
+  notice: NoticeMessage
+  onClose: () => void
 }

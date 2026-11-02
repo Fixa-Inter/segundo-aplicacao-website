@@ -1,5 +1,5 @@
-import type { LoginCredentials, User } from '../../types/auth'
-import { normalizeCnpj, validateLogin } from '../../utils/validation.ts'
+import type { LoginCredentials, User } from '../../../../src/types/auth'
+import { normalizeCnpj, validateLogin } from '../../../../src/utils/validation.ts'
 
 export async function loginMock(credentials: LoginCredentials): Promise<User> {
   const error = validateLogin(credentials)

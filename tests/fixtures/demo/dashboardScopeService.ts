@@ -1,8 +1,8 @@
-import type { ApiProfile } from '../types/api/profile'
-import type { ApiShift } from '../types/api/shifts'
-import type { ApiUser } from '../types/api/users'
-import type { User } from '../types/auth'
-import { ApiError, type createHttpClient } from './httpClient.ts'
+import type { ApiProfile } from '../../../src/types/api/profile'
+import type { ApiShift } from '../../../src/types/api/shifts'
+import type { ApiUser } from '../../../src/types/api/users'
+import type { User } from '../../../src/types/auth'
+import { ApiError, type createHttpClient } from '../../../src/services/httpClient.ts'
 
 const validId = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value > 0

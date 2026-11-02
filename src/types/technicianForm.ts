@@ -1,5 +1,5 @@
 import type { FormEvent, RefObject } from 'react'
-import type { CompetencyInput } from './competency'
+import type { CompetencyInput, TechnicianCompetency } from './competency'
 import type { Address, ShiftOption, TechnicianInput, WorkUnitOption } from './management'
 
 export interface TechnicianSubmission {
@@ -7,7 +7,7 @@ export interface TechnicianSubmission {
   competencies: CompetencyInput[]
 }
 export interface TechnicianFieldDefinition {
-  key: Exclude<keyof TechnicianInput, 'status'>
+  key: 'name' | 'email' | 'birthDate' | 'jobTitle'
   label: string
   type?: 'text' | 'email' | 'tel'
   maxLength?: number
@@ -49,4 +49,14 @@ export interface TechnicianFormController {
   confirmSave: () => Promise<void>
   closeConfirmation: () => void
   cancel: () => void
+}
+
+export interface TechnicianAssignmentsProps {
+  controller: TechnicianFormController
+  unitName: string
+  initialUnitId?: string
+}
+export interface TechnicianGradesProps {
+  controller: TechnicianFormController
+  items: TechnicianCompetency[]
 }

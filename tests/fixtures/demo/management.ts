@@ -4,7 +4,7 @@ import type {
   DashboardRecord,
   ManagerProfile,
   Technician,
-} from '../types/management'
+} from '../../../src/types/management'
 
 const demoAddress: Address = {
   postalCode: '01310-100',

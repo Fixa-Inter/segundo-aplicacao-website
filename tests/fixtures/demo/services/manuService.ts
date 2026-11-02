@@ -1,4 +1,4 @@
-import type { ChatAttachment, ChatConversation, ChatMessage } from '../../types/manu'
+import type { ChatAttachment, ChatConversation, ChatMessage } from '../../../../src/types/manu'
 
 let conversations: ChatConversation[] = []
 const listeners = new Set<() => void>()

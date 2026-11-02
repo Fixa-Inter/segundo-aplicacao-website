@@ -1,6 +1,6 @@
-import type { RecoveryChallenge } from '../../types/recovery'
-import { validateDemoPassword } from '../../utils/managementValidation.ts'
-import { validateEmail } from '../../utils/validation.ts'
+import type { RecoveryChallenge } from '../../../../src/types/recovery'
+import { validateDemoPassword } from '../managementValidation.ts'
+import { validateEmail } from '../../../../src/utils/validation.ts'
 
 const delay = () => new Promise<void>((resolve) => setTimeout(resolve, 350))
 export const DEMO_RECOVERY_CODE = '123456'

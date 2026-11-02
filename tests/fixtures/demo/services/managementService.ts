@@ -1,4 +1,8 @@
-import type { CompetencyId, CompetencyInput, TechnicianCompetency } from '../../types/competency'
+import type {
+  CompetencyId,
+  CompetencyInput,
+  TechnicianCompetency,
+} from '../../../../src/types/competency'
 import type {
   CalendarEvent,
   CalendarEventInput,
@@ -8,17 +12,13 @@ import type {
   PerformancePoint,
   Technician,
   TechnicianInput,
-} from '../../types/management'
+} from '../../../../src/types/management'
 import {
   competencyCategories,
   getCompetencyPresentation,
   validateCompetency,
-} from '../../utils/competencies.ts'
-import {
-  validateEvent,
-  validateProfile,
-  validateTechnician,
-} from '../../utils/managementValidation.ts'
+} from '../../../../src/utils/competencies.ts'
+import { validateEvent, validateProfile, validateTechnician } from '../managementValidation.ts'
 import {
   dashboardByTechnician,
   dashboardRecords,
