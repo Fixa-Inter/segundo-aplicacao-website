@@ -29,6 +29,11 @@ const addressFields: { key: keyof Address; label: string }[] = [
   { key: 'complement', label: 'Complemento' },
 ]
 export function TechnicianForm(props: TechnicianFormProps) {
+  if (props.technician?.accessType === 'GESTOR')
+    return <TechnicianFormFields {...props} initialCompetencies={[]} />
+  return <TechnicianCompetencyForm {...props} />
+}
+function TechnicianCompetencyForm(props: TechnicianFormProps) {
   const { t } = usePreferences()
   const { items, loading, error, retry } = useTechnicianCompetencies(props.technician?.id)
   if (loading || error)
@@ -64,6 +69,7 @@ function TechnicianFormFields(props: TechnicianFormFieldsProps) {
   const {
     form,
     institutional,
+    technical,
     cnpj,
     workUnits,
     unitError,
@@ -148,13 +154,15 @@ function TechnicianFormFields(props: TechnicianFormFieldsProps) {
       </h1>
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
         <fieldset disabled={busy}>
-          <legend className={styles.srOnly}>{t('Informações do técnico')}</legend>
+          <legend className={styles.srOnly}>
+            {t(technical ? 'Informações do técnico' : 'Informações do gestor')}
+          </legend>
           <div className={styles.grid}>
             {fields.slice(0, 3).map(renderField)}
             {renderField(fields[3])}
             <div className={`${styles.field} ${styles.access}`}>
               <label htmlFor="technician-access">{t('Cargo')}</label>
-              <input id="technician-access" value={t('Técnico')} readOnly />
+              <input id="technician-access" value={t(technical ? 'Técnico' : 'Gestor')} readOnly />
             </div>
             <div className={[styles.field, styles.workUnit].join(' ')}>
               <label htmlFor="technician-unit">
@@ -208,51 +216,59 @@ function TechnicianFormFields(props: TechnicianFormFieldsProps) {
                 </div>
               )}
             </div>
-            <div className={[styles.field, styles.specialty].join(' ')}>
-              <label htmlFor="technician-specialty">{t('Especialidade')}</label>
-              <input id="technician-specialty" value={t(draftSpecialty || 'Sem notas')} readOnly />
-            </div>
-            <div className={`${styles.field} ${styles.shift}`}>
-              <label htmlFor="technician-shift">{t('Turnos')} *</label>
-              <MultiSelect
-                id="technician-shift"
-                classNames={{ input: styles.shiftInput, inputField: styles.shiftSearch }}
-                data={shifts.map((shift) => ({ value: shift.id, label: shift.name }))}
-                value={form.shiftIds ?? []}
-                onChange={selectShifts}
-                placeholder={form.shiftIds?.length ? undefined : t('Selecione os turnos')}
-                nothingFoundMessage={t('Nenhum turno encontrado para os filtros escolhidos.')}
-                searchable
-                hidePickedOptions
-                disabled={
-                  busy ||
-                  shiftsLoading ||
-                  Boolean(shiftError) ||
-                  !shifts.length ||
-                  (institutional && !form.unitId)
-                }
-                aria-invalid={Boolean(errors.shiftId)}
-                aria-describedby={errors.shiftId ? 'technician-shift-error' : undefined}
-                comboboxProps={{ withinPortal: true }}
-              />
-              {!shiftsLoading && !shifts.length && !shiftError && (
-                <p>{t('Nenhum turno ativo cadastrado na unidade.')}</p>
-              )}
-              {shiftsLoading && <p role="status">{t('Carregando turnos…')}</p>}
-              {shiftError && (
-                <div role="alert">
-                  <p>{t(shiftError)}</p>
-                  <button type="button" onClick={retryShifts}>
-                    {t('Tentar novamente')}
-                  </button>
+            {technical && (
+              <>
+                <div className={[styles.field, styles.specialty].join(' ')}>
+                  <label htmlFor="technician-specialty">{t('Especialidade')}</label>
+                  <input
+                    id="technician-specialty"
+                    value={t(draftSpecialty || 'Sem notas')}
+                    readOnly
+                  />
                 </div>
-              )}
-              {errors.shiftId && (
-                <p id="technician-shift-error" role="alert" className={styles.error}>
-                  {t(errors.shiftId)}
-                </p>
-              )}
-            </div>
+                <div className={`${styles.field} ${styles.shift}`}>
+                  <label htmlFor="technician-shift">{t('Turnos')} *</label>
+                  <MultiSelect
+                    id="technician-shift"
+                    classNames={{ input: styles.shiftInput, inputField: styles.shiftSearch }}
+                    data={shifts.map((shift) => ({ value: shift.id, label: shift.name }))}
+                    value={form.shiftIds ?? []}
+                    onChange={selectShifts}
+                    placeholder={form.shiftIds?.length ? undefined : t('Selecione os turnos')}
+                    nothingFoundMessage={t('Nenhum turno encontrado para os filtros escolhidos.')}
+                    searchable
+                    hidePickedOptions
+                    disabled={
+                      busy ||
+                      shiftsLoading ||
+                      Boolean(shiftError) ||
+                      !shifts.length ||
+                      (institutional && !form.unitId)
+                    }
+                    aria-invalid={Boolean(errors.shiftId)}
+                    aria-describedby={errors.shiftId ? 'technician-shift-error' : undefined}
+                    comboboxProps={{ withinPortal: true }}
+                  />
+                  {!shiftsLoading && !shifts.length && !shiftError && (
+                    <p>{t('Nenhum turno ativo cadastrado na unidade.')}</p>
+                  )}
+                  {shiftsLoading && <p role="status">{t('Carregando turnos…')}</p>}
+                  {shiftError && (
+                    <div role="alert">
+                      <p>{t(shiftError)}</p>
+                      <button type="button" onClick={retryShifts}>
+                        {t('Tentar novamente')}
+                      </button>
+                    </div>
+                  )}
+                  {errors.shiftId && (
+                    <p id="technician-shift-error" role="alert" className={styles.error}>
+                      {t(errors.shiftId)}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
             <div className={`${styles.field} ${styles.status}`}>
               <label htmlFor="technician-status">{t('Situação')}</label>
               <select
@@ -307,50 +323,52 @@ function TechnicianFormFields(props: TechnicianFormFieldsProps) {
             ))}
           </div>
         </fieldset>
-        <fieldset
-          disabled={busy}
-          className={styles.competencies}
-          aria-describedby="technician-competencies-help"
-        >
-          <legend>{t('Competências')}</legend>
-          <p id="technician-competencies-help" className={styles.srOnly}>
-            {t(
-              'Use uma nota de 0 a 10, com até duas casas decimais. Deixe em branco para remover a avaliação.',
-            )}
-          </p>
-          <div className={styles.competencyGrid}>
-            {initialCompetencies.map((item) => {
-              const id = `technician-competency-${item.id}`
-              return (
-                <div className={styles.competencyField} key={item.id}>
-                  <label htmlFor={id}>{t(item.name)}</label>
-                  <div className={styles.scoreInput}>
-                    <input
-                      id={id}
-                      type="text"
-                      inputMode="decimal"
-                      maxLength={5}
-                      value={ratings[item.id]}
-                      aria-invalid={Boolean(ratingErrors[item.id])}
-                      aria-describedby={
-                        ratingErrors[item.id]
-                          ? `${id}-error technician-competencies-help`
-                          : 'technician-competencies-help'
-                      }
-                      onChange={(event) => updateRating(item.id, event.currentTarget.value)}
-                    />
-                    <span aria-hidden="true">/10</span>
+        {technical && (
+          <fieldset
+            disabled={busy}
+            className={styles.competencies}
+            aria-describedby="technician-competencies-help"
+          >
+            <legend>{t('Competências')}</legend>
+            <p id="technician-competencies-help" className={styles.srOnly}>
+              {t(
+                'Use uma nota de 0 a 10, com até duas casas decimais. Deixe em branco para remover a avaliação.',
+              )}
+            </p>
+            <div className={styles.competencyGrid}>
+              {initialCompetencies.map((item) => {
+                const id = `technician-competency-${item.id}`
+                return (
+                  <div className={styles.competencyField} key={item.id}>
+                    <label htmlFor={id}>{t(item.name)}</label>
+                    <div className={styles.scoreInput}>
+                      <input
+                        id={id}
+                        type="text"
+                        inputMode="decimal"
+                        maxLength={5}
+                        value={ratings[item.id]}
+                        aria-invalid={Boolean(ratingErrors[item.id])}
+                        aria-describedby={
+                          ratingErrors[item.id]
+                            ? `${id}-error technician-competencies-help`
+                            : 'technician-competencies-help'
+                        }
+                        onChange={(event) => updateRating(item.id, event.currentTarget.value)}
+                      />
+                      <span aria-hidden="true">/10</span>
+                    </div>
+                    {ratingErrors[item.id] && (
+                      <p id={`${id}-error`} className={styles.error} role="alert">
+                        {t(ratingErrors[item.id])}
+                      </p>
+                    )}
                   </div>
-                  {ratingErrors[item.id] && (
-                    <p id={`${id}-error`} className={styles.error} role="alert">
-                      {t(ratingErrors[item.id])}
-                    </p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </fieldset>
+                )
+              })}
+            </div>
+          </fieldset>
+        )}
         {error && (
           <p role="alert" className={styles.error}>
             {t(error)}

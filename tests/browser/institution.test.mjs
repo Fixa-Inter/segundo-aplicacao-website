@@ -120,15 +120,21 @@ for (const [role, width] of [
         .click()
       assert.equal(await page.getByLabel('Nome *', { exact: true }).getAttribute('readonly'), '')
       await page.getByRole('button', { name: 'Voltar', exact: true }).click()
-      await page
-        .getByRole('button', { name: 'Desativar Sala de manutenção 2', exact: true })
-        .click()
-      await page.getByRole('dialog').getByRole('button', { name: 'Desativar', exact: true }).click()
-      await page.getByRole('button', { name: 'Ativar Sala de manutenção 2', exact: true }).click()
-      await page.getByRole('dialog').getByRole('button', { name: 'Ativar', exact: true }).click()
-      await page
-        .getByRole('button', { name: 'Desativar Sala de manutenção 2', exact: true })
-        .waitFor()
+      for (const status of ['Inativo', 'Ativo']) {
+        await page.getByRole('button', { name: 'Editar Sala de manutenção 2', exact: true }).click()
+        await page.getByLabel('Situação', { exact: true }).selectOption(status)
+        await save(page)
+        await page
+          .getByRole('button', { name: 'Editar Sala de manutenção 2', exact: true })
+          .waitFor()
+        const saved = f.records.locais.find((item) => item.nome === 'Sala de manutenção 2')
+        assert.equal(saved.estaAtivo, status === 'Ativo')
+      }
+      assert.equal(await page.getByRole('button', { name: /^(Desativar|Ativar) Sala/ }).count(), 0)
+      assert.equal(
+        f.calls.some((call) => call.method === 'DELETE'),
+        false,
+      )
       await page.getByRole('tab', { name: 'Locais', exact: true }).focus()
       await page.keyboard.press('End')
       assert.equal(

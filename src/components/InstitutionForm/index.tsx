@@ -19,6 +19,7 @@ export function InstitutionForm({
   const { t } = usePreferences()
   const local = kind === 'locations'
   const [form, setForm] = useState<InstitutionInput>({
+    active: entry?.active ?? true,
     unitId: entry?.unitId ?? (units.length === 1 ? units[0].id : ''),
     name: entry?.name ?? '',
     locationType: entry?.locationType ?? '',
@@ -194,6 +195,23 @@ export function InstitutionForm({
                   <p className={styles.overnight}>{t('Término no dia seguinte')}</p>
                 )}
               </>
+            )}
+            {entry && (
+              <div className={styles.field}>
+                <label htmlFor="institution-active">{t('Situação')}</label>
+                <select
+                  id="institution-active"
+                  value={form.active ? 'Ativo' : 'Inativo'}
+                  disabled={readOnly}
+                  onChange={(event) => {
+                    const active = event.currentTarget.value === 'Ativo'
+                    setForm((current) => ({ ...current, active }))
+                  }}
+                >
+                  <option value="Ativo">{t('Ativo')}</option>
+                  <option value="Inativo">{t('Inativo')}</option>
+                </select>
+              </div>
             )}
           </div>
         </fieldset>

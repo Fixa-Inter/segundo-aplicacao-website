@@ -20,12 +20,19 @@ function personal(input: { name: string; email: string; birthDate: string }) {
     errors.birthDate = 'Informe uma data de nascimento no passado.'
   return errors
 }
-export function validateTechnician(
+export function validateManager(
   input: TechnicianInput,
 ): Partial<Record<keyof TechnicianInput, string>> {
   const errors: Partial<Record<keyof TechnicianInput, string>> = personal(input)
   if (!input.jobTitle || input.jobTitle.trim().length < 2 || input.jobTitle.length > 100)
     errors.jobTitle = 'Informe uma função entre 2 e 100 caracteres.'
+  if (!['Ativo', 'Inativo'].includes(input.status)) errors.status = 'Selecione uma situação válida.'
+  return errors
+}
+export function validateTechnician(
+  input: TechnicianInput,
+): Partial<Record<keyof TechnicianInput, string>> {
+  const errors = validateManager(input)
   const selectedShifts = input.shiftIds ?? (input.shiftId ? [input.shiftId] : [])
   if (
     !selectedShifts.length ||
@@ -33,7 +40,6 @@ export function validateTechnician(
     new Set(selectedShifts).size !== selectedShifts.length
   )
     errors.shiftId = 'Selecione ao menos um turno cadastrado.'
-  if (!['Ativo', 'Inativo'].includes(input.status)) errors.status = 'Selecione uma situação válida.'
   return errors
 }
 export function validateProfile(

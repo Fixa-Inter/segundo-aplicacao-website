@@ -1,6 +1,27 @@
 import type { Language } from '../types/preferences'
 
 const messages: Record<string, readonly [string, string, string]> = {
+  'Gestor atualizado com sucesso.': [
+    'Manager updated successfully.',
+    'Gestor actualizado correctamente.',
+    '管理者已更新。',
+  ],
+  'Editar gestor': ['Edit manager', 'Editar gestor', '编辑管理者'],
+  'Somente o RH pode editar gestores.': [
+    'Only HR can edit managers.',
+    'Solo RR. HH. puede editar gestores.',
+    '仅人力资源可以编辑管理者。',
+  ],
+  'Este gestor não pertence à instituição da sua conta.': [
+    'This manager does not belong to your institution.',
+    'Este gestor no pertenece a tu institución.',
+    '此管理者不属于您的机构。',
+  ],
+  'Não foi possível salvar o cadastro.': [
+    'The profile could not be saved.',
+    'No se pudo guardar el registro.',
+    '无法保存档案。',
+  ],
   Instituição: ['Institution', 'Institución', '机构'],
   Locais: ['Locations', 'Lugares', '地点'],
   Turnos: ['Shifts', 'Turnos', '班次'],

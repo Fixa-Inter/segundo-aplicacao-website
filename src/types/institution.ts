@@ -22,6 +22,7 @@ export interface InstitutionData {
   shifts: InstitutionEntry[]
 }
 export interface InstitutionInput {
+  active?: boolean
   unitId: string
   name: string
   locationType: LocationType | ''

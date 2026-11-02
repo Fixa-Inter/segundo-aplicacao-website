@@ -10,7 +10,7 @@ import type {
   TechnicianSubmission,
 } from '../types/technicianForm'
 import type { TechnicianFormFieldsProps } from '../types/ui'
-import { validatePassword, validateTechnician } from '../utils/apiValidation'
+import { validateManager, validatePassword, validateTechnician } from '../utils/apiValidation'
 import { formatDate, parseDateInput } from '../utils/calendar'
 import { getCompetencyPresentation, parseCompetencyRating } from '../utils/competencies'
 import { hasFormChanges } from '../utils/formChanges'
@@ -26,6 +26,7 @@ export function useTechnicianFormController({
 }: TechnicianFormFieldsProps): TechnicianFormController {
   const { user } = useAuth()
   const institutional = user?.role === 'ADMINISTRADOR'
+  const technical = technician?.accessType !== 'GESTOR'
   const linkedShiftIds = [
     ...new Set(technician?.shiftIds ?? (technician?.shiftId ? [technician.shiftId] : [])),
   ]
@@ -36,7 +37,7 @@ export function useTechnicianFormController({
     email: technician?.email ?? '',
     phone: technician?.phone ?? '',
     unitId: technician?.unitId ?? '',
-    jobTitle: technician?.jobTitle ?? 'Técnico de manutenção',
+    jobTitle: technician?.jobTitle ?? (technical ? 'Técnico de manutenção' : ''),
     shiftId: selectedShiftId,
     shiftIds: linkedShiftIds,
     specialty: technician?.specialty ?? '',
@@ -54,7 +55,7 @@ export function useTechnicianFormController({
     error: shiftError,
     loading: shiftsLoading,
     retry: retryShifts,
-  } = useShifts(form.unitId || technician?.unitId)
+  } = useShifts(form.unitId || technician?.unitId, technical)
   const addressSource = workUnits.find((unit) => unit.id === form.unitId) ?? technician ?? manager
   const [persistedId, setPersistedId] = useState<string | undefined>(technician?.id)
   const [password, setPassword] = useState('')
@@ -101,7 +102,7 @@ export function useTechnicianFormController({
       birthDate: parseDateInput(birthDate),
       password: persistedId ? undefined : password,
     }
-    const validation = validateTechnician(input)
+    const validation = technical ? validateTechnician(input) : validateManager(input)
     if (institutional && !input.unitId) validation.unitId = 'Selecione uma unidade de trabalho.'
     const invalidPassword = persistedId ? undefined : validatePassword(password)
     const competencies: CompetencyInput[] = []
@@ -137,7 +138,7 @@ export function useTechnicianFormController({
         setPersistedId(reason.resourceId)
         setPassword('')
       }
-      setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o técnico.')
+      setError(reason instanceof Error ? reason.message : 'Não foi possível salvar o cadastro.')
     } finally {
       setPending(null)
       setBusy(false)
@@ -167,6 +168,7 @@ export function useTechnicianFormController({
   return {
     form,
     institutional,
+    technical,
     cnpj: user?.cnpj ?? '',
     workUnits,
     unitError,

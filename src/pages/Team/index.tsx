@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Eye } from 'lucide-react'
 import { AddRecordButton } from '../../components/AddRecordButton'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { FilterButton } from '../../components/FilterButton'
 import { LoadingState } from '../../components/LoadingState'
@@ -30,10 +29,7 @@ export default function Team() {
     loadError,
     setLoadError,
     setLoadAttempt,
-    busy,
-    error,
     notice,
-    setNotice,
     query,
     setQuery,
     filter,
@@ -44,16 +40,14 @@ export default function Team() {
     setPage,
     editing,
     formOpen,
-    setFormOpen,
     details,
     closeDetails,
     cancelForm,
     memberId,
     memberNotFound,
     submitTechnician,
+    memberSaved,
     showDetails,
-    deleting,
-    setDeleting,
     addButtonRef,
     filtered,
     lastPage,
@@ -61,7 +55,6 @@ export default function Team() {
     selectTab,
     moveTab,
     openForm,
-    confirmDelete,
   } = useTeamPage()
   if (formOpen && manager) {
     return (
@@ -70,12 +63,7 @@ export default function Team() {
         manager={manager}
         onSubmit={submitTechnician}
         onCancel={cancelForm}
-        onSaved={() => {
-          setLoadAttempt((value) => value + 1)
-          setNotice(editing ? 'Técnico atualizado com sucesso.' : 'Técnico cadastrado com sucesso.')
-          setPage(1)
-          setFormOpen(false)
-        }}
+        onSaved={memberSaved}
       />
     )
   }
@@ -113,7 +101,7 @@ export default function Team() {
         technician={details}
         onBack={closeDetails}
         onEdit={
-          details.accessType === 'TÉCNICO'
+          details.accessType === 'TÉCNICO' || institutional
             ? () => {
                 openForm(details)
               }
@@ -243,11 +231,6 @@ export default function Team() {
           {t(notice)}
         </p>
       )}
-      {error && !formOpen && (
-        <p className={common.error} role="alert">
-          {t(error)}
-        </p>
-      )}
       <div
         id="team-content"
         className={styles.teamContent}
@@ -346,27 +329,15 @@ export default function Team() {
                               >
                                 <Eye aria-hidden="true" />
                               </button>
-                              {item.accessType === 'TÉCNICO' && (
-                                <>
-                                  <button
-                                    type="button"
-                                    className={styles.iconButton}
-                                    aria-label={t('Editar {name}', { name: item.name })}
-                                    onClick={() => openForm(item)}
-                                  >
-                                    <FigmaIcon name="edit" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={`${styles.iconButton} ${styles.delete}`}
-                                    aria-label={t('Desativar {name}', { name: item.name })}
-                                    disabled={item.status === 'Inativo'}
-                                    onClick={() => setDeleting({ ...item, accessType: 'TÉCNICO' })}
-                                  >
-                                    <FigmaIcon name="trash" />
-                                  </button>
-                                </>
-                              )}
+                              <button
+                                type="button"
+                                className={styles.iconButton}
+                                id={`team-edit-${item.id}`}
+                                aria-label={t('Editar {name}', { name: item.name })}
+                                onClick={() => openForm(item)}
+                              >
+                                <FigmaIcon name="edit" />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -388,15 +359,6 @@ export default function Team() {
           </section>
         )}
       </div>
-      <ConfirmDialog
-        opened={Boolean(deleting)}
-        onClose={() => setDeleting(null)}
-        variant="deactivate"
-        subject={deleting?.name}
-        confirmLabel="Desativar"
-        busy={busy}
-        onConfirm={confirmDelete}
-      />
     </div>
   )
 }

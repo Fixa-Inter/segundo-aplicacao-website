@@ -25,11 +25,8 @@ export function useInstitutionPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [notice, setNotice] = useState('')
-  const [error, setError] = useState('')
   const [entry, setEntry] = useState<InstitutionEntry | null>(null)
   const [screen, setScreen] = useState<'list' | 'form' | 'details'>('list')
-  const [changing, setChanging] = useState<InstitutionEntry | null>(null)
-  const [busy, setBusy] = useState(false)
   const addButton = useRef<HTMLButtonElement>(null)
   const previousScreen = useRef(screen)
   useEffect(() => {
@@ -63,7 +60,6 @@ export function useInstitutionPage() {
     setPage(1)
     setQuery('')
     setNotice('')
-    setError('')
   }
   function moveTab(event: KeyboardEvent<HTMLDivElement>) {
     const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
@@ -83,32 +79,16 @@ export function useInstitutionPage() {
   function openForm(item: InstitutionEntry | null = null, readOnly = false) {
     setEntry(item)
     setScreen(readOnly ? 'details' : 'form')
-    setError('')
     setNotice('')
   }
   async function save(input: InstitutionInput) {
     await saveInstitutionEntry(tab, input, entry?.id)
+    if (entry && typeof input.active === 'boolean' && input.active !== entry.active)
+      await setInstitutionEntryActive(tab, entry.id, input.active)
     setScreen('list')
     setPage(1)
     setNotice(tab === 'locations' ? 'Local salvo com sucesso.' : 'Turno salvo com sucesso.')
     retry()
-  }
-  async function confirmStatus() {
-    if (!changing || busy) return
-    setBusy(true)
-    setError('')
-    try {
-      await setInstitutionEntryActive(tab, changing.id, !changing.active)
-      setNotice(
-        changing.active ? 'Registro desativado com sucesso.' : 'Registro ativado com sucesso.',
-      )
-      setChanging(null)
-      retry()
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Não foi possível atualizar o registro.')
-    } finally {
-      setBusy(false)
-    }
   }
   const search = query.trim().toLocaleLowerCase('pt-BR')
   const filtered = data[tab].filter((item) => {
@@ -151,19 +131,14 @@ export function useInstitutionPage() {
     loadError,
     retry,
     notice,
-    error,
     entry,
     screen,
     setScreen,
-    changing,
-    setChanging,
-    busy,
     addButton,
     selectTab,
     moveTab,
     openForm,
     save,
-    confirmStatus,
     tabs: institutionTabs,
   }
 }

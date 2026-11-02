@@ -15,6 +15,7 @@ export interface TechnicianFieldDefinition {
 export interface TechnicianFormController {
   form: TechnicianInput
   institutional: boolean
+  technical: boolean
   cnpj: string
   workUnits: WorkUnitOption[]
   unitError: string

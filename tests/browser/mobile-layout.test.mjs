@@ -91,12 +91,12 @@ for (const width of [320, 390])
     await page.locator('#technician-name').fill('Nome temporário')
     await page.getByRole('button', { name: 'Cancelar', exact: true }).tap()
     await page.getByRole('dialog').getByRole('button', { name: 'Descartar', exact: true }).tap()
-    await page.getByRole('button', { name: /^Desativar Técnico 01/ }).tap()
-    await page.getByRole('dialog').getByRole('button', { name: 'Desativar', exact: true }).tap()
-    await page.getByText('Técnico desativado com sucesso.', { exact: true }).waitFor()
-    await page.waitForFunction(
-      () => document.activeElement?.getAttribute('aria-label') === 'Adicionar técnico',
-    )
+    await page.getByRole('button', { name: /^Editar Técnico 01/ }).tap()
+    await page.getByLabel('Situação', { exact: true }).selectOption('Inativo')
+    await page.getByRole('button', { name: 'Salvar', exact: true }).tap()
+    await page.getByRole('dialog').getByRole('button', { name: 'Salvar', exact: true }).tap()
+    await page.getByText('Técnico atualizado com sucesso.', { exact: true }).waitFor()
+    assert.equal(await page.getByRole('button', { name: /^Desativar Técnico/ }).count(), 0)
     await noOverflow(page)
   })
 

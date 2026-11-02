@@ -6,7 +6,6 @@ import type {
   EventResponsibleOption,
   ManagerProfile,
   TeamMember,
-  Technician,
   TechnicianInput,
 } from './management'
 
@@ -84,15 +83,7 @@ export interface FigmaIconProps {
 }
 export interface ConfirmDialogProps {
   opened: boolean
-  variant:
-    | 'delete'
-    | 'save'
-    | 'logout'
-    | 'discard'
-    | 'deactivate'
-    | 'deleteConversation'
-    | 'activateRecord'
-    | 'deactivateRecord'
+  variant: 'delete' | 'save' | 'logout' | 'discard' | 'deleteConversation'
   subject?: string
   confirmLabel: string
   error?: string
@@ -116,14 +107,14 @@ export interface EventDetailsProps {
 }
 
 export interface TechnicianFormProps {
-  technician: Technician | null
+  technician: TeamMember | null
   manager: ManagerProfile
   onSubmit: (
     input: TechnicianInput,
     competencies: CompetencyInput[],
     persistedId?: string,
-  ) => Promise<Technician>
-  onSaved: (technician: Technician) => void
+  ) => Promise<TeamMember>
+  onSaved: (technician: TeamMember) => void
   onCancel: () => void
 }
 

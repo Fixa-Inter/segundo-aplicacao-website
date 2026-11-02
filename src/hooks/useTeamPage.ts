@@ -5,11 +5,11 @@ import { usePreferences } from '../contexts/usePreferences'
 import {
   getProfile,
   listTeamMembers,
-  removeTechnician,
+  saveManager,
   saveTechnician,
 } from '../services/managementService'
 import type { TechnicianFormProps } from '../types/ui'
-import type { ManagerProfile, TeamMember, Technician } from '../types/management'
+import type { ManagerProfile, TeamMember } from '../types/management'
 import { pageSize, teamTabs } from '../utils/teamPresentation'
 
 export function useTeamPage() {
@@ -32,14 +32,12 @@ export function useTeamPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [loadAttempt, setLoadAttempt] = useState(0)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('Todos')
   const [unitFilter, setUnitFilter] = useState('Todos')
   const [page, setPage] = useState(1)
-  const [editing, setEditing] = useState<Technician | null>(null)
+  const [editing, setEditing] = useState<TeamMember | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const validMemberId = memberId !== undefined && /^[1-9]\d*$/.test(memberId)
   const details = validMemberId ? (items.find((item) => item.id === memberId) ?? null) : null
@@ -56,8 +54,24 @@ export function useTeamPage() {
     if (memberId !== undefined) closeDetails()
   }
   const submitTechnician: TechnicianFormProps['onSubmit'] = (input, competencies, persistedId) =>
-    saveTechnician(input, persistedId ?? editing?.id, competencies)
-  const [deleting, setDeleting] = useState<Technician | null>(null)
+    editing?.accessType === 'GESTOR'
+      ? saveManager(input, editing.id)
+      : saveTechnician(input, persistedId ?? editing?.id, competencies)
+  function memberSaved(saved: TeamMember) {
+    setItems((current) =>
+      editing ? current.map((item) => (item.id === saved.id ? saved : item)) : [...current, saved],
+    )
+    setNotice(
+      editing?.accessType === 'GESTOR'
+        ? 'Gestor atualizado com sucesso.'
+        : editing
+          ? 'Técnico atualizado com sucesso.'
+          : 'Técnico cadastrado com sucesso.',
+    )
+    setPage(1)
+    setFormOpen(false)
+    setLoadAttempt((value) => value + 1)
+  }
   const addButtonRef = useRef<HTMLButtonElement>(null)
   const wasFormOpen = useRef(false)
   useEffect(() => {
@@ -70,9 +84,12 @@ export function useTeamPage() {
   }, [state, loading, memberId])
 
   useEffect(() => {
-    if (wasFormOpen.current && !formOpen) addButtonRef.current?.focus()
+    if (wasFormOpen.current && !formOpen) {
+      if (editing) document.getElementById('team-edit-' + editing.id)?.focus()
+      else addButtonRef.current?.focus()
+    }
     wasFormOpen.current = formOpen
-  }, [formOpen])
+  }, [formOpen, editing])
 
   useEffect(() => {
     let active = true
@@ -123,35 +140,9 @@ export function useTeamPage() {
     document.getElementById('team-tab-' + teamTabs[next].id)?.focus()
   }
   function openForm(item?: TeamMember) {
-    if (item && item.accessType !== 'TÉCNICO') return
-    setEditing(item ? { ...item, accessType: 'TÉCNICO' } : null)
-    setError('')
+    if (item?.accessType === 'GESTOR' && !institutional) return
+    setEditing(item ?? null)
     setFormOpen(true)
-  }
-  async function confirmDelete() {
-    if (!deleting || busy) return
-    setBusy(true)
-    setError('')
-    try {
-      await removeTechnician(deleting.id)
-      setItems((values) =>
-        values.map((item) => (item.id === deleting.id ? { ...item, status: 'Inativo' } : item)),
-      )
-      setPage(1)
-      setNotice('Técnico desativado com sucesso.')
-      setDeleting(null)
-      requestAnimationFrame(() => addButtonRef.current?.focus())
-      try {
-        setItems(await listTeamMembers())
-      } catch {
-        setError('O técnico foi desativado, mas não foi possível atualizar a lista.')
-      }
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Não foi possível excluir o técnico.')
-      setDeleting(null)
-    } finally {
-      setBusy(false)
-    }
   }
 
   return {
@@ -168,10 +159,7 @@ export function useTeamPage() {
     loadError,
     setLoadError,
     setLoadAttempt,
-    busy,
-    error,
     notice,
-    setNotice,
     query,
     setQuery,
     filter,
@@ -182,16 +170,14 @@ export function useTeamPage() {
     setPage,
     editing,
     formOpen,
-    setFormOpen,
     details,
     closeDetails,
     cancelForm,
     memberId,
     memberNotFound,
     submitTechnician,
+    memberSaved,
     showDetails,
-    deleting,
-    setDeleting,
     addButtonRef,
     filtered,
     lastPage,
@@ -199,6 +185,5 @@ export function useTeamPage() {
     selectTab,
     moveTab,
     openForm,
-    confirmDelete,
   }
 }

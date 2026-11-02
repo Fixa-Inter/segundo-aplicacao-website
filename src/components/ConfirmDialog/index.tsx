@@ -9,16 +9,6 @@ import type { ConfirmDialogProps } from '../../types/ui'
 import styles from './ConfirmDialog.module.css'
 
 const variants = {
-  activateRecord: {
-    art: saveArt,
-    question: 'Ativar este registro?',
-    subtitle: 'O registro voltará a ficar disponível.',
-  },
-  deactivateRecord: {
-    art: deleteArt,
-    question: 'Desativar este registro?',
-    subtitle: 'Você poderá ativá-lo novamente.',
-  },
   delete: {
     art: deleteArt,
     question: 'Deseja deletar esse registro?',
@@ -28,11 +18,6 @@ const variants = {
     art: deleteArt,
     question: 'Excluir esta conversa?',
     subtitle: 'A conversa será removida do seu histórico.',
-  },
-  deactivate: {
-    art: deleteArt,
-    question: 'Desativar este técnico?',
-    subtitle: 'O cadastro será preservado e poderá ser reativado na edição.',
   },
   save: {
     art: saveArt,

@@ -10,7 +10,7 @@ export const {
   listTechnicians,
   listTeamMembers,
   saveTechnician,
-  removeTechnician,
+  saveManager,
   listTechnicianCompetencies,
   saveTechnicianCompetency,
   listEvents,

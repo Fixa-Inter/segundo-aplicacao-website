@@ -1,7 +1,6 @@
-import { Eye, RotateCcw } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import { Navigate } from 'react-router-dom'
 import { AddRecordButton } from '../../components/AddRecordButton'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { FilterButton } from '../../components/FilterButton'
 import { InstitutionForm } from '../../components/InstitutionForm'
@@ -32,8 +31,6 @@ function InstitutionPage() {
     entry,
     loading,
     loadError,
-    busy,
-    changing,
     addButton,
     openForm,
     query,
@@ -47,13 +44,10 @@ function InstitutionPage() {
     unitId,
     setUnitId,
     notice,
-    error,
     retry,
     shown,
     page,
     total,
-    setChanging,
-    confirmStatus,
     save,
     setScreen,
   } = useInstitutionPage()
@@ -178,11 +172,6 @@ function InstitutionPage() {
           {t(notice)}
         </p>
       )}
-      {error && !changing && (
-        <p className={common.error} role="alert">
-          {t(error)}
-        </p>
-      )}
       <div
         id="institution-content"
         role="tabpanel"
@@ -268,20 +257,6 @@ function InstitutionPage() {
                               >
                                 <FigmaIcon name="edit" />
                               </button>
-                              <button
-                                className={`${tableStyles.iconButton} ${item.active ? tableStyles.delete : ''}`}
-                                type="button"
-                                aria-label={t(item.active ? 'Desativar {name}' : 'Ativar {name}', {
-                                  name: item.name,
-                                })}
-                                onClick={() => setChanging(item)}
-                              >
-                                {item.active ? (
-                                  <FigmaIcon name="trash" />
-                                ) : (
-                                  <RotateCcw aria-hidden="true" />
-                                )}
-                              </button>
                             </div>
                           </td>
                         </tr>
@@ -303,16 +278,6 @@ function InstitutionPage() {
           </section>
         )}
       </div>
-      <ConfirmDialog
-        opened={Boolean(changing)}
-        variant={changing?.active ? 'deactivateRecord' : 'activateRecord'}
-        subject={changing?.name}
-        confirmLabel={changing?.active ? 'Desativar' : 'Ativar'}
-        error={error}
-        onClose={() => setChanging(null)}
-        onConfirm={() => void confirmStatus()}
-        busy={busy}
-      />
     </div>
   )
 }

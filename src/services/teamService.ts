@@ -7,7 +7,7 @@ import type {
   TechnicianInput,
 } from '../types/management'
 import { isTechnician, teamAccessType, technician } from '../utils/apiUsers.ts'
-import { validatePassword, validateTechnician } from '../utils/apiValidation.ts'
+import { validateManager, validatePassword, validateTechnician } from '../utils/apiValidation.ts'
 import { validateCompetency } from '../utils/competencies.ts'
 import { check } from '../utils/validationErrors.ts'
 import { PartialSaveError } from './managementErrors.ts'
@@ -198,14 +198,43 @@ export function createTeamService(
       throw new PartialSaveError(String(saved.id), error)
     }
   }
-  async function removeTechnician(id: string): Promise<void> {
-    await users.setUserActive(id, false)
+  async function saveManager(input: TechnicianInput, id: string): Promise<TeamMember> {
+    if (user().role !== 'ADMINISTRADOR') throw new Error('Somente o RH pode editar gestores.')
+    check(validateManager(input))
+    const [old, institution] = await Promise.all([users.getUser(id), institutionScope()])
+    if (
+      teamAccessType(old.tipoAcesso) !== 'GESTOR' ||
+      !institution.units.some((unit) => unit.id === old.unidadeId)
+    )
+      throw new Error('Este gestor não pertence à instituição da sua conta.')
+    const unit = institution.units.find(
+      (unit) => String(unit.id) === (input.unitId || String(old.unidadeId)),
+    )
+    if (!unit || (!unit.estaAtivo && unit.id !== old.unidadeId))
+      throw new Error('Selecione uma unidade ativa da sua instituição.')
+    let saved = await users.saveUser(
+      {
+        ...(unit.id !== old.unidadeId ? { unidadeId: unit.id } : {}),
+        nomeCompleto: input.name.trim(),
+        email: input.email.trim(),
+        cargo: input.jobTitle?.trim(),
+        dataNascimento: input.birthDate,
+      },
+      id,
+    )
+    try {
+      if (saved.estaAtivo !== (input.status === 'Ativo'))
+        saved = await users.setUserActive(id, input.status === 'Ativo')
+    } catch (error) {
+      throw new PartialSaveError(id, error)
+    }
+    return { ...technician(saved, unit, [], [], []), accessType: 'GESTOR' }
   }
   return {
     listTechnicians,
     listTeamMembers,
     listEventResponsibles,
     saveTechnician,
-    removeTechnician,
+    saveManager,
   }
 }

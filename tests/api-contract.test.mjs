@@ -441,9 +441,6 @@ test('eventos preservam data/hora locais, local real e responsável; desativar t
   assert.equal(calls[0].data.usuarioId, 10)
   assert.equal(calls[0].data.localEnderecoId, 6)
   assert.equal(calls[0].data.dataHoraInicio, '2026-10-25T23:00:00')
-  await service.removeTechnician('22')
-  assert.equal(calls.at(-1).url, '/api/v1/usuarios/22/desativar')
-  assert.equal(calls.at(-1).method, 'patch')
 })
 test('perfil envia apenas campos que a API grava; validação exige cargo, turno e local', async () => {
   const { client, calls } = setup((call) =>
@@ -1016,5 +1013,76 @@ test('salva múltiplos turnos sem duplicar vínculos e remove somente os desmarc
   assert.equal(
     calls.filter((call) => call.url === '/api/v1/turnos-usuarios/81/desativar').length,
     1,
+  )
+})
+
+test('RH edita gestores e alterna situação pela AWS sem enviar turnos, notas ou exclusão', async () => {
+  for (const active of [false, true]) {
+    let manager = { ...tech, id: 31, tipoAcesso: 'GESTOR', estaAtivo: !active }
+    const { client, calls } = setup((call) => {
+      if (call.url === '/api/v1/unidades') return { data: [{ ...unit, instituicaoId: 8 }] }
+      if (call.url === '/api/v1/usuarios/10') return { data: { id: 10, unidadeId: 5 } }
+      if (call.url === '/api/v1/usuarios/31') {
+        if (call.method === 'patch') manager = { ...manager, ...call.data }
+        return { data: manager }
+      }
+      if (/\/api\/v1\/usuarios\/31\/(ativar|desativar)$/.test(call.url)) {
+        manager = { ...manager, estaAtivo: call.url.endsWith('/ativar') }
+        return { data: manager }
+      }
+      throw Error('Chamada inesperada: ' + call.url)
+    })
+    const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+    const saved = await service.saveManager(
+      {
+        ...input,
+        name: 'Gestor atualizado',
+        unitId: '5',
+        shiftId: '',
+        shiftIds: [],
+        status: active ? 'Ativo' : 'Inativo',
+      },
+      '31',
+    )
+    assert.equal(saved.accessType, 'GESTOR')
+    assert.equal(saved.status, active ? 'Ativo' : 'Inativo')
+    const patch = calls.find(
+      (call) => call.url === '/api/v1/usuarios/31' && call.method === 'patch',
+    )
+    assert.equal(patch.data.nomeCompleto, 'Gestor atualizado')
+    assert.equal('tipoAcesso' in patch.data, false)
+    assert.equal('estaAtivo' in patch.data, false)
+    assert.equal(calls.at(-1).url, '/api/v1/usuarios/31/' + (active ? 'ativar' : 'desativar'))
+    assert.equal(
+      calls.some((call) => call.method === 'delete'),
+      false,
+    )
+  }
+})
+test('somente RH edita gestores; situação não pode alterar cadastros de outra instituição', async () => {
+  const denied = setup(() => {
+    throw Error('Não deve chamar a API')
+  })
+  const managerService = createManagementService(denied.client, () => user)
+  await assert.rejects(managerService.saveManager(input, '31'), /RH/)
+  assert.equal(denied.calls.length, 0)
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/unidades')
+      return {
+        data: [
+          { ...unit, instituicaoId: 8 },
+          { ...unit, id: 99, instituicaoId: 9 },
+        ],
+      }
+    if (call.url === '/api/v1/usuarios/10') return { data: { id: 10, unidadeId: 5 } }
+    if (call.url === '/api/v1/usuarios/31')
+      return { data: { ...tech, id: 31, tipoAcesso: 'GESTOR', unidadeId: 99 } }
+    throw Error('Chamada inesperada: ' + call.url)
+  })
+  const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+  await assert.rejects(service.saveManager(input, '31'), /instituição/)
+  assert.equal(
+    calls.some((call) => call.method !== 'get'),
+    false,
   )
 })
