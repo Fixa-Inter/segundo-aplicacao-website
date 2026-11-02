@@ -10,9 +10,6 @@
   height: 100%;
   object-fit: contain;
 }
-:global([data-theme='dark']) .brand img {
-  filter: brightness(1.8);
-}
 .compact {
   width: max-content;
   height: auto;

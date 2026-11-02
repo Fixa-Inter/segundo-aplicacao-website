@@ -1,6 +1,8 @@
 import type { Language } from '../types/preferences'
 
 const messages: Record<string, readonly [string, string, string]> = {
+  'Recolher histórico': ['Collapse chat history', 'Contraer historial', '收起聊天记录'],
+  'Expandir histórico': ['Expand chat history', 'Expandir historial', '展开聊天记录'],
   'Voltar à equipe': ['Back to the team', 'Volver al equipo', '返回团队'],
   'Pessoa não encontrada': ['Person not found', 'Persona no encontrada', '未找到此人员'],
   'Este cadastro não está disponível na sua equipe.': [

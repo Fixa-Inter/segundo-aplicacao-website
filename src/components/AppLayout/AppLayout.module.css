@@ -71,7 +71,8 @@
   min-height: 60px;
   padding: 10px 32px;
   overflow: hidden;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.4;
   border: 0;
   border-left: 4px solid transparent;
   background: transparent;
@@ -215,11 +216,13 @@
   right: 37px;
 }
 .link span {
+  min-width: 0;
   transition:
     opacity 140ms ease,
     transform 220ms ease;
 }
 .compact .sidebar .link span {
+  white-space: nowrap;
   opacity: 0;
   visibility: hidden;
   transform: translateX(-6px);
@@ -235,7 +238,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  left: 240px;
+  left: var(--manu-history-width, 240px);
 }
 .manu .main {
   padding-top: 0;
@@ -358,5 +361,11 @@
 @media (max-width: 900px) and (max-height: 500px) {
   .shell {
     --header-height: 60px;
+  }
+}
+
+@media (min-width: 901px) {
+  .manu:has([data-history-collapsed='true']) {
+    --manu-history-width: 64px;
   }
 }

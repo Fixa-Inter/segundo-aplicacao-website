@@ -1,4 +1,5 @@
 import { Modal } from '@mantine/core'
+import { CalendarDays, Clock3, MapPin } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import type { EventDetailsProps } from '../../types/ui'
 import { FigmaIcon } from '../FigmaIcon'
@@ -31,15 +32,23 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
               >
                 <FigmaIcon name="close" />
               </button>
-              <h2>{t('Informações sobre o evento')}</h2>
-              <h3>{event.title}</h3>
+              <header className={styles.heading}>
+                <h2>{t('Informações sobre o evento')}</h2>
+                <h3>{event.title}</h3>
+              </header>
               <dl className={styles.schedule}>
                 <div>
-                  <dt>{t('Local')}</dt>
+                  <dt>
+                    <MapPin size={18} aria-hidden="true" />
+                    {t('Local')}
+                  </dt>
                   <dd>{event.location || t('Não informado')}</dd>
                 </div>
                 <div>
-                  <dt>{t('Data')}</dt>
+                  <dt>
+                    <CalendarDays size={18} aria-hidden="true" />
+                    {t('Data')}
+                  </dt>
                   <dd>
                     {formatDate(event.date, { dateStyle: 'short' })}
                     {event.endDate && event.endDate !== event.date
@@ -48,7 +57,10 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
                   </dd>
                 </div>
                 <div>
-                  <dt>{t('Horário')}</dt>
+                  <dt>
+                    <Clock3 size={18} aria-hidden="true" />
+                    {t('Horário')}
+                  </dt>
                   <dd>
                     {event.time}–{event.endTime}
                   </dd>
@@ -59,10 +71,12 @@ export function EventDetails({ event, onClose }: EventDetailsProps) {
                   <dt>{t('Descrição')}</dt>
                   <dd>{event.description || t('Sem descrição.')}</dd>
                 </div>
-                <div>
-                  <dt>{t('Observação')}</dt>
-                  <dd>{event.observation || t('Não informado')}</dd>
-                </div>
+                {event.observation.trim() && (
+                  <div>
+                    <dt>{t('Observação')}</dt>
+                    <dd>{event.observation}</dd>
+                  </div>
+                )}
               </dl>
             </div>
           )}

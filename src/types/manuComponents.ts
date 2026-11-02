@@ -13,3 +13,8 @@ export interface ManuLinkProps {
   href?: string
   children: ReactNode
 }
+
+export interface ManuHistoryPanelProps extends ManuViewProps {
+  collapsed: boolean
+  onToggle: () => void
+}

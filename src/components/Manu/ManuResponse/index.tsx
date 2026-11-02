@@ -22,11 +22,12 @@ function MessageLink({ href, children }: ManuLinkProps) {
   if (!href) return <>{children}</>
   const domain = new URL(href).hostname.replace(/^www\./, '')
   const isUrl = typeof children === 'string' && /^https?:\/\//i.test(children)
+  const showDomain = !isUrl && domain !== 'pechincha.ai'
   return (
     <a className={styles.link} href={href} target="_blank" rel="noopener noreferrer" title={href}>
       <span className={styles.linkText}>
         <span>{isUrl ? domain : children}</span>
-        {!isUrl && <small>{domain}</small>}
+        {showDomain && <small>{domain}</small>}
       </span>
       <ExternalLink size={16} aria-label={t('Abrir em nova aba')} />
     </a>
