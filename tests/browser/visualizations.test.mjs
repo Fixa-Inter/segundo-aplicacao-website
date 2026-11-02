@@ -160,6 +160,46 @@ test('SDK recebe acesso escopado, oculta filtros e renova token sem expor creden
     await f.page.locator('[data-dashboard-state="ready"]').waitFor()
     const frame = f.page.frameLocator('iframe')
     await frame.locator('body[data-filters="disabled"]').waitFor()
+    for (const [width, height] of [
+      [1918, 869],
+      [2560, 1080],
+      [1366, 768],
+      [1024, 768],
+      [390, 844],
+      [320, 667],
+      [844, 390],
+      [1440, 900],
+    ]) {
+      await f.page.setViewportSize({ width, height })
+      const layout = await f.page.evaluate(() => {
+        const main = document.querySelector('main')
+        const dashboard = document.querySelector('[data-dashboard-state="ready"]')
+        const panel = dashboard.parentElement
+        const iframe = dashboard.querySelector('iframe').getBoundingClientRect()
+        const mainStyle = getComputedStyle(main)
+        return {
+          scrolls:
+            main.scrollHeight > main.clientHeight + 1 || main.scrollWidth > main.clientWidth + 1,
+          fullWidth: Math.abs(main.clientWidth - main.parentElement.clientWidth) < 1,
+          fitsPanel:
+            Math.abs(iframe.height - panel.clientHeight) < 1 &&
+            Math.abs(iframe.width - panel.clientWidth) < 1,
+          bottom: iframe.bottom,
+          expectedBottom: main.getBoundingClientRect().bottom - parseFloat(mainStyle.paddingBottom),
+        }
+      })
+      assert.equal(layout.scrolls, false, `rolagem extra em ${width}x${height}`)
+      assert.equal(layout.fullWidth, true, `largura limitada em ${width}x${height}`)
+      assert.equal(layout.fitsPanel, true, `iframe cortado em ${width}x${height}`)
+      assert.ok(Math.abs(layout.bottom - layout.expectedBottom) <= 2)
+    }
+    const expandedWidth = (await f.page.locator('iframe').boundingBox()).width
+    await f.page.getByRole('button', { name: 'Recolher menu lateral', exact: true }).click()
+    await f.page.waitForFunction(
+      (width) => document.querySelector('iframe').getBoundingClientRect().width > width + 100,
+      expandedWidth,
+    )
+    await f.page.getByRole('button', { name: 'Expandir menu lateral', exact: true }).click()
     await frame.locator('body[data-refreshed="true"]').waitFor({ timeout: 18000 })
     assert.ok(reads >= 2)
     const src = await f.page.locator('iframe').getAttribute('src')

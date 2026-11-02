@@ -28,48 +28,6 @@ async function photo(page, name) {
   await mkdir(process.env.FIXA_QA_EVIDENCE_DIR, { recursive: true })
   await page.screenshot({ path: join(process.env.FIXA_QA_EVIDENCE_DIR, name), fullPage: true })
 }
-for (const width of [1440, 390]) {
-  test(`histórico recolhe sem perder rascunho ou conversa em ${width}px`, async () => {
-    const f = await managementFixture(browser, { width, height: 960, mobile: width < 600 })
-    try {
-      const { page } = f
-      await page.goto(base + '/manu')
-      const input = page.locator('#manu-question')
-      await input.fill('Rascunho preservado')
-      const chat = page.getByRole('region', { name: 'Manu', exact: true })
-      const before = await chat.boundingBox()
-      const toggle = page.getByRole('button', { name: 'Recolher histórico', exact: true })
-      await toggle.click()
-      assert.equal(await input.inputValue(), 'Rascunho preservado')
-      assert.equal(
-        await page.getByRole('searchbox', { name: 'Pesquisar conversas', exact: true }).count(),
-        0,
-      )
-      const expand = page.getByRole('button', { name: 'Expandir histórico', exact: true })
-      assert.equal(await expand.getAttribute('aria-expanded'), 'false')
-      const after = await chat.boundingBox()
-      assert.ok(width > 900 ? after.width > before.width + 100 : after.height > before.height + 50)
-      await photo(page, `historico-recolhido-${width}.png`)
-      await expand.focus()
-      await page.keyboard.press('Enter')
-      await page.getByRole('searchbox', { name: 'Pesquisar conversas', exact: true }).waitFor()
-      assert.equal(await input.inputValue(), 'Rascunho preservado')
-      await page.getByRole('button', { name: 'Conversa de teste 2', exact: true }).click()
-      await page.getByText('Podemos consultar os dados da solicitação.', { exact: true }).waitFor()
-      const text = await page.getByRole('log').innerText()
-      await toggle.click()
-      assert.equal(await page.getByRole('log').innerText(), text)
-      await page.getByRole('button', { name: 'Expandir histórico', exact: true }).click()
-      assert.equal(await page.getByRole('log').innerText(), text)
-      await photo(page, `historico-aberto-${width}.png`)
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
-      assert.deepEqual(f.errors, [])
-      assert.deepEqual(f.unexpected, [])
-    } finally {
-      await f.context.close()
-    }
-  })
-}
 for (const width of [1440, 320]) {
   test(`detalhes do evento preservam informações, margens e foco em ${width}px`, async () => {
     const f = await managementFixture(browser, { width, height: 960, mobile: width < 600 })

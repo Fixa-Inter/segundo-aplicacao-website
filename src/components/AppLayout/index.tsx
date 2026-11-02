@@ -108,7 +108,7 @@ function Layout() {
 
   return (
     <div
-      className={`${styles.shell} ${compact ? styles.compact : ''} ${pathname === '/manu' ? styles.manu : ''}`}
+      className={`${styles.shell} ${compact ? styles.compact : ''} ${pathname === '/manu' ? styles.manu : ''} ${pathname === '/dashboard' ? styles.dashboard : ''}`}
     >
       <a className={styles.skipLink} href="#conteudo">
         {t('Pular para o conteúdo')}

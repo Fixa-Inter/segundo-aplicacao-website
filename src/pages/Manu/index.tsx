@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { manuEmotionImage } from '../../assets/manuEmotions'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { LoadingState } from '../../components/LoadingState'
@@ -10,7 +9,6 @@ import { useManuChat } from '../../hooks/useManuChat'
 
 export default function Manu() {
   const chat = useManuChat()
-  const [historyCollapsed, setHistoryCollapsed] = useState(false)
   const {
     t,
     user,
@@ -28,14 +26,8 @@ export default function Manu() {
     configured,
   } = chat
   return (
-    <div
-      className={`${styles.page} ${messages.length ? styles.withMessages : ''} ${historyCollapsed ? styles.historyCollapsed : ''}`}
-    >
-      <ManuHistoryPanel
-        chat={chat}
-        collapsed={historyCollapsed}
-        onToggle={() => setHistoryCollapsed((value) => !value)}
-      />
+    <div className={`${styles.page} ${messages.length ? styles.withMessages : ''}`}>
+      <ManuHistoryPanel chat={chat} />
       <section className={styles.chat} aria-label={t('Manu')}>
         {loadingConversation && <LoadingState compact label="Carregando conversa…" />}
         {!messages.length ? (
