@@ -48,6 +48,8 @@ function InstitutionPage() {
     closeNotice,
     retry,
     shown,
+    pageSize,
+    setPageSize,
     page,
     total,
     save,
@@ -259,7 +261,16 @@ function InstitutionPage() {
                     </tbody>
                   </table>
                 </div>
-                <Pagination page={page} total={total} onChange={setPage} />
+                <Pagination
+                  page={page}
+                  total={total}
+                  onChange={setPage}
+                  pageSize={pageSize}
+                  onPageSizeChange={(value) => {
+                    setPageSize(value)
+                    setPage(1)
+                  }}
+                />
               </>
             ) : (
               <p className={`${common.empty} ${styles.empty}`}>

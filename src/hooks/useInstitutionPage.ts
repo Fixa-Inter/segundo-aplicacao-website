@@ -22,6 +22,7 @@ export function useInstitutionPage() {
   const [status, setStatus] = useState('Todos')
   const [unitId, setUnitId] = useState('Todos')
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(3)
   const [attempt, setAttempt] = useState(0)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -111,10 +112,12 @@ export function useInstitutionPage() {
         .includes(search)
     )
   })
-  const total = Math.max(1, Math.ceil(filtered.length / 6))
+  const total = Math.max(1, Math.ceil(filtered.length / pageSize))
   const currentPage = Math.min(page, total)
-  const shown = filtered.slice((currentPage - 1) * 6, currentPage * 6)
+  const shown = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize)
   return {
+    pageSize,
+    setPageSize,
     t,
     data,
     tab,

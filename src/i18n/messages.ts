@@ -1,6 +1,9 @@
 import type { Language } from '../types/preferences'
 
 const messages: Record<string, readonly [string, string, string]> = {
+  'Registros por página': ['Rows per page', 'Registros por página', '每页记录数'],
+  Paginação: ['Pagination', 'Paginación', '分页'],
+  'de {total}': ['of {total}', 'de {total}', '共 {total} 页'],
   'Distribuição atual das OS por status': [
     'Current distribution of work orders by status',
     'Distribución actual de órdenes de servicio por estado',

@@ -99,6 +99,8 @@ export interface FilterButtonProps {
 export interface PaginationProps {
   page: number
   total: number
+  pageSize: number
+  onPageSizeChange: (value: number) => void
   onChange: (page: number) => void
 }
 export interface EventDetailsProps {

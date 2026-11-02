@@ -54,6 +54,8 @@ export default function Team() {
     filtered,
     lastPage,
     shown,
+    pageSize,
+    setPageSize,
     selectTab,
     moveTab,
     openForm,
@@ -343,7 +345,16 @@ export default function Team() {
                     </tbody>
                   </table>
                 </div>
-                <Pagination page={page} total={lastPage} onChange={setPage} />
+                <Pagination
+                  page={page}
+                  total={lastPage}
+                  onChange={setPage}
+                  pageSize={pageSize}
+                  onPageSizeChange={(value) => {
+                    setPageSize(value)
+                    setPage(1)
+                  }}
+                />
               </>
             ) : (
               <p className={common.empty}>

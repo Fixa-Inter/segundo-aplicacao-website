@@ -71,12 +71,10 @@ for (const width of [320, 390])
     await page.getByRole('button', { name: 'Filtrar', exact: true }).tap()
     await page.getByRole('dialog').waitFor()
     await page.keyboard.press('Escape')
-    await page.getByRole('button', { name: 'Página 2', exact: true }).tap()
+    await page.getByRole('combobox', { name: 'Página', exact: true }).selectOption('2')
     assert.equal(
-      await page
-        .getByRole('button', { name: 'Página 2', exact: true })
-        .getAttribute('aria-current'),
-      'page',
+      await page.getByRole('combobox', { name: 'Página', exact: true }).inputValue(),
+      '2',
     )
     await page.getByRole('button', { name: 'Anterior', exact: true }).tap()
     await page.getByRole('button', { name: /^Ver detalhes de Técnico 01/ }).tap()
@@ -255,11 +253,10 @@ test('paginação longa permite chegar à última página por toque', async () =
   const { page } = await setup({ width: 320, count: 40 })
   await goto(page, '/equipe')
   await ready(page)
-  await page.getByRole('button', { name: 'Página 10', exact: true }).tap()
-  assert.equal(
-    await page.getByRole('button', { name: 'Página 10', exact: true }).getAttribute('aria-current'),
-    'page',
-  )
+  const pages = page.getByRole('combobox', { name: 'Página', exact: true })
+  const last = await pages.locator('option').last().getAttribute('value')
+  await pages.selectOption(last)
+  assert.equal(await pages.inputValue(), last)
   assert.equal(await page.getByRole('button', { name: 'Próxima', exact: true }).isDisabled(), true)
   await noOverflow(page)
 })

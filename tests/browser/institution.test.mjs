@@ -97,10 +97,12 @@ for (const [role, width] of [
       await page
         .getByRole('button', { name: 'Editar Laboratório de informática', exact: true })
         .waitFor()
+      await page.getByRole('searchbox').fill('Banheiro do térreo')
       assert.equal(
         await page.getByText('Banheiro do térreo', { exact: true }).count(),
         role === 'GESTOR' ? 0 : 1,
       )
+      await page.getByRole('searchbox').fill('')
       await photo(page, `instituicao-locais-${width}.png`)
       await page.getByRole('button', { name: 'Adicionar local', exact: true }).click()
       await page.getByLabel('Nome *', { exact: true }).fill('Sala de manutenção')
@@ -112,6 +114,7 @@ for (const [role, width] of [
       await save(page)
       await page.getByText('Local salvo com sucesso.', { exact: true }).waitFor()
       assert.equal(f.calls[0].data.unidadeId, 5)
+      await page.getByRole('searchbox').fill('Sala de manutenção')
       await page.getByRole('button', { name: 'Editar Sala de manutenção', exact: true }).click()
       await page.getByLabel('Nome *', { exact: true }).fill('Sala de manutenção 2')
       if (role === 'ADMINISTRADOR')
@@ -162,6 +165,7 @@ for (const [role, width] of [
       await page.getByText('Término no dia seguinte', { exact: true }).waitFor()
       await save(page)
       await page.getByText('Turno salvo com sucesso.', { exact: true }).waitFor()
+      await page.getByRole('searchbox').fill('Noturno')
       assert.equal(f.calls.at(-1).data.atravessaMeiaNoite, true)
       assert.equal(f.calls.at(-1).data.horaInicio, 79200)
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
@@ -183,6 +187,7 @@ for (const [role, width] of [
         assert.ok(transfers.some((call) => call.path.startsWith('/api/v1/turnos/')))
       }
       await page.reload()
+      await page.getByRole('searchbox').fill('Sala de manutenção 2')
       await page.getByRole('button', { name: 'Editar Sala de manutenção 2', exact: true }).waitFor()
       assert.deepEqual(f.errors, [])
       assert.deepEqual(f.unexpected, [])

@@ -10,7 +10,7 @@ import {
 } from '../services/managementService'
 import type { TechnicianFormProps } from '../types/ui'
 import type { ManagerProfile, TeamMember } from '../types/management'
-import { pageSize, teamTabs } from '../utils/teamPresentation'
+import { teamTabs } from '../utils/teamPresentation'
 import { useNotice } from './useNotice'
 
 export function useTeamPage() {
@@ -38,6 +38,7 @@ export function useTeamPage() {
   const [filter, setFilter] = useState('Todos')
   const [unitFilter, setUnitFilter] = useState('Todos')
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(3)
   const [editing, setEditing] = useState<TeamMember | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const validMemberId = memberId !== undefined && /^[1-9]\d*$/.test(memberId)
@@ -122,7 +123,8 @@ export function useTeamPage() {
         .includes(query.toLocaleLowerCase('pt-BR').trim()),
   )
   const lastPage = Math.max(1, Math.ceil(filtered.length / pageSize))
-  const shown = filtered.slice((page - 1) * pageSize, page * pageSize)
+  const currentPage = Math.min(page, lastPage)
+  const shown = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize)
   function selectTab(accessType: TeamMember['accessType']) {
     setSelectedAccess(accessType)
     setPage(1)
@@ -148,6 +150,8 @@ export function useTeamPage() {
   }
 
   return {
+    pageSize,
+    setPageSize,
     t,
     institutional,
     activeAccess,
@@ -169,7 +173,7 @@ export function useTeamPage() {
     setFilter,
     unitFilter,
     setUnitFilter,
-    page,
+    page: currentPage,
     setPage,
     editing,
     formOpen,
