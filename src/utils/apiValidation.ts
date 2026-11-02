@@ -27,14 +27,12 @@ export function validateTechnician(
   if (!input.jobTitle || input.jobTitle.trim().length < 2 || input.jobTitle.length > 100)
     errors.jobTitle = 'Informe uma função entre 2 e 100 caracteres.'
   const selectedShifts = input.shiftIds ?? (input.shiftId ? [input.shiftId] : [])
-  if (selectedShifts.length > 1) errors.shiftId = 'Selecione apenas um turno.'
-  else if (
-    !input.shiftId ||
-    !/^\d+$/.test(input.shiftId) ||
-    selectedShifts.length !== 1 ||
-    selectedShifts[0] !== input.shiftId
+  if (
+    !selectedShifts.length ||
+    selectedShifts.some((id) => !/^[1-9]\d*$/.test(id)) ||
+    new Set(selectedShifts).size !== selectedShifts.length
   )
-    errors.shiftId = 'Selecione um turno cadastrado.'
+    errors.shiftId = 'Selecione ao menos um turno cadastrado.'
   if (!['Ativo', 'Inativo'].includes(input.status)) errors.status = 'Selecione uma situação válida.'
   return errors
 }

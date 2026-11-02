@@ -1,3 +1,4 @@
+import { MultiSelect } from '@mantine/core'
 import { Eye, EyeOff } from 'lucide-react'
 import { usePreferences } from '../../contexts/usePreferences'
 import { useTechnicianCompetencies } from '../../hooks/useTechnicianCompetencies'
@@ -87,7 +88,7 @@ function TechnicianFormFields(props: TechnicianFormFieldsProps) {
     formRef,
     updateField,
     selectUnit,
-    selectShift,
+    selectShifts,
     updateStatus,
     updatePassword,
     togglePassword,
@@ -212,25 +213,28 @@ function TechnicianFormFields(props: TechnicianFormFieldsProps) {
               <input id="technician-specialty" value={t(draftSpecialty || 'Sem notas')} readOnly />
             </div>
             <div className={`${styles.field} ${styles.shift}`}>
-              <label htmlFor="technician-shift">{t('Turno')} *</label>
-              <select
+              <label htmlFor="technician-shift">{t('Turnos')} *</label>
+              <MultiSelect
                 id="technician-shift"
-                value={form.shiftId ?? ''}
-                required
-                disabled={busy || !shifts.length || (institutional && !form.unitId)}
+                classNames={{ input: styles.shiftInput, inputField: styles.shiftSearch }}
+                data={shifts.map((shift) => ({ value: shift.id, label: shift.name }))}
+                value={form.shiftIds ?? []}
+                onChange={selectShifts}
+                placeholder={form.shiftIds?.length ? undefined : t('Selecione os turnos')}
+                nothingFoundMessage={t('Nenhum turno encontrado para os filtros escolhidos.')}
+                searchable
+                hidePickedOptions
+                disabled={
+                  busy ||
+                  shiftsLoading ||
+                  Boolean(shiftError) ||
+                  !shifts.length ||
+                  (institutional && !form.unitId)
+                }
                 aria-invalid={Boolean(errors.shiftId)}
                 aria-describedby={errors.shiftId ? 'technician-shift-error' : undefined}
-                onChange={(event) => selectShift(event.currentTarget.value)}
-              >
-                <option value="" disabled>
-                  {t('Selecione um turno')}
-                </option>
-                {shifts.map((shift) => (
-                  <option key={shift.id} value={shift.id}>
-                    {shift.name}
-                  </option>
-                ))}
-              </select>
+                comboboxProps={{ withinPortal: true }}
+              />
               {!shiftsLoading && !shifts.length && !shiftError && (
                 <p>{t('Nenhum turno ativo cadastrado na unidade.')}</p>
               )}

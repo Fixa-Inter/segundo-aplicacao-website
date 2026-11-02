@@ -1,5 +1,5 @@
 import { Drawer } from '@mantine/core'
-import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Building2, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import avatar from '../../assets/figma/avatar.png'
@@ -18,34 +18,43 @@ import styles from './AppLayout.module.css'
 const links = [
   { to: '/', label: 'Início', icon: 'home', end: true },
   { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { to: '/instituicao', label: 'Instituição', icon: 'institution' },
   { to: '/equipe', label: 'Equipe', icon: 'team' },
   { to: '/calendario', label: 'Calendário', icon: 'calendar' },
   { to: '/manu', label: 'Manu', icon: 'manu' },
 ] as const
 
 function Navigation({ onNavigate, onLogout }: NavigationProps) {
+  const { user } = useAuth()
+  const canManageInstitution = user?.role === 'GESTOR' || user?.role === 'ADMINISTRADOR'
   const { t } = usePreferences()
 
   return (
     <>
       <nav className={styles.nav} aria-label={t('Navegação principal')}>
-        {links.map(({ to, label, icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            onClick={onNavigate}
-            aria-label={t(label)}
-            className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}
-          >
-            {({ isActive }) => (
-              <>
-                <FigmaIcon name={icon} active={isActive} />
-                <span>{t(label)}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
+        {links
+          .filter((link) => link.to !== '/instituicao' || canManageInstitution)
+          .map(({ to, label, icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              onClick={onNavigate}
+              aria-label={t(label)}
+              className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}
+            >
+              {({ isActive }) => (
+                <>
+                  {icon === 'institution' ? (
+                    <Building2 aria-hidden="true" />
+                  ) : (
+                    <FigmaIcon name={icon} active={isActive} />
+                  )}
+                  <span>{t(label)}</span>
+                </>
+              )}
+            </NavLink>
+          ))}
       </nav>
       <div className={styles.account}>
         <NavLink

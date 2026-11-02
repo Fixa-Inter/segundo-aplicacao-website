@@ -466,7 +466,7 @@ test('perfil envia apenas campos que a API grava; validação exige cargo, turno
     dataNascimento: '1990-01-01',
   })
   assert.deepEqual(validateTechnician(input), {})
-  assert.ok(validateTechnician({ ...input, shiftId: '' }).shiftId)
+  assert.ok(validateTechnician({ ...input, shiftId: '', shiftIds: [] }).shiftId)
   assert.ok(
     validateEvent({
       title: 'Teste',
@@ -688,21 +688,23 @@ test('RH edita técnico de outra unidade da instituição preservando vínculo e
   )
 })
 
-test('seleção única de turno rejeita múltiplos vínculos no envio antes de qualquer chamada à API', async () => {
+test('seleção de turnos rejeita vínculos vazios, duplicados ou inválidos antes da API', async () => {
   const { client, calls } = setup(() => {
     throw Error('Nenhuma chamada deve ser enviada')
   })
   const service = createManagementService(client, () => user)
   for (const values of [
-    { shiftId: '4', shiftIds: ['4', '5'] },
+    { shiftId: '4', shiftIds: ['4', '4'] },
     { shiftId: '4', shiftIds: [] },
-    { shiftId: '4', shiftIds: ['5'] },
-    { shiftId: '', shiftIds: ['4'] },
+    { shiftId: '4', shiftIds: ['0'] },
+    { shiftId: '', shiftIds: ['x'] },
   ])
     await assert.rejects(service.saveTechnician({ ...input, ...values }, '22'), /turno/)
   assert.equal(calls.length, 0)
   assert.deepEqual(validateTechnician({ ...input, shiftIds: undefined }), {})
   assert.deepEqual(validateTechnician({ ...input, shiftId: '5', shiftIds: ['5'] }), {})
+  assert.deepEqual(validateTechnician({ ...input, shiftId: '4', shiftIds: ['4', '5'] }), {})
+  assert.deepEqual(validateTechnician({ ...input, shiftId: '', shiftIds: ['4'] }), {})
 })
 
 test('troca para um turno vincula o escolhido antes de remover antigos e preserva vínculos se falhar', async () => {
@@ -983,4 +985,36 @@ test('cancelamento do escopo do RH interrompe a busca antes de consultar turnos'
   releases.forEach((release) => release())
   await assert.rejects(pending, (error) => error.name === 'CanceledError')
   assert.equal(calls.length, 2)
+})
+
+test('salva múltiplos turnos sem duplicar vínculos e remove somente os desmarcados', async () => {
+  const shifts = [shift, { ...shift, id: 5 }, { ...shift, id: 6 }]
+  let links = [
+    { id: 80, turnoId: 4, estaAtivo: true },
+    { id: 81, turnoId: 6, estaAtivo: true },
+  ]
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/usuarios/22') return { data: { ...tech, ...call.data } }
+    if (call.url === '/api/v1/turnos') return { data: shifts }
+    if (call.url === '/api/v1/usuarios/22/turnos') return { data: links }
+    if (call.url === '/api/v1/turnos/5/usuarios/22') {
+      links.push({ id: 82, turnoId: 5, estaAtivo: true })
+      return {}
+    }
+    if (call.url === '/api/v1/turnos-usuarios/81/desativar') {
+      links = links.filter((link) => link.id !== 81)
+      return {}
+    }
+    if (call.url === '/api/v1/aptidoes') return { data: [] }
+    throw Error('Chamada inesperada: ' + call.url)
+  })
+  const service = createManagementService(client, () => user)
+  const saved = await service.saveTechnician({ ...input, shiftIds: ['4', '5'] }, '22')
+  assert.deepEqual(saved.shiftIds, ['4', '5'])
+  assert.equal(calls.filter((call) => call.url === '/api/v1/turnos/4/usuarios/22').length, 0)
+  assert.equal(calls.filter((call) => call.url === '/api/v1/turnos/5/usuarios/22').length, 1)
+  assert.equal(
+    calls.filter((call) => call.url === '/api/v1/turnos-usuarios/81/desativar').length,
+    1,
+  )
 })

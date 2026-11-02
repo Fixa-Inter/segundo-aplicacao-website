@@ -29,7 +29,7 @@ export function useTechnicianFormController({
   const linkedShiftIds = [
     ...new Set(technician?.shiftIds ?? (technician?.shiftId ? [technician.shiftId] : [])),
   ]
-  const selectedShiftId = linkedShiftIds.length === 1 ? linkedShiftIds[0] : ''
+  const selectedShiftId = linkedShiftIds[0] ?? ''
   const [form, setForm] = useState<TechnicianInput>({
     name: technician?.name ?? '',
     birthDate: technician?.birthDate ?? '',
@@ -152,8 +152,8 @@ export function useTechnicianFormController({
     setForm((value) => ({ ...value, unitId, shiftId: '', shiftIds: [] }))
     setErrors((value) => ({ ...value, unitId: undefined, shiftId: undefined }))
   }
-  function selectShift(shiftId: string) {
-    setForm((current) => ({ ...current, shiftId, shiftIds: shiftId ? [shiftId] : [] }))
+  function selectShifts(shiftIds: string[]) {
+    setForm((current) => ({ ...current, shiftId: shiftIds[0] ?? '', shiftIds }))
     setErrors((current) => ({ ...current, shiftId: undefined }))
   }
   function updatePassword(value: string) {
@@ -191,7 +191,7 @@ export function useTechnicianFormController({
     formRef,
     updateField,
     selectUnit,
-    selectShift,
+    selectShifts,
     updateStatus: (value) => setForm((current) => ({ ...current, status: value })),
     updatePassword,
     togglePassword: () => setPasswordVisible((current) => !current),

@@ -39,7 +39,7 @@ export interface TechnicianFormController {
   formRef: RefObject<HTMLFormElement | null>
   updateField: (key: TechnicianFieldDefinition['key'], value: string) => void
   selectUnit: (value: string) => void
-  selectShift: (value: string) => void
+  selectShifts: (value: string[]) => void
   updateStatus: (value: TechnicianInput['status']) => void
   updatePassword: (value: string) => void
   togglePassword: () => void

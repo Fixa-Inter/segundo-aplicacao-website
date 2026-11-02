@@ -9,6 +9,16 @@ import type { ConfirmDialogProps } from '../../types/ui'
 import styles from './ConfirmDialog.module.css'
 
 const variants = {
+  activateRecord: {
+    art: saveArt,
+    question: 'Ativar este registro?',
+    subtitle: 'O registro voltará a ficar disponível.',
+  },
+  deactivateRecord: {
+    art: deleteArt,
+    question: 'Desativar este registro?',
+    subtitle: 'Você poderá ativá-lo novamente.',
+  },
   delete: {
     art: deleteArt,
     question: 'Deseja deletar esse registro?',

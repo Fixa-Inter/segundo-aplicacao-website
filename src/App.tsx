@@ -16,6 +16,7 @@ const About = lazy(() => import('./pages/About'))
 const Recovery = lazy(() => import('./pages/Recovery'))
 const Home = lazy(() => import('./pages/Home'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Institution = lazy(() => import('./pages/Institution'))
 const Team = lazy(() => import('./pages/Team'))
 const Calendar = lazy(() => import('./pages/Calendar'))
 const Profile = lazy(() => import('./pages/Profile'))
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
         <Route element={<AppLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/instituicao" element={<Institution />} />
           <Route path="/equipe" element={<Team />} />
           <Route path="/equipe/:memberId" element={<Team />} />
           <Route path="/calendario" element={<Calendar />} />

@@ -4,6 +4,9 @@ import { currentUser } from './authService.ts'
 
 export { PartialSaveError } from './apiManagement.ts'
 export const {
+  loadInstitution,
+  saveInstitutionEntry,
+  setInstitutionEntryActive,
   listTechnicians,
   listTeamMembers,
   saveTechnician,

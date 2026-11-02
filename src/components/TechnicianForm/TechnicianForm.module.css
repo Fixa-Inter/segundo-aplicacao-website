@@ -314,3 +314,25 @@
     border-radius: 20px;
   }
 }
+
+.field .shiftInput {
+  min-height: 60px;
+  padding: 10px 36px 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 25px;
+  background: var(--fixa-field-bg);
+  color: var(--fixa-ink);
+}
+.field .shiftSearch {
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.shiftInput:focus-within {
+  border-color: var(--fixa-focus);
+}
+.shiftInput[aria-invalid='true'] {
+  border-color: var(--fixa-danger-text);
+}
