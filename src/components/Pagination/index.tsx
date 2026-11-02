@@ -10,18 +10,16 @@ export function Pagination({ page, total, pageSize, onPageSizeChange, onChange }
     .sort((a, b) => a - b)
   return (
     <div className={styles.footer} data-pagination>
-      <select
-        className={styles.size}
-        aria-label={t('Registros por página')}
-        value={pageSize}
-        onChange={(event) => onPageSizeChange(Number(event.target.value))}
-      >
-        {[3, 5, 10, 20, 50].map((size) => (
-          <option key={size} value={size}>
-            {formatNumber(size)}
-          </option>
-        ))}
-      </select>
+      <label className={styles.size}>
+        <span>{t('Linhas por página')}</span>
+        <select value={pageSize} onChange={(event) => onPageSizeChange(Number(event.target.value))}>
+          {[3, 5, 10, 20, 50].map((size) => (
+            <option key={size} value={size}>
+              {formatNumber(size)}
+            </option>
+          ))}
+        </select>
+      </label>
       <nav className={styles.pager} aria-label={t('Paginação')}>
         <button
           type="button"

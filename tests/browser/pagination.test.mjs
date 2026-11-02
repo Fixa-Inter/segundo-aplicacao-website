@@ -44,7 +44,7 @@ for (const [width, height] of [
       )
       for (const route of ['/equipe', '/instituicao']) {
         await page.goto(base + route)
-        const sizes = page.getByRole('combobox', { name: 'Registros por página', exact: true })
+        const sizes = page.getByRole('combobox', { name: 'Linhas por página', exact: true })
         await sizes.waitFor()
         await page.evaluate(() => document.fonts.ready)
         await page.waitForTimeout(300)
