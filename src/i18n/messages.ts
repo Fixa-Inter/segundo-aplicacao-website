@@ -1,7 +1,6 @@
 import type { Language } from '../types/preferences'
 
 const messages: Record<string, readonly [string, string, string]> = {
-  'Minha unidade': ['My unit', 'Mi unidad', '我的单位'],
   Instituição: ['Institution', 'Institución', '机构'],
   Locais: ['Locations', 'Lugares', '地点'],
   Turnos: ['Shifts', 'Turnos', '班次'],

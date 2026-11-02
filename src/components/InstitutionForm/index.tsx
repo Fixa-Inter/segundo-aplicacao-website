@@ -119,28 +119,32 @@ export function InstitutionForm({
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
         <fieldset disabled={busy}>
           <legend className="sr-only">{t(title)}</legend>
-          <div className={styles.grid}>
+          <div
+            className={`${styles.grid} ${!local && units.length === 1 ? styles.singleUnitShift : ''}`}
+          >
             {input('name', 'Nome', 100)}
-            <div className={styles.field}>
-              <label htmlFor="institution-unitId">{t('Unidade de trabalho')} *</label>
-              <select
-                id="institution-unitId"
-                value={form.unitId}
-                disabled={readOnly || units.length === 1 || Boolean(entry)}
-                required
-                onChange={(event) => update('unitId', event.target.value)}
-                aria-invalid={Boolean(errors.unitId)}
-                aria-describedby={errors.unitId ? 'institution-unitId-error' : undefined}
-              >
-                <option value="">{t('Selecione uma unidade de trabalho')}</option>
-                {units.map((unit) => (
-                  <option key={unit.id} value={unit.id} disabled={!unit.active}>
-                    {unit.name || t('Minha unidade')}
-                  </option>
-                ))}
-              </select>
-              {fieldError('unitId')}
-            </div>
+            {units.length > 1 && (
+              <div className={styles.field}>
+                <label htmlFor="institution-unitId">{t('Unidade de trabalho')} *</label>
+                <select
+                  id="institution-unitId"
+                  value={form.unitId}
+                  disabled={readOnly || Boolean(entry)}
+                  required
+                  onChange={(event) => update('unitId', event.target.value)}
+                  aria-invalid={Boolean(errors.unitId)}
+                  aria-describedby={errors.unitId ? 'institution-unitId-error' : undefined}
+                >
+                  <option value="">{t('Selecione uma unidade de trabalho')}</option>
+                  {units.map((unit) => (
+                    <option key={unit.id} value={unit.id} disabled={!unit.active}>
+                      {unit.name}
+                    </option>
+                  ))}
+                </select>
+                {fieldError('unitId')}
+              </div>
+            )}
             {local ? (
               <>
                 <div className={styles.field}>

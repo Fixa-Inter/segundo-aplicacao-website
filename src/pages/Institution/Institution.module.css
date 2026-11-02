@@ -4,6 +4,9 @@
 .tablePanel table th:nth-child(2) {
   width: 22%;
 }
+.singleUnit table th:first-child {
+  width: 40%;
+}
 .tablePanel table th:last-child {
   width: 180px;
 }

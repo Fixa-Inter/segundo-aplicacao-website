@@ -58,6 +58,7 @@ function InstitutionPage() {
     setScreen,
   } = useInstitutionPage()
   const local = tab === 'locations'
+  const showUnits = data.units.length > 1
   if (screen !== 'list')
     return (
       <InstitutionForm
@@ -135,7 +136,7 @@ function InstitutionPage() {
             setPage(1)
           }}
         >
-          {data.units.length > 1 && (
+          {showUnits && (
             <label className={common.field} htmlFor="institution-unit-filter">
               {t('Unidade')}
               <select
@@ -199,7 +200,7 @@ function InstitutionPage() {
           </div>
         ) : (
           <section
-            className={`${common.panel} ${tableStyles.tablePanel} ${styles.tablePanel}`}
+            className={`${common.panel} ${tableStyles.tablePanel} ${styles.tablePanel} ${showUnits ? '' : styles.singleUnit}`}
             aria-label={t(local ? 'Locais' : 'Turnos')}
           >
             {shown.length ? (
@@ -209,7 +210,7 @@ function InstitutionPage() {
                     <thead>
                       <tr>
                         <th scope="col">{t('Nome')}</th>
-                        <th scope="col">{t('Unidade')}</th>
+                        {showUnits && <th scope="col">{t('Unidade')}</th>}
                         <th scope="col">{t(local ? 'Tipo de local' : 'Horário')}</th>
                         <th scope="col">{t('Situação')}</th>
                         <th scope="col">{t('Ações')}</th>
@@ -224,10 +225,11 @@ function InstitutionPage() {
                               <span className={styles.description}>{item.description}</span>
                             )}
                           </td>
-                          <td data-label={t('Unidade')}>
-                            {data.units.find((unit) => unit.id === item.unitId)?.name ||
-                              t('Minha unidade')}
-                          </td>
+                          {showUnits && (
+                            <td data-label={t('Unidade')}>
+                              {data.units.find((unit) => unit.id === item.unitId)?.name}
+                            </td>
+                          )}
                           <td data-label={t(local ? 'Tipo de local' : 'Horário')}>
                             {local ? (
                               t(

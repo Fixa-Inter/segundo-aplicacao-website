@@ -111,6 +111,7 @@ for (const [role, width] of [
       await photo(page, `instituicao-formulario-${width}.png`)
       await save(page)
       await page.getByText('Local salvo com sucesso.', { exact: true }).waitFor()
+      assert.equal(f.calls[0].data.unidadeId, 5)
       await page.getByRole('button', { name: 'Editar Sala de manutenção', exact: true }).click()
       await page.getByLabel('Nome *', { exact: true }).fill('Sala de manutenção 2')
       await save(page)
