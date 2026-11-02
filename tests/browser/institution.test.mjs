@@ -295,3 +295,111 @@ test('falha ao carregar instituição permite tentar novamente sem substituir da
     await f.context.close()
   }
 })
+
+test('avisos de sucesso podem fechar, expiram e mantêm tempo de leitura durante interação', async () => {
+  const f = await fixture('ADMINISTRADOR', 1440)
+  const { page } = f
+  try {
+    await page.clock.install()
+    await page.goto(base + '/instituicao')
+    async function saveAgain() {
+      await page
+        .getByRole('button', { name: 'Editar Laboratório de informática', exact: true })
+        .click()
+      await save(page)
+      await page.getByText('Local salvo com sucesso.', { exact: true }).waitFor()
+    }
+    await saveAgain()
+    const close = page.getByRole('button', { name: 'Fechar aviso', exact: true })
+    await close.focus()
+    const box = await close.boundingBox()
+    assert.ok(box.width >= 44 && box.height >= 44)
+    await page.clock.fastForward(7000)
+    assert.equal(await close.isVisible(), true)
+    await close.press('Enter')
+    assert.equal(await close.count(), 0)
+    await saveAgain()
+    await page.mouse.move(0, 0)
+    await page.clock.fastForward(6500)
+    await close.waitFor({ state: 'hidden' })
+    await saveAgain()
+    await close.hover()
+    await page.clock.fastForward(7000)
+    assert.equal(await close.isVisible(), true)
+    await page.mouse.move(0, 0)
+    await page.clock.fastForward(6500)
+    await close.waitFor({ state: 'hidden' })
+    assert.deepEqual(f.errors, [])
+    assert.deepEqual(f.unexpected, [])
+  } finally {
+    await f.context.close()
+  }
+})
+
+test('descrição fica nos detalhes e restaurar campos de locais e turnos evita descarte desnecessário', async () => {
+  const f = await fixture('ADMINISTRADOR', 1440)
+  const { page } = f
+  try {
+    await page.goto(base + '/instituicao')
+    await page
+      .getByRole('button', { name: 'Ver detalhes de Laboratório de informática', exact: true })
+      .click()
+    assert.equal(
+      await page.getByLabel('Descrição *', { exact: true }).inputValue(),
+      'Computadores e equipamentos da sala 101',
+    )
+    await photo(page, 'local-detalhes-1440.png')
+    await page.getByRole('button', { name: 'Voltar', exact: true }).click()
+    assert.equal(
+      await page.getByText('Computadores e equipamentos da sala 101', { exact: true }).count(),
+      0,
+    )
+    for (const [tab, record, fields] of [
+      [
+        'Locais',
+        'Laboratório de informática',
+        [
+          ['#institution-name', 'Laboratório editado'],
+          ['#institution-description', 'Outra descrição'],
+          ['#institution-locationType', 'SALA_AULA'],
+        ],
+      ],
+      [
+        'Turnos',
+        'Manhã',
+        [
+          ['#institution-name', 'Manhã editada'],
+          ['#institution-startTime', '07:00'],
+          ['#institution-endTime', '11:00'],
+        ],
+      ],
+    ]) {
+      await page.getByRole('tab', { name: tab, exact: true }).click()
+      await page.getByRole('button', { name: 'Editar ' + record, exact: true }).click()
+      for (const [selector, replacement] of [
+        ...fields,
+        ['#institution-unitId', '6'],
+        ['#institution-active', 'Inativo'],
+      ]) {
+        const input = page.locator(selector)
+        const original = await input.inputValue()
+        if (await input.evaluate((el) => el.tagName === 'SELECT')) {
+          await input.selectOption(replacement)
+          await input.selectOption(original)
+        } else {
+          await input.fill(replacement)
+          await input.fill(original)
+        }
+      }
+      await photo(page, tab === 'Locais' ? 'local-edicao-1440.png' : 'turno-edicao-1440.png')
+      await page.getByRole('button', { name: 'Cancelar', exact: true }).click()
+      await page.getByRole('heading', { name: 'Instituição', exact: true }).waitFor()
+      assert.equal(await page.getByRole('dialog').count(), 0)
+    }
+    assert.equal(f.calls.length, 0)
+    assert.deepEqual(f.errors, [])
+    assert.deepEqual(f.unexpected, [])
+  } finally {
+    await f.context.close()
+  }
+})

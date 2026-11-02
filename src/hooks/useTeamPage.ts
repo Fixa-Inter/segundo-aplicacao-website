@@ -11,6 +11,7 @@ import {
 import type { TechnicianFormProps } from '../types/ui'
 import type { ManagerProfile, TeamMember } from '../types/management'
 import { pageSize, teamTabs } from '../utils/teamPresentation'
+import { useNotice } from './useNotice'
 
 export function useTeamPage() {
   const { t } = usePreferences()
@@ -32,7 +33,7 @@ export function useTeamPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [loadAttempt, setLoadAttempt] = useState(0)
-  const [notice, setNotice] = useState('')
+  const { notice, setNotice, closeNotice } = useNotice()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('Todos')
   const [unitFilter, setUnitFilter] = useState('Todos')
@@ -141,6 +142,7 @@ export function useTeamPage() {
   }
   function openForm(item?: TeamMember) {
     if (item?.accessType === 'GESTOR' && !institutional) return
+    setNotice('')
     setEditing(item ?? null)
     setFormOpen(true)
   }
@@ -160,6 +162,7 @@ export function useTeamPage() {
     setLoadError,
     setLoadAttempt,
     notice,
+    closeNotice,
     query,
     setQuery,
     filter,

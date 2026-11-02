@@ -6,6 +6,7 @@ import { FilterButton } from '../../components/FilterButton'
 import { InstitutionForm } from '../../components/InstitutionForm'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
+import { SuccessNotice } from '../../components/SuccessNotice'
 import { Pagination } from '../../components/Pagination'
 import { useAuth } from '../../contexts/useAuth'
 import { useInstitutionPage } from '../../hooks/useInstitutionPage'
@@ -44,6 +45,7 @@ function InstitutionPage() {
     unitId,
     setUnitId,
     notice,
+    closeNotice,
     retry,
     shown,
     page,
@@ -167,11 +169,7 @@ function InstitutionPage() {
           </label>
         </FilterButton>
       </div>
-      {notice && (
-        <p className={common.status} role="status">
-          {t(notice)}
-        </p>
-      )}
+      {notice && <SuccessNotice notice={notice} onClose={closeNotice} />}
       <div
         id="institution-content"
         role="tabpanel"
@@ -210,9 +208,6 @@ function InstitutionPage() {
                         <tr key={item.id}>
                           <td data-label={t('Nome')}>
                             <span className={styles.entryName}>{item.name}</span>
-                            {local && (
-                              <span className={styles.description}>{item.description}</span>
-                            )}
                           </td>
                           {showUnits && (
                             <td data-label={t('Unidade')}>

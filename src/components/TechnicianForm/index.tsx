@@ -157,7 +157,9 @@ function TechnicianFormFields(props: TechnicianFormFieldsProps) {
           <legend className={styles.srOnly}>
             {t(technical ? 'Informações do técnico' : 'Informações do gestor')}
           </legend>
-          <div className={styles.grid}>
+          <div
+            className={`${styles.grid} ${technical ? (technician ? styles.editTechnician : '') : styles.manager}`}
+          >
             {fields.slice(0, 3).map(renderField)}
             {renderField(fields[3])}
             <div className={`${styles.field} ${styles.access}`}>
@@ -315,13 +317,17 @@ function TechnicianFormFields(props: TechnicianFormFieldsProps) {
                 </span>
               </div>
             )}
-            {(addressSource.address ? addressFields : []).map((field) => (
-              <div className={`${styles.field} ${styles[field.key]}`} key={field.key}>
-                <label htmlFor={`technician-${field.key}`}>{t(field.label)}</label>
-                <input id={`technician-${field.key}`} value={addressSource[field.key]} readOnly />
-              </div>
-            ))}
           </div>
+          {addressSource.address && (
+            <div className={`${styles.grid} ${styles.addressGrid}`}>
+              {addressFields.map((field) => (
+                <div className={`${styles.field} ${styles[field.key]}`} key={field.key}>
+                  <label htmlFor={`technician-${field.key}`}>{t(field.label)}</label>
+                  <input id={`technician-${field.key}`} value={addressSource[field.key]} readOnly />
+                </div>
+              ))}
+            </div>
+          )}
         </fieldset>
         {technical && (
           <fieldset

@@ -122,6 +122,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+@media (min-width: 601px) and (max-width: 900px) {
+  .profileGrid > :last-child,
+  .information > div > :last-child {
+    grid-column: 1 / -1;
+  }
+}
 @media (max-width: 600px) {
   .profileGrid,
   .information > div {

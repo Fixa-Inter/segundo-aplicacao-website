@@ -107,7 +107,7 @@ export function EventForm(props: EventFormProps) {
             onChange={(e) => update('location', e.currentTarget.value)}
           />
           {(['description', 'observation'] as const).map((key) => (
-            <div className={`${styles.field} ${styles.full}`} key={key}>
+            <div className={`${styles.field} ${styles.description}`} key={key}>
               <label htmlFor={`event-${key}`}>
                 {t(key === 'description' ? 'Descrição' : 'Observação')}
               </label>

@@ -4,6 +4,7 @@ import { FigmaIcon } from '../../components/FigmaIcon'
 import { InformationItem } from '../../components/InformationItem'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
+import { SuccessNotice } from '../../components/SuccessNotice'
 import { useProfilePage } from '../../hooks/useProfilePage'
 import { formatDate as formatDateInput } from '../../utils/calendar'
 import { truncateText } from '../../utils/presentation'
@@ -42,6 +43,7 @@ export default function Profile() {
     error,
     setError,
     notice,
+    closeNotice,
     fieldErrors,
     setFieldErrors,
     birthDateText,
@@ -56,11 +58,7 @@ export default function Profile() {
   return (
     <div className={`${common.page} ${styles.page}`}>
       <PageHeader title={t(editing ? 'Editar Perfil' : 'Perfil')} />
-      {notice && (
-        <p role="status" className={common.status}>
-          {t(notice)}
-        </p>
-      )}
+      {notice && <SuccessNotice notice={notice} onClose={closeNotice} />}
       {error && (
         <p role="alert" className={common.error}>
           {t(error)}
@@ -186,6 +184,7 @@ export default function Profile() {
                 className={common.secondary}
                 type="button"
                 onClick={() => {
+                  closeNotice()
                   setError('')
                   setBirthDateText(
                     profile.birthDate

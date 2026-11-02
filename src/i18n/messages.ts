@@ -1,6 +1,7 @@
 import type { Language } from '../types/preferences'
 
 const messages: Record<string, readonly [string, string, string]> = {
+  'Fechar aviso': ['Close notification', 'Cerrar aviso', '关闭通知'],
   'Gestor atualizado com sucesso.': [
     'Manager updated successfully.',
     'Gestor actualizado correctamente.',

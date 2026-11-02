@@ -3,6 +3,7 @@ import { usePreferences } from '../../contexts/usePreferences'
 import { useUnsavedForm } from '../../contexts/useUnsavedChanges'
 import type { InstitutionFormProps, InstitutionInput } from '../../types/institution'
 import { locationTypes, shiftSeconds, validateInstitution } from '../../utils/institution'
+import { hasFormChanges } from '../../utils/formChanges'
 import { ConfirmDialog } from '../ConfirmDialog'
 import { FigmaIcon } from '../FigmaIcon'
 import styles from './InstitutionForm.module.css'
@@ -27,13 +28,15 @@ export function InstitutionForm({
     startTime: entry?.startTime ?? '',
     endTime: entry?.endTime ?? '',
   })
-  const [initial] = useState(() => JSON.stringify(form))
+  const [initial] = useState(form)
   const [errors, setErrors] = useState<Partial<Record<keyof InstitutionInput, string>>>({})
   const [error, setError] = useState('')
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
-  const requestExit = useUnsavedForm(!readOnly && JSON.stringify(form) !== initial, busy)
+  const isDirty = !readOnly && hasFormChanges(form, initial)
+  const requestExit = useUnsavedForm(isDirty, busy)
+  const fieldCount = 1 + Number(units.length > 1) + (local ? 1 : 2) + Number(Boolean(entry))
   const cancel = () => requestExit(onCancel)
   const title = readOnly
     ? local
@@ -87,7 +90,9 @@ export function InstitutionForm({
   }
   function input(key: 'name' | 'startTime' | 'endTime', label: string, maxLength: number) {
     return (
-      <div className={styles.field}>
+      <div
+        className={`${styles.field} ${key === 'name' && fieldCount % 2 === 1 ? styles.full : ''}`}
+      >
         <label htmlFor={'institution-' + key}>{t(label)} *</label>
         <input
           id={'institution-' + key}
@@ -120,9 +125,7 @@ export function InstitutionForm({
       <form ref={formRef} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>
         <fieldset disabled={busy}>
           <legend className="sr-only">{t(title)}</legend>
-          <div
-            className={`${styles.grid} ${!local && units.length === 1 ? styles.singleUnitShift : ''}`}
-          >
+          <div className={styles.grid}>
             {input('name', 'Nome', 100)}
             {units.length > 1 && (
               <div className={styles.field}>
@@ -146,55 +149,29 @@ export function InstitutionForm({
                 {fieldError('unitId')}
               </div>
             )}
-            {local ? (
-              <>
-                <div className={styles.field}>
-                  <label htmlFor="institution-locationType">{t('Tipo de local')} *</label>
-                  <select
-                    id="institution-locationType"
-                    value={form.locationType}
-                    disabled={readOnly}
-                    onChange={(event) => update('locationType', event.target.value)}
-                    required
-                    aria-invalid={Boolean(errors.locationType)}
-                    aria-describedby={
-                      errors.locationType ? 'institution-locationType-error' : undefined
-                    }
-                  >
-                    <option value="">{t('Selecione um tipo de local')}</option>
-                    {locationTypes.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {t(type.label)}
-                      </option>
-                    ))}
-                  </select>
-                  {fieldError('locationType')}
-                </div>
-                <div className={`${styles.field} ${styles.description}`}>
-                  <label htmlFor="institution-description">{t('Descrição')} *</label>
-                  <textarea
-                    id="institution-description"
-                    value={form.description}
-                    onChange={(event) => update('description', event.target.value)}
-                    readOnly={readOnly}
-                    required
-                    maxLength={255}
-                    aria-invalid={Boolean(errors.description)}
-                    aria-describedby={
-                      errors.description ? 'institution-description-error' : undefined
-                    }
-                  />
-                  {fieldError('description')}
-                </div>
-              </>
-            ) : (
-              <>
-                {input('startTime', 'Horário de início', 8)}
-                {input('endTime', 'Horário de término', 8)}
-                {shiftSeconds(form.endTime) < shiftSeconds(form.startTime) && (
-                  <p className={styles.overnight}>{t('Término no dia seguinte')}</p>
-                )}
-              </>
+            {local && (
+              <div className={styles.field}>
+                <label htmlFor="institution-locationType">{t('Tipo de local')} *</label>
+                <select
+                  id="institution-locationType"
+                  value={form.locationType}
+                  disabled={readOnly}
+                  onChange={(event) => update('locationType', event.target.value)}
+                  required
+                  aria-invalid={Boolean(errors.locationType)}
+                  aria-describedby={
+                    errors.locationType ? 'institution-locationType-error' : undefined
+                  }
+                >
+                  <option value="">{t('Selecione um tipo de local')}</option>
+                  {locationTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {t(type.label)}
+                    </option>
+                  ))}
+                </select>
+                {fieldError('locationType')}
+              </div>
             )}
             {entry && (
               <div className={styles.field}>
@@ -211,6 +188,33 @@ export function InstitutionForm({
                   <option value="Ativo">{t('Ativo')}</option>
                   <option value="Inativo">{t('Inativo')}</option>
                 </select>
+              </div>
+            )}
+            {!local && (
+              <>
+                {input('startTime', 'Horário de início', 8)}
+                {input('endTime', 'Horário de término', 8)}
+                {shiftSeconds(form.endTime) < shiftSeconds(form.startTime) && (
+                  <p className={styles.overnight}>{t('Término no dia seguinte')}</p>
+                )}
+              </>
+            )}
+            {local && (
+              <div className={`${styles.field} ${styles.description}`}>
+                <label htmlFor="institution-description">{t('Descrição')} *</label>
+                <textarea
+                  id="institution-description"
+                  value={form.description}
+                  onChange={(event) => update('description', event.target.value)}
+                  readOnly={readOnly}
+                  required
+                  maxLength={255}
+                  aria-invalid={Boolean(errors.description)}
+                  aria-describedby={
+                    errors.description ? 'institution-description-error' : undefined
+                  }
+                />
+                {fieldError('description')}
               </div>
             )}
           </div>

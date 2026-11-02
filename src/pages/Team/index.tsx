@@ -5,6 +5,7 @@ import { FigmaIcon } from '../../components/FigmaIcon'
 import { FilterButton } from '../../components/FilterButton'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
+import { SuccessNotice } from '../../components/SuccessNotice'
 import { Pagination } from '../../components/Pagination'
 import { TechnicianDetails } from '../../components/TechnicianDetails'
 import { TechnicianForm } from '../../components/TechnicianForm'
@@ -30,6 +31,7 @@ export default function Team() {
     setLoadError,
     setLoadAttempt,
     notice,
+    closeNotice,
     query,
     setQuery,
     filter,
@@ -226,11 +228,7 @@ export default function Team() {
           </label>
         </FilterButton>
       </div>
-      {notice && (
-        <p className={common.status} role="status">
-          {t(notice)}
-        </p>
-      )}
+      {notice && <SuccessNotice notice={notice} onClose={closeNotice} />}
       <div
         id="team-content"
         className={styles.teamContent}

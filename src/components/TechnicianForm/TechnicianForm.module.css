@@ -44,39 +44,22 @@
   align-items: start;
   gap: 26px 20px;
 }
-.name,
-.email {
+.grid > .field {
   grid-column: span 6;
 }
-.address {
-  grid-column: span 8;
-}
-.birthDate,
-.jobTitle,
-.access,
-.postalCode,
-.district,
-.city {
+.grid > :is(.name, .email, .birthDate, .jobTitle, .access, .workUnit),
+.editTechnician > :is(.specialty, .shift, .status),
+.addressGrid > :is(.postalCode, .district, .city, .state, .number) {
   grid-column: span 4;
 }
-
-.password,
-.complement {
-  grid-column: span 5;
+.addressGrid > :is(.address, .complement) {
+  grid-column: span 8;
 }
-.state {
-  grid-column: span 1;
+.addressGrid {
+  margin-top: 26px;
 }
-.number {
-  grid-column: span 2;
-}
-
-.specialty,
-.status {
-  grid-column: span 3;
-}
-.shift {
-  grid-column: span 6;
+.manager > .status {
+  grid-column: 1 / -1;
 }
 .field {
   display: grid;
@@ -263,8 +246,11 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
-  .grid .field {
+  .grid > .field {
     grid-column: auto;
+  }
+  .grid > .field:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
 }
 @media (max-width: 600px) {
@@ -294,10 +280,6 @@
   .actions button {
     min-width: 120px;
   }
-}
-
-.workUnit {
-  grid-column: 1 / -1;
 }
 
 @media (max-width: 600px) {

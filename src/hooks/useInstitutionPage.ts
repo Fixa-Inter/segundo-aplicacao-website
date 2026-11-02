@@ -12,6 +12,7 @@ import type {
   InstitutionTab,
 } from '../types/institution'
 import { institutionTabs, locationTypes } from '../utils/institution'
+import { useNotice } from './useNotice'
 
 export function useInstitutionPage() {
   const { t } = usePreferences()
@@ -24,7 +25,7 @@ export function useInstitutionPage() {
   const [attempt, setAttempt] = useState(0)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
-  const [notice, setNotice] = useState('')
+  const { notice, setNotice, closeNotice } = useNotice()
   const [entry, setEntry] = useState<InstitutionEntry | null>(null)
   const [screen, setScreen] = useState<'list' | 'form' | 'details'>('list')
   const addButton = useRef<HTMLButtonElement>(null)
@@ -131,6 +132,7 @@ export function useInstitutionPage() {
     loadError,
     retry,
     notice,
+    closeNotice,
     entry,
     screen,
     setScreen,

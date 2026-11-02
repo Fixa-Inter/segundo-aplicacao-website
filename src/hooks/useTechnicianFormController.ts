@@ -76,11 +76,17 @@ export function useTechnicianFormController({
       })),
     ).highlights[0]?.name ?? ''
   const [ratingErrors, setRatingErrors] = useState<Record<string, string>>({})
-  const [initial] = useState(() => ({
-    form: JSON.stringify(form),
-    birthDateText: birthDate,
+  const draft = {
+    name: form.name,
+    email: form.email,
+    jobTitle: form.jobTitle,
+    unitId: form.unitId,
+    shiftIds: form.shiftIds,
+    status: form.status,
+    birthDate,
     password,
-  }))
+  }
+  const [initial] = useState(draft)
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [passwordError, setPasswordError] = useState<string | undefined>()
   const [errors, setErrors] = useState<Partial<Record<keyof TechnicianInput, string>>>({})
@@ -88,9 +94,7 @@ export function useTechnicianFormController({
   const [pending, setPending] = useState<TechnicianSubmission | null>(null)
   const [busy, setBusy] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
-  const isDirty =
-    hasFormChanges({ form: JSON.stringify(form), birthDateText: birthDate, password }, initial) ||
-    hasFormChanges(ratings, initialRatings)
+  const isDirty = hasFormChanges(draft, initial) || hasFormChanges(ratings, initialRatings)
   const requestExit = useUnsavedForm(isDirty, busy)
   const cancel = () => requestExit(onCancel)
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -150,7 +154,8 @@ export function useTechnicianFormController({
     setErrors((current) => ({ ...current, [key]: undefined }))
   }
   function selectUnit(unitId: string) {
-    setForm((value) => ({ ...value, unitId, shiftId: '', shiftIds: [] }))
+    const shiftIds = unitId === technician?.unitId ? linkedShiftIds : []
+    setForm((value) => ({ ...value, unitId, shiftId: shiftIds[0] ?? '', shiftIds }))
     setErrors((value) => ({ ...value, unitId: undefined, shiftId: undefined }))
   }
   function selectShifts(shiftIds: string[]) {
