@@ -130,7 +130,7 @@ export function InstitutionForm({
                 <select
                   id="institution-unitId"
                   value={form.unitId}
-                  disabled={readOnly || Boolean(entry)}
+                  disabled={readOnly}
                   required
                   onChange={(event) => update('unitId', event.target.value)}
                   aria-invalid={Boolean(errors.unitId)}

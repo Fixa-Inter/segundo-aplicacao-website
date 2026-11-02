@@ -114,11 +114,23 @@ for (const [role, width] of [
       assert.equal(f.calls[0].data.unidadeId, 5)
       await page.getByRole('button', { name: 'Editar Sala de manutenção', exact: true }).click()
       await page.getByLabel('Nome *', { exact: true }).fill('Sala de manutenção 2')
+      if (role === 'ADMINISTRADOR')
+        await page.getByLabel('Unidade de trabalho *', { exact: true }).selectOption('6')
       await save(page)
       await page
         .getByRole('button', { name: 'Ver detalhes de Sala de manutenção 2', exact: true })
         .click()
       assert.equal(await page.getByLabel('Nome *', { exact: true }).getAttribute('readonly'), '')
+      if (role === 'ADMINISTRADOR') {
+        assert.equal(
+          await page.getByLabel('Unidade de trabalho *', { exact: true }).inputValue(),
+          '6',
+        )
+        assert.equal(
+          await page.getByLabel('Unidade de trabalho *', { exact: true }).isDisabled(),
+          true,
+        )
+      }
       await page.getByRole('button', { name: 'Voltar', exact: true }).click()
       for (const status of ['Inativo', 'Ativo']) {
         await page.getByRole('button', { name: 'Editar Sala de manutenção 2', exact: true }).click()
@@ -154,6 +166,22 @@ for (const [role, width] of [
       assert.equal(f.calls.at(-1).data.horaInicio, 79200)
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
       await photo(page, `instituicao-turnos-${width}.png`)
+      if (role === 'ADMINISTRADOR') {
+        await page.getByRole('button', { name: 'Editar Noturno', exact: true }).click()
+        await page.getByLabel('Unidade de trabalho *', { exact: true }).selectOption('6')
+        await save(page)
+        await page.getByRole('button', { name: 'Editar Noturno', exact: true }).waitFor()
+        assert.equal(f.records.turnos.find((item) => item.nome === 'Noturno').unidadeId, 6)
+        assert.equal(
+          f.records.locais.find((item) => item.nome === 'Sala de manutenção 2').unidadeId,
+          6,
+        )
+        const transfers = f.calls.filter(
+          (call) => call.method === 'PATCH' && call.data?.unidadeId === 6,
+        )
+        assert.ok(transfers.some((call) => call.path.startsWith('/api/v1/locais/')))
+        assert.ok(transfers.some((call) => call.path.startsWith('/api/v1/turnos/')))
+      }
       await page.reload()
       await page.getByRole('button', { name: 'Editar Sala de manutenção 2', exact: true }).waitFor()
       assert.deepEqual(f.errors, [])

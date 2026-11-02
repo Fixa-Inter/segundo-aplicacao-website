@@ -48,6 +48,7 @@ for (const width of [1440, 390]) {
       await page.getByRole('button', { name: 'Editar Gestor Centro', exact: true }).click()
       await page.getByLabel('Nome completo *', { exact: true }).fill('Gestor Centro Atualizado')
       await page.getByLabel('Função *', { exact: true }).fill('Coordenação de manutenção')
+      await page.getByLabel('Unidade de trabalho *', { exact: true }).selectOption('6')
       assert.equal(await page.getByLabel('Cargo', { exact: true }).inputValue(), 'Gestor')
       assert.equal(await page.getByLabel('Turnos *', { exact: true }).count(), 0)
       assert.equal(await page.getByRole('group', { name: 'Competências', exact: true }).count(), 0)
@@ -59,6 +60,10 @@ for (const width of [1440, 390]) {
         has: page.getByRole('button', { name: 'Editar Gestor Centro Atualizado', exact: true }),
       })
       assert.ok((await row.innerText()).includes('Inativo'))
+      assert.ok((await row.innerText()).includes('Unidade Bela Vista'))
+      assert.ok(
+        f.writes.some((call) => call.path === '/api/v1/usuarios/101' && call.data?.unidadeId === 6),
+      )
       assert.equal(await row.getByRole('combobox').count(), 0)
       await page
         .getByRole('button', { name: 'Editar Gestor Centro Atualizado', exact: true })
