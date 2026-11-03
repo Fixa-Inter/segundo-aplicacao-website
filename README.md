@@ -2,7 +2,7 @@
 
 # FIXA · Aplicação Web
 
-Experiência web para gestão de manutenção, equipes, eventos e indicadores.
+**Web publicada:** [segundo-aplicacao-website.vercel.app](https://segundo-aplicacao-website.vercel.app/login). A implantação usa a versão promovida para `main` após revisão e homologação.
 
 ![badge](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white) ![badge](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white) ![badge](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white) ![badge](https://img.shields.io/badge/License-MIT-green)
 

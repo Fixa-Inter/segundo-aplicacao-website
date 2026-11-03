@@ -7,7 +7,7 @@ import {
   saveTechnician,
   removeTechnician,
   listTechnicians,
-} from '../src/mocks/services/managementService.ts'
+} from './fixtures/demo/services/managementService.ts'
 import {
   competencyCategories,
   parseCompetencyRating,

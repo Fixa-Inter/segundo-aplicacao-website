@@ -8,6 +8,7 @@ import manuSuccess from '../../assets/figma/manu-recovery-success.png'
 import manu from '../../assets/figma/manu-recovery.png'
 import { AuthField } from '../../components/AuthField'
 import { FigmaIcon } from '../../components/FigmaIcon'
+import { SuccessNotice } from '../../components/SuccessNotice'
 import { useRecoveryPage } from '../../hooks/useRecoveryPage'
 import type { RecoveryStep } from '../../types/recovery'
 import styles from './Recovery.module.css'
@@ -48,6 +49,7 @@ export default function Recovery() {
     fieldErrors,
     error,
     notice,
+    closeNotice,
     busy,
     visible,
     setVisible,
@@ -247,11 +249,7 @@ export default function Recovery() {
                 </button>
               </p>
             )}
-            {notice && (
-              <p className={styles.demoNote} role="status">
-                {t(notice)}
-              </p>
-            )}
+            {notice && <SuccessNotice notice={notice} onClose={closeNotice} />}
           </>
         )}
       </section>

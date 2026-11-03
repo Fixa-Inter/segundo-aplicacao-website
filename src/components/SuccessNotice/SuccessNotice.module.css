@@ -1,0 +1,31 @@
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 6px 8px 6px 16px;
+  border-radius: 12px;
+  background: var(--fixa-success-bg);
+  color: var(--fixa-success-text);
+}
+.notice p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.notice button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.notice button:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}

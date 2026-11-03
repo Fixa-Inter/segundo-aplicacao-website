@@ -7,7 +7,7 @@ import type {
   TechnicianInput,
 } from '../types/management'
 import { isTechnician, teamAccessType, technician } from '../utils/apiUsers.ts'
-import { validatePassword, validateTechnician } from '../utils/apiValidation.ts'
+import { validateManager, validatePassword, validateTechnician } from '../utils/apiValidation.ts'
 import { validateCompetency } from '../utils/competencies.ts'
 import { check } from '../utils/validationErrors.ts'
 import { PartialSaveError } from './managementErrors.ts'
@@ -120,13 +120,13 @@ export function createTeamService(
       const error = validatePassword(input.password ?? '')
       if (error) throw new Error(error)
     }
-    const [old, institution] = await Promise.all([
+    const [existingUser, institution] = await Promise.all([
       id ? users.getUser(id) : Promise.resolve(null),
       user().role === 'ADMINISTRADOR' ? institutionScope() : Promise.resolve(null),
     ])
     const previousUnit = institution
-      ? old
-        ? institution.units.find((item) => item.id === old.unidadeId)
+      ? existingUser
+        ? institution.units.find((item) => item.id === existingUser.unidadeId)
         : institution.currentUnit
       : await scope()
     const unit =
@@ -135,13 +135,13 @@ export function createTeamService(
         : previousUnit
     if (institution && (!previousUnit || !unit))
       throw new Error('A unidade selecionada não pertence à instituição da sua conta.')
-    if (unit && !unit.estaAtivo && unit.id !== old?.unidadeId)
+    if (unit && !unit.estaAtivo && unit.id !== existingUser?.unidadeId)
       throw new Error('Selecione uma unidade ativa.')
-    const shifts = await shiftsService.listRawShifts(unit?.id ?? old?.unidadeId)
+    const shifts = await shiftsService.listRawShifts(unit?.id ?? existingUser?.unidadeId)
     const selected = input.shiftIds ?? (input.shiftId ? [input.shiftId] : [])
     const unitId =
       unit?.id ??
-      old?.unidadeId ??
+      existingUser?.unidadeId ??
       shifts.find((shift) => String(shift.id) === selected[0])?.unidadeId
     if (
       !unitId ||
@@ -157,7 +157,7 @@ export function createTeamService(
     if (input.unitId && input.unitId !== String(unitId))
       throw new Error('Sua conta não pode alterar a unidade de trabalho.')
     const data = {
-      ...(old && unitId !== old.unidadeId ? { unidadeId: unitId } : {}),
+      ...(existingUser && unitId !== existingUser.unidadeId ? { unidadeId: unitId } : {}),
       nomeCompleto: input.name.trim(),
       email: input.email.trim(),
       cargo: input.jobTitle?.trim(),
@@ -176,6 +176,7 @@ export function createTeamService(
         saved = await users.setUserActive(String(saved.id), true)
       const links = await shiftsService.listUserShifts(String(saved.id))
 
+      // Cria os novos vínculos antes de desativar os anteriores, evitando perder os turnos numa falha.
       for (const shiftId of selected) {
         if (!links.some((link) => link.estaAtivo && String(link.turnoId) === shiftId))
           await shiftsService.linkUser(shiftId, String(saved.id))
@@ -198,14 +199,43 @@ export function createTeamService(
       throw new PartialSaveError(String(saved.id), error)
     }
   }
-  async function removeTechnician(id: string): Promise<void> {
-    await users.setUserActive(id, false)
+  async function saveManager(input: TechnicianInput, id: string): Promise<TeamMember> {
+    if (user().role !== 'ADMINISTRADOR') throw new Error('Somente o RH pode editar gestores.')
+    check(validateManager(input))
+    const [existingUser, institution] = await Promise.all([users.getUser(id), institutionScope()])
+    if (
+      teamAccessType(existingUser.tipoAcesso) !== 'GESTOR' ||
+      !institution.units.some((unit) => unit.id === existingUser.unidadeId)
+    )
+      throw new Error('Este gestor não pertence à instituição da sua conta.')
+    const unit = institution.units.find(
+      (unit) => String(unit.id) === (input.unitId || String(existingUser.unidadeId)),
+    )
+    if (!unit || (!unit.estaAtivo && unit.id !== existingUser.unidadeId))
+      throw new Error('Selecione uma unidade ativa da sua instituição.')
+    let saved = await users.saveUser(
+      {
+        ...(unit.id !== existingUser.unidadeId ? { unidadeId: unit.id } : {}),
+        nomeCompleto: input.name.trim(),
+        email: input.email.trim(),
+        cargo: input.jobTitle?.trim(),
+        dataNascimento: input.birthDate,
+      },
+      id,
+    )
+    try {
+      if (saved.estaAtivo !== (input.status === 'Ativo'))
+        saved = await users.setUserActive(id, input.status === 'Ativo')
+    } catch (error) {
+      throw new PartialSaveError(id, error)
+    }
+    return { ...technician(saved, unit, [], [], []), accessType: 'GESTOR' }
   }
   return {
     listTechnicians,
     listTeamMembers,
     listEventResponsibles,
     saveTechnician,
-    removeTechnician,
+    saveManager,
   }
 }

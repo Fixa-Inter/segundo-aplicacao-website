@@ -1,5 +1,5 @@
 import type { FormEvent, RefObject } from 'react'
-import type { CompetencyInput } from './competency'
+import type { CompetencyInput, TechnicianCompetency } from './competency'
 import type { Address, ShiftOption, TechnicianInput, WorkUnitOption } from './management'
 
 export interface TechnicianSubmission {
@@ -7,7 +7,7 @@ export interface TechnicianSubmission {
   competencies: CompetencyInput[]
 }
 export interface TechnicianFieldDefinition {
-  key: Exclude<keyof TechnicianInput, 'status'>
+  key: 'name' | 'email' | 'birthDate' | 'jobTitle'
   label: string
   type?: 'text' | 'email' | 'tel'
   maxLength?: number
@@ -15,6 +15,7 @@ export interface TechnicianFieldDefinition {
 export interface TechnicianFormController {
   form: TechnicianInput
   institutional: boolean
+  technical: boolean
   cnpj: string
   workUnits: WorkUnitOption[]
   unitError: string
@@ -39,7 +40,7 @@ export interface TechnicianFormController {
   formRef: RefObject<HTMLFormElement | null>
   updateField: (key: TechnicianFieldDefinition['key'], value: string) => void
   selectUnit: (value: string) => void
-  selectShift: (value: string) => void
+  selectShifts: (value: string[]) => void
   updateStatus: (value: TechnicianInput['status']) => void
   updatePassword: (value: string) => void
   togglePassword: () => void
@@ -48,4 +49,14 @@ export interface TechnicianFormController {
   confirmSave: () => Promise<void>
   closeConfirmation: () => void
   cancel: () => void
+}
+
+export interface TechnicianAssignmentsProps {
+  controller: TechnicianFormController
+  unitName: string
+  initialUnitId?: string
+}
+export interface TechnicianGradesProps {
+  controller: TechnicianFormController
+  items: TechnicianCompetency[]
 }

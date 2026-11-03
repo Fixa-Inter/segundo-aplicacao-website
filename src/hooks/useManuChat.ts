@@ -38,6 +38,7 @@ export function useManuChat() {
   const [correction, setCorrection] = useState('')
   const request = useRef<AbortController | null>(null)
   const historyRequest = useRef<AbortController | null>(null)
+  // Cada troca de conversa invalida respostas que ainda estão a caminho.
   const generation = useRef(0)
   const busyRef = useRef(false)
   const fileInput = useRef<HTMLInputElement>(null)
@@ -183,6 +184,7 @@ export function useManuChat() {
       setCorrecting(false)
       setCorrection('')
       if (mode === 'message') clearAttachments()
+      // Atualizar o histórico em segundo plano não prolonga o loader da resposta.
       void refreshConversations(true)
     } catch (reason) {
       if (controller.signal.aborted || expected !== generation.current) return

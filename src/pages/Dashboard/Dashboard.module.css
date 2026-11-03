@@ -1,19 +1,26 @@
 .embedPage {
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - var(--header-height));
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
 }
 .embedFrame {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   width: 100%;
-  min-height: 640px;
+  min-height: 0;
   border: 1px solid var(--fixa-border, #dce4ef);
   border-radius: 22px;
   background: var(--fixa-surface);
 }
+.embedFrame > [data-dashboard-state] {
+  flex: 1;
+  min-height: 0;
+}
 @media (max-width: 600px) {
   .embedFrame {
-    min-height: 70dvh;
     border-radius: 16px;
   }
 }

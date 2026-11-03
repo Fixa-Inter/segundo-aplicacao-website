@@ -56,7 +56,7 @@ export function TechnicianDetails({ technician, onBack, onEdit }: TechnicianDeta
         </div>
         {onEdit && (
           <button type="button" className={styles.edit} onClick={() => requestExit(onEdit)}>
-            {t('Editar técnico')}
+            {t(technical ? 'Editar técnico' : 'Editar gestor')}
           </button>
         )}
       </div>

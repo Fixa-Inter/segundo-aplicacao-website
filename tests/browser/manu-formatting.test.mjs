@@ -169,3 +169,24 @@ https://loja.example/caminho-muito-longo?origem=manu&produto=furadeira
     await f.context.close()
   }
 })
+
+test('oferta da Pechincha mantém destino e botão sem repetir o domínio abaixo', async () => {
+  const f = await managementFixture(browser, { width: 390 })
+  try {
+    await openReply(
+      f,
+      'Ofertas encontradas na Pechincha.ai:\n\n- **Kit de ferramentas** — R$ 548,99. [Ver oferta](https://pechincha.ai/ofertas/kit?origem=manu)',
+    )
+    const offer = f.page.getByRole('log').getByRole('link', { name: /Ver oferta/ })
+    await offer.waitFor()
+    assert.equal(await offer.getAttribute('href'), 'https://pechincha.ai/ofertas/kit?origem=manu')
+    assert.equal(await offer.locator('small').count(), 0)
+    assert.ok((await offer.innerText()).trim() === 'Ver oferta')
+    assert.equal(await offer.getAttribute('target'), '_blank')
+    assert.ok((await offer.boundingBox()).height >= 44)
+    assert.deepEqual(f.errors, [])
+    assert.deepEqual(f.unexpected, [])
+  } finally {
+    await f.context.close()
+  }
+})

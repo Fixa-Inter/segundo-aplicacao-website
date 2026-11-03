@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -7,15 +7,16 @@ import {
   RouterProvider,
 } from 'react-router-dom'
 import { LoadingState } from './components/LoadingState'
+import { LANDING_PAGE_URL } from './constants/links'
 import { PublicLayout } from './components/PublicLayout'
 import { AuthProvider } from './contexts/AuthContext'
 import { PrivateRoute } from './routes/PrivateRoute'
 
 const Login = lazy(() => import('./pages/Login'))
-const About = lazy(() => import('./pages/About'))
 const Recovery = lazy(() => import('./pages/Recovery'))
 const Home = lazy(() => import('./pages/Home'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Institution = lazy(() => import('./pages/Institution'))
 const Team = lazy(() => import('./pages/Team'))
 const Calendar = lazy(() => import('./pages/Calendar'))
 const Profile = lazy(() => import('./pages/Profile'))
@@ -26,11 +27,19 @@ const AppLayout = lazy(() =>
   import('./components/AppLayout').then((module) => ({ default: module.AppLayout })),
 )
 
+function LegacyAboutRedirect() {
+  useEffect(() => {
+    window.location.replace(LANDING_PAGE_URL)
+  }, [])
+
+  return <LoadingState fullscreen />
+}
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route element={<PublicLayout />}>
-        <Route path="/sobre" element={<About />} />
+        <Route path="/sobre" element={<LegacyAboutRedirect />} />
         <Route path="/login" element={<Login />} />
         <Route path="/recuperar-senha" element={<Recovery key="recover" />} />
         <Route path="/404" element={<NotFound />} />
@@ -42,6 +51,7 @@ const router = createBrowserRouter(
         <Route element={<AppLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/instituicao" element={<Institution />} />
           <Route path="/equipe" element={<Team />} />
           <Route path="/equipe/:memberId" element={<Team />} />
           <Route path="/calendario" element={<Calendar />} />

@@ -26,3 +26,14 @@ test('cadastros vazios ficam limpos e uma nova referência salva passa a ser a b
   assert.equal(hasFormChanges({ ...saved }, saved), false)
   assert.equal(hasFormChanges({ ...saved, name: 'Nome anterior' }, saved), true)
 })
+
+test('situação e unidade restauradas ficam limpas e a ordem dos turnos não altera o cadastro', () => {
+  const initial = { unitId: '5', active: true, shiftIds: ['50', '51'] }
+  assert.equal(hasFormChanges({ ...initial, unitId: '6' }, initial), true)
+  assert.equal(hasFormChanges({ ...initial, active: false }, initial), true)
+  assert.equal(hasFormChanges({ ...initial, shiftIds: ['50'] }, initial), true)
+  assert.equal(hasFormChanges({ ...initial, shiftIds: ['51', '50'] }, initial), false)
+  assert.equal(hasFormChanges({ ...initial, shiftIds: ['50', '50'] }, initial), true)
+  assert.equal(hasFormChanges({ ...initial }, initial), false)
+  assert.deepEqual(initial.shiftIds, ['50', '51'])
+})

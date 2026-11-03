@@ -11,8 +11,8 @@ import {
   saveProfile,
   saveTechnician,
   saveEvent,
-} from '../src/mocks/services/managementService.ts'
-import { initialEvents, initialProfile, initialTechnicians } from '../src/mocks/management.ts'
+} from './fixtures/demo/services/managementService.ts'
+import { initialEvents, initialProfile, initialTechnicians } from './fixtures/demo/management.ts'
 
 const technician = {
   name: 'Técnico de teste',

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { summarizeHours, buildHistogram } from '../src/utils/analytics.ts'
+import { summarizeHours, buildHistogram } from './fixtures/demo/analytics.ts'
 
 test('quartis interpolados, média e extremos preservam a amostra original', () => {
   const values = [10, 2, 4, 6]
