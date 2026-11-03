@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom'
 import manu from '../../assets/figma/manu-login.png'
 import { AuthField } from '../../components/AuthField'
 import { Brand } from '../../components/Brand'
+import { LANDING_PAGE_URL } from '../../constants/links'
 import styles from './Login.module.css'
 
 import { useLoginPage } from '../../hooks/useLoginPage'
@@ -110,9 +111,9 @@ export default function Login() {
             <button type="submit" disabled={loading || recovering} className={styles.submit}>
               {t(loading ? 'Entrando…' : 'Entrar')}
             </button>
-            <Link className={styles.aboutLink} to="/sobre">
+            <a className={styles.aboutLink} href={LANDING_PAGE_URL}>
               {t('Conheça o projeto')}
-            </Link>
+            </a>
           </form>
         </section>
         <img
