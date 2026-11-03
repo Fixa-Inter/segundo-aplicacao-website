@@ -6,7 +6,7 @@
   position: relative;
   flex: 1 1 350px;
 }
-.search input {
+.search.search input {
   height: 60px;
   padding-left: 80px;
   border-color: var(--fixa-border);
@@ -15,7 +15,7 @@
   box-shadow: 0 2px 8px #8a93a226;
 }
 
-.tablePanel {
+.tablePanel.tablePanel {
   padding: 0 0 20px;
   overflow: hidden;
 }
@@ -83,7 +83,7 @@
   background: var(--fixa-hover);
 }
 @media (max-width: 600px) {
-  .tablePanel {
+  .tablePanel.tablePanel {
     padding: 16px;
   }
   .tablePanel table td:first-child {
@@ -154,17 +154,17 @@
   .page {
     gap: 20px;
   }
-  .search input,
+  .search.search input,
   .searchIcon {
     height: 54px;
   }
   .searchIcon {
     width: 54px;
   }
-  .search input {
+  .search.search input {
     padding-left: 72px;
   }
-  .tablePanel {
+  .tablePanel.tablePanel {
     padding-bottom: 16px;
   }
   .tablePanel table td {
@@ -210,7 +210,7 @@
   .page {
     gap: 12px;
   }
-  .tablePanel {
+  .tablePanel.tablePanel {
     padding-bottom: 12px;
   }
   .tablePanel table td {
@@ -305,7 +305,7 @@
 }
 
 @media (max-width: 600px) {
-  .search input {
+  .search.search input {
     height: 52px;
     padding-left: 66px;
     font-size: 16px;
@@ -314,7 +314,7 @@
     width: 52px;
     height: 52px;
   }
-  .tablePanel {
+  .tablePanel.tablePanel {
     padding: 0;
     background: transparent;
     overflow: visible;
