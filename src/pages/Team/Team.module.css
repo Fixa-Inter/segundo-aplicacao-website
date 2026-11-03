@@ -154,7 +154,7 @@
   .page {
     gap: 20px;
   }
-  .search input,
+  .search.search input,
   .searchIcon {
     height: 54px;
   }
