@@ -181,11 +181,19 @@ export async function managementFixture(
           ? 5
           : null
       let data
-      if (method === 'PATCH' && /\/usuarios\/\d+\/desativar$/.test(path)) {
-        const user = people.find((person) => String(person.id) === path.split('/')[4])
-        user.estaAtivo = false
+      if (method === 'PATCH' && /\/usuarios\/\d+(?:\/(?:ativar|desativar))?$/.test(path)) {
+        const person = people.find((person) => String(person.id) === path.split('/')[4])
+        if (path.endsWith('/ativar') || path.endsWith('/desativar'))
+          person.estaAtivo = path.endsWith('/ativar')
+        else Object.assign(person, request.postDataJSON())
+        writes.push({ method, path, data: request.postData() ? request.postDataJSON() : undefined })
+        return route.fulfill({ json: person })
+      }
+      if (method === 'PATCH' && /\/aptidoes\/\d+$/.test(path)) {
         writes.push({ method, path })
-        return route.fulfill({ json: user })
+        return route.fulfill({
+          json: { id: Number(path.split('/').at(-1)), ...request.postDataJSON() },
+        })
       }
       if (method !== 'GET') {
         unexpected.push(method + ' ' + path)

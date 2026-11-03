@@ -164,12 +164,6 @@
 .resend button:hover {
   text-decoration: underline;
 }
-.demoNote {
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--fixa-muted);
-  margin: 12px 0 0;
-}
 .passwordFields {
   display: grid;
   gap: 20px;

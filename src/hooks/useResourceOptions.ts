@@ -36,6 +36,7 @@ export function useResourceOptions<T>(
     void load()
     return () => controller.abort()
   }, [request])
+  // Impede que opções de uma unidade anterior apareçam durante a nova consulta.
   const current = enabled && state.request === request
   return {
     items: current ? state.items : [],

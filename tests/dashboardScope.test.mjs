@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { AxiosError } from 'axios'
 import { createHttpClient } from '../src/services/httpClient.ts'
-import { createDashboardScopeService } from '../src/services/dashboardScopeService.ts'
+import { createDashboardScopeService } from './fixtures/demo/dashboardScopeService.ts'
 
 function setup(role, handler) {
   const calls = []

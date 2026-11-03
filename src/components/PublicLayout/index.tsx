@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
+import { LANDING_PAGE_URL } from '../../constants/links'
 import { usePreferences } from '../../contexts/usePreferences'
 import { AppFooter } from '../AppFooter'
 import styles from './PublicLayout.module.css'
@@ -16,7 +17,7 @@ export function PublicLayout() {
       <nav className={styles.shortcuts} aria-label={t('Navegação principal')}>
         <a href="#conteudo">{t('Pular para o conteúdo')}</a>
         <Link to="/login">{t('Login')}</Link>
-        <Link to="/sobre">{t('Conheça o projeto')}</Link>
+        <a href={LANDING_PAGE_URL}>{t('Conheça o projeto')}</a>
       </nav>
       <Outlet />
       <AppFooter />

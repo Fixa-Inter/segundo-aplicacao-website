@@ -6,6 +6,7 @@ import { EventForm } from '../../components/EventForm'
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
+import { SuccessNotice } from '../../components/SuccessNotice'
 import { useCalendarPage } from '../../hooks/useCalendarPage'
 import { occursOnDate, shiftDate } from '../../utils/calendar'
 import common from '../management.module.css'
@@ -31,6 +32,7 @@ export default function Calendar() {
     busy,
     error,
     notice,
+    closeNotice,
     formOpen,
     setFormOpen,
     editing,
@@ -73,11 +75,7 @@ export default function Calendar() {
           />
         }
       />
-      {notice && (
-        <p role="status" className={common.status}>
-          {t(notice)}
-        </p>
-      )}
+      {notice && <SuccessNotice notice={notice} onClose={closeNotice} />}
       {error && !formOpen && (
         <p role="alert" className={common.error}>
           {t(error)}

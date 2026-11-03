@@ -8,6 +8,7 @@ import { createProfileService } from './resources/profile.ts'
 import { createShiftService } from './resources/shifts.ts'
 import { createUnitService } from './resources/units.ts'
 import { createUserService } from './resources/users.ts'
+import { createInstitutionService } from './institutionService.ts'
 import { createTeamService } from './teamService.ts'
 
 export { PartialSaveError } from './managementErrors.ts'
@@ -23,6 +24,7 @@ export function createManagementService(client: ManagementClient, getUser: () =>
   const profile = createProfileService(client, units)
   const team = createTeamService(user, users, units, shifts, competencies)
   return {
+    ...createInstitutionService(client, user, units),
     ...team,
     ...events,
     ...profile,

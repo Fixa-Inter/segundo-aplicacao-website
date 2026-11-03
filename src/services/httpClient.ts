@@ -102,6 +102,7 @@ export function createHttpClient(baseURL?: string, adapter?: AxiosAdapter) {
         assertActiveSession(expected)
         if (anonymous || !axios.isAxiosError(error) || error.response?.status !== 401) throw error
         if (sentToken === tokens?.token) {
+          // Requisições simultâneas compartilham uma única renovação de sessão.
           if (!refreshPromise) {
             const refreshToken = tokens?.refreshToken
             refreshPromise = transport

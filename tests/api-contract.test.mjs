@@ -441,9 +441,6 @@ test('eventos preservam data/hora locais, local real e responsável; desativar t
   assert.equal(calls[0].data.usuarioId, 10)
   assert.equal(calls[0].data.localEnderecoId, 6)
   assert.equal(calls[0].data.dataHoraInicio, '2026-10-25T23:00:00')
-  await service.removeTechnician('22')
-  assert.equal(calls.at(-1).url, '/api/v1/usuarios/22/desativar')
-  assert.equal(calls.at(-1).method, 'patch')
 })
 test('perfil envia apenas campos que a API grava; validação exige cargo, turno e local', async () => {
   const { client, calls } = setup((call) =>
@@ -466,7 +463,7 @@ test('perfil envia apenas campos que a API grava; validação exige cargo, turno
     dataNascimento: '1990-01-01',
   })
   assert.deepEqual(validateTechnician(input), {})
-  assert.ok(validateTechnician({ ...input, shiftId: '' }).shiftId)
+  assert.ok(validateTechnician({ ...input, shiftId: '', shiftIds: [] }).shiftId)
   assert.ok(
     validateEvent({
       title: 'Teste',
@@ -688,21 +685,23 @@ test('RH edita técnico de outra unidade da instituição preservando vínculo e
   )
 })
 
-test('seleção única de turno rejeita múltiplos vínculos no envio antes de qualquer chamada à API', async () => {
+test('seleção de turnos rejeita vínculos vazios, duplicados ou inválidos antes da API', async () => {
   const { client, calls } = setup(() => {
     throw Error('Nenhuma chamada deve ser enviada')
   })
   const service = createManagementService(client, () => user)
   for (const values of [
-    { shiftId: '4', shiftIds: ['4', '5'] },
+    { shiftId: '4', shiftIds: ['4', '4'] },
     { shiftId: '4', shiftIds: [] },
-    { shiftId: '4', shiftIds: ['5'] },
-    { shiftId: '', shiftIds: ['4'] },
+    { shiftId: '4', shiftIds: ['0'] },
+    { shiftId: '', shiftIds: ['x'] },
   ])
     await assert.rejects(service.saveTechnician({ ...input, ...values }, '22'), /turno/)
   assert.equal(calls.length, 0)
   assert.deepEqual(validateTechnician({ ...input, shiftIds: undefined }), {})
   assert.deepEqual(validateTechnician({ ...input, shiftId: '5', shiftIds: ['5'] }), {})
+  assert.deepEqual(validateTechnician({ ...input, shiftId: '4', shiftIds: ['4', '5'] }), {})
+  assert.deepEqual(validateTechnician({ ...input, shiftId: '', shiftIds: ['4'] }), {})
 })
 
 test('troca para um turno vincula o escolhido antes de remover antigos e preserva vínculos se falhar', async () => {
@@ -983,4 +982,107 @@ test('cancelamento do escopo do RH interrompe a busca antes de consultar turnos'
   releases.forEach((release) => release())
   await assert.rejects(pending, (error) => error.name === 'CanceledError')
   assert.equal(calls.length, 2)
+})
+
+test('salva múltiplos turnos sem duplicar vínculos e remove somente os desmarcados', async () => {
+  const shifts = [shift, { ...shift, id: 5 }, { ...shift, id: 6 }]
+  let links = [
+    { id: 80, turnoId: 4, estaAtivo: true },
+    { id: 81, turnoId: 6, estaAtivo: true },
+  ]
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/usuarios/22') return { data: { ...tech, ...call.data } }
+    if (call.url === '/api/v1/turnos') return { data: shifts }
+    if (call.url === '/api/v1/usuarios/22/turnos') return { data: links }
+    if (call.url === '/api/v1/turnos/5/usuarios/22') {
+      links.push({ id: 82, turnoId: 5, estaAtivo: true })
+      return {}
+    }
+    if (call.url === '/api/v1/turnos-usuarios/81/desativar') {
+      links = links.filter((link) => link.id !== 81)
+      return {}
+    }
+    if (call.url === '/api/v1/aptidoes') return { data: [] }
+    throw Error('Chamada inesperada: ' + call.url)
+  })
+  const service = createManagementService(client, () => user)
+  const saved = await service.saveTechnician({ ...input, shiftIds: ['4', '5'] }, '22')
+  assert.deepEqual(saved.shiftIds, ['4', '5'])
+  assert.equal(calls.filter((call) => call.url === '/api/v1/turnos/4/usuarios/22').length, 0)
+  assert.equal(calls.filter((call) => call.url === '/api/v1/turnos/5/usuarios/22').length, 1)
+  assert.equal(
+    calls.filter((call) => call.url === '/api/v1/turnos-usuarios/81/desativar').length,
+    1,
+  )
+})
+
+test('RH edita gestores e alterna situação pela AWS sem enviar turnos, notas ou exclusão', async () => {
+  for (const active of [false, true]) {
+    let manager = { ...tech, id: 31, tipoAcesso: 'GESTOR', estaAtivo: !active }
+    const { client, calls } = setup((call) => {
+      if (call.url === '/api/v1/unidades') return { data: [{ ...unit, instituicaoId: 8 }] }
+      if (call.url === '/api/v1/usuarios/10') return { data: { id: 10, unidadeId: 5 } }
+      if (call.url === '/api/v1/usuarios/31') {
+        if (call.method === 'patch') manager = { ...manager, ...call.data }
+        return { data: manager }
+      }
+      if (/\/api\/v1\/usuarios\/31\/(ativar|desativar)$/.test(call.url)) {
+        manager = { ...manager, estaAtivo: call.url.endsWith('/ativar') }
+        return { data: manager }
+      }
+      throw Error('Chamada inesperada: ' + call.url)
+    })
+    const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+    const saved = await service.saveManager(
+      {
+        ...input,
+        name: 'Gestor atualizado',
+        unitId: '5',
+        shiftId: '',
+        shiftIds: [],
+        status: active ? 'Ativo' : 'Inativo',
+      },
+      '31',
+    )
+    assert.equal(saved.accessType, 'GESTOR')
+    assert.equal(saved.status, active ? 'Ativo' : 'Inativo')
+    const patch = calls.find(
+      (call) => call.url === '/api/v1/usuarios/31' && call.method === 'patch',
+    )
+    assert.equal(patch.data.nomeCompleto, 'Gestor atualizado')
+    assert.equal('tipoAcesso' in patch.data, false)
+    assert.equal('estaAtivo' in patch.data, false)
+    assert.equal(calls.at(-1).url, '/api/v1/usuarios/31/' + (active ? 'ativar' : 'desativar'))
+    assert.equal(
+      calls.some((call) => call.method === 'delete'),
+      false,
+    )
+  }
+})
+test('somente RH edita gestores; situação não pode alterar cadastros de outra instituição', async () => {
+  const denied = setup(() => {
+    throw Error('Não deve chamar a API')
+  })
+  const managerService = createManagementService(denied.client, () => user)
+  await assert.rejects(managerService.saveManager(input, '31'), /RH/)
+  assert.equal(denied.calls.length, 0)
+  const { client, calls } = setup((call) => {
+    if (call.url === '/api/v1/unidades')
+      return {
+        data: [
+          { ...unit, instituicaoId: 8 },
+          { ...unit, id: 99, instituicaoId: 9 },
+        ],
+      }
+    if (call.url === '/api/v1/usuarios/10') return { data: { id: 10, unidadeId: 5 } }
+    if (call.url === '/api/v1/usuarios/31')
+      return { data: { ...tech, id: 31, tipoAcesso: 'GESTOR', unidadeId: 99 } }
+    throw Error('Chamada inesperada: ' + call.url)
+  })
+  const service = createManagementService(client, () => ({ ...user, role: 'ADMINISTRADOR' }))
+  await assert.rejects(service.saveManager(input, '31'), /instituição/)
+  assert.equal(
+    calls.some((call) => call.method !== 'get'),
+    false,
+  )
 })

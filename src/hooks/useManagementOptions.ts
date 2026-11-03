@@ -14,7 +14,7 @@ export function useWorkUnits(enabled: boolean): ResourceOptions<WorkUnitOption> 
     enabled,
   )
 }
-export function useShifts(unitId?: string): ResourceOptions<ShiftOption> {
+export function useShifts(unitId?: string, enabled = true): ResourceOptions<ShiftOption> {
   const loader = useCallback((signal: AbortSignal) => listShifts(unitId, signal), [unitId])
-  return useResourceOptions(loader, 'Não foi possível carregar os turnos.')
+  return useResourceOptions(loader, 'Não foi possível carregar os turnos.', enabled)
 }

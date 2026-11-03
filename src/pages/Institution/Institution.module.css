@@ -1,0 +1,35 @@
+.tablePanel table th:first-child {
+  width: 28%;
+}
+.tablePanel table th:nth-child(2) {
+  width: 22%;
+}
+.singleUnit table th:first-child {
+  width: 40%;
+}
+.tablePanel table th:last-child {
+  width: 180px;
+}
+.tablePanel table td {
+  overflow-wrap: anywhere;
+}
+.entryName {
+  display: block;
+  font-weight: 500;
+}
+.nextDay {
+  display: block;
+  color: var(--fixa-muted);
+  font-size: 12px;
+}
+.empty {
+  padding: 24px;
+}
+@media (max-width: 600px) {
+  .tablePanel table td:first-child {
+    padding-bottom: 8px;
+  }
+  .entryName {
+    font-size: 16px;
+  }
+}

@@ -38,8 +38,11 @@ export function createShiftService(
       : await scope(signal)
     if (institution && !unit)
       throw new Error('A unidade selecionada não pertence à instituição da sua conta.')
+    const unitId = unit?.id ?? (requestedUnitId ? Number(requestedUnitId) : undefined)
+    if (unitId !== undefined && (!Number.isSafeInteger(unitId) || unitId <= 0))
+      throw new Error('Selecione uma unidade de trabalho.')
     return (await listRawShifts(unit?.id, signal))
-      .filter((item) => item.estaAtivo && (!unit || item.unidadeId === unit.id))
+      .filter((item) => item.estaAtivo && (!unitId || item.unidadeId === unitId))
       .map((item) => ({
         id: String(item.id),
         name: formatShiftLabel(item),

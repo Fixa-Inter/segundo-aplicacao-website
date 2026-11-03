@@ -4,6 +4,7 @@ export interface ApiShift {
   nome: string
   horaInicio: number
   horaFim: number
+  atravessaMeiaNoite?: boolean
   estaAtivo: boolean
 }
 

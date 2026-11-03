@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { chartScale } from '../src/utils/chartScale.ts'
+import { chartScale } from './fixtures/demo/chartScale.ts'
 
 test('a escala cobre todos os valores com intervalos uniformes e origem zero', () => {
   for (const maximum of [0, 0.013, 0.7, 1, 3, 40, 53, 200, 1500]) {

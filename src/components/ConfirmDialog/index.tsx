@@ -19,11 +19,6 @@ const variants = {
     question: 'Excluir esta conversa?',
     subtitle: 'A conversa será removida do seu histórico.',
   },
-  deactivate: {
-    art: deleteArt,
-    question: 'Desativar este técnico?',
-    subtitle: 'O cadastro será preservado e poderá ser reativado na edição.',
-  },
   save: {
     art: saveArt,
     question: 'Salvar alterações?',

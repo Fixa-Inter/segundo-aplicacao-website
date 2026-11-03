@@ -16,6 +16,7 @@ import type {
 } from '../types/recovery'
 import { maskRecoveryEmail, readRecoveryChallenge } from '../utils/recovery'
 import { validateRecoveryForm } from '../utils/recoveryValidation'
+import { useNotice } from './useNotice'
 
 export function useRecoveryPage() {
   const { t } = usePreferences()
@@ -36,7 +37,7 @@ export function useRecoveryPage() {
   const [challenge, setChallenge] = useState<RecoveryChallenge | null>(entry)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<RecoveryErrors>({})
-  const [notice, setNotice] = useState('')
+  const { notice, setNotice, closeNotice } = useNotice()
   const [busy, setBusy] = useState(false)
   const [visible, setVisible] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -135,6 +136,7 @@ export function useRecoveryPage() {
     fieldErrors,
     error,
     notice,
+    closeNotice,
     busy,
     visible,
     setVisible,

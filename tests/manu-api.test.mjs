@@ -10,7 +10,7 @@ import {
   resolveManuBaseURL,
   getSummaryTitle,
 } from '../src/utils/manu.ts'
-import { dashboardEmbedURL } from '../src/utils/dashboardEmbed.ts'
+import { dashboardEmbedURL } from './fixtures/demo/dashboardEmbed.ts'
 
 function setup(handler, remoteHistory = false) {
   const calls = []

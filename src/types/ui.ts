@@ -6,7 +6,6 @@ import type {
   EventResponsibleOption,
   ManagerProfile,
   TeamMember,
-  Technician,
   TechnicianInput,
 } from './management'
 
@@ -31,11 +30,6 @@ export interface AuthFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   error?: string
   trailing?: ReactNode
-}
-export interface StatCardProps {
-  label: string
-  value: number
-  tone: 'blue' | 'yellow' | 'green' | 'red'
 }
 export interface NavigationProps {
   onNavigate: () => void
@@ -84,7 +78,7 @@ export interface FigmaIconProps {
 }
 export interface ConfirmDialogProps {
   opened: boolean
-  variant: 'delete' | 'save' | 'logout' | 'discard' | 'deactivate' | 'deleteConversation'
+  variant: 'delete' | 'save' | 'logout' | 'discard' | 'deleteConversation'
   subject?: string
   confirmLabel: string
   error?: string
@@ -100,6 +94,8 @@ export interface FilterButtonProps {
 export interface PaginationProps {
   page: number
   total: number
+  pageSize: number
+  onPageSizeChange: (value: number) => void
   onChange: (page: number) => void
 }
 export interface EventDetailsProps {
@@ -108,14 +104,14 @@ export interface EventDetailsProps {
 }
 
 export interface TechnicianFormProps {
-  technician: Technician | null
+  technician: TeamMember | null
   manager: ManagerProfile
   onSubmit: (
     input: TechnicianInput,
     competencies: CompetencyInput[],
     persistedId?: string,
-  ) => Promise<Technician>
-  onSaved: (technician: Technician) => void
+  ) => Promise<TeamMember>
+  onSaved: (technician: TeamMember) => void
   onCancel: () => void
 }
 
@@ -160,4 +156,20 @@ export interface AddRecordButtonProps extends Omit<
 > {
   label: string
   ref?: Ref<HTMLButtonElement>
+}
+
+export interface TeamTableProps {
+  members: TeamMember[]
+  institutional: boolean
+  technical: boolean
+  onDetails: (member: TeamMember) => void
+  onEdit: (member: TeamMember) => void
+}
+
+export interface NoticeMessage {
+  message: string
+}
+export interface SuccessNoticeProps {
+  notice: NoticeMessage
+  onClose: () => void
 }

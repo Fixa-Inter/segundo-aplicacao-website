@@ -9,6 +9,7 @@ import {
 } from '../services/managementService'
 import type { CalendarEvent, CalendarEventInput, EventResponsibleOption } from '../types/management'
 import { monthDays, occursOnDate, shiftDate } from '../utils/calendar'
+import { useNotice } from './useNotice'
 
 export function useCalendarPage() {
   const { t, formatDate } = usePreferences()
@@ -28,7 +29,7 @@ export function useCalendarPage() {
   const [loadAttempt, setLoadAttempt] = useState(0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
+  const { notice, setNotice, closeNotice } = useNotice()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<CalendarEvent | null>(null)
   const [deleting, setDeleting] = useState<CalendarEvent | null>(null)
@@ -69,6 +70,7 @@ export function useCalendarPage() {
     setSelectedDay(`${next}-01`)
   }
   function openForm(item?: CalendarEvent) {
+    setNotice('')
     setEditing(item ?? null)
     setError('')
     setFormOpen(true)
@@ -155,6 +157,7 @@ export function useCalendarPage() {
     busy,
     error,
     notice,
+    closeNotice,
     setNotice,
     formOpen,
     setFormOpen,

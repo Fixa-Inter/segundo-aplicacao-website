@@ -6,7 +6,7 @@ import {
   dashboardWidgetURL,
   dashboardFilteredWidgetURL,
   dashboardUnitSelectionURL,
-} from '../src/utils/dashboardEmbed.ts'
+} from './fixtures/demo/dashboardEmbed.ts'
 
 test('URL de embed permanece no iframe e nova aba usa visualização publicada do Databricks', () => {
   const embed =

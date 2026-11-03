@@ -9,6 +9,7 @@ import { validateProfile } from '../utils/apiValidation'
 import { formatDate as formatDateInput, parseDateInput } from '../utils/calendar'
 import { hasFormChanges } from '../utils/formChanges'
 import { formatAddress } from '../utils/presentation'
+import { useNotice } from './useNotice'
 
 const empty: ManagerProfile = {
   name: '',
@@ -37,7 +38,7 @@ export function useProfilePage() {
   const [busy, setBusy] = useState(false)
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
+  const { notice, setNotice, closeNotice } = useNotice()
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof ManagerProfile, string>>>({})
   const [birthDateText, setBirthDateText] = useState('')
   const [savedProfile, setSavedProfile] = useState<ManagerProfile>(empty)
@@ -160,6 +161,7 @@ export function useProfilePage() {
     error,
     setError,
     notice,
+    closeNotice,
     fieldErrors,
     setFieldErrors,
     birthDateText,

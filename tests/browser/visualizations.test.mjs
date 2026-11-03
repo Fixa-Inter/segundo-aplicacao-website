@@ -160,6 +160,46 @@ test('SDK recebe acesso escopado, oculta filtros e renova token sem expor creden
     await f.page.locator('[data-dashboard-state="ready"]').waitFor()
     const frame = f.page.frameLocator('iframe')
     await frame.locator('body[data-filters="disabled"]').waitFor()
+    for (const [width, height] of [
+      [1918, 869],
+      [2560, 1080],
+      [1366, 768],
+      [1024, 768],
+      [390, 844],
+      [320, 667],
+      [844, 390],
+      [1440, 900],
+    ]) {
+      await f.page.setViewportSize({ width, height })
+      const layout = await f.page.evaluate(() => {
+        const main = document.querySelector('main')
+        const dashboard = document.querySelector('[data-dashboard-state="ready"]')
+        const panel = dashboard.parentElement
+        const iframe = dashboard.querySelector('iframe').getBoundingClientRect()
+        const mainStyle = getComputedStyle(main)
+        return {
+          scrolls:
+            main.scrollHeight > main.clientHeight + 1 || main.scrollWidth > main.clientWidth + 1,
+          fullWidth: Math.abs(main.clientWidth - main.parentElement.clientWidth) < 1,
+          fitsPanel:
+            Math.abs(iframe.height - panel.clientHeight) < 1 &&
+            Math.abs(iframe.width - panel.clientWidth) < 1,
+          bottom: iframe.bottom,
+          expectedBottom: main.getBoundingClientRect().bottom - parseFloat(mainStyle.paddingBottom),
+        }
+      })
+      assert.equal(layout.scrolls, false, `rolagem extra em ${width}x${height}`)
+      assert.equal(layout.fullWidth, true, `largura limitada em ${width}x${height}`)
+      assert.equal(layout.fitsPanel, true, `iframe cortado em ${width}x${height}`)
+      assert.ok(Math.abs(layout.bottom - layout.expectedBottom) <= 2)
+    }
+    const expandedWidth = (await f.page.locator('iframe').boundingBox()).width
+    await f.page.getByRole('button', { name: 'Recolher menu lateral', exact: true }).click()
+    await f.page.waitForFunction(
+      (width) => document.querySelector('iframe').getBoundingClientRect().width > width + 100,
+      expandedWidth,
+    )
+    await f.page.getByRole('button', { name: 'Expandir menu lateral', exact: true }).click()
     await frame.locator('body[data-refreshed="true"]').waitFor({ timeout: 18000 })
     assert.ok(reads >= 2)
     const src = await f.page.locator('iframe').getAttribute('src')
@@ -173,6 +213,63 @@ test('SDK recebe acesso escopado, oculta filtros e renova token sem expor creden
     assert.equal(storage.includes(scopedToken), false)
     assert.equal(src.includes('mobile-test-only'), false)
     await photo(f.page, 'dashboard-sdk-1440.png')
+    assert.deepEqual(f.errors, [])
+    assert.deepEqual(f.unexpected, [])
+  } finally {
+    await f.context.close()
+  }
+})
+
+test('Home abre apenas o gráfico de OS por status ampliado e Dashboard preserva o painel completo', async () => {
+  const f = await managementFixture(browser, { width: 1440, mobile: false })
+  try {
+    const token = [
+      Buffer.from('{}').toString('base64'),
+      Buffer.from(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64'),
+      'test-only',
+    ].join('.')
+    await f.context.route('**/api/v1/dashboard/embed', (route) =>
+      route.fulfill({
+        json: {
+          instanceUrl: 'https://qa.cloud.databricks.com',
+          workspaceId: '123',
+          dashboardId: 'a'.repeat(32),
+          token,
+          expiresIn: 3600,
+        },
+      }),
+    )
+    await f.context.route('https://qa.cloud.databricks.com/**', (route) =>
+      route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html><html><body><p>Gráfico de teste</p><script>setTimeout(()=>parent.postMessage({type:'DATABRICKS_EMBED_READY'},'*'),50)</script></body></html>`,
+      }),
+    )
+    await f.page.goto(base)
+    await f.page.locator('[data-dashboard-state="ready"]').waitFor()
+    for (const width of [1440, 390, 320]) {
+      await f.page.setViewportSize({ width, height: 900 })
+      const iframe = f.page.getByTitle('Distribuição atual das OS por status', { exact: true })
+      const src = new URL(await iframe.getAttribute('src'))
+      assert.equal(src.pathname, '/embed/dashboardsv3/' + 'a'.repeat(32) + '/pages/37645ca6')
+      assert.equal(
+        src.searchParams.get('fullscreenWidget'),
+        '37645ca6~distribuicao-atual-das-os-por-status',
+      )
+      const frameBox = await iframe.boundingBox()
+      const rootBox = await f.page.locator('[data-dashboard-state="ready"]').boundingBox()
+      assert.ok(Math.abs(frameBox.width - rootBox.width) < 2)
+      assert.ok(Math.abs(frameBox.height - rootBox.height) < 2)
+      assert.ok(await f.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+      await photo(f.page, `home-status-${width}.png`)
+    }
+    await f.page.getByRole('link', { name: 'Ver dashboard completo', exact: true }).click()
+    await f.page.waitForURL('**/dashboard')
+    await f.page.getByRole('heading', { name: 'Dashboard', exact: true }).waitFor()
+    await f.page.locator('[data-dashboard-state="ready"]').waitFor()
+    const full = new URL(await f.page.locator('iframe').getAttribute('src'))
+    assert.equal(full.pathname, '/embed/dashboardsv3/' + 'a'.repeat(32))
+    assert.equal(full.searchParams.has('fullscreenWidget'), false)
     assert.deepEqual(f.errors, [])
     assert.deepEqual(f.unexpected, [])
   } finally {

@@ -1,19 +1,18 @@
 import { Link } from 'react-router-dom'
-import { Eye } from 'lucide-react'
 import { AddRecordButton } from '../../components/AddRecordButton'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { FigmaIcon } from '../../components/FigmaIcon'
 import { FilterButton } from '../../components/FilterButton'
 import { LoadingState } from '../../components/LoadingState'
 import { PageHeader } from '../../components/PageHeader'
+import { SuccessNotice } from '../../components/SuccessNotice'
 import { Pagination } from '../../components/Pagination'
 import { TechnicianDetails } from '../../components/TechnicianDetails'
 import { TechnicianForm } from '../../components/TechnicianForm'
 import { useTeamPage } from '../../hooks/useTeamPage'
-import { truncateText } from '../../utils/presentation'
 import { teamTabs } from '../../utils/teamPresentation'
 import common from '../management.module.css'
 import styles from './Team.module.css'
+import { TeamTable } from '../../components/TeamTable'
 
 export default function Team() {
   const {
@@ -30,10 +29,8 @@ export default function Team() {
     loadError,
     setLoadError,
     setLoadAttempt,
-    busy,
-    error,
     notice,
-    setNotice,
+    closeNotice,
     query,
     setQuery,
     filter,
@@ -44,24 +41,23 @@ export default function Team() {
     setPage,
     editing,
     formOpen,
-    setFormOpen,
     details,
     closeDetails,
     cancelForm,
     memberId,
     memberNotFound,
     submitTechnician,
+    memberSaved,
     showDetails,
-    deleting,
-    setDeleting,
     addButtonRef,
     filtered,
     lastPage,
     shown,
+    pageSize,
+    setPageSize,
     selectTab,
     moveTab,
     openForm,
-    confirmDelete,
   } = useTeamPage()
   if (formOpen && manager) {
     return (
@@ -70,12 +66,7 @@ export default function Team() {
         manager={manager}
         onSubmit={submitTechnician}
         onCancel={cancelForm}
-        onSaved={() => {
-          setLoadAttempt((value) => value + 1)
-          setNotice(editing ? 'Técnico atualizado com sucesso.' : 'Técnico cadastrado com sucesso.')
-          setPage(1)
-          setFormOpen(false)
-        }}
+        onSaved={memberSaved}
       />
     )
   }
@@ -113,7 +104,7 @@ export default function Team() {
         technician={details}
         onBack={closeDetails}
         onEdit={
-          details.accessType === 'TÉCNICO'
+          details.accessType === 'TÉCNICO' || institutional
             ? () => {
                 openForm(details)
               }
@@ -238,16 +229,7 @@ export default function Team() {
           </label>
         </FilterButton>
       </div>
-      {notice && (
-        <p className={common.status} role="status">
-          {t(notice)}
-        </p>
-      )}
-      {error && !formOpen && (
-        <p className={common.error} role="alert">
-          {t(error)}
-        </p>
-      )}
+      {notice && <SuccessNotice notice={notice} onClose={closeNotice} />}
       <div
         id="team-content"
         className={styles.teamContent}
@@ -282,99 +264,23 @@ export default function Team() {
           >
             {filtered.length ? (
               <>
-                <div className={common.tableWrap}>
-                  <table className={common.table}>
-                    <thead>
-                      <tr>
-                        <th>{t('Nome')}</th>
-                        {institutional && <th>{t('Unidade')}</th>}
-                        {technical && <th>{t('Turno')}</th>}
-                        {technical && <th>{t('Especialidade')}</th>}
-                        <th>{t('Ações')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {shown.map((item) => (
-                        <tr key={item.id}>
-                          <td data-label={t('Nome')}>
-                            <div className={styles.member}>
-                              <span className={styles.initials} aria-hidden="true">
-                                {item.name
-                                  .split(' ')
-                                  .map((part) => part[0])
-                                  .slice(0, 2)
-                                  .join('')}
-                              </span>
-                              <span className={styles.memberText}>
-                                <span className={styles.memberName} title={item.name}>
-                                  <span aria-hidden="true">{truncateText(item.name, 40)}</span>
-                                  <span className={styles.srOnly}>{item.name}</span>
-                                </span>
-                                <small>
-                                  {institutional && (
-                                    <>
-                                      {t(item.accessType === 'TÉCNICO' ? 'Técnico' : 'Gestor')}{' '}
-                                      ·{' '}
-                                    </>
-                                  )}
-                                  {t(item.status)}
-                                </small>
-                              </span>
-                            </div>
-                          </td>
-                          {institutional && (
-                            <td data-label={t('Unidade')} title={item.unitName}>
-                              {truncateText(item.unitName || t('Não informado'), 28)}
-                            </td>
-                          )}
-                          {technical && (
-                            <>
-                              <td data-label={t('Turno')}>{item.shift || t('Não informado')}</td>
-                              <td data-label={t('Especialidade')}>
-                                {t(item.assessedSpecialty ?? 'Sem notas')}
-                              </td>
-                            </>
-                          )}
-                          <td data-label={t('Ações')}>
-                            <div className={common.actions}>
-                              <button
-                                type="button"
-                                className={styles.iconButton}
-                                id={`tech-details-${item.id}`}
-                                aria-label={t('Ver detalhes de {name}', { name: item.name })}
-                                onClick={() => showDetails(item)}
-                              >
-                                <Eye aria-hidden="true" />
-                              </button>
-                              {item.accessType === 'TÉCNICO' && (
-                                <>
-                                  <button
-                                    type="button"
-                                    className={styles.iconButton}
-                                    aria-label={t('Editar {name}', { name: item.name })}
-                                    onClick={() => openForm(item)}
-                                  >
-                                    <FigmaIcon name="edit" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={`${styles.iconButton} ${styles.delete}`}
-                                    aria-label={t('Desativar {name}', { name: item.name })}
-                                    disabled={item.status === 'Inativo'}
-                                    onClick={() => setDeleting({ ...item, accessType: 'TÉCNICO' })}
-                                  >
-                                    <FigmaIcon name="trash" />
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <Pagination page={page} total={lastPage} onChange={setPage} />
+                <TeamTable
+                  members={shown}
+                  institutional={institutional}
+                  technical={technical}
+                  onDetails={showDetails}
+                  onEdit={openForm}
+                />
+                <Pagination
+                  page={page}
+                  total={lastPage}
+                  onChange={setPage}
+                  pageSize={pageSize}
+                  onPageSizeChange={(value) => {
+                    setPageSize(value)
+                    setPage(1)
+                  }}
+                />
               </>
             ) : (
               <p className={common.empty}>
@@ -388,15 +294,6 @@ export default function Team() {
           </section>
         )}
       </div>
-      <ConfirmDialog
-        opened={Boolean(deleting)}
-        onClose={() => setDeleting(null)}
-        variant="deactivate"
-        subject={deleting?.name}
-        confirmLabel="Desativar"
-        busy={busy}
-        onConfirm={confirmDelete}
-      />
     </div>
   )
 }
